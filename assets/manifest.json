@@ -1540,54 +1540,66 @@
       "file": "assets/events/ev_vivienda_caldera.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_vivienda_caldera"
+      "request": "art/requests/05_sucesos.md#ev_vivienda_caldera",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_airbnb_despedida",
       "file": "assets/events/ev_airbnb_despedida.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_airbnb_despedida"
+      "request": "art/requests/05_sucesos.md#ev_airbnb_despedida",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_smash_desinfla",
       "file": "assets/events/ev_smash_desinfla.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_smash_desinfla"
+      "request": "art/requests/05_sucesos.md#ev_smash_desinfla",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_empanadas_final",
       "file": "assets/events/ev_empanadas_final.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_empanadas_final"
+      "request": "art/requests/05_sucesos.md#ev_empanadas_final",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_academy_reembolso",
       "file": "assets/events/ev_academy_reembolso.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_academy_reembolso"
+      "request": "art/requests/05_sucesos.md#ev_academy_reembolso",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_becario_genio",
       "file": "assets/events/ev_becario_genio.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_becario_genio"
+      "request": "art/requests/05_sucesos.md#ev_becario_genio",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_jubilacion_conchi",

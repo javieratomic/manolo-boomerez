@@ -795,3 +795,195 @@ Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal des
 - **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
 
 Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Prado verde junto a un río con vacas pasiegas pastando; sobre él flota, como una proyección translúcida, una urbanización de adosados idénticos; en primer plano, el alcalde y Manolo comen un chuletón en una mesa al aire libre. Sin texto legible.
+
+## ev_ciudad_pamplona
+
+- **Archivo:** `assets/events/ev_ciudad_pamplona.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Calle estrecha del casco antiguo de Pamplona el 6 de julio: una peña vestida de blanco con pañuelo y faja roja, con charanga y bombo, entra en el local de Manolo cargando mochilas; la encargada, con el pañuelo al cuello, mira a Manolo, que asoma por la puerta con gafas de sol y cara de calcular precios. Confeti y balcones con banderas rojas. Sin texto legible.
+
+## ev_ciudad_valencia
+
+- **Archivo:** `assets/events/ev_ciudad_valencia.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Cruce de calles de València en Fallas: un monumento fallero de cartón piedra de cuatro metros con un ninot caricaturesco de Manolo (gafas de sol en la cabeza, un sobao en cada mano) sentado en un trono de becarios de cartón; vecinos con buñuelos y petardos alrededor y el Manolo de verdad, pequeñito, mirándolo horrorizado. Sin texto legible.
+
+## ev_ciudad_sevilla
+
+- **Archivo:** `assets/events/ev_ciudad_sevilla.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Real de la Feria de Abril de noche: calle de casetas a rayas con farolillos de colores, gente con trajes de flamenca y sombrero cordobés; en primer plano, una caseta improvisada con una foto enorme de Manolo en la entrada y un señor muy serio con traje que señala a Manolo para que salga. Sin texto legible.
+
+## ev_ciudad_marbella
+
+- **Archivo:** `assets/events/ev_ciudad_marbella.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Puerto deportivo de Marbella al atardecer: un yate blanco gigantesco con luces de fiesta y camareros con bandejas doradas llenas de sobaos; Manolo, en el muelle con camisa de lino y gafas de sol, intenta subir por la pasarela mientras un hombre misterioso con traje negro le corta el paso. Sin texto legible.
+
+## ev_ciudad_bilbao
+
+- **Archivo:** `assets/events/ev_ciudad_bilbao.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Interior de un txoko vasco: mesa larga de madera, cocina de hierro y ocho señores mayores con jersey de lana y boina, brazos cruzados, observando muy serios a Manolo, que con delantal y gorro de cocinero presenta una bandeja de sobaos temblorosa. Cazuelas de barro y sidra en la mesa. Sin texto legible.
+
+## ev_ciudad_barcelona
+
+- **Archivo:** `assets/events/ev_ciudad_barcelona.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Calle del centro de Barcelona en verano, con balcones de hierro y toallas tendidas: una marcha vecinal con pancartas genéricas, silbatos y pistolas de agua se para ante el escaparate de Manolo; una vecina de setenta años en bata le apunta con una pistola de agua de colores mientras una cola de turistas con gorras y riñoneras espera detrás. Sin texto legible.
+
+## ev_ciudad_madrid
+
+- **Archivo:** `assets/events/ev_ciudad_madrid.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Calle del centro de Madrid con una señal de zona de bajas emisiones (pictograma sin texto) y una cámara de tráfico; una furgoneta de reparto diésel viejísima y abollada, echando humo negro, con una pegatina verde casera pegada en el parabrisas; Manolo al volante y el gestor Paco al lado con una pila de multas. Sin texto legible.
+
+## ev_ciudad_palma
+
+- **Archivo:** `assets/events/ev_ciudad_palma.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Puerto de Palma con siete cruceros gigantes en fila, como edificios flotantes, y la catedral al fondo; una marea de cruceristas con pulseras y gorras invade una callejuela del casco antiguo hasta el local de Manolo, mientras los vecinos miran agobiados desde los portales. Sin texto legible.
+
+## ev_ciudad_zaragoza
+
+- **Archivo:** `assets/events/ev_ciudad_zaragoza.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Ofrenda de Flores en Zaragoza: plaza con un enorme manto de claveles de colores, grupos vestidos de baturros con cachirulo y faja, y el cierzo levantando pañuelos; en primer plano, la madre de Manolo, de baturra y con un ramo, del brazo de un Manolo vestido de baturro que persigue su cachirulo, que sale volando. Sin texto legible.
+
+## ev_ciudad_santander
+
+- **Archivo:** `assets/events/ev_ciudad_santander.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Aula de un palacio junto a la bahía de Santander, con ventanales al mar: un profesor proyecta en la pantalla un esquema de una empresa con un sobao en el centro (sin texto); en la última fila, Manolo con gafas de sol se hunde en la silla y, dos filas más adelante, Vanessa se tapa la cara con un folleto. Sin texto legible.
+
+## ev_ciudad_coruna
+
+- **Archivo:** `assets/events/ev_ciudad_coruna.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Paseo marítimo de A Coruña bajo un orballo gris y viento: paraguas dados la vuelta, galerías blancas acristaladas al fondo y gente encogida; en la puerta del local de Manolo, él agita el puño contra el cielo mientras su encargado, tranquilo, reparte paraguas con el logo de un sobao. Sin texto legible.
+
+## ev_ciudad_valladolid
+
+- **Archivo:** `assets/events/ev_ciudad_valladolid.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Calle de Valladolid envuelta en niebla y escarcha: dentro de una cafetería, la plantilla atiende con abrigo, gorro y guantes de lana, y una fila de funcionarios trajeados con bufanda desayuna café con leche y sobaos mirando un termómetro de pared bajo cero; Manolo, abrigado hasta las cejas, finge que no pasa nada. Sin texto legible.
+
+## ev_ciudad_cordoba
+
+- **Archivo:** `assets/events/ev_ciudad_cordoba.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Patio cordobés en mayo: paredes encaladas cubiertas de macetas azules con geranios, una fuente y una señora mayor regándolas con una caña y un cubo; al lado, en el patio trasero del local de Manolo, geranios de plástico demasiado brillantes entre cajas de cartón y un compresor, y Manolo con una regadera vacía. Sin texto legible.
+
+## ev_ciudad_toledo
+
+- **Archivo:** `assets/events/ev_ciudad_toledo.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Calle empedrada de Toledo con la catedral al fondo: un guía turístico con un paraguas amarillo levantado dirige a un grupo de turistas hacia el local de Manolo, que espera en la puerta con una bandeja de sobaos y una corona de cartón; escaparates vecinos con espadas y mazapanes. Sin texto legible.
+
+## ev_ciudad_tarragona
+
+- **Archivo:** `assets/events/ev_ciudad_tarragona.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Parque temático de estilo romano bajo un sol abrasador: montaña rusa con columnas, un Coliseo de fibra de vidrio y colas larguísimas; en un quiosco de sobaos, empleados sudorosos vestidos de legionarios con casco, y Manolo con corona de laurel y sábana morada, a la sombra, con el pulgar hacia arriba. Sin texto legible.
+
+## ev_ciudad_almeria
+
+- **Archivo:** `assets/events/ev_ciudad_almeria.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Desierto de Tabernas con un poblado del oeste de madera: cámaras de cine, focos y un equipo de rodaje bajo sombrillas; una mesa de catering con sobaos y botellas de agua, y Manolo vestido de cacique del oeste, con chaleco y sombrero, cayéndose de un caballo de cartón. Sin texto legible.
+
+## ev_ciudad_laspalmas
+
+- **Archivo:** `assets/events/ev_ciudad_laspalmas.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Carnaval de Las Palmas de Gran Canaria de noche: plaza llena de gente disfrazada, confeti, palmeras y una murga con trajes de colores cantando en un escenario; Manolo, disfrazado de sobao gigante, canta con ellos junto a su plantilla, también disfrazada. Sin texto legible.
+
+## ev_ciudad_granada
+
+- **Archivo:** `assets/events/ev_ciudad_granada.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Barra de un bar de Granada con la Alhambra iluminada al fondo por la ventana: en la barra vecina, cañas con tapas generosas; en la de Manolo, un café con un platito de tres cacahuetes, y una señora mayor que lo mira con paciencia infinita mientras Manolo se rasca la cabeza. Sin texto legible.
+
+## ev_ciudad_murcia
+
+- **Archivo:** `assets/events/ev_ciudad_murcia.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Bando de la Huerta en Murcia: desfile de gente vestida de huertano con zaragüelles, refajos y pañuelos, y barracas con farolillos; en una barraca, unas vecinas fríen paparajotes (hojas de limonero rebozadas) y Manolo enseña con orgullo un sobao rebozado con una hoja de limonero pinchada encima. Sin texto legible.
+
+## ev_ciudad_alicante
+
+- **Archivo:** `assets/events/ev_ciudad_alicante.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Terraza soleada frente al mar en Alicante, con palmeras: un grupo de jubilados del norte de Europa con sombreros de paja y sandalias con calcetines; su presidenta, alta y con gafas, presenta una carpeta con gráficos a Manolo, que sostiene un sobao normal con cara de no entender nada. Sin texto legible.
+
+## ev_ciudad_salamanca
+
+- **Archivo:** `assets/events/ev_ciudad_salamanca.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Plaza Mayor de Salamanca de noche, iluminada en dorado y abarrotada de estudiantes con gorros de Papá Noel y bufandas: en la torre, un reloj marca las doce y miles de estudiantes se comen minisobaos a la vez; Manolo, en un puesto lleno de bolsitas, se frota las manos. Sin texto legible.
+
+## ev_ciudad_oviedo
+
+- **Archivo:** `assets/events/ev_ciudad_oviedo.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Plató de televisión regional decorado con hórreos y montañas de cartón: a un lado, una confitera mayor muy digna con una bandeja de carbayones dorados; al otro, Manolo con una bandeja de sobaos; en medio, una presentadora con micrófono y seis vecinos con paletas de puntuación en blanco. Sin texto legible.
+
+## ev_ciudad_vitoria
+
+- **Archivo:** `assets/events/ev_ciudad_vitoria.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Calle verde de Vitoria-Gasteiz con carril bici, árboles y contenedores de reciclaje de colores: un técnico municipal con chaleco y tableta revisa la fachada del local de Manolo, pintada de verde chillón y con una maceta de plástico en la puerta, mientras una furgoneta aparcada en doble fila suelta humo. Sin texto legible.
+
+## ev_ciudad_selaya
+
+- **Archivo:** `assets/events/ev_ciudad_selaya.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Plaza de Selaya con la iglesia de piedra, prados verdes y vacas pasiegas al fondo entre la niebla: a la salida de misa, el alcalde con cara de funeral señala una escuela rural pequeña con un columpio vacío, y Manolo, con gafas de sol, mira el móvil; unos pocos vecinos mayores observan la escena. Sin texto legible.

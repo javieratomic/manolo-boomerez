@@ -331,3 +331,43 @@ Logotipo circular inventado para una cadena rival, fondo transparente, legible a
 - **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
 
 Logotipo circular inventado para una cadena rival, fondo transparente, legible a 24 px, sin texto salvo una inicial: 'WeHustle': un cohete saliendo de un portátil, verde esmeralda.
+
+## icon_action_visita_sorpresa
+
+- **Archivo:** `assets/ui/icon_action_visita_sorpresa.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre la barra marrón (#3b2a1a). Sin texto. Motivo: unas gafas de sol oscuras sobre una gabardina beige con el cuello subido, estilo espía.
+
+## icon_action_congreso
+
+- **Archivo:** `assets/ui/icon_action_congreso.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre la barra marrón (#3b2a1a). Sin texto. Motivo: un micrófono de diadema sobre un pequeño escenario con un foco.
+
+## icon_action_golf
+
+- **Archivo:** `assets/ui/icon_action_golf.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre la barra marrón (#3b2a1a). Sin texto. Motivo: una bandera de hoyo de golf en un green con una pelota blanca al lado.
+
+## icon_action_portada
+
+- **Archivo:** `assets/ui/icon_action_portada.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre la barra marrón (#3b2a1a). Sin texto. Motivo: una revista con una silueta de hombre con los brazos cruzados en la portada y un destello de flash.
+
+## icon_action_mentor
+
+- **Archivo:** `assets/ui/icon_action_mentor.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre la barra marrón (#3b2a1a). Sin texto. Motivo: un birrete de graduación sobre una libreta abierta con un bolígrafo.

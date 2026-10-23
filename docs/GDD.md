@@ -157,6 +157,12 @@ avisa y por debajo de 15 pide el divorcio (gananciales). Salida a Bolsa a partir
 se vende el 25 % a 6 veces el beneficio con una prima (máximo ×1,4) según fama, reputación y ciclo; después la cotización
 fluctúa y las caídas del 30 % provocan juntas de accionistas furiosas.
 
+### Mantenimiento
+Cada local propio tiene un estado de conservación (0-100) que cambia cada mes según la política:
+empresa de mantenimiento (0,8 % del valor al mes, +0,4/mes), manitas del barrio (0,35 %, −0,4/mes) o
+Kevin con cinta americana (0,05 %, −1,5/mes y algo de radar de Trabajo). Un local a cero vende un 25 %
+menos y por debajo de 30 puede averiarse. Las reformas lo dejan como nuevo.
+
 ### Política
 Elecciones en mayo de 2027 y mayo de 2031 entre dos partidos ficticios satirizados por igual: el PPS
 (salario mínimo +4 %, Inspección +20 %, pisos turísticos más vigilados, consumo +3 %) y la ALE (impuesto de

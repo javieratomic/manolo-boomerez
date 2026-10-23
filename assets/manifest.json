@@ -1309,54 +1309,66 @@
       "file": "assets/events/ev_arc_jonathan_redada.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_arc_jonathan_redada"
+      "request": "art/requests/05_sucesos.md#ev_arc_jonathan_redada",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_arc_jonathan_obrador",
       "file": "assets/events/ev_arc_jonathan_obrador.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_arc_jonathan_obrador"
+      "request": "art/requests/05_sucesos.md#ev_arc_jonathan_obrador",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_arc_comite_sobre",
       "file": "assets/events/ev_arc_comite_sobre.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_arc_comite_sobre"
+      "request": "art/requests/05_sucesos.md#ev_arc_comite_sobre",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_arc_comite_plataforma",
       "file": "assets/events/ev_arc_comite_plataforma.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_arc_comite_plataforma"
+      "request": "art/requests/05_sucesos.md#ev_arc_comite_plataforma",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_arc_comite_firma",
       "file": "assets/events/ev_arc_comite_firma.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_arc_comite_firma"
+      "request": "art/requests/05_sucesos.md#ev_arc_comite_firma",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_arc_comite_huelga",
       "file": "assets/events/ev_arc_comite_huelga.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_arc_comite_huelga"
+      "request": "art/requests/05_sucesos.md#ev_arc_comite_huelga",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_arc_hojaldre_registro",

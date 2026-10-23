@@ -6,6 +6,7 @@ import { creditLimit } from './economy.js';
 import { money } from './helpers.js';
 import { nextUpgrade } from './actions.js';
 import { regionalCount } from './logistics.js';
+import { recidivism } from './inspections.js';
 
 // Devuelve consejos ordenados por urgencia: { level: 'alta' | 'media' | 'baja', text, tab? }
 export function advice(s) {
@@ -23,6 +24,7 @@ export function advice(s) {
     out.push({ level: 'alta', text: `El obrador solo cubre el ${Math.round(r.fill * 100)} % de la demanda: estás perdiendo ventas.${fix}`, tab: 'ciudad' });
   }
 
+  if (recidivism(s) > 1) out.push({ level: 'media', text: `Marisa te tiene fichado: la próxima multa laboral lleva un agravante de ×${recidivism(s).toFixed(2).replace('.', ',')} por reincidencia.`, tab: 'plantilla' });
   if (s.heatTrabajo > 65) out.push({ level: 'alta', text: 'El radar de la Inspección de Trabajo está en rojo. Regulariza algo o ficha a alguien en RR. HH.', tab: 'plantilla' });
   if (s.heatHacienda > 65) out.push({ level: 'alta', text: `El radar de Hacienda está en rojo y debes ${money(s.evaded)} "optimizados". Una auditoría ahora dolería.`, tab: 'finanzas' });
   if (s.moral < 30) out.push({ level: 'alta', text: 'La plantilla está quemada. Riesgo de huelga y, si llega a cero, de que se queden la empresa.', tab: 'plantilla' });

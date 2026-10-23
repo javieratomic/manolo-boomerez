@@ -15,10 +15,66 @@ export function laborSeverity(s) {
   return v;
 }
 
+// ------------------------------------------------------------- Expediente
+// Marisa (Trabajo) y Don Fermín (Hacienda) se acuerdan de todo: los trucos funcionan peor cada vez,
+// las sanciones recientes agravan la multa y la multa mira los últimos meses, no solo el de la visita.
+export const TRICKS = { trabajo: ['frigorifico', 'orujo'], hacienda: ['gestor', 'tickets', 'anciano'] };
+
+export function dossier(s) {
+  s.dossier ||= { trucos: {}, sanciones: [], historial: [] };
+  s.dossier.trucos ||= {};
+  s.dossier.sanciones ||= [];
+  s.dossier.historial ||= [];
+  return s.dossier;
+}
+
+export const trickCount = (s, id) => s.dossier?.trucos?.[id] ?? 0;
+
+export function trickOdds(s, id) {
+  const n = trickCount(s, id);
+  switch (id) {
+    case 'frigorifico': return 0.55 * 0.5 ** n;
+    case 'orujo': return 0.3 * (1 / 3) ** n;
+    case 'gestor': return Math.max(0.1, (s.perks.gestor ? 0.7 : 0.5) - 0.2 * n);
+    case 'tickets': return 0.3 * 0.5 ** n;
+    case 'anciano': return n ? 0 : 0.2;
+    default: return 0;
+  }
+}
+
+// Se apunta antes de tirar el dado: el inspector se acuerda salga bien o salga mal.
+export function recordTrick(s, id) {
+  const d = dossier(s);
+  d.trucos[id] = (d.trucos[id] || 0) + 1;
+}
+
+export function recordSanction(s) {
+  dossier(s).sanciones.push(s.month);
+}
+
+export const recentSanctions = (s) => (s.dossier?.sanciones || []).filter((m) => s.month - m <= 24).length;
+export const recidivism = (s) => Math.min(1.75, 1 + 0.25 * recentSanctions(s));
+
+// Gravedad de los últimos meses: pasarse a legal justo el mes de la visita ya no te libra.
+export function tickLaborHistory(s) {
+  const h = dossier(s).historial;
+  h.push(laborSeverity(s));
+  if (h.length > 6) h.shift();
+}
+
+// Una visita sin infracciones limpia algo el expediente de ese inspector.
+export function clearRecord(s, who) {
+  const d = dossier(s);
+  if (who === 'trabajo') d.sanciones.shift();
+  for (const id of TRICKS[who]) d.trucos[id] = Math.max(0, (d.trucos[id] || 0) - 1);
+}
+
 export function laborFine(s) {
   const employees = s.lastReport?.employees ?? 10;
-  const fine = laborSeverity(s) * (1500 + employees * 300);
-  return Math.round(fine * (s.perks.abogado ? 0.7 : 1) * difficultyOf(s).fines);
+  const h = s.dossier?.historial || [];
+  const past = h.length ? h.reduce((a, b) => a + b, 0) / h.length : 0;
+  const fine = Math.max(laborSeverity(s), past) * (1500 + employees * 300);
+  return Math.round(fine * (s.perks.abogado ? 0.7 : 1) * difficultyOf(s).fines * recidivism(s));
 }
 
 export function haciendaDebt(s) {

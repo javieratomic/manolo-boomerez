@@ -3,7 +3,7 @@ import { newGame, serialize, deserialize } from '../src/core/state.js';
 import { advanceMonth, resolvePending, currentPending, checkEnding, eligibleEvents } from '../src/core/sim.js';
 import { computeEconomy, patrimonio, creditLimit, grossPatrimonio } from '../src/core/economy.js';
 import { openBusiness, canOpen, setPolicy, borrow, repay, buyUpgrade, sellBusiness, doManoloAction, togglePerk, currentGoal, rebrand } from '../src/core/actions.js';
-import { laborFine } from '../src/core/inspections.js';
+import { laborFine, trickOdds, recordTrick, recidivism, tickLaborHistory } from '../src/core/inspections.js';
 import { dateLabel } from '../src/core/helpers.js';
 import { EVENTS } from '../src/data/events.js';
 import { BUSINESS_TYPES } from '../src/data/businesses.js';
@@ -591,4 +591,119 @@ test('regresión: los pisos reconvertidos en vivienda dejan de ser ilegales', ()
 test('fechas en español', () => {
   assertEq(dateLabel(0), 'Enero 2026');
   assertEq(dateLabel(13), 'Febrero 2027');
+});
+
+// ------------------------------------------------------------- Expediente
+const visit = (s, id, params) => {
+  s.pending = [{ kind: 'event', id, params }];
+  return currentPending(s);
+};
+const pick = (s, p, text) => {
+  const c = p.choices.find((x) => x.label.includes(text));
+  assert(c, `opción «${text}» disponible`);
+  return resolvePending(s, c.index);
+};
+
+test('expediente: los trucos funcionan peor cada vez', () => {
+  const s = started();
+  assertEq(trickOdds(s, 'frigorifico'), 0.55);
+  recordTrick(s, 'frigorifico');
+  assertEq(trickOdds(s, 'frigorifico'), 0.275);
+  assertEq(trickOdds(s, 'anciano'), 0.2);
+  recordTrick(s, 'anciano');
+  assertEq(trickOdds(s, 'anciano'), 0);
+  s.policies.becarios = 'algunos';
+  const p = visit(s, 'inspeccion_trabajo', { fine: 10000 });
+  assert(p.choices.some((c) => c.hint.includes('28 %')), 'la pista enseña la probabilidad real');
+});
+
+test('expediente: el anciano confuso no cuela dos veces', () => {
+  for (let seed = 1; seed <= 20; seed++) {
+    const s = started(seed);
+    recordTrick(s, 'anciano');
+    const cash = s.cash;
+    pick(s, visit(s, 'auditoria_hacienda', { debt: 10000 }), 'anciano');
+    assertEq(Math.round(cash - s.cash), 15000, `semilla ${seed}`);
+  }
+});
+
+test('expediente: la reincidencia agrava la multa durante 24 meses', () => {
+  const s = started();
+  s.month = 30;
+  const base = laborFine(s);
+  s.dossier.sanciones = [24];
+  assertEq(recidivism(s), 1.25);
+  s.policies.salario = 'negro';
+  const withRec = laborFine(s);
+  s.dossier.sanciones = [0];
+  assertEq(recidivism(s), 1);
+  assert(withRec > laborFine(s) && laborFine(s) > base, 'agravante solo con sanciones recientes');
+});
+
+test('expediente: pasarse a legal el mes de la visita no borra los meses anteriores', () => {
+  const s = started();
+  s.policies.salario = 'negro';
+  for (let i = 0; i < 5; i++) tickLaborHistory(s);
+  s.policies.salario = 'convenio';
+  tickLaborHistory(s);
+  const fine = laborFine(s);
+  assert(fine > 0, 'sigue habiendo multa');
+  const p = visit(s, 'inspeccion_trabajo', { fine });
+  assert(!p.choices.some((c) => c.label.includes('Ofrecerle un sobao')), 'sin sobao con historial sucio');
+  pick(s, p, 'Colaborar');
+  assertEq(s.dossier.historial.length, 0, 'la visita vacía el historial');
+  assertEq(s.dossier.sanciones.length, 1, 'colaborar cuenta como sanción');
+});
+
+test('expediente: una visita limpia tacha la sanción más antigua', () => {
+  const s = started();
+  s.dossier.sanciones = [1, 5];
+  s.dossier.trucos.frigorifico = 2;
+  s.dossier.trucos.gestor = 1;
+  pick(s, visit(s, 'inspeccion_trabajo', { fine: 0 }), 'Ofrecerle un sobao');
+  assertEq(s.dossier.sanciones.join(), '5');
+  assertEq(s.dossier.trucos.frigorifico, 1);
+  assertEq(s.dossier.trucos.gestor, 1, 'Hacienda no se entera de lo de Trabajo');
+});
+
+test('expediente: Paco se va a la tercera vez que le culpas', () => {
+  const s = started();
+  s.perks.gestor = true;
+  pick(s, visit(s, 'auditoria_hacienda', { debt: 5000 }), 'gestor');
+  pick(s, visit(s, 'auditoria_hacienda', { debt: 5000 }), 'gestor');
+  assert(s.perks.gestor, 'Paco aguanta dos');
+  const text = pick(s, visit(s, 'auditoria_hacienda', { debt: 5000 }), 'gestor');
+  assert(!s.perks.gestor && text.includes('Paco te deja'), 'a la tercera se va');
+});
+
+test('expediente: las cartas nunca enseñan funciones y el expediente se guarda', () => {
+  const s = started(3);
+  s.cash = 2e6;
+  openBusiness(s, 'express', 'madrid', 'franquicia');
+  s.rivals = [{ id: 'masa', presence: { madrid: 2 }, since: 0, calm: 0, actions: {} }];
+  const params = { fine: 20000, debt: 150000, businessId: s.businesses[1]?.id, city: 'madrid', rival: 'masa', pos: 'marketing' };
+  for (const ev of EVENTS) {
+    s.pending = [{ kind: 'event', id: ev.id, params }];
+    let p;
+    try {
+      p = currentPending(s);
+    } catch (e) {
+      throw new Error(`${ev.id}: ${e.message}`);
+    }
+    assertEq(typeof p.title, 'string', `${ev.id} título`);
+    for (const c of p.choices) {
+      assertEq(typeof c.label, 'string', `${ev.id} etiqueta`);
+      assert(c.hint === undefined || typeof c.hint === 'string', `${ev.id} pista`);
+    }
+  }
+  s.pending = [];
+  recordTrick(s, 'orujo');
+  s.dossier.sanciones.push(2);
+  const back = deserialize(serialize(s));
+  assertEq(back.dossier.trucos.orujo, 1);
+  assertEq(back.dossier.sanciones.join(), '2');
+  const old = JSON.parse(serialize(s));
+  delete old.dossier;
+  const migrated = deserialize(JSON.stringify(old));
+  assertEq(migrated.dossier.sanciones.length, 0, 'las partidas viejas empiezan con el expediente limpio');
 });

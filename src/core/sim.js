@@ -2,7 +2,7 @@
 import { computeEconomy, policyFx, creditLimit, patrimonio, grossPatrimonio, hasCondition } from './economy.js';
 import { chance, weightedPick, pick, range } from './rng.js';
 import { addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, log, money, GAME_MONTHS, clamp } from './helpers.js';
-import { laborFine, haciendaDebt, inspectionChance, auditChance } from './inspections.js';
+import { laborFine, haciendaDebt, inspectionChance, auditChance, tickLaborHistory } from './inspections.js';
 import { checkUnlocks } from './actions.js';
 import { tickMacro, macroFx } from './macro.js';
 import { tickRivals, rivalHit } from './rivals.js';
@@ -38,6 +38,7 @@ export function advanceMonth(s) {
   ageAssets(s);
   tickIPO(s, grossPatrimonio(s), range(s, -8, 8));
   handleOverdraft(s);
+  tickLaborHistory(s);
   rollVisits(s, r);
   rollScheduled(s);
   tickPolitics(s);
@@ -228,15 +229,17 @@ export function currentPending(s) {
   if (!p) return null;
   const ev = EVENT_BY_ID[p.id];
   const params = p.params || {};
+  // Etiquetas, pistas e imágenes pueden depender del estado (p. ej. la probabilidad real de un truco).
+  const val = (x) => (typeof x === 'function' ? x(s, params) : x);
   return {
     pending: p,
     event: ev,
-    title: ev.title,
+    title: val(ev.title),
     text: ev.text(s, params),
-    portrait: ev.portrait,
-    image: ev.image,
+    portrait: val(ev.portrait),
+    image: val(ev.image),
     choices: ev.choices.map((c, i) => ({
-      index: i, label: c.label, hint: c.hint,
+      index: i, label: val(c.label), hint: val(c.hint),
       available: c.available ? !!c.available(s, params) : true,
     })).filter((c) => c.available),
   };

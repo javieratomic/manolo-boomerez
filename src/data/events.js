@@ -6,7 +6,7 @@ import { chance, int } from '../core/rng.js';
 import {
   addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addExpediente, addMod, addMonthlyCost, log, money,
 } from '../core/helpers.js';
-import { DELITO_FISCAL } from '../core/inspections.js';
+import { DELITO_FISCAL, dossier, trickOdds, trickCount, recordTrick, recordSanction, recidivism, recentSanctions, clearRecord } from '../core/inspections.js';
 import { LEGAL_LABOR } from './policies.js';
 import { BUSINESS_TYPES } from './businesses.js';
 import { CITY_BY_ID } from './cities.js';
@@ -23,6 +23,22 @@ const pay = (s, amount) => {
   addCash(s, -amount);
   s.stats.multas += amount;
 };
+const pct = (x) => `${Math.round(x * 100)} %`;
+const veces = (n) => `${n} ${n === 1 ? 'vez' : 'veces'}`;
+// Al cerrar una inspección de Trabajo se empieza historial nuevo.
+const closeLaborVisit = (s) => {
+  dossier(s).historial = [];
+};
+
+// Lo que Marisa lleva en la carpeta.
+function laborFileNote(s) {
+  const n = recentSanctions(s);
+  const tricks = [['frigorifico', 'cámara frigorífica'], ['orujo', 'orujo']].filter(([id]) => trickCount(s, id)).map(([id, l]) => `${trickCount(s, id)} ${l}`);
+  if (!n && !tricks.length) return '';
+  const parts = [n ? `${n} ${n === 1 ? 'sanción' : 'sanciones'}` : null, ...tricks].filter(Boolean).join(', ');
+  return `\n\nMarisa abre la carpeta por una pestaña amarilla: BOOMEREZ, M. — ${n ? 'reincidente' : 'en observación'}. ${parts}.${recidivism(s) > 1 ? ` Multa con agravante: ×${recidivism(s).toFixed(2).replace('.', ',')}.` : ''}`;
+}
+
 const forceLegal = (s, months = 6) => {
   Object.assign(s.policies, LEGAL_LABOR);
   s.flags.forcedLegal = months;
@@ -134,8 +150,8 @@ const BASE_EVENTS = [
     portrait: 'portrait_inspectora_trabajo', image: 'ev_inspeccion',
     text: (s, p) =>
       p.fine > 0
-        ? `La inspectora Marisa Ortega se presenta en el obrador sin avisar, con una carpeta muy gorda.\n\n"Buenos días, Don Manuel. Venimos por unas denuncias anónimas. Muy anónimas. Firmadas por toda la plantilla."\n\nMulta estimada: ${money(p.fine)}.`
-        : 'La inspectora Marisa Ortega revisa contratos, nóminas y registros horarios.\n\n...Todo está en regla. Se la nota decepcionada.',
+        ? `La inspectora Marisa Ortega se presenta en el obrador sin avisar, con una carpeta muy gorda.\n\n"Buenos días, Don Manuel. Venimos por unas denuncias anónimas. Muy anónimas. Firmadas por toda la plantilla."\n\nMulta estimada: ${money(p.fine)}.${laborFileNote(s)}`
+        : 'La inspectora Marisa Ortega revisa contratos, nóminas y registros horarios de los últimos meses.\n\n...Todo está en regla. Se la nota decepcionada.',
     weight: () => 0,
     choices: [
       {
@@ -144,7 +160,9 @@ const BASE_EVENTS = [
         effect(s) {
           addHeatTrabajo(s, -40);
           addRep(s, 2);
-          return '"Esto no es un soborno, ¿verdad?" "Es un sobao, señora." Se lo come. Se va. Radar de Inspección −40.';
+          clearRecord(s, 'trabajo');
+          closeLaborVisit(s);
+          return '"Esto no es un soborno, ¿verdad?" "Es un sobao, señora." Se lo come. Se va, y tacha algo en su carpeta. Radar de Inspección −40.';
         },
       },
       {
@@ -153,6 +171,8 @@ const BASE_EVENTS = [
         available: (s, p) => p.fine > 0,
         effect(s, p) {
           pay(s, p.fine * 0.5);
+          recordSanction(s);
+          closeLaborVisit(s);
           forceLegal(s);
           addHeatTrabajo(s, -50);
           addMoral(s, 8);
@@ -161,33 +181,45 @@ const BASE_EVENTS = [
       },
       {
         label: 'Esconder a los becarios en la cámara frigorífica',
-        hint: '55 %: no pasa nada. Si sale mal: multa ×1,5, escándalo y 6 meses de legalidad forzosa.',
+        hint: (s) => `${pct(trickOdds(s, 'frigorifico'))}: no pasa nada${trickCount(s, 'frigorifico') ? ` (Marisa ya te lo pilló ${veces(trickCount(s, 'frigorifico'))})` : ''}. Si sale mal: multa ×1,5, escándalo y 6 meses de legalidad forzosa.`,
         available: (s, p) => p.fine > 0 && s.policies.becarios !== 'ninguno',
         effect(s, p) {
-          if (chance(s, 0.55)) {
+          const prev = trickCount(s, 'frigorifico');
+          const odds = trickOdds(s, 'frigorifico');
+          recordTrick(s, 'frigorifico');
+          closeLaborVisit(s);
+          if (chance(s, odds)) {
             addHeatTrabajo(s, -15);
             addMoral(s, -5);
             return 'Tres becarios pasan 40 minutos a 2 °C entre cajas de mantequilla. La inspectora no los encuentra. Ellos a ti sí te encuentran después. Moral −5.';
           }
           pay(s, p.fine * 1.5);
+          recordSanction(s);
           addRep(s, -12);
           forceLegal(s);
           addHeatTrabajo(s, -30);
+          if (prev) return `La inspectora va directa a la cámara frigorífica. "Por la mantequilla, ya sabe." Los becarios la saludan por su nombre. Multa: ${money(p.fine * 1.5)}. Sale en las noticias. Reputación −12.`;
           return `La inspectora abre la cámara para "ver la mantequilla". Encuentra a tres becarios con escarcha en las cejas. Multa: ${money(p.fine * 1.5)}. Sale en las noticias. Reputación −12.`;
         },
       },
       {
         label: 'Invitarla a sobaos y un orujo',
-        hint: '30 %: se ablanda. Si no: multa ×1,3 y expediente por cohecho.',
+        hint: (s) => `${pct(trickOdds(s, 'orujo'))}: se ablanda${trickCount(s, 'orujo') ? ` (ya lo intentaste ${veces(trickCount(s, 'orujo'))})` : ''}. Si no: multa ×1,3 y expediente por cohecho.`,
         available: (s, p) => p.fine > 0,
         effect(s, p) {
-          if (chance(s, 0.3)) {
+          const prev = trickCount(s, 'orujo');
+          const odds = trickOdds(s, 'orujo');
+          recordTrick(s, 'orujo');
+          closeLaborVisit(s);
+          if (chance(s, odds)) {
             addHeatTrabajo(s, -30);
             return '"Bueno... por esta vez solo le pongo un requerimiento." El orujo de tu padre hace milagros. Radar de Inspección −30.';
           }
           pay(s, p.fine * 1.3);
+          recordSanction(s);
           addExpediente(s, 1, 'intento de cohecho a una inspectora');
           addHeatTrabajo(s, -20);
+          if (prev) return `"¿Otra vez el orujo, Don Manuel? Lo tengo apuntado desde la última vez." Multa: ${money(p.fine * 1.3)} y un expediente.`;
           return `"¿Me está usted ofreciendo algo, Don Manuel?" Lo apunta todo. Multa: ${money(p.fine * 1.3)} y un expediente.`;
         },
       },
@@ -197,6 +229,8 @@ const BASE_EVENTS = [
         available: (s, p) => p.fine > 0 && s.perks.abogado,
         effect(s, p) {
           pay(s, p.fine * 0.6);
+          recordSanction(s);
+          closeLaborVisit(s);
           addHeatTrabajo(s, -35);
           return `Don Cosme llega en una berlina de 1994 y cita jurisprudencia de 1987. Multa reducida: ${money(p.fine * 0.6)}. Puedes seguir con tus políticas (de momento).`;
         },
@@ -218,7 +252,8 @@ const BASE_EVENTS = [
         available: (s, p) => p.debt === 0,
         effect(s) {
           addHeatHacienda(s, -50);
-          return '"No acepto nada del contribuyente." Se va. Radar de Hacienda −50.';
+          clearRecord(s, 'hacienda');
+          return '"No acepto nada del contribuyente." Se va, y tacha algo en su carpeta. Radar de Hacienda −50.';
         },
       },
       {
@@ -234,50 +269,65 @@ const BASE_EVENTS = [
       },
       {
         label: 'Culpar al gestor',
-        hint: '50 % (70 % si tienes a Paco): pagas solo la cuota. Si no, ×1,5 (y expediente si es delito fiscal).',
+        hint: (s) => `${pct(trickOdds(s, 'gestor'))}: pagas solo la cuota${trickCount(s, 'gestor') ? ` (ya lo usaste ${veces(trickCount(s, 'gestor'))})` : ''}. Si no, ×1,5 (y expediente si es delito fiscal).${s.perks.gestor && trickCount(s, 'gestor') >= 2 ? ' Paco está harto: a la tercera se va.' : ''}`,
         available: (s, p) => p.debt > 0,
         effect(s, p) {
-          const ok = chance(s, s.perks.gestor ? 0.7 : 0.5);
+          const odds = trickOdds(s, 'gestor');
+          recordTrick(s, 'gestor');
+          const ok = chance(s, odds);
           s.evaded = 0;
           addHeatHacienda(s, -40);
+          let paco = '';
+          if (s.perks.gestor && trickCount(s, 'gestor') >= 3) {
+            s.perks.gestor = false;
+            paco = '\n\nPaco te deja: "A la tercera, Manolo, te defiendes tú solo."';
+          }
           if (ok) {
             pay(s, p.debt);
-            return `"Yo de números no entiendo, eso lo llevaba Paco." Cuela. Pagas solo la cuota: ${money(p.debt)}.${s.perks.gestor ? ' Paco no te habla en una semana.' : ''}`;
+            return `"Yo de números no entiendo, eso lo llevaba Paco." Cuela. Pagas solo la cuota: ${money(p.debt)}.${!paco && s.perks.gestor ? ' Paco no te habla en una semana.' : ''}${paco}`;
           }
           pay(s, p.debt * 1.5);
           if (p.debt >= DELITO_FISCAL) addExpediente(s, 1, 'delito fiscal');
-          return `"Su gestor dice que usted le pedía expresamente 'que no se notara'." Pagas ${money(p.debt * 1.5)}.`;
+          return `"Su gestor dice que usted le pedía expresamente 'que no se notara'." Pagas ${money(p.debt * 1.5)}.${paco}`;
         },
       },
       {
         label: 'Colar tickets de cenas como gastos de representación',
-        hint: '30 %: pagas la mitad. Si no: ×2 y expediente por falsedad.',
+        hint: (s) => `${pct(trickOdds(s, 'tickets'))}: pagas la mitad${trickCount(s, 'tickets') ? ` (Don Fermín ya conoce tus tickets: ${veces(trickCount(s, 'tickets'))})` : ''}. Si no: ×2 y expediente por falsedad.`,
         available: (s, p) => p.debt > 0,
         effect(s, p) {
+          const prev = trickCount(s, 'tickets');
+          const odds = trickOdds(s, 'tickets');
+          recordTrick(s, 'tickets');
           s.evaded = 0;
           addHeatHacienda(s, -30);
-          if (chance(s, 0.3)) {
+          if (chance(s, odds)) {
             pay(s, p.debt * 0.5);
             return `Presentas 214 tickets de marisquerías como "reuniones estratégicas". El inspector está agotado. Pagas ${money(p.debt * 0.5)}.`;
           }
           pay(s, p.debt * 2);
           addExpediente(s, 1, 'falsedad documental');
+          if (prev) return `Don Fermín saca de la carpeta el ticket de la tarta de cumpleaños de la otra vez y lo pone al lado de los nuevos. Pagas ${money(p.debt * 2)}.`;
           return `Uno de los tickets es del cumpleaños de tu hija, con la tarta en la foto. Pagas ${money(p.debt * 2)}.`;
         },
       },
       {
         label: 'Hacerse el anciano confuso',
-        hint: '20 %: te tienen lástima (×0,7). Si no: ×1,5 y reputación −5.',
+        hint: (s) => (trickCount(s, 'anciano') ? '"Ya nos conocemos, Don Manuel": esta vez no cuela. Pagas ×1,5 y reputación −5.' : '20 %: te tienen lástima (×0,7). Si no: ×1,5 y reputación −5.'),
         available: (s, p) => p.debt > 0,
         effect(s, p) {
+          const prev = trickCount(s, 'anciano');
+          const odds = trickOdds(s, 'anciano');
+          recordTrick(s, 'anciano');
           s.evaded = 0;
           addHeatHacienda(s, -35);
-          if (chance(s, 0.2)) {
+          if (chance(s, odds)) {
             pay(s, p.debt * 0.7);
             return `"¿Hacienda? ¿Qué Hacienda? Yo soy un pobre pasiego..." Te rebajan la cuenta: ${money(p.debt * 0.7)}.`;
           }
           pay(s, p.debt * 1.5);
           addRep(s, -5);
+          if (prev) return `"Ya nos conocemos, Don Manuel. La última vez también se le olvidó todo." Pagas ${money(p.debt * 1.5)}. Reputación −5.`;
           return `Ayer saliste en LinkedIn diciendo que eras "un joven emprendedor". El inspector te lo enseña en el móvil. Pagas ${money(p.debt * 1.5)}. Reputación −5.`;
         },
       },

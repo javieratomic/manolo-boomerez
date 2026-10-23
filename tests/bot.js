@@ -1,7 +1,7 @@
 // Bot de juego automático para equilibrar la economía y para los tests de humo.
 import { newGame } from '../src/core/state.js';
 import { advanceMonth, currentPending, resolvePending, checkEnding } from '../src/core/sim.js';
-import { openBusiness, canOpen, buyUpgrade, sobaoTypeId, doManoloAction, borrow } from '../src/core/actions.js';
+import { openBusiness, canOpen, buyUpgrade, sobaoTypeId, doManoloAction, borrow, setPolicy } from '../src/core/actions.js';
 import { estimateOpening, patrimonio, creditLimit, grossPatrimonio } from '../src/core/economy.js';
 import { refreshCandidates, hireExec, execOf } from '../src/core/execs.js';
 import { canStartRD, startRD, upgradeBusiness, upgradeCost, launchCampaign } from '../src/core/market.js';
@@ -22,6 +22,7 @@ const DIVERSIFY = ['smash', 'empanadas', 'airbnb', 'vivienda', 'academy', 'taber
  *  leverage: usa la póliza para invertir
  *  franchise: vende franquicias cuando la tienda propia no sale rentable
  *  smart: usa los sistemas de gestión (directivos, I+D, reformas, campañas, OPA, Bolsa, familia)
+ *  reapply: vuelve a aplicar las políticas cada mes (tras la legalidad forzosa)
  *  choice: 'first' | 'random' para resolver sucesos
  *  difficulty: 'cunado' | 'normal' | 'hacienda'
  */
@@ -31,6 +32,7 @@ export function playGame(seed, strategy = {}) {
   Object.assign(s.policies, strategy.policies || {});
   const trace = [];
   while (!s.ending && s.month < 96) {
+    if (strategy.reapply) for (const [k, v] of Object.entries(strategy.policies || {})) setPolicy(s, k, v);
     if (s.lastReport && s.lastReport.fill < 0.97) buyUpgrade(s);
     if (strategy.leverage && s.debt < creditLimit(s) * 0.5 && s.cash < 150000) borrow(s, 50000);
     if (strategy.smart) manage(s, strategy.off || []);

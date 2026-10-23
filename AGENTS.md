@@ -39,6 +39,14 @@ Tu trabajo es convertir las peticiones de `art/requests/` en imágenes dentro de
   **conservando** el `status`, `notes` y `version` que ya haya puesto el agente de arte.
 - Todo id de arte que use el código (`portrait_*`, `bld_*`, `ev_*`, `end_*`, `icon_*`) debe existir en el
   catálogo. `assets.js` genera marcadores para los que falten.
+- Además de `tools/art_catalog.py`, el catálogo incorpora las peticiones de `tools/art_events_extra.py` y
+  `tools/art_content_extra2.py` (listas `ART`). Las claves extra que añada el agente de arte (`notes`,
+  `version`...) se conservan tal cual al regenerar.
 - Lógica de juego en `src/core` (sin DOM, testeable) y contenido en `src/data`. Tests:
-  `tests/index.html` en el navegador o `node tests/run-node.mjs`.
+  `tests/index.html` en el navegador o `node tests/run-node.mjs` (en esta máquina hay un Node portable en
+  `C:/Users/MSI/tools/node-v22.23.4-win-x64`).
+- Equilibrado: `tests/bot.js` (`playGame(seed, estrategia)`) juega partidas completas; úsalo para medir
+  cualquier cambio de economía.
+- Escritorio: `desktop/` empaqueta el juego con Electron (`npm run dist` → `.exe` portable).
+  `SMOKE=1 npx electron .` lo arranca oculto, juega un mes y sale con código 0 si todo va bien.
 - Textos de cara al jugador en **español**.

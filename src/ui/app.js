@@ -18,7 +18,7 @@ import { RIVALS } from '../data/rivals.js';
 import { buyLujo, sellLujo, doIPO } from '../core/life.js';
 import { LUJO_BY_ID } from '../data/lujo.js';
 import { grossPatrimonio } from '../core/economy.js';
-import { money, moneyShort, dateLabel, GAME_MONTHS } from '../core/helpers.js';
+import { money, moneyShort, dateLabel, GAME_MONTHS, START_YEAR } from '../core/helpers.js';
 import { HQ_CITY, CITY_BY_ID } from '../data/cities.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
 import { ENDINGS } from '../data/endings.js';
@@ -523,9 +523,40 @@ async function endMonth() {
     game.map.showProfits(r);
     play(r.net >= 0 ? 'cash' : 'loss');
     await showReport(r, prev);
+    if (r.month % 12 === 11) await showYearSummary(s, r);
   }
   game.busy = false;
   await processQueue();
+}
+
+// Resumen de diciembre: balance del año y el inevitable post de LinkedIn.
+function showYearSummary(s, r) {
+  const year = START_YEAR + Math.floor(r.month / 12);
+  const months = s.history.filter((h) => Math.floor(h.month / 12) === Math.floor(r.month / 12));
+  const revenue = months.reduce((a, h) => a + h.revenue, 0);
+  const net = months.reduce((a, h) => a + h.net, 0);
+  const startPat = s.history.find((h) => h.month === r.month - 12)?.patrimonio ?? months[0]?.patrimonio ?? 0;
+  const endPat = months[months.length - 1]?.patrimonio ?? 0;
+  const lines = r.lines.filter((l) => l.id !== 'obrador').map((l) => ({ ...l, p: l.revenue - l.cost })).sort((a, b) => b.p - a.p);
+  const best = lines[0];
+  const worst = lines[lines.length - 1];
+  const opened = s.businesses.filter((b) => Math.floor((b.openedMonth ?? -1) / 12) === Math.floor(r.month / 12)).length;
+  const post = net > 0
+    ? `${year}: un año de crecimiento, aprendizaje y resiliencia. Hemos facturado ${moneyShort(revenue)} con un equipo increíble (al que pago lo justo). Gracias a todos los que no creyeron en mí: sois mi gasolina. 🦈 #Mindset #Emprendimiento #Sobaos`
+    : `${year}: un año de aprendizaje. No hemos perdido ${moneyShort(-net)}: hemos invertido en experiencia. Los grandes también caen. Yo me levanto. 🦈 #Resiliencia #NeverGiveUp`;
+  const html = `<div class="report">
+      <div class="report-big ${net >= 0 ? 'pos' : 'neg'}">${net >= 0 ? '+' : '−'}${money(Math.abs(net))}</div>
+      <div class="muted small">Beneficio neto de ${year}</div>
+      <table class="tbl pl">
+        <tr><td>Facturación del año</td><td>${money(revenue)}</td></tr>
+        <tr><td>Patrimonio</td><td>${moneyShort(startPat)} → <b>${moneyShort(endPat)}</b></td></tr>
+        <tr><td>Negocios abiertos este año</td><td>${opened}</td></tr>
+        ${best ? `<tr><td>Mejor negocio (diciembre)</td><td>${esc(best.label)} · ${esc(CITY_BY_ID[best.city]?.name || '')} <span class="pos">${moneyShort(best.p)}</span></td></tr>` : ''}
+        ${worst && worst !== best ? `<tr><td>Peor negocio (diciembre)</td><td>${esc(worst.label)} · ${esc(CITY_BY_ID[worst.city]?.name || '')} <span class="${worst.p >= 0 ? 'pos' : 'neg'}">${moneyShort(worst.p)}</span></td></tr>` : ''}
+      </table>
+      <div class="linkedin"><div class="kicker">Manolo publica en LinkedIn</div><p>${esc(post)}</p></div>
+    </div>`;
+  return showModal({ title: `Balance de ${year}`, kicker: 'Fin de año', portrait: `portrait_manolo_${net >= 0 ? 'happy' : 'thinking'}`, html });
 }
 
 function delta(label, a, b, invert = false) {

@@ -377,7 +377,7 @@ def main():
             }
             if "anchor" in a:
                 entry["anchor"] = a["anchor"]
-            for k in ("notes", "version"):
+            for k in ("version", "notes"):
                 if k in prev:
                     entry[k] = prev[k]
             assets.append(entry)

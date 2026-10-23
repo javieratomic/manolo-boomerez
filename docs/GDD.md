@@ -157,6 +157,16 @@ avisa y por debajo de 15 pide el divorcio (gananciales). Salida a Bolsa a partir
 se vende el 25 % a 6 veces el beneficio con una prima (máximo ×1,4) según fama, reputación y ciclo; después la cotización
 fluctúa y las caídas del 30 % provocan juntas de accionistas furiosas.
 
+### Política
+Elecciones en mayo de 2027 y mayo de 2031 entre dos partidos ficticios satirizados por igual: el PPS
+(salario mínimo +4 %, Inspección +20 %, pisos turísticos más vigilados, consumo +3 %) y la ALE (impuesto de
+sociedades −8 %, Inspección −15 %, consumo −2 %). Manolo puede "donar" a uno, al otro o a los dos.
+
+### Estrés
+Sube con el tamaño del imperio y con LinkedIn o el bar; baja con Marbella, la familia, el pádel y un equipo
+directivo completo. Por encima de 80 llega un susto en la pista de pádel: reposo (tres meses sin acciones),
+coach de mindfulness o arriesgarse a uno peor.
+
 ## 11. Progresión y rejugabilidad
 
 - **Objetivos encadenados** (primera tienda → 3 tiendas → mejorar el obrador → diversificar → 1 M€ → 50

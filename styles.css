@@ -181,6 +181,11 @@ p { margin: 0 0 8px; }
 .open-item .row { margin-top: 6px; }
 .open-item.locked { opacity: 0.6; }
 .lock { color: var(--muted); margin-top: 4px; }
+.locked-list { margin-top: 10px; }
+.locked-list summary { cursor: pointer; font-size: 13px; color: var(--muted); font-weight: 600; }
+.locked-list ul { list-style: none; padding: 0; margin: 6px 0 0; display: flex; flex-direction: column; gap: 6px; }
+.locked-list li { display: flex; gap: 8px; align-items: center; opacity: 0.75; }
+.biz-icon.small { width: 32px; height: 32px; }
 .biz-icon { width: 52px; height: 52px; object-fit: contain; flex: none; }
 .biz-icon.big { width: 76px; height: 76px; }
 .upgrade { margin: 10px 0; padding: 10px; background: var(--bg); border-radius: 10px; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }

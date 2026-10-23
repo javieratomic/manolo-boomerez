@@ -116,10 +116,15 @@ export function renderCity(s, cityId) {
 
   html += `<div class="card"><h4>Abrir en ${esc(c.name)}</h4><div class="open-list">`;
   const types = [sobaoTypeId(s), 'vivienda', 'airbnb', 'taberna', 'smash', 'empanadas', 'gimnasio', 'coworking', 'residencia', 'academy', 'obrador_regional'];
+  const lockedTypes = [];
   for (const id of types) {
     const t = BUSINESS_TYPES[id];
     if (c.hq && t.category !== 'sobaos' && !['vivienda', 'taberna', 'residencia'].includes(id)) continue;
     const locked = t.category !== 'sobaos' && !s.unlocked[id];
+    if (locked) {
+      lockedTypes.push(id);
+      continue;
+    }
     const own = canOpen(s, id, c.id, 'propia');
     const est = !locked ? estimateOpening(s, id, c.id, 'propia') : null;
     html += `<div class="open-item ${locked ? 'locked' : ''}">
@@ -136,7 +141,13 @@ export function renderCity(s, cityId) {
       </div>
     </div>`;
   }
-  html += `</div></div>`;
+  html += `</div>`;
+  if (lockedTypes.length) {
+    html += `<details class="locked-list"><summary>🔒 Por desbloquear (${lockedTypes.length})</summary><ul>
+      ${lockedTypes.map((id) => `<li><img src="${imageUrl(BUSINESS_TYPES[id].sprite)}" alt="" class="biz-icon small"><div><b>${esc(BUSINESS_TYPES[id].name)}</b><div class="small muted">${esc(LOCK_HINTS[id])}</div></div></li>`).join('')}
+    </ul></details>`;
+  }
+  html += `</div>`;
   return html;
 }
 

@@ -423,6 +423,14 @@ export class MapView {
       ctx.fill();
       ctx.fillStyle = '#222';
       ctx.fillText(label, p.x, p.y + 35);
+      // Campañas activas en la ciudad: un megáfono sobre la etiqueta.
+      if (s.mods.some((m) => m.campaign && m.city === c.id)) {
+        ctx.font = `${Math.max(14, 15 / Math.sqrt(z))}px system-ui, "Segoe UI Emoji", sans-serif`;
+        ctx.textAlign = 'right';
+        ctx.fillText('📢', p.x - w / 2 - 4, p.y + 33);
+        ctx.textAlign = 'center';
+        ctx.font = `${c.hq ? 'bold ' : ''}${fs}px system-ui, sans-serif`;
+      }
       // Presencia de cadenas rivales: chapas de colores junto a la etiqueta.
       const rivals = (s.rivals || []).filter((r) => r.presence[c.id]);
       rivals.forEach((r, i) => {

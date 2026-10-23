@@ -229,45 +229,55 @@
       "file": "assets/portraits/portrait_manolo_neutral.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
-      "request": "art/requests/04_retratos.md#portrait_manolo_neutral"
+      "request": "art/requests/04_retratos.md#portrait_manolo_neutral",
+      "version": 1,
+      "notes": "Serie coherente de Manolo; fondo mostaza opaco, busto a tres cuartos hacia la izquierda."
     },
     {
       "id": "portrait_manolo_smug",
       "file": "assets/portraits/portrait_manolo_smug.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
-      "request": "art/requests/04_retratos.md#portrait_manolo_smug"
+      "request": "art/requests/04_retratos.md#portrait_manolo_smug",
+      "version": 1,
+      "notes": "Serie coherente de Manolo; fondo mostaza opaco, busto a tres cuartos hacia la izquierda."
     },
     {
       "id": "portrait_manolo_happy",
       "file": "assets/portraits/portrait_manolo_happy.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
-      "request": "art/requests/04_retratos.md#portrait_manolo_happy"
+      "request": "art/requests/04_retratos.md#portrait_manolo_happy",
+      "version": 1,
+      "notes": "Serie coherente de Manolo; fondo mostaza opaco, busto a tres cuartos hacia la izquierda."
     },
     {
       "id": "portrait_manolo_angry",
       "file": "assets/portraits/portrait_manolo_angry.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
-      "request": "art/requests/04_retratos.md#portrait_manolo_angry"
+      "request": "art/requests/04_retratos.md#portrait_manolo_angry",
+      "version": 1,
+      "notes": "Serie coherente de Manolo; fondo mostaza opaco, busto a tres cuartos hacia la izquierda."
     },
     {
       "id": "portrait_manolo_scared",
       "file": "assets/portraits/portrait_manolo_scared.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
-      "request": "art/requests/04_retratos.md#portrait_manolo_scared"
+      "request": "art/requests/04_retratos.md#portrait_manolo_scared",
+      "version": 1,
+      "notes": "Serie coherente de Manolo; fondo mostaza opaco, busto a tres cuartos hacia la izquierda."
     },
     {
       "id": "portrait_manolo_thinking",

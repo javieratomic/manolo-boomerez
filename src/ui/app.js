@@ -9,6 +9,7 @@ import { advanceMonth, currentPending, resolvePending, checkEnding, score, pickQ
 import { patrimonio } from '../core/economy.js';
 import { openBusiness, sellBusiness, buyUpgrade, setPolicy, togglePerk, borrow, repay, doManoloAction, dropMonthlyCost, currentGoal, checkGoals, rebrand, canRebrand, franchiseFee, LOAN_STEP } from '../core/actions.js';
 import { play, isMuted, setMuted } from './sound.js';
+import { startMusic, isMusicOn, setMusic } from './music.js';
 import { checkAchievements } from './achievements.js';
 import { actOnRival, acquireRival, acquisitionPrice } from '../core/rivals.js';
 import { launchCampaign, startRD, upgradeBusiness, CAMPAIGN_BY_ID, PRODUCT_BY_ID } from '../core/market.js';
@@ -208,6 +209,7 @@ function renderManoloBox(s) {
 
 // ------------------------------------------------------------------ Acciones
 function bindGlobal() {
+  document.addEventListener('pointerdown', () => game.s && startMusic(), { passive: true });
   document.addEventListener('click', onClick);
   document.addEventListener('change', onChange);
   $('#end-month').addEventListener('click', endMonth);
@@ -416,7 +418,8 @@ async function showMenu() {
     choices: [
       { label: 'Seguir jugando', primary: true },
       { label: 'Cómo se juega' },
-      { label: isMuted() ? 'Activar el sonido' : 'Silenciar el sonido' },
+      { label: isMuted() ? 'Activar los efectos de sonido' : 'Silenciar los efectos de sonido' },
+      { label: isMusicOn() ? 'Quitar la música' : 'Poner la música (pasodoble lo-fi)' },
       { label: 'Volver al título' },
       { label: 'Reiniciar partida', danger: true },
       { label: 'Exportar partida a un archivo', hint: 'Para llevártela a otro dispositivo.' },
@@ -424,16 +427,20 @@ async function showMenu() {
     ],
     dismissable: true,
   });
-  if (i === 5) exportSave();
-  if (i === 6) importSave();
+  if (i === 6) exportSave();
+  if (i === 7) importSave();
   if (i === 1) showHelp();
   if (i === 2) {
     setMuted(!isMuted());
     play('click');
-    toast(isMuted() ? '🔇 Sonido desactivado' : '🔊 Sonido activado');
+    toast(isMuted() ? '🔇 Efectos desactivados' : '🔊 Efectos activados');
   }
-  if (i === 3) showTitle();
-  if (i === 4 && (await confirmModal('¿Reiniciar?', 'Perderás la partida actual.', 'Reiniciar'))) {
+  if (i === 3) {
+    setMusic(!isMusicOn());
+    toast(isMusicOn() ? '🎺 Suena el pasodoble' : '🔇 Música desactivada');
+  }
+  if (i === 4) showTitle();
+  if (i === 5 && (await confirmModal('¿Reiniciar?', 'Perderás la partida actual.', 'Reiniciar'))) {
     clearStorage();
     startGame(newGame());
   }

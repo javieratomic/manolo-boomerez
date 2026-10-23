@@ -170,6 +170,6 @@ código, así que el juego siempre se puede jugar. Consulta `AGENTS.md` y `art/S
 
 ## 13. Pendiente / ideas futuras
 
-- Música (pasodoble lo-fi). Los efectos de sonido ya están sintetizados.
+- Más variaciones musicales (la música de fondo es un pasodoble lo-fi generativo).
 - Modo infinito y estadísticas históricas entre partidas.
 - Localización (gl, eu, ca, en).

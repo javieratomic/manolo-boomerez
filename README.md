@@ -50,7 +50,7 @@ pellizco para el zoom · `Espacio` cierra el mes · `1`-`6` cambia de pestaña �
 | Dificultad | Modo cuñado (fácil), Emprendedor (normal) y Modo Hacienda (difícil) |
 | Logros | 21 logros que se guardan entre partidas, uno por cada final |
 | Finales | Concurso de acreedores, Soto del Real, la Cooperativa, Forbes, Tiburón Pasiego, Pyme con ínfulas, Ruina lenta |
-| Sonido | Efectos sintetizados con WebAudio (sin ficheros de audio); se puede silenciar en el menú |
+| Sonido | Efectos y música de fondo (pasodoble lo-fi generativo) sintetizados con WebAudio, sin ficheros de audio; se silencian por separado en el menú |
 
 El diseño completo está en [`docs/GDD.md`](docs/GDD.md).
 

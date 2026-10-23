@@ -19,6 +19,8 @@ export function setMuted(v) {
   }
 }
 
+export const getAudioContext = () => audio();
+
 function audio() {
   if (!ctx) {
     const AC = window.AudioContext || window.webkitAudioContext;

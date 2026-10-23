@@ -1,0 +1,495 @@
+{
+  "method": "libimagequant, target quality 95, dithering 0.25, palette <=256",
+  "count": 81,
+  "before": 59846240,
+  "after": 13364218,
+  "over_300kb": [],
+  "assets": [
+    {
+      "id": "portrait_manolo_neutral",
+      "file": "assets/portraits/portrait_manolo_neutral.png",
+      "before": 509021,
+      "after": 132931
+    },
+    {
+      "id": "portrait_manolo_smug",
+      "file": "assets/portraits/portrait_manolo_smug.png",
+      "before": 528019,
+      "after": 132875
+    },
+    {
+      "id": "portrait_manolo_happy",
+      "file": "assets/portraits/portrait_manolo_happy.png",
+      "before": 536548,
+      "after": 134695
+    },
+    {
+      "id": "portrait_manolo_angry",
+      "file": "assets/portraits/portrait_manolo_angry.png",
+      "before": 560224,
+      "after": 140671
+    },
+    {
+      "id": "portrait_manolo_scared",
+      "file": "assets/portraits/portrait_manolo_scared.png",
+      "before": 554355,
+      "after": 132156
+    },
+    {
+      "id": "portrait_manolo_thinking",
+      "file": "assets/portraits/portrait_manolo_thinking.png",
+      "before": 524588,
+      "after": 139771
+    },
+    {
+      "id": "portrait_padre_anselmo",
+      "file": "assets/portraits/portrait_padre_anselmo.png",
+      "before": 623716,
+      "after": 185345
+    },
+    {
+      "id": "portrait_inspectora_trabajo",
+      "file": "assets/portraits/portrait_inspectora_trabajo.png",
+      "before": 547002,
+      "after": 109794
+    },
+    {
+      "id": "portrait_inspector_hacienda",
+      "file": "assets/portraits/portrait_inspector_hacienda.png",
+      "before": 509340,
+      "after": 132918
+    },
+    {
+      "id": "portrait_inspector_sanidad",
+      "file": "assets/portraits/portrait_inspector_sanidad.png",
+      "before": 533634,
+      "after": 114358
+    },
+    {
+      "id": "portrait_empleada_maripili",
+      "file": "assets/portraits/portrait_empleada_maripili.png",
+      "before": 558118,
+      "after": 128985
+    },
+    {
+      "id": "portrait_becario",
+      "file": "assets/portraits/portrait_becario.png",
+      "before": 567112,
+      "after": 121359
+    },
+    {
+      "id": "portrait_cunado_jonathan",
+      "file": "assets/portraits/portrait_cunado_jonathan.png",
+      "before": 476569,
+      "after": 128455
+    },
+    {
+      "id": "portrait_hija_vanessa",
+      "file": "assets/portraits/portrait_hija_vanessa.png",
+      "before": 606892,
+      "after": 145496
+    },
+    {
+      "id": "portrait_abogado_cosme",
+      "file": "assets/portraits/portrait_abogado_cosme.png",
+      "before": 487002,
+      "after": 130401
+    },
+    {
+      "id": "portrait_gestor_paco",
+      "file": "assets/portraits/portrait_gestor_paco.png",
+      "before": 561795,
+      "after": 137296
+    },
+    {
+      "id": "portrait_alcalde",
+      "file": "assets/portraits/portrait_alcalde.png",
+      "before": 480190,
+      "after": 119344
+    },
+    {
+      "id": "portrait_influencer",
+      "file": "assets/portraits/portrait_influencer.png",
+      "before": 556867,
+      "after": 128496
+    },
+    {
+      "id": "portrait_primo_argentino",
+      "file": "assets/portraits/portrait_primo_argentino.png",
+      "before": 550460,
+      "after": 131133
+    },
+    {
+      "id": "portrait_inversor_misterioso",
+      "file": "assets/portraits/portrait_inversor_misterioso.png",
+      "before": 426763,
+      "after": 117788
+    },
+    {
+      "id": "portrait_franquiciado",
+      "file": "assets/portraits/portrait_franquiciado.png",
+      "before": 508654,
+      "after": 109476
+    },
+    {
+      "id": "portrait_vecina",
+      "file": "assets/portraits/portrait_vecina.png",
+      "before": 581050,
+      "after": 126166
+    },
+    {
+      "id": "portrait_hipster",
+      "file": "assets/portraits/portrait_hipster.png",
+      "before": 546878,
+      "after": 145060
+    },
+    {
+      "id": "portrait_comercial",
+      "file": "assets/portraits/portrait_comercial.png",
+      "before": 526644,
+      "after": 121712
+    },
+    {
+      "id": "portrait_banquero",
+      "file": "assets/portraits/portrait_banquero.png",
+      "before": 543384,
+      "after": 118877
+    },
+    {
+      "id": "portrait_presentadora",
+      "file": "assets/portraits/portrait_presentadora.png",
+      "before": 484462,
+      "after": 128946
+    },
+    {
+      "id": "portrait_coach",
+      "file": "assets/portraits/portrait_coach.png",
+      "before": 503992,
+      "after": 138259
+    },
+    {
+      "id": "portrait_esposa_merche",
+      "file": "assets/portraits/portrait_esposa_merche.png",
+      "before": 605915,
+      "after": 147380
+    },
+    {
+      "id": "portrait_exec_1",
+      "file": "assets/portraits/portrait_exec_1.png",
+      "before": 494673,
+      "after": 123925
+    },
+    {
+      "id": "portrait_exec_2",
+      "file": "assets/portraits/portrait_exec_2.png",
+      "before": 516765,
+      "after": 118917
+    },
+    {
+      "id": "portrait_exec_3",
+      "file": "assets/portraits/portrait_exec_3.png",
+      "before": 550513,
+      "after": 144924
+    },
+    {
+      "id": "portrait_exec_4",
+      "file": "assets/portraits/portrait_exec_4.png",
+      "before": 555980,
+      "after": 126694
+    },
+    {
+      "id": "portrait_exec_5",
+      "file": "assets/portraits/portrait_exec_5.png",
+      "before": 526196,
+      "after": 119468
+    },
+    {
+      "id": "portrait_exec_6",
+      "file": "assets/portraits/portrait_exec_6.png",
+      "before": 510814,
+      "after": 111341
+    },
+    {
+      "id": "portrait_periodista",
+      "file": "assets/portraits/portrait_periodista.png",
+      "before": 563740,
+      "after": 128736
+    },
+    {
+      "id": "portrait_madre",
+      "file": "assets/portraits/portrait_madre.png",
+      "before": 578314,
+      "after": 137533
+    },
+    {
+      "id": "ev_intro_herencia",
+      "file": "assets/events/ev_intro_herencia.png",
+      "before": 915006,
+      "after": 213341
+    },
+    {
+      "id": "ev_inspeccion",
+      "file": "assets/events/ev_inspeccion.png",
+      "before": 928543,
+      "after": 201406
+    },
+    {
+      "id": "ev_hacienda",
+      "file": "assets/events/ev_hacienda.png",
+      "before": 846071,
+      "after": 190105
+    },
+    {
+      "id": "ev_huelga",
+      "file": "assets/events/ev_huelga.png",
+      "before": 963922,
+      "after": 232698
+    },
+    {
+      "id": "ev_navidad",
+      "file": "assets/events/ev_navidad.png",
+      "before": 951778,
+      "after": 238039
+    },
+    {
+      "id": "ev_agosto",
+      "file": "assets/events/ev_agosto.png",
+      "before": 948422,
+      "after": 209979
+    },
+    {
+      "id": "ev_franquiciado",
+      "file": "assets/events/ev_franquiciado.png",
+      "before": 904331,
+      "after": 190310
+    },
+    {
+      "id": "ev_pisos_turisticos",
+      "file": "assets/events/ev_pisos_turisticos.png",
+      "before": 941614,
+      "after": 202936
+    },
+    {
+      "id": "ev_cripto",
+      "file": "assets/events/ev_cripto.png",
+      "before": 850925,
+      "after": 162320
+    },
+    {
+      "id": "ev_influencer",
+      "file": "assets/events/ev_influencer.png",
+      "before": 953505,
+      "after": 220245
+    },
+    {
+      "id": "ev_rata",
+      "file": "assets/events/ev_rata.png",
+      "before": 880912,
+      "after": 160210
+    },
+    {
+      "id": "ev_smi",
+      "file": "assets/events/ev_smi.png",
+      "before": 853887,
+      "after": 156584
+    },
+    {
+      "id": "ev_hija",
+      "file": "assets/events/ev_hija.png",
+      "before": 905013,
+      "after": 184068
+    },
+    {
+      "id": "ev_supermercado",
+      "file": "assets/events/ev_supermercado.png",
+      "before": 912189,
+      "after": 178193
+    },
+    {
+      "id": "ev_smash",
+      "file": "assets/events/ev_smash.png",
+      "before": 913022,
+      "after": 177239
+    },
+    {
+      "id": "ev_vecinos",
+      "file": "assets/events/ev_vecinos.png",
+      "before": 957603,
+      "after": 231041
+    },
+    {
+      "id": "ev_hilo",
+      "file": "assets/events/ev_hilo.png",
+      "before": 808645,
+      "after": 146131
+    },
+    {
+      "id": "ev_primo",
+      "file": "assets/events/ev_primo.png",
+      "before": 960592,
+      "after": 223868
+    },
+    {
+      "id": "ev_premio",
+      "file": "assets/events/ev_premio.png",
+      "before": 928297,
+      "after": 190320
+    },
+    {
+      "id": "ev_sanidad",
+      "file": "assets/events/ev_sanidad.png",
+      "before": 869915,
+      "after": 160262
+    },
+    {
+      "id": "ev_rival",
+      "file": "assets/events/ev_rival.png",
+      "before": 955084,
+      "after": 228905
+    },
+    {
+      "id": "ev_banco",
+      "file": "assets/events/ev_banco.png",
+      "before": 885403,
+      "after": 164630
+    },
+    {
+      "id": "ev_tv",
+      "file": "assets/events/ev_tv.png",
+      "before": 799029,
+      "after": 127696
+    },
+    {
+      "id": "ev_maletin",
+      "file": "assets/events/ev_maletin.png",
+      "before": 786107,
+      "after": 153269
+    },
+    {
+      "id": "ev_sindicato",
+      "file": "assets/events/ev_sindicato.png",
+      "before": 905730,
+      "after": 191463
+    },
+    {
+      "id": "ev_robot",
+      "file": "assets/events/ev_robot.png",
+      "before": 921824,
+      "after": 220775
+    },
+    {
+      "id": "ev_empanadas",
+      "file": "assets/events/ev_empanadas.png",
+      "before": 912769,
+      "after": 167485
+    },
+    {
+      "id": "ev_calor",
+      "file": "assets/events/ev_calor.png",
+      "before": 941063,
+      "after": 210832
+    },
+    {
+      "id": "ev_coach",
+      "file": "assets/events/ev_coach.png",
+      "before": 951330,
+      "after": 195355
+    },
+    {
+      "id": "ev_erte",
+      "file": "assets/events/ev_erte.png",
+      "before": 913193,
+      "after": 184648
+    },
+    {
+      "id": "ev_jefe_infiltrado",
+      "file": "assets/events/ev_jefe_infiltrado.png",
+      "before": 864781,
+      "after": 169556
+    },
+    {
+      "id": "ev_okupas",
+      "file": "assets/events/ev_okupas.png",
+      "before": 866205,
+      "after": 169714
+    },
+    {
+      "id": "ev_igp",
+      "file": "assets/events/ev_igp.png",
+      "before": 917500,
+      "after": 241155
+    },
+    {
+      "id": "ev_riders",
+      "file": "assets/events/ev_riders.png",
+      "before": 920437,
+      "after": 221400
+    },
+    {
+      "id": "ev_macro_expansion",
+      "file": "assets/events/ev_macro_expansion.png",
+      "before": 945878,
+      "after": 214431
+    },
+    {
+      "id": "ev_macro_burbuja",
+      "file": "assets/events/ev_macro_burbuja.png",
+      "before": 732680,
+      "after": 154615
+    },
+    {
+      "id": "ev_macro_crisis",
+      "file": "assets/events/ev_macro_crisis.png",
+      "before": 883884,
+      "after": 180800
+    },
+    {
+      "id": "ev_macro_recuperacion",
+      "file": "assets/events/ev_macro_recuperacion.png",
+      "before": 916668,
+      "after": 192268
+    },
+    {
+      "id": "ev_divorcio",
+      "file": "assets/events/ev_divorcio.png",
+      "before": 904230,
+      "after": 183690
+    },
+    {
+      "id": "ev_junta",
+      "file": "assets/events/ev_junta.png",
+      "before": 774293,
+      "after": 145753
+    },
+    {
+      "id": "ev_arc_prensa_llamada",
+      "file": "assets/events/ev_arc_prensa_llamada.png",
+      "before": 916391,
+      "after": 200484
+    },
+    {
+      "id": "ev_arc_hojaldre_registro",
+      "file": "assets/events/ev_arc_hojaldre_registro.png",
+      "before": 960268,
+      "after": 212300
+    },
+    {
+      "id": "ev_arc_anselmo_lata",
+      "file": "assets/events/ev_arc_anselmo_lata.png",
+      "before": 939016,
+      "after": 234564
+    },
+    {
+      "id": "ev_arc_anselmo_carta",
+      "file": "assets/events/ev_arc_anselmo_carta.png",
+      "before": 896577,
+      "after": 216173
+    },
+    {
+      "id": "ev_fiestas_patronales",
+      "file": "assets/events/ev_fiestas_patronales.png",
+      "before": 945519,
+      "after": 221281
+    }
+  ]
+}

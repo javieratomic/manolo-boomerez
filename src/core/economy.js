@@ -4,6 +4,9 @@ import { POLICIES, BECARIO_WAGE } from '../data/policies.js';
 import { CITY_BY_ID } from '../data/cities.js';
 import { difficultyOf } from './state.js';
 import { macroFx } from './macro.js';
+import { rivalFactor } from './rivals.js';
+import { productFactor, levelFactor } from './market.js';
+import { execBonus, execSalaries } from './execs.js';
 
 export const SOBAO_SEASON = [1.05, 0.95, 0.95, 1, 1, 0.9, 0.85, 0.9, 1, 1.05, 1.1, 1.35];
 export const TOURISM_SEASON = [0.6, 0.65, 0.8, 0.95, 1, 1.2, 1.5, 1.55, 1.15, 0.9, 0.7, 0.85];
@@ -27,7 +30,8 @@ export const moralFactor = (moral) => 0.8 + (0.4 * moral) / 100;
 export const repFactor = (rep) => 0.55 + (0.9 * rep) / 100;
 
 export function obradorCapacity(s) {
-  return OBRADOR_BASE.capacity + s.obrador.upgrades.reduce((a, id) => a + (OBRADOR_UPGRADES.find((u) => u.id === id)?.capacity || 0), 0);
+  const base = OBRADOR_BASE.capacity + s.obrador.upgrades.reduce((a, id) => a + (OBRADOR_UPGRADES.find((u) => u.id === id)?.capacity || 0), 0);
+  return base * (1 + execBonus(s, 'operaciones'));
 }
 
 export function obradorValue(s) {
@@ -40,14 +44,22 @@ export function averageWage(s) {
   return base * fx.hor.laborMult * modFactor(s, 'labor');
 }
 
-function modFactor(s, kind, category) {
+// Modificadores temporales (sucesos, campañas, guerras de precios...). Filtran por categoría, ciudad y tipo.
+function modFactor(s, kind, category, city, type) {
   let f = 1;
   for (const m of s.mods) {
     if (m.kind !== kind) continue;
     if (m.category && m.category !== category) continue;
+    if (m.city && m.city !== city) continue;
+    if (m.types && !m.types.includes(type)) continue;
     f *= m.factor;
   }
   return f;
+}
+
+// Todo lo que multiplica la demanda de un negocio concreto.
+function bizMult(s, b, category, city, month) {
+  return modFactor(s, 'revenue', category, b.city, b.type) * rivalFactor(s, b) * levelFactor(b) * productFactor(s, b.type, category, city, month);
 }
 
 export function patrimonio(s) {
@@ -81,12 +93,13 @@ export function computeEconomy(s) {
   const sat = (b) => 1 / (1 + 0.45 * ((counts[`${b.city}:${b.type}`] || 1) - 1));
 
   const lines = [];
-  const costs = { salarios: 0, alquileres: 0, materias: 0, otros: 0, intereses: 0, asesores: 0, impuestos: 0 };
-  const revenueByCat = { sobaos: 0, inmobiliario: 0, hosteleria: 0, formacion: 0 };
+  const costs = { salarios: 0, directivos: 0, alquileres: 0, materias: 0, otros: 0, intereses: 0, asesores: 0, impuestos: 0 };
+  const revenueByCat = { sobaos: 0, inmobiliario: 0, hosteleria: 0, formacion: 0, servicios: 0 };
   let employees = 0;
 
   // --- Demanda de sobaos ---------------------------------------------------
-  const shopUnits = OBRADOR_BASE.shopUnits * repF * sobaoSeason * modFactor(s, 'revenue', 'sobaos');
+  const hq = CITY_BY_ID.selaya;
+  const shopUnits = OBRADOR_BASE.shopUnits * repF * sobaoSeason * modFactor(s, 'revenue', 'sobaos', 'selaya', 'obrador') * productFactor(s, 'obrador', 'sobaos', hq, m);
   const contractUnits = s.contracts.reduce((a, c) => a + c.units, 0);
   const wholesaleUnits = OBRADOR_BASE.wholesaleUnits;
 
@@ -102,7 +115,7 @@ export function computeEconomy(s) {
       demand = t.baseUnits * Math.pow(c.pop, 0.35) * Math.pow(c.wealth, 1.6) * (0.6 + 0.8 * c.tourism) * quality * quality * (1 + s.fama / 200);
     }
     const franchiseService = b.mode === 'franquicia' ? 0.95 : service;
-    demand *= repF * sobaoSeason * sat(b) * franchiseService * modFactor(s, 'revenue', 'sobaos');
+    demand *= repF * sobaoSeason * sat(b) * franchiseService * bizMult(s, b, 'sobaos', c, m);
     sobaoEntries.push({ b, t, c, demand });
   }
 
@@ -164,7 +177,7 @@ export function computeEconomy(s) {
     if (t.category === 'hosteleria') {
       const trend = s.trends[t.trend] ?? 1;
       revenue = t.baseRevenue * Math.pow(c.pop, 0.5) * Math.pow(c.wealth, 0.4) * trend * repF * service * sat(b) *
-        (0.7 + 0.3 * quality) * strike * macro.demand * modFactor(s, 'revenue', 'hosteleria');
+        (0.7 + 0.3 * quality) * strike * macro.demand * bizMult(s, b, 'hosteleria', c, m);
       const materials = revenue * t.cogs * (0.6 + 0.4 * fx.ing.cost);
       // Más clientela, más plantilla.
       lineStaff = Math.ceil(t.staff * Math.pow(Math.max(1, revenue / t.baseRevenue), 0.85));
@@ -182,14 +195,16 @@ export function computeEconomy(s) {
     } else if (b.type === 'airbnb') {
       const nightly = 60 * c.wealth * (0.6 + 0.6 * c.tourism);
       const occupancy = Math.min(0.95, (0.25 + 0.65 * c.tourism) * tourSeason);
-      revenue = t.flats * nightly * 30 * occupancy * Math.sqrt(repF) * sat(b) * modFactor(s, 'revenue', 'inmobiliario');
+      const flats = t.flats + 2 * ((b.level || 1) - 1);
+      revenue = flats * nightly * 30 * occupancy * Math.sqrt(repF) * sat(b) * modFactor(s, 'revenue', 'inmobiliario', b.city, b.type) *
+        rivalFactor(s, b) * productFactor(s, b.type, 'inmobiliario', c, m);
       const wages = t.staff * wage;
       costs.salarios += wages;
       costs.otros += t.upkeep;
       cost = wages + t.upkeep;
       employees += t.staff;
     } else if (b.type === 'academy') {
-      revenue = (1500 + 5 * s.fama * s.fama) * (0.6 + 0.4 * repF) * modFactor(s, 'revenue', 'formacion');
+      revenue = (1500 + 5 * s.fama * s.fama) * (0.6 + 0.4 * repF) * bizMult(s, b, 'formacion', c, m);
       const wages = t.staff * wage;
       const rent = t.rentBase * c.rent;
       costs.salarios += wages;
@@ -206,12 +221,13 @@ export function computeEconomy(s) {
   }
 
   // --- Viviendas para la plantilla (dependen del nº de empleados) ------------
-  const beds = viviendas.length * BUSINESS_TYPES.vivienda.beds;
+  const bedsOf = (b) => BUSINESS_TYPES.vivienda.beds + 5 * ((b.level || 1) - 1);
+  const beds = viviendas.reduce((a, b) => a + bedsOf(b), 0);
   const housed = Math.min(employees, beds);
   const control = employees > 0 ? housed / employees : 0;
   let remaining = housed;
   for (const b of viviendas) {
-    const occ = Math.min(BUSINESS_TYPES.vivienda.beds, remaining);
+    const occ = Math.min(bedsOf(b), remaining);
     remaining -= occ;
     const revenue = occ * fx.alq.rent;
     const cost = BUSINESS_TYPES.vivienda.upkeep;
@@ -223,10 +239,11 @@ export function computeEconomy(s) {
   // --- Costes generales ------------------------------------------------------
   for (const [id, on] of Object.entries(s.perks)) if (on) costs.asesores += PERKS[id].monthly;
   costs.otros += s.extraMonthly.reduce((a, x) => a + x.amount, 0);
-  costs.intereses = s.debt * (difficultyOf(s).interest + macro.interest);
+  costs.intereses = s.debt * (difficultyOf(s).interest + macro.interest) * (1 - execBonus(s, 'finanzas') * 0.5);
+  costs.directivos = execSalaries(s);
 
   const revenue = Object.values(revenueByCat).reduce((a, b) => a + b, 0);
-  const totalCost = costs.salarios + costs.alquileres + costs.materias + costs.otros + costs.intereses + costs.asesores;
+  const totalCost = costs.salarios + costs.directivos + costs.alquileres + costs.materias + costs.otros + costs.intereses + costs.asesores;
   const profit = revenue - totalCost;
 
   let tax = 0;
@@ -253,7 +270,7 @@ export function computeEconomy(s) {
 export function estimateOpening(s, typeId, cityId, mode = 'propia') {
   const base = computeEconomy(s);
   const clone = JSON.parse(JSON.stringify(s));
-  clone.businesses.push({ id: -1, type: typeId, city: cityId, mode, value: 0 });
+  clone.businesses.push({ id: -1, type: typeId, city: cityId, mode, value: 0, level: 1 });
   const after = computeEconomy(clone);
   return { delta: after.profit - base.profit, fillAfter: after.fill, fillBefore: base.fill };
 }

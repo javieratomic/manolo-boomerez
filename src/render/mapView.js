@@ -5,6 +5,7 @@ import { CITIES } from '../data/cities.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
 import { getImage, hasArt } from './assets.js';
 import { moneyShort } from '../core/helpers.js';
+import { RIVALS } from '../data/rivals.js';
 
 const SLOTS = [[0, -8], [-32, 4], [32, 4], [-16, 18], [16, 18], [0, 30]];
 const BUILDING_SIZE = 66;
@@ -422,6 +423,24 @@ export class MapView {
       ctx.fill();
       ctx.fillStyle = '#222';
       ctx.fillText(label, p.x, p.y + 35);
+      // Presencia de cadenas rivales: chapas de colores junto a la etiqueta.
+      const rivals = (s.rivals || []).filter((r) => r.presence[c.id]);
+      rivals.forEach((r, i) => {
+        const d = RIVALS[r.id];
+        const rx = p.x + w / 2 + 8 + i * 15;
+        const ry = p.y + 35 + fs / 2;
+        ctx.fillStyle = d.color;
+        ctx.beginPath();
+        ctx.arc(rx, ry, 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 9px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(r.presence[c.id]), rx, ry + 0.5);
+        ctx.textBaseline = 'top';
+        ctx.font = `${c.hq ? 'bold ' : ''}${fs}px system-ui, sans-serif`;
+      });
     }
   }
 

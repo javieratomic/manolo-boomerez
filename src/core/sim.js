@@ -5,6 +5,10 @@ import { addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, log, money,
 import { laborFine, haciendaDebt, inspectionChance, auditChance } from './inspections.js';
 import { checkUnlocks } from './actions.js';
 import { tickMacro, macroFx } from './macro.js';
+import { tickRivals, rivalHit } from './rivals.js';
+import { tickRD } from './market.js';
+import { tickExecs, execBonus, execSkill, execHeat } from './execs.js';
+import { laborSeverity } from './inspections.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
 import { CITY_BY_ID } from '../data/cities.js';
 import { EVENTS, EVENT_BY_ID } from '../data/events.js';
@@ -25,6 +29,9 @@ export function advanceMonth(s) {
   driftStats(s, r);
   tickTimers(s);
   tickMacro(s);
+  tickRivals(s, r);
+  tickRD(s);
+  tickExecs(s, laborSeverity(s));
   ageAssets(s);
   handleOverdraft(s);
   rollVisits(s, r);
@@ -66,18 +73,18 @@ function driftStats(s, r) {
   const hasHousing = s.businesses.some((b) => b.type === 'vivienda');
   const control = r.control;
 
-  addMoral(s, fx.sal.moral + fx.hor.moral + fx.bec.moral + (hasHousing ? fx.alq.moral * control : 0) + (50 - s.moral) * 0.03);
-  addRep(s, fx.ing.rep * (s.brand === 'maison' ? 1.5 : 1) + (s.moral < 30 ? -0.5 : 0) + (50 - s.rep) * 0.01);
+  addMoral(s, fx.sal.moral + fx.hor.moral + fx.bec.moral + (hasHousing ? fx.alq.moral * control : 0) + (50 - s.moral) * 0.03 + 0.4 * execSkill(s, 'rrhh'));
+  addRep(s, fx.ing.rep * (s.brand === 'maison' ? 1.5 : 1) + (s.moral < 30 ? -0.5 : 0) + (50 - s.rep) * 0.01 + 0.15 * execSkill(s, 'marketing'));
   addFama(s, -(0.5 + s.fama * 0.03));
 
   const size = Math.min(3, 0.5 + r.employees / 40);
   const inspGain = (fx.sal.insp + fx.hor.insp + fx.bec.insp + (hasHousing ? fx.alq.insp * control : 0)) *
     size * (1 - 0.5 * control) * (s.moral < 30 ? 1.5 : 1);
-  addHeatTrabajo(s, inspGain - 1.5);
+  addHeatTrabajo(s, inspGain * (1 - execBonus(s, 'rrhh')) + execHeat(s) - 1.5);
 
   const hacGain = fx.sal.hac + fx.con.hac * Math.min(3, 0.5 + r.revenue / 150000) +
     (s.businesses.some((b) => b.type === 'academy') ? 0.6 : 0) + (s.perks.andorra ? 0.8 : 0);
-  addHeatHacienda(s, hacGain);
+  addHeatHacienda(s, hacGain * (1 - execBonus(s, 'finanzas')) + execHeat(s));
   addHeatHacienda(s, -1.2);
 
   s.zeroMoralMonths = s.moral <= 0.5 ? s.zeroMoralMonths + 1 : 0;
@@ -87,7 +94,10 @@ function driftStats(s, r) {
 }
 
 function tickTimers(s) {
-  s.mods = s.mods.map((m) => ({ ...m, months: m.months - 1 })).filter((m) => m.months > 0);
+  s.mods = s.mods.map((m) => ({ ...m, months: m.months - 1 }));
+  // Efectos al terminar (p. ej. el desenlace de una guerra de precios).
+  for (const m of s.mods) if (m.months <= 0 && m.onEnd?.rival && chance(s, m.onEnd.chance ?? 1)) rivalHit(s, m.onEnd.rival, m.onEnd.city, 'guerra de precios');
+  s.mods = s.mods.filter((m) => m.months > 0);
   s.extraMonthly = s.extraMonthly
     .map((x) => (x.months == null ? x : { ...x, months: x.months - 1 }))
     .filter((x) => x.months == null || x.months > 0);

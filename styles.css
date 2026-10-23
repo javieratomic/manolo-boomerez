@@ -220,6 +220,24 @@ blockquote { margin: 8px 0 0; font-family: var(--display); font-style: italic; b
 .cycle span:not(.arrow) { padding: 2px 8px; border-radius: 999px; background: var(--bg); color: var(--muted); }
 .cycle span.on { background: var(--accent); color: #2b1a05; font-weight: 700; }
 .cycle .arrow { color: var(--muted); }
+.biz-actions { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+.stars { color: var(--accent-dark); letter-spacing: 1px; font-size: 12px; }
+.chip.rival { background: color-mix(in srgb, var(--rc) 14%, white); border: 1px solid color-mix(in srgb, var(--rc) 40%, white); }
+.campaigns, .products { display: flex; flex-direction: column; gap: 8px; }
+.campaign, .product { display: flex; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 10px; background: var(--bg); }
+.campaign.on, .product.on { background: #eef7e8; }
+.rival-card { border-left: 4px solid var(--rc); padding: 8px 10px; margin-top: 10px; background: color-mix(in srgb, var(--rc) 5%, white); border-radius: 8px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.rival-cities td:last-child { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+.dots { color: var(--bad); letter-spacing: 1px; }
+.btn.tiny { padding: 2px 8px; font-size: 11px; }
+.rd-now { margin-bottom: 8px; }
+.rival-details { width: 100%; }
+.rival-details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--accent-dark); padding: 4px 0; }
+.exec-pos { padding: 8px 0; border-bottom: 1px dashed var(--line); }
+.exec-pos:last-child { border-bottom: 0; }
+.exec-title { margin-bottom: 4px; }
+.exec { display: flex; gap: 8px; align-items: center; padding: 4px 0; }
+.exec-portrait { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex: none; }
 .achievements { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 6px; }
 .ach { display: flex; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 10px; background: var(--bg); opacity: 0.55; font-size: 12px; }
 .ach.on { opacity: 1; background: #fff4dc; border: 1px solid #f0c47e; }

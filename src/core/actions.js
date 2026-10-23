@@ -4,6 +4,7 @@ import { CITY_BY_ID } from '../data/cities.js';
 import { POLICIES } from '../data/policies.js';
 import { ACTION_BY_ID } from '../data/manoloActions.js';
 import { GOALS } from '../data/goals.js';
+import { execBonus, execSkill } from './execs.js';
 import { creditLimit } from './economy.js';
 import { addCash, log, money } from './helpers.js';
 
@@ -21,7 +22,11 @@ export function sobaoTypeId(s) {
 export function openingCost(s, typeId, mode = 'propia') {
   const t = BUSINESS_TYPES[typeId];
   if (mode === 'franquicia') return 0;
-  return Math.round(t.cost * (1 - (s.discountNext || 0)));
+  return Math.round(t.cost * (1 - (s.discountNext || 0)) * (1 - execBonus(s, 'expansion')));
+}
+
+export function franchiseFee(s, typeId) {
+  return Math.round(BUSINESS_TYPES[typeId].franchiseFee * (1 + 0.1 * execSkill(s, 'expansion')));
 }
 
 export function canOpen(s, typeId, cityId, mode = 'propia') {
@@ -44,10 +49,11 @@ export function openBusiness(s, typeId, cityId, mode = 'propia') {
   if (!check.ok) return check;
   const t = BUSINESS_TYPES[typeId];
   const c = CITY_BY_ID[cityId];
-  const b = { id: s.nextId++, type: typeId, city: cityId, mode, openedMonth: s.month, value: 0, lossMonths: 0 };
+  const b = { id: s.nextId++, type: typeId, city: cityId, mode, openedMonth: s.month, value: 0, lossMonths: 0, level: 1 };
   if (mode === 'franquicia') {
-    addCash(s, t.franchiseFee);
-    log(s, `🤝 Un incauto de ${c.name} compra una franquicia de ${t.name} por ${money(t.franchiseFee)}.`, 'good');
+    const fee = franchiseFee(s, typeId);
+    addCash(s, fee);
+    log(s, `🤝 Un incauto de ${c.name} compra una franquicia de ${t.name} por ${money(fee)}.`, 'good');
   } else {
     addCash(s, -check.cost);
     // Los inmuebles pierden un 15 % al comprarlos (notaría, ITP, comisión del primo agente inmobiliario).
@@ -222,6 +228,7 @@ export function checkGoals(s) {
     const text = g.reward(s);
     log(s, `🎯 Objetivo cumplido: ${g.text} ${text}`, 'good');
     s.notices.push({ title: 'Objetivo cumplido', text: [g.text, text].join('\n\n') });
+    if (s.notices.length > 4) s.notices.splice(0, s.notices.length - 4);
     s.goalIndex++;
     g = currentGoal(s);
   }

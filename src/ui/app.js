@@ -7,9 +7,13 @@ import { initAssets, imageUrl, hasArt } from '../render/assets.js';
 import { newGame, saveToStorage, loadFromStorage, clearStorage, serialize, deserialize, DIFFICULTIES } from '../core/state.js';
 import { advanceMonth, currentPending, resolvePending, checkEnding, score, pickQuote } from '../core/sim.js';
 import { patrimonio } from '../core/economy.js';
-import { openBusiness, sellBusiness, buyUpgrade, setPolicy, togglePerk, borrow, repay, doManoloAction, dropMonthlyCost, currentGoal, checkGoals, rebrand, canRebrand, LOAN_STEP } from '../core/actions.js';
+import { openBusiness, sellBusiness, buyUpgrade, setPolicy, togglePerk, borrow, repay, doManoloAction, dropMonthlyCost, currentGoal, checkGoals, rebrand, canRebrand, franchiseFee, LOAN_STEP } from '../core/actions.js';
 import { play, isMuted, setMuted } from './sound.js';
 import { checkAchievements } from './achievements.js';
+import { actOnRival, acquireRival, acquisitionPrice } from '../core/rivals.js';
+import { launchCampaign, startRD, upgradeBusiness, CAMPAIGN_BY_ID, PRODUCT_BY_ID } from '../core/market.js';
+import { hireExec, fireExec, refreshCandidates, execOf, severance } from '../core/execs.js';
+import { RIVALS } from '../data/rivals.js';
 import { money, moneyShort, dateLabel, GAME_MONTHS } from '../core/helpers.js';
 import { HQ_CITY, CITY_BY_ID } from '../data/cities.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
@@ -67,6 +71,7 @@ function startGame(s) {
   game.city = HQ_CITY;
   game.tab = 'ciudad';
   if (!s.quote) s.quote = pickQuote(s);
+  refreshCandidates(s);
   $('#title-screen').hidden = true;
   $('#game').hidden = false;
   if (!game.map) {
@@ -246,7 +251,7 @@ async function onClick(e) {
       const t = BUSINESS_TYPES[el.dataset.type];
       if (el.dataset.mode === 'franquicia') {
         const ok = await confirmModal(`Vender una franquicia de ${t.name}`,
-          `Un emprendedor local te paga ${money(t.franchiseFee)} de canon y monta la tienda con su dinero. Tú le vendes los sobaos a precio mayorista y cobras un 5 % de royalties.\n\nSi pierde dinero 4 meses seguidos, quebrará... y vendrá a pedirte explicaciones.`, 'Firmar');
+          `Un emprendedor local te paga ${money(franchiseFee(s, el.dataset.type))} de canon y monta la tienda con su dinero. Tú le vendes los sobaos a precio mayorista y cobras un 5 % de royalties.\n\nSi pierde dinero 4 meses seguidos, quebrará... y vendrá a pedirte explicaciones.`, 'Firmar');
         if (!ok) return;
       }
       res = openBusiness(s, el.dataset.type, game.city, el.dataset.mode);
@@ -289,6 +294,52 @@ async function onClick(e) {
         await showModal({ title: 'Manolo en acción', portrait: `portrait_manolo_${manoloMood(s)}`, text: res.text });
       }
       break;
+    case 'upgrade-biz':
+      res = upgradeBusiness(s, Number(el.dataset.id));
+      if (res.ok) {
+        play('build');
+        toast(`🔨 Reforma terminada: nivel ${res.level}`, 'good');
+      }
+      break;
+    case 'campaign':
+      res = launchCampaign(s, el.dataset.id, el.dataset.city || null);
+      if (res.ok) {
+        play('cash');
+        toast(`📢 ${CAMPAIGN_BY_ID[el.dataset.id].name}`, 'good');
+      }
+      break;
+    case 'rd':
+      res = startRD(s, el.dataset.id);
+      if (res.ok) toast(`🧪 ${PRODUCT_BY_ID[el.dataset.id].name}: ${res.months} meses`, 'good');
+      break;
+    case 'rival-act':
+      res = actOnRival(s, el.dataset.rival, el.dataset.city, el.dataset.action);
+      if (res.ok) {
+        renderAll();
+        await showModal({ title: RIVALS[el.dataset.rival].name, kicker: 'Competencia', portrait: 'portrait_manolo_smug', text: res.text });
+      }
+      break;
+    case 'rival-buy': {
+      const d = RIVALS[el.dataset.rival];
+      if (!(await confirmModal(`OPA sobre ${d.name}`, `Vas a comprar la cadena entera por ${money(acquisitionPrice(s, el.dataset.rival))}. Desaparecerá del mercado y te quedarás con hasta 4 de sus mejores locales.`, 'Comprar'))) return;
+      res = acquireRival(s, el.dataset.rival);
+      if (res.ok) {
+        play('goal');
+        renderAll();
+        await showModal({ title: 'OPA completada', kicker: '🦈 Tiburón', portrait: 'portrait_manolo_happy', text: `${d.name} ya es tuya.${res.gained.length ? ` Rebautizas sus locales de ${res.gained.join(', ')}.` : ''}\n\nManolo se hace una foto estrechando la mano de los antiguos dueños. Ellos sonríen: acaban de venderte una cadena por bastante más de lo que valía.` });
+      }
+      break;
+    }
+    case 'hire':
+      res = hireExec(s, el.dataset.id);
+      if (res.ok) toast(`🤝 Bienvenido/a, ${res.exec.name}`, 'good');
+      break;
+    case 'fire': {
+      const e = execOf(s, el.dataset.pos);
+      if (!e || !(await confirmModal('Despedir', `¿Despides a ${e.name}? La indemnización es de ${money(severance(e))}.${e.trait === 'enchufado' ? ' Es de la familia: habrá consecuencias en casa.' : ''}`, 'Despedir'))) return;
+      res = fireExec(s, el.dataset.pos);
+      break;
+    }
     case 'rebrand': {
       const r = canRebrand(s);
       if (!(await confirmModal('Rebranding', `Vas a convertir todas tus tiendas de sobaos en ${BUSINESS_TYPES[r.to].name} por ${money(r.cost)}. Manolo ya ha encargado las tarjetas de visita nuevas.`, 'Adelante'))) return;

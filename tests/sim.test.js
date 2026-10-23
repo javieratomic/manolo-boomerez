@@ -9,6 +9,9 @@ import { EVENTS } from '../src/data/events.js';
 import { BUSINESS_TYPES } from '../src/data/businesses.js';
 import { MANOLO_ACTIONS } from '../src/data/manoloActions.js';
 import { ACHIEVEMENTS } from '../src/data/achievements.js';
+import { refreshCandidates, hireExec, execBonus } from '../src/core/execs.js';
+import { tickRivals, rivalFactor, actOnRival, acquireRival, acquisitionPrice } from '../src/core/rivals.js';
+import { launchCampaign, startRD, upgradeBusiness, upgradeCost } from '../src/core/market.js';
 import { playGame } from './bot.js';
 
 const started = (seed = 42, brand = 0) => {
@@ -119,7 +122,10 @@ test('todas las cartas de suceso se resuelven sin errores', () => {
       resolveAll(s);
       const fr = s.businesses.find((b) => b.mode === 'franquicia');
       const ab = s.businesses.find((b) => b.type === 'airbnb');
-      const params = { fine: 20000, debt: 150000, businessId: (ev.id === 'franquiciado_arruinado' ? fr : ab)?.id, city: 'madrid' };
+      s.rivals = [{ id: 'masa', presence: { madrid: 2, bilbao: 1 }, since: 0, calm: 0, actions: {} }];
+      refreshCandidates(s, true);
+      hireExec(s, s.candidates.find((c) => c.pos === 'marketing').id);
+      const params = { fine: 20000, debt: 150000, businessId: (ev.id === 'franquiciado_arruinado' ? fr : ab)?.id, city: 'madrid', rival: 'masa', pos: 'marketing' };
       s.pending = [{ kind: 'event', id: ev.id, params }];
       if (ch.available && !ch.available(s, params)) return;
       const text = resolvePending(s, i);
@@ -297,6 +303,63 @@ test('las partidas antiguas se migran al cargar', () => {
   assertEq(s.version, 2);
   assert(s.macro && Array.isArray(s.rivals));
   advanceMonth(s);
+});
+
+test('las cadenas rivales aparecen, quitan demanda y se pueden comprar', () => {
+  const s = started(31);
+  s.cash = 5e6;
+  openBusiness(s, 'express', 'madrid');
+  openBusiness(s, 'express', 'zaragoza');
+  s.month = 5;
+  tickRivals(s, computeEconomy(s));
+  const rosa = s.rivals.find((r) => r.id === 'dona_rosa') || s.rivals[0];
+  assert(rosa, 'aparece al menos una cadena');
+  const b = s.businesses[0];
+  rosa.presence[b.city] = 2;
+  assert(rivalFactor(s, b) < 0.8, 'la competencia quita demanda');
+  assert(actOnRival(s, rosa.id, b.city, 'guerra').ok);
+  assert(!actOnRival(s, rosa.id, b.city, 'resenas').ok, 'una acción por ciudad y mes');
+  const price = acquisitionPrice(s, rosa.id);
+  const n = s.businesses.length;
+  assert(acquireRival(s, rosa.id).ok);
+  assertEq(s.cash, 5e6 - BUSINESS_TYPES.express.cost * 2 - price);
+  assert(s.businesses.length > n, 'te quedas con sus locales');
+  assert(!s.rivals.some((r) => r.id === rosa.id));
+});
+
+test('reformas, campañas e I+D mejoran el negocio', () => {
+  const s = started(32);
+  s.cash = 2e6;
+  openBusiness(s, 'express', 'sevilla');
+  const b = s.businesses[0];
+  const before = computeEconomy(s).totalDemand;
+  assert(upgradeBusiness(s, b.id).ok);
+  assertEq(b.level, 2);
+  assert(computeEconomy(s).totalDemand > before, 'la reforma atrae más demanda');
+  const r2 = computeEconomy(s).totalDemand;
+  assert(launchCampaign(s, 'vallas', 'sevilla').ok);
+  assert(!launchCampaign(s, 'vallas', 'sevilla').ok, 'no se duplica');
+  assert(computeEconomy(s).totalDemand > r2, 'la campaña atrae más demanda');
+  assert(startRD(s, 'relleno').ok);
+  for (let i = 0; i < 5; i++) {
+    s.cooldowns.trabajo = s.cooldowns.hacienda = 99;
+    advanceMonth(s);
+    resolveAll(s);
+  }
+  assert(s.products.includes('relleno'), 'el producto termina');
+  assert(upgradeCost(b) > 0);
+});
+
+test('los directivos cuestan dinero y aportan su bonus', () => {
+  const s = started(33);
+  s.cash = 1e6;
+  refreshCandidates(s, true);
+  const c = s.candidates.find((x) => x.pos === 'operaciones');
+  const cap = computeEconomy(s).capacity;
+  assert(hireExec(s, c.id).ok);
+  assert(execBonus(s, 'operaciones') > 0);
+  assert(computeEconomy(s).capacity > cap);
+  assertEq(computeEconomy(s).costs.directivos, c.salary);
 });
 
 test('fechas en español', () => {

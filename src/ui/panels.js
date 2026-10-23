@@ -6,7 +6,13 @@ import { BUSINESS_TYPES, PERKS } from '../data/businesses.js';
 import { POLICIES } from '../data/policies.js';
 import { MANOLO_ACTIONS } from '../data/manoloActions.js';
 import { computeEconomy, estimateOpening, obradorCapacity, patrimonio, creditLimit, averageWage } from '../core/economy.js';
-import { canOpen, openingCost, sobaoTypeId, nextUpgrade, saleValue, canRebrand, LOAN_STEP } from '../core/actions.js';
+import { canOpen, openingCost, sobaoTypeId, nextUpgrade, saleValue, canRebrand, franchiseFee, LOAN_STEP } from '../core/actions.js';
+import { RIVALS, RIVAL_MAX_LEVEL } from '../data/rivals.js';
+import { CAMPAIGNS, PRODUCTS, MAX_LEVEL } from '../data/market.js';
+import { POSITIONS, TRAITS } from '../data/execs.js';
+import { RIVAL_ACTIONS, canActOnRival, acquisitionPrice, rivalTotal } from '../core/rivals.js';
+import { canLaunchCampaign, campaignRunning, canStartRD, upgradeCost, PRODUCT_BY_ID } from '../core/market.js';
+import { execOf, signingFee, severance, CANDIDATE_REFRESH } from '../core/execs.js';
 import { money, moneyShort, dateLabel } from '../core/helpers.js';
 import { haciendaDebt } from '../core/inspections.js';
 import { difficultyOf } from '../core/state.js';
@@ -64,6 +70,7 @@ export function renderCity(s, cityId) {
         <span class="chip">📸 Turismo: <b>${level(c.tourism * 1.4)}</b></span>
         <span class="chip">🏷️ Alquileres: <b>${level(c.rent)}</b></span>
       </div>`}
+      ${rivalChips(s, c.id)}
     </div>`;
 
   if (c.hq) html += renderObrador(s);
@@ -77,16 +84,21 @@ export function renderCity(s, cityId) {
       html += `<li class="biz">
         <img src="${imageUrl(t.sprite)}" alt="" class="biz-icon">
         <div class="grow">
-          <div><b>${esc(t.name)}</b>${b.mode === 'franquicia' ? ' <span class="tag">Franquicia</span>' : ''}</div>
+          <div><b>${esc(t.name)}</b>${b.mode === 'franquicia' ? ' <span class="tag">Franquicia</span>' : ` <span class="stars" title="Nivel de reforma">${'★'.repeat(b.level || 1)}${'☆'.repeat(MAX_LEVEL - (b.level || 1))}</span>`}</div>
           <div class="muted small">${profit == null ? 'Recién abierto' : `Último mes: <span class="${cls(profit)}">${signed(profit)}</span>`}
           ${l?.franchise ? ` · Franquiciado: <span class="${cls(l.franchiseeProfit)}">${signed(l.franchiseeProfit)}</span>${b.lossMonths ? ` (${b.lossMonths} meses en pérdidas)` : ''}` : ''}
-          ${l?.occupied != null ? ` · ${l.occupied}/${t.beds} plazas ocupadas` : ''}</div>
+          ${l?.occupied != null ? ` · ${l.occupied}/${t.beds + 5 * ((b.level || 1) - 1)} plazas ocupadas` : ''}</div>
         </div>
-        <button class="btn small ghost" data-act="sell" data-id="${b.id}">${b.mode === 'franquicia' ? 'Rescindir' : `Vender ${moneyShort(saleValue(b))}`}</button>
+        <div class="biz-actions">
+          ${upgradeCost(b) != null ? `<button class="btn small" data-act="upgrade-biz" data-id="${b.id}" ${s.cash >= upgradeCost(b) ? '' : 'disabled'} title="Reforma: +18 % de clientela${b.type === 'vivienda' ? ' y 5 plazas más' : b.type === 'airbnb' ? ' y 2 pisos más' : ''}">Reformar ${moneyShort(upgradeCost(b))}</button>` : ''}
+          <button class="btn small ghost" data-act="sell" data-id="${b.id}">${b.mode === 'franquicia' ? 'Rescindir' : `Vender ${moneyShort(saleValue(b))}`}</button>
+        </div>
       </li>`;
     }
     html += `</ul></div>`;
   }
+
+  if (here.some((b) => b.mode !== 'franquicia') || c.hq) html += renderLocalMarketing(s, c);
 
   html += `<div class="card"><h4>Abrir en ${esc(c.name)}</h4><div class="open-list">`;
   const types = [sobaoTypeId(s), 'vivienda', 'airbnb', 'smash', 'empanadas', 'academy'];
@@ -114,12 +126,40 @@ export function renderCity(s, cityId) {
   return html;
 }
 
+function rivalChips(s, cityId) {
+  const here = (s.rivals || []).filter((r) => r.presence[cityId]);
+  if (!here.length) return '';
+  return `<div class="chips rivals">${here
+    .map((r) => {
+      const d = RIVALS[r.id];
+      const lvl = r.presence[cityId];
+      return `<span class="chip rival" style="--rc:${d.color}" title="${esc(d.name)}: quita clientela a ${esc(d.targets.map((t) => BUSINESS_TYPES[t]?.short || t).join(', '))}">${d.emoji} ${esc(d.short)} ${'●'.repeat(lvl)}${'○'.repeat(RIVAL_MAX_LEVEL - lvl)}</span>`;
+    })
+    .join('')}</div>`;
+}
+
+function renderLocalMarketing(s, c) {
+  return `<div class="card"><h4>Marketing en ${esc(c.name)}</h4><div class="campaigns">
+    ${CAMPAIGNS.filter((x) => x.scope === 'city').map((x) => campaignRow(s, x, c.id)).join('')}
+  </div></div>`;
+}
+
+function campaignRow(s, x, city = null) {
+  const running = campaignRunning(s, x.id, city);
+  const ok = canLaunchCampaign(s, x.id, city);
+  return `<div class="campaign ${running ? 'on' : ''}">
+    <div class="grow"><b>${esc(x.name)}</b> <span class="muted small">${moneyShort(x.cost)} · ${x.months} meses · demanda +${Math.round((x.factor - 1) * 100)} %</span>
+      <div class="small muted">${esc(x.desc)}</div></div>
+    ${running ? `<span class="tag">En marcha: ${running.months} m</span>` : `<button class="btn small" data-act="campaign" data-id="${x.id}" ${city ? `data-city="${city}"` : ''} ${ok.ok ? '' : 'disabled'} title="${esc(ok.msg || '')}">Lanzar</button>`}
+  </div>`;
+}
+
 function renderFranchiseButton(s, id, cityId) {
   const t = BUSINESS_TYPES[id];
   const f = canOpen(s, id, cityId, 'franquicia');
   const est = estimateOpening(s, id, cityId, 'franquicia');
   return `<button class="btn small" data-act="open" data-type="${id}" data-mode="franquicia" ${f.ok ? '' : 'disabled'}
-    title="Un incauto paga el canon y monta la tienda. Tú cobras ${moneyShort(est.delta)}/mes aprox.">Vender franquicia (+${moneyShort(t.franchiseFee)})</button>`;
+    title="Un incauto paga el canon y monta la tienda. Tú cobras ${moneyShort(est.delta)}/mes aprox.">Vender franquicia (+${moneyShort(franchiseFee(s, id))})</button>`;
 }
 
 function renderObrador(s) {
@@ -207,7 +247,63 @@ export function renderMarket(s) {
         <span class="chip">🏦 Crédito: <b>${pct(p.credit)}</b></span>
       </div>
       <p class="small muted">Lleva ${s.macro.months} ${s.macro.months === 1 ? 'mes' : 'meses'} en esta fase. Nadie sabe cuánto durará (bueno, los economistas dicen que sí, pero cada uno una cosa).</p>
-    </div>`;
+    </div>
+    ${renderRivals(s)}
+    <div class="card"><h4>Campañas nacionales</h4><div class="campaigns">
+      ${CAMPAIGNS.filter((x) => x.scope === 'national').map((x) => campaignRow(s, x)).join('')}
+    </div>${execOf(s, 'marketing') ? '<p class="small muted">Tu responsable de Marketing hace que las campañas rindan más.</p>' : ''}</div>
+    ${renderRD(s)}`;
+}
+
+function renderRivals(s) {
+  if (!s.rivals?.length) {
+    return '<div class="card"><h4>Competencia</h4><p class="small muted">De momento nadie te hace sombra. En cuanto huelan dinero, aparecerán.</p></div>';
+  }
+  return `<div class="card"><h4>Competencia</h4>
+    <p class="small muted">Cada punto de presencia rival en una ciudad le quita un 15 % de clientela a tus negocios del ramo. Y te copian: van a donde ganas dinero.</p>
+    ${s.rivals.map((r) => {
+      const d = RIVALS[r.id];
+      const price = acquisitionPrice(s, r.id);
+      const all = Object.entries(r.presence).sort((a, b) => b[1] - a[1]);
+      const mine = new Set(s.businesses.filter((b) => d.targets.includes(b.type) && b.mode !== 'franquicia').map((b) => b.city));
+      const cities = all.filter(([c]) => mine.has(c));
+      const others = all.filter(([c]) => !mine.has(c));
+      return `<div class="rival-card" style="--rc:${d.color}">
+        <div class="row between"><b>${d.emoji} ${esc(d.name)}</b><span class="small muted">${rivalTotal(r)} locales${r.calm ? ' · en pausa' : ''}</span></div>
+        <div class="small muted">${esc(d.desc)}</div>
+        <div class="small">Compite con: ${esc(d.targets.map((t) => BUSINESS_TYPES[t]?.name || t).join(', '))}</div>
+        ${cities.length ? `<details class="rival-details"><summary>Plantarles cara (${cities.length} ${cities.length === 1 ? 'ciudad' : 'ciudades'} donde coincidís)</summary>` : ''}
+        <table class="tbl rival-cities">${cities.map(([city, lvl]) => `<tr>
+          <td>${esc(CITY_BY_ID[city].name)} <span class="dots">${'●'.repeat(lvl)}${'○'.repeat(RIVAL_MAX_LEVEL - lvl)}</span></td>
+          <td>${Object.entries(RIVAL_ACTIONS).map(([a, def]) => {
+            const ok = canActOnRival(s, r.id, city, a);
+            return `<button class="btn tiny" data-act="rival-act" data-rival="${r.id}" data-city="${city}" data-action="${a}" ${ok.ok ? '' : 'disabled'} title="${esc(def.desc + (ok.msg ? ` (${ok.msg})` : ''))}">${esc(def.label)}${def.cost ? ` ${moneyShort(def.cost)}` : ''}</button>`;
+          }).join('')}</td></tr>`).join('')}</table>
+        ${cities.length ? '</details>' : '<div class="small muted">No coincidís en ninguna ciudad: de momento no te quita clientela.</div>'}
+        ${others.length ? `<div class="small muted">También en: ${others.map(([c, l]) => `${esc(CITY_BY_ID[c].name)} ${'●'.repeat(l)}`).join(' · ')}</div>` : ''}
+        <button class="btn small primary" data-act="rival-buy" data-rival="${r.id}" ${s.cash >= price ? '' : 'disabled'}>Lanzar una OPA (${moneyShort(price)})</button>
+        <span class="small muted">Te quedas con hasta 4 de sus locales. Más barato en crisis.</span>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderRD(s) {
+  const rd = s.rd;
+  return `<div class="card"><h4>I+D: nuevos productos</h4>
+    ${rd ? `<div class="rd-now"><b>En desarrollo:</b> ${esc(PRODUCT_BY_ID[rd.id].name)} · faltan ${rd.monthsLeft} meses ${bar(rd.total - rd.monthsLeft, rd.total, 'ok')}</div>`
+      : '<p class="small muted">El "laboratorio" (la trastienda del obrador, con una pizarra) está libre.</p>'}
+    <div class="products">
+      ${PRODUCTS.map((p) => {
+        const has = s.products.includes(p.id);
+        const ok = canStartRD(s, p.id);
+        return `<div class="product ${has ? 'on' : ''}">
+          <div class="grow"><b>${has ? '✅ ' : ''}${esc(p.name)}</b> ${has ? '' : `<span class="muted small">${moneyShort(p.cost)} · ${p.months} meses</span>`}
+            <div class="small muted">${esc(p.desc)}</div></div>
+          ${has ? '' : `<button class="btn small" data-act="rd" data-id="${p.id}" ${ok.ok ? '' : 'disabled'} title="${esc(ok.msg || '')}">Desarrollar</button>`}
+        </div>`;
+      }).join('')}
+    </div></div>`;
 }
 
 // ---------------------------------------------------------------- Plantilla
@@ -229,7 +325,34 @@ export function renderStaff(s) {
       ${policyGroup(s, 'becarios', POLICIES.becarios, locked)}
       ${hasHousing ? policyGroup(s, 'alquiler', POLICIES.alquiler) : `<p class="small muted">🔑 Cuando tengas un Residencial Boomerez podrás alojar a la plantilla (${r.housed}/${r.beds} plazas) y fijar su alquiler.</p>`}
       ${hasHousing ? `<p class="small">Alojados: <b>${r.housed}/${r.beds}</b>. Con más control hay menos denuncias y menos huelgas.</p>` : ''}
-    </div>`;
+    </div>
+    ${renderExecs(s)}`;
+}
+
+function renderExecs(s) {
+  const next = CANDIDATE_REFRESH - (s.month - (s.candidatesMonth ?? 0));
+  return `<div class="card"><h4>Equipo directivo</h4>
+    <p class="small muted">Directivos con nombre y apellidos (y manías). La headhunter cobra un mes de sueldo; despedir cuesta tres. Nuevos currículums en ${Math.min(CANDIDATE_REFRESH, Math.max(1, next))} ${next === 1 ? "mes" : "meses"}.</p>
+    ${Object.entries(POSITIONS).map(([pos, p]) => {
+      const e = execOf(s, pos);
+      const cands = (s.candidates || []).filter((c) => c.pos === pos);
+      return `<div class="exec-pos">
+        <div class="exec-title">${p.emoji} <b>${esc(p.label)}</b> <span class="small muted">${esc(p.effect)}</span></div>
+        ${e ? execRow(e, `<button class="btn small ghost" data-act="fire" data-pos="${pos}">Despedir (${moneyShort(severance(e))})</button>`)
+          : cands.length ? cands.map((c) => execRow(c, `<button class="btn small primary" data-act="hire" data-id="${c.id}" ${s.cash >= signingFee(c) ? '' : 'disabled'}>Fichar (${moneyShort(signingFee(c))})</button>`)).join('')
+          : '<div class="small muted">Puesto vacante. No hay candidatos ahora mismo.</div>'}
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function execRow(e, button) {
+  const t = TRAITS[e.trait];
+  return `<div class="exec">
+    <img src="${imageUrl(e.portrait)}" alt="" class="exec-portrait">
+    <div class="grow"><b>${esc(e.name)}</b>${e.note ? ` <span class="small muted">(${esc(e.note)})</span>` : ''}
+      <div class="small"><span class="stars">${'★'.repeat(e.skill)}${'☆'.repeat(3 - e.skill)}</span> · ${money(e.salary)}/mes · <span class="tag" title="${esc(t.desc)}">${esc(t.label)}</span></div>
+    </div>${button}</div>`;
 }
 
 // ---------------------------------------------------------------- Finanzas
@@ -260,7 +383,9 @@ export function renderFinance(s) {
       ${r.revenueByCat.inmobiliario ? `<tr><td>&nbsp;· Inmobiliario</td><td>${money(r.revenueByCat.inmobiliario)}</td></tr>` : ''}
       ${r.revenueByCat.hosteleria ? `<tr><td>&nbsp;· Hostelería</td><td>${money(r.revenueByCat.hosteleria)}</td></tr>` : ''}
       ${r.revenueByCat.formacion ? `<tr><td>&nbsp;· Formación</td><td>${money(r.revenueByCat.formacion)}</td></tr>` : ''}
+      ${r.revenueByCat.servicios ? `<tr><td>&nbsp;· Servicios</td><td>${money(r.revenueByCat.servicios)}</td></tr>` : ''}
       <tr><td>Salarios</td><td class="neg">−${money(c.salarios)}</td></tr>
+      ${c.directivos ? `<tr><td>Directivos</td><td class="neg">−${money(c.directivos)}</td></tr>` : ''}
       <tr><td>Materias primas</td><td class="neg">−${money(c.materias)}</td></tr>
       <tr><td>Alquileres</td><td class="neg">−${money(c.alquileres)}</td></tr>
       <tr><td>Otros gastos</td><td class="neg">−${money(c.otros)}</td></tr>

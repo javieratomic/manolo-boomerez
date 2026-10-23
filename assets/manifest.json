@@ -902,54 +902,66 @@
       "file": "assets/events/ev_tv.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_tv"
+      "request": "art/requests/05_sucesos.md#ev_tv",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; dimensiones y peso verificados."
     },
     {
       "id": "ev_maletin",
       "file": "assets/events/ev_maletin.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_maletin"
+      "request": "art/requests/05_sucesos.md#ev_maletin",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; dimensiones y peso verificados."
     },
     {
       "id": "ev_sindicato",
       "file": "assets/events/ev_sindicato.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_sindicato"
+      "request": "art/requests/05_sucesos.md#ev_sindicato",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; dimensiones y peso verificados."
     },
     {
       "id": "ev_robot",
       "file": "assets/events/ev_robot.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_robot"
+      "request": "art/requests/05_sucesos.md#ev_robot",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; dimensiones y peso verificados."
     },
     {
       "id": "ev_empanadas",
       "file": "assets/events/ev_empanadas.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_empanadas"
+      "request": "art/requests/05_sucesos.md#ev_empanadas",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; dimensiones y peso verificados."
     },
     {
       "id": "ev_calor",
       "file": "assets/events/ev_calor.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_calor"
+      "request": "art/requests/05_sucesos.md#ev_calor",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; dimensiones y peso verificados."
     },
     {
       "id": "ev_coach",

@@ -3,11 +3,12 @@ import { $, esc, showModal, toast, confirmModal, isModalOpen } from './dom.js';
 import { TABS, renderCity, renderEmpire, renderStaff, renderFinance, renderManolo, renderNews, drawChart, manoloMood } from './panels.js';
 import { MapView } from '../render/mapView.js';
 import { initAssets, imageUrl, hasArt } from '../render/assets.js';
-import { newGame, saveToStorage, loadFromStorage, clearStorage } from '../core/state.js';
+import { newGame, saveToStorage, loadFromStorage, clearStorage, DIFFICULTIES } from '../core/state.js';
 import { advanceMonth, currentPending, resolvePending, checkEnding, score, pickQuote } from '../core/sim.js';
 import { patrimonio } from '../core/economy.js';
-import { openBusiness, sellBusiness, buyUpgrade, setPolicy, togglePerk, borrow, repay, doManoloAction, dropMonthlyCost, currentGoal, checkGoals, LOAN_STEP } from '../core/actions.js';
+import { openBusiness, sellBusiness, buyUpgrade, setPolicy, togglePerk, borrow, repay, doManoloAction, dropMonthlyCost, currentGoal, checkGoals, rebrand, canRebrand, LOAN_STEP } from '../core/actions.js';
 import { play, isMuted, setMuted } from './sound.js';
+import { checkAchievements } from './achievements.js';
 import { money, moneyShort, dateLabel, GAME_MONTHS } from '../core/helpers.js';
 import { HQ_CITY, CITY_BY_ID } from '../data/cities.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
@@ -37,8 +38,18 @@ function setupTitle() {
   if (saved && !saved.ending) cont.querySelector('small').textContent = `${dateLabel(saved.month)} · ${moneyShort(patrimonio(saved))}`;
   $('#btn-new').onclick = async () => {
     if (saved && !saved.ending && !(await confirmModal('¿Empezar de cero?', 'Se perderá la partida guardada. Manolo no se arrepiente de nada, pero tú quizá sí.', 'Nueva partida'))) return;
+    const diffs = Object.entries(DIFFICULTIES);
+    const i = await showModal({
+      title: 'Elige la dificultad',
+      kicker: 'Nueva partida',
+      portrait: 'portrait_manolo_smug',
+      text: '"¿Dificultad? Para un tiburón como yo no existe la dificultad." — Manolo',
+      choices: diffs.map(([, d], k) => ({ label: d.label, hint: d.desc, primary: k === 1 })),
+      dismissable: true,
+    });
+    if (i < 0) return;
     clearStorage();
-    startGame(newGame());
+    startGame(newGame(undefined, diffs[i][0]));
   };
   cont.onclick = () => startGame(loadFromStorage());
   $('#btn-help').onclick = showHelp;
@@ -60,6 +71,7 @@ function startGame(s) {
   if (!game.map) {
     game.map = new MapView($('#map'), {
       getState: () => game.s,
+      onHover: (id, p) => showTip(id, p),
       onCityClick: (id) => {
         game.city = id;
         game.tab = 'ciudad';
@@ -85,6 +97,10 @@ function renderAll() {
   renderGoal(s);
   game.map.dirty = true;
   saveToStorage(s);
+  for (const a of checkAchievements(s)) {
+    play('goal');
+    toast(`🏆 Logro: ${a.name}`, 'good');
+  }
 }
 
 function hudItem(icon, emoji, label, value, extra = '', title = '') {
@@ -101,14 +117,14 @@ function renderHUD(s) {
   $('#hud').innerHTML = `
     <div class="hud-brand">${esc(s.brand === 'maison' ? 'Maison Boomerez' : 'Boomerez S.L.')}</div>
     ${hudItem('icon_calendar', '📅', 'Fecha', `<span class="long">${dateLabel(s.month)}</span><span class="short">${dateLabel(s.month).slice(0, 3)} ${String(dateLabel(s.month)).slice(-2)}</span>`, `<span class="hud-sub">Mes ${Math.min(s.month + 1, GAME_MONTHS)}/${GAME_MONTHS}</span>`)}
-    ${hudItem('icon_cash', '💶', 'Caja', `<span class="${s.cash < 0 ? 'neg' : ''}">${moneyShort(s.cash)}</span>`)}
-    ${hudItem('icon_debt', '🏦', 'Deuda', moneyShort(s.debt))}
-    ${hudItem('icon_patrimonio', '🏰', 'Patrimonio', moneyShort(pat))}
-    ${hudItem('icon_rep', '⭐', 'Reputación', Math.round(s.rep), meter(s.rep))}
-    ${hudItem('icon_moral', '🙂', 'Moral', Math.round(s.moral), meter(s.moral))}
-    ${hudItem('icon_fama', '📣', 'Fama', Math.round(s.fama), meter(s.fama))}
-    ${hudItem('icon_inspeccion', '🔎', 'Insp. Trabajo', Math.round(s.heatTrabajo), meter(s.heatTrabajo, true), 'Radar de la Inspección de Trabajo')}
-    ${hudItem('icon_hacienda', '🏛️', 'Hacienda', Math.round(s.heatHacienda), meter(s.heatHacienda, true), 'Radar de Hacienda')}
+    ${hudItem('icon_cash', '💶', 'Caja', `<span class="${s.cash < 0 ? 'neg' : ''}">${moneyShort(s.cash)}</span>`, '', 'Dinero disponible. Si baja de cero, el banco tira de la póliza.')}
+    ${hudItem('icon_debt', '🏦', 'Deuda', moneyShort(s.debt), '', 'Lo que debes a la Caja Cantábrica. Genera intereses cada mes.')}
+    ${hudItem('icon_patrimonio', '🏰', 'Patrimonio', moneyShort(pat), '', 'Caja − deuda + valor de obrador, negocios e inmuebles. Es lo que cuenta para los finales.')}
+    ${hudItem('icon_rep', '⭐', 'Reputación', Math.round(s.rep), meter(s.rep), 'Imagen pública. Multiplica la demanda de todos tus negocios.')}
+    ${hudItem('icon_moral', '🙂', 'Moral', Math.round(s.moral), meter(s.moral), 'Ánimo de la plantilla. Baja: peor servicio, denuncias y huelgas. A 0: la plantilla se queda la empresa.')}
+    ${hudItem('icon_fama', '📣', 'Fama', Math.round(s.fama), meter(s.fama), 'Lo conocido que es Manolo. Impulsa la Maison y la Academy. Se desvanece si no la alimentas.')}
+    ${hudItem('icon_inspeccion', '🔎', 'Insp. Trabajo', Math.round(s.heatTrabajo), meter(s.heatTrabajo, true), 'Radar de la Inspección de Trabajo: cuanto más alto, más probable es una visita.')}
+    ${hudItem('icon_hacienda', '🏛️', 'Hacienda', Math.round(s.heatHacienda), meter(s.heatHacienda, true), 'Radar de Hacienda: cuanto más alto, más probable es una auditoría.')}
     <button class="btn small ghost hud-menu" data-act="menu" aria-label="Menú">☰</button>`;
 }
 
@@ -135,6 +151,25 @@ function renderPanel(s) {
   const btn = $('#end-month');
   btn.disabled = game.busy || !!s.ending || s.pending.length > 0;
   btn.innerHTML = `Cerrar ${esc(dateLabel(s.month))} <span>▶</span>`;
+}
+
+function showTip(id, p) {
+  const tip = $('#map-tip');
+  const s = game.s;
+  if (!id || !s || isModalOpen()) {
+    tip.hidden = true;
+    return;
+  }
+  const c = CITY_BY_ID[id];
+  const here = s.businesses.filter((b) => b.city === id);
+  const lines = s.lastReport?.lines.filter((l) => l.city === id) || [];
+  const profit = lines.reduce((a, l) => a + l.revenue - l.cost, 0);
+  tip.innerHTML = `<b>${esc(c.name)}</b> <span class="muted">${esc(c.region)}</span>
+    <div>${here.length || c.hq ? `${here.length + (c.hq ? 1 : 0)} negocio(s) · último mes <b class="${profit >= 0 ? 'pos' : 'neg'}">${moneyShort(profit)}</b>` : 'Sin negocios todavía'}</div>`;
+  tip.hidden = false;
+  const wrap = $('#map-wrap').getBoundingClientRect();
+  tip.style.left = `${Math.min(p.x + 14, wrap.width - tip.offsetWidth - 8)}px`;
+  tip.style.top = `${Math.max(8, p.y - tip.offsetHeight - 10)}px`;
 }
 
 function renderGoal(s) {
@@ -251,6 +286,16 @@ async function onClick(e) {
         await showModal({ title: 'Manolo en acción', portrait: `portrait_manolo_${manoloMood(s)}`, text: res.text });
       }
       break;
+    case 'rebrand': {
+      const r = canRebrand(s);
+      if (!(await confirmModal('Rebranding', `Vas a convertir todas tus tiendas de sobaos en ${BUSINESS_TYPES[r.to].name} por ${money(r.cost)}. Manolo ya ha encargado las tarjetas de visita nuevas.`, 'Adelante'))) return;
+      res = rebrand(s);
+      if (res.ok) {
+        play('build');
+        toast(`🔁 Ahora eres ${BUSINESS_TYPES[res.to].name}`, 'good');
+      }
+      break;
+    }
     case 'drop-cost': {
       const x = s.extraMonthly[Number(el.dataset.index)];
       if (!x || !(await confirmModal('Quitar gasto', `¿Dejas de pagar "${x.label}"? Si es un familiar, la próxima cena va a ser tensa.`, 'Quitar'))) return;

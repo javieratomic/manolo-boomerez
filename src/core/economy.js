@@ -2,11 +2,11 @@
 import { BUSINESS_TYPES, OBRADOR_BASE, OBRADOR_UPGRADES, PERKS } from '../data/businesses.js';
 import { POLICIES, BECARIO_WAGE } from '../data/policies.js';
 import { CITY_BY_ID } from '../data/cities.js';
+import { difficultyOf } from './state.js';
 
 export const SOBAO_SEASON = [1.05, 0.95, 0.95, 1, 1, 0.9, 0.85, 0.9, 1, 1.05, 1.1, 1.35];
 export const TOURISM_SEASON = [0.6, 0.65, 0.8, 0.95, 1, 1.2, 1.5, 1.55, 1.15, 0.9, 0.7, 0.85];
 export const CORPORATE_TAX = 0.25;
-export const MONTHLY_INTEREST = 0.0055;
 export const FRANCHISE_ROYALTY = 0.05;
 export const FRANCHISEE_WAGE = 1500;
 
@@ -221,7 +221,7 @@ export function computeEconomy(s) {
   // --- Costes generales ------------------------------------------------------
   for (const [id, on] of Object.entries(s.perks)) if (on) costs.asesores += PERKS[id].monthly;
   costs.otros += s.extraMonthly.reduce((a, x) => a + x.amount, 0);
-  costs.intereses = s.debt * MONTHLY_INTEREST;
+  costs.intereses = s.debt * difficultyOf(s).interest;
 
   const revenue = Object.values(revenueByCat).reduce((a, b) => a + b, 0);
   const totalCost = costs.salarios + costs.alquileres + costs.materias + costs.otros + costs.intereses + costs.asesores;

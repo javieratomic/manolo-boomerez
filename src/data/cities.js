@@ -6,7 +6,7 @@
 export const HQ_CITY = 'selaya';
 
 export const CITIES = [
-  { id: 'selaya', name: 'Selaya', region: 'Cantabria', lon: -3.95, lat: 43.08, pop: 0.1, wealth: 0.9, tourism: 0.3, rent: 0.5, hq: true,
+  { id: 'selaya', name: 'Selaya', region: 'Cantabria', lon: -4.25, lat: 43.0, pop: 0.1, wealth: 0.9, tourism: 0.3, rent: 0.5, hq: true,
     blurb: 'Cuna del sobao pasiego. Vacas, niebla y el obrador de tu padre.' },
   { id: 'santander', name: 'Santander', region: 'Cantabria', lon: -3.8, lat: 43.46, pop: 0.5, wealth: 1.05, tourism: 0.55, rent: 0.95,
     blurb: 'La capital. Aquí todo el mundo conoce a alguien que conoce a tu padre.' },

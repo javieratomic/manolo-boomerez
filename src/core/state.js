@@ -3,16 +3,38 @@ import { DEFAULT_POLICIES } from '../data/policies.js';
 export const SAVE_KEY = 'manolo-boomerez-save-v1';
 export const SAVE_VERSION = 1;
 
-export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0) {
+export const DIFFICULTIES = {
+  cunado: {
+    label: 'Modo cuñado (fácil)',
+    desc: 'Más herencia (150.000 €), más crédito y una Inspección que mira hacia otro lado.',
+    cash: 150000, credit: 100000, heat: 0.7, fines: 0.7, interest: 0.0045,
+  },
+  normal: {
+    label: 'Emprendedor (normal)',
+    desc: 'La experiencia Boomerez tal y como la concibió su padre.',
+    cash: 80000, credit: 0, heat: 1, fines: 1, interest: 0.0055,
+  },
+  hacienda: {
+    label: 'Modo Hacienda (difícil)',
+    desc: '50.000 € de herencia, intereses altos y unos inspectores con mucho café en el cuerpo.',
+    cash: 50000, credit: -50000, heat: 1.3, fines: 1.3, interest: 0.0075,
+  },
+};
+
+export const difficultyOf = (s) => DIFFICULTIES[s.difficulty] || DIFFICULTIES.normal;
+
+export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal') {
+  const d = DIFFICULTIES[difficulty] || DIFFICULTIES.normal;
   return {
     version: SAVE_VERSION,
     seed,
     rng: seed >>> 0,
+    difficulty,
     month: 0,
     brand: null,
-    cash: 80000,
+    cash: d.cash,
     debt: 0,
-    creditBonus: 0,
+    creditBonus: d.credit,
     rep: 55,
     moral: 60,
     fama: 5,

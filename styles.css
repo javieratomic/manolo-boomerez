@@ -121,6 +121,14 @@ p { margin: 0 0 8px; }
   background: rgba(255, 250, 240, 0.95); border: 1px solid var(--line); border-left: 4px solid var(--accent);
   border-radius: 10px; padding: 6px 10px; font-size: 13px; box-shadow: var(--shadow);
 }
+#map-tip {
+  position: absolute; pointer-events: none; z-index: 2;
+  background: rgba(46, 35, 24, 0.92); color: #fff3df; border-radius: 8px; padding: 6px 10px;
+  font-size: 12px; box-shadow: var(--shadow); white-space: nowrap;
+}
+#map-tip .muted { color: #cbb89c; }
+#map-tip .pos { color: #9be08a; }
+#map-tip .neg { color: #ff9a8a; }
 .goal-kicker { display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-dark); }
 .map-zoom { position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; gap: 6px; }
 .map-zoom .btn { width: 36px; height: 36px; padding: 0; font-size: 18px; line-height: 1; box-shadow: var(--shadow); }
@@ -204,6 +212,11 @@ blockquote { margin: 8px 0 0; font-family: var(--display); font-style: italic; b
 .action:disabled { opacity: 0.45; cursor: not-allowed; }
 .action .emoji { font-size: 24px; }
 .action small { display: block; color: var(--muted); font-size: 12px; }
+.achievements { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 6px; }
+.ach { display: flex; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 10px; background: var(--bg); opacity: 0.55; font-size: 12px; }
+.ach.on { opacity: 1; background: #fff4dc; border: 1px solid #f0c47e; }
+.ach .emoji { font-size: 20px; }
+.ach small { display: block; color: var(--muted); font-size: 11px; }
 .news li { font-size: 13px; padding: 6px 8px; border-radius: 8px; background: var(--bg); }
 .news li.good { background: #eef7e8; }
 .news li.bad { background: #fbeae6; }
@@ -226,7 +239,7 @@ blockquote { margin: 8px 0 0; font-family: var(--display); font-style: italic; b
   animation: pop 0.18s ease-out;
 }
 .modal.wide { width: min(760px, 100%); }
-.modal-image img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.modal-image img { display: block; width: 100%; aspect-ratio: 16 / 9; max-height: 30dvh; object-fit: cover; }
 .modal-content { padding: 18px 20px 20px; }
 .modal-head { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
 .modal-portrait { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); flex: none; }

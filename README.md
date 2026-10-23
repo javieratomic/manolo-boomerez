@@ -38,8 +38,12 @@ pellizco para el zoom · `Espacio` cierra el mes · `1`-`6` cambia de pestaña �
 | Negocios | Tiendas de sobaos (propias o franquicias), Residencial para la plantilla, pisos turísticos, smash burgers, empanadas y la Academy |
 | Políticas | Salarios, horas extra, becarios, alquiler de los pisos de la plantilla, contabilidad e ingredientes |
 | Riesgo | Radares de Inspección de Trabajo y de Hacienda → inspecciones, auditorías, multas y expedientes penales |
-| Sucesos | Más de 30 cartas satíricas con decisiones (el cuñado y su SobaoCoin, la rata viral, la huelga...) |
+| Sucesos | 39 cartas satíricas con decisiones (el cuñado y su SobaoCoin, la rata viral, la huelga, el jefe infiltrado...) |
+| Objetivos | 9 objetivos encadenados que guían la partida y dan pequeñas recompensas |
+| Dificultad | Modo cuñado (fácil), Emprendedor (normal) y Modo Hacienda (difícil) |
+| Logros | 21 logros que se guardan entre partidas, uno por cada final |
 | Finales | Concurso de acreedores, Soto del Real, la Cooperativa, Forbes, Tiburón Pasiego, Pyme con ínfulas, Ruina lenta |
+| Sonido | Efectos sintetizados con WebAudio (sin ficheros de audio); se puede silenciar en el menú |
 
 El diseño completo está en [`docs/GDD.md`](docs/GDD.md).
 

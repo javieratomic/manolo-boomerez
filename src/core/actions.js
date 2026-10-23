@@ -139,6 +139,35 @@ export function repay(s, amount = LOAN_STEP) {
   return { ok: true, amount: a };
 }
 
+export const REBRAND_COST = { maison: 150000, express: 60000 };
+export const REBRAND_COOLDOWN = 24;
+
+export function canRebrand(s) {
+  const to = s.brand === 'maison' ? 'express' : 'maison';
+  const last = s.flags.lastRebrand;
+  if (last != null && s.month - last < REBRAND_COOLDOWN) return { ok: false, to, msg: `Tu último rebranding fue hace poco. Espera ${REBRAND_COOLDOWN - (s.month - last)} meses.` };
+  if (s.cash < REBRAND_COST[to]) return { ok: false, to, msg: `Necesitas ${money(REBRAND_COST[to])}.` };
+  return { ok: true, to, cost: REBRAND_COST[to] };
+}
+
+// Cambia de marca y reconvierte todas las tiendas de sobaos.
+export function rebrand(s) {
+  const check = canRebrand(s);
+  if (!check.ok) return check;
+  addCash(s, -check.cost);
+  s.brand = check.to;
+  for (const b of s.businesses) if (BUSINESS_TYPES[b.type].category === 'sobaos') b.type = check.to;
+  s.flags.lastRebrand = s.month;
+  if (check.to === 'express') {
+    s.rep = Math.max(0, s.rep - 6);
+    log(s, '🔁 Rebranding: la Maison pasa a ser "Sobaos Manolo Express". El mármol, a Wallapop. Reputación −6.', 'info');
+  } else {
+    s.fama = Math.min(100, s.fama + 5);
+    log(s, '🔁 Rebranding: nace "Maison Boomerez". Los neones, al contenedor. Fama +5.', 'info');
+  }
+  return { ok: true, to: check.to };
+}
+
 // Prescindir de un gasto fijo (sueldos de familiares, seguros del banco...).
 export function dropMonthlyCost(s, index) {
   const x = s.extraMonthly[index];

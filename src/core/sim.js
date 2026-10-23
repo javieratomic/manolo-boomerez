@@ -79,6 +79,9 @@ function driftStats(s, r) {
   addHeatHacienda(s, -1.2);
 
   s.zeroMoralMonths = s.moral <= 0.5 ? s.zeroMoralMonths + 1 : 0;
+  const p = s.policies;
+  const legal = p.salario === 'convenio' && p.horas === 'pagadas' && p.becarios === 'ninguno' && p.contabilidad === 'limpia';
+  s.flags.legalStreak = legal ? (s.flags.legalStreak ?? 0) + 1 : 0;
 }
 
 function tickTimers(s) {

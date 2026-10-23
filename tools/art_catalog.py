@@ -17,7 +17,7 @@ REQUESTS = os.path.join(ROOT, "art", "requests")
 # Debe coincidir con src/render/projection.js
 WORLD = dict(width=2048, height=1088, minLon=-9.5, maxLat=44.0, pxPerLonDeg=145.5, pxPerLatDeg=117.8, offsetX=6, offsetY=40, extrude=14)
 CITIES = [
-    ("Selaya (sede, obrador)", -3.95, 43.08), ("Santander", -3.8, 43.46), ("Bilbao", -2.93, 43.26), ("Donostia", -1.98, 43.32),
+    ("Selaya (sede, obrador)", -4.25, 43.0), ("Santander", -3.8, 43.46), ("Bilbao", -2.93, 43.26), ("Donostia", -1.98, 43.32),
     ("Oviedo", -5.85, 43.36), ("A Coruña", -8.41, 43.36), ("Valladolid", -4.72, 41.65), ("Salamanca", -5.66, 40.97),
     ("Zaragoza", -0.88, 41.65), ("Madrid", -3.7, 40.42), ("Barcelona", 2.17, 41.39), ("València", -0.38, 39.47),
     ("Alicante", -0.48, 38.35), ("Murcia", -1.13, 37.99), ("Sevilla", -5.98, 37.39), ("Málaga", -4.42, 36.72),

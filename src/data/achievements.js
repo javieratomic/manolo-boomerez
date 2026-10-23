@@ -1,0 +1,27 @@
+// Logros: se guardan entre partidas (ver src/ui/achievements.js).
+import { BUSINESS_TYPES } from './businesses.js';
+import { ENDINGS } from './endings.js';
+import { patrimonio } from '../core/economy.js';
+
+const count = (s, type) => s.businesses.filter((b) => b.type === type).length;
+
+export const ACHIEVEMENTS = [
+  { id: 'primer_sobao', emoji: '🥐', name: 'El primer sobao', desc: 'Abre tu primera tienda de sobaos.', test: (s) => s.businesses.some((b) => BUSINESS_TYPES[b.type].category === 'sobaos') },
+  { id: 'franquiciador', emoji: '🤝', name: 'Vendedor de sueños', desc: 'Ten 5 franquicias a la vez.', test: (s) => s.businesses.filter((b) => b.mode === 'franquicia').length >= 5 },
+  { id: 'casero', emoji: '🔑', name: 'Casero y patrón', desc: 'Aloja a 30 empleados en tus pisos.', test: (s) => (s.lastReport?.housed ?? 0) >= 30 },
+  { id: 'becarios', emoji: '🎓', name: 'Escuela de vida', desc: 'Ten una legión de becarios con más de 40 personas en plantilla.', test: (s) => s.policies.becarios === 'legion' && (s.lastReport?.employees ?? 0) > 40 },
+  { id: 'visita_guiada', emoji: '🔎', name: 'Visita guiada', desc: 'Recibe 3 inspecciones de Trabajo en una partida.', test: (s) => s.stats.inspecciones >= 3 },
+  { id: 'amigo_hacienda', emoji: '🏛️', name: 'Cliente preferente', desc: 'Sufre 3 auditorías de Hacienda en una partida.', test: (s) => s.stats.auditorias >= 3 },
+  { id: 'andorrano', emoji: '🏔️', name: 'Residente fiscal en el Pirineo', desc: 'Monta la sociedad en Andorra.', test: (s) => s.andorraPaid },
+  { id: 'influencer', emoji: '📣', name: 'Thought leader', desc: 'Llega a 80 de fama.', test: (s) => s.fama >= 80 },
+  { id: 'cancelado', emoji: '🙊', name: 'Cancelado', desc: 'Hunde tu reputación por debajo de 10.', test: (s) => s.rep < 10 },
+  { id: 'como_tu_padre', emoji: '🧓', name: 'Como tu padre', desc: 'Pasa 24 meses seguidos con todo en regla (convenio, horas pagadas, sin becarios y contabilidad limpia).', test: (s) => (s.flags.legalStreak ?? 0) >= 24 },
+  { id: 'burbuja', emoji: '🍔', name: 'Burbuja aplastada', desc: 'Ten 5 Manolo Smash Club a la vez.', test: (s) => count(s, 'smash') >= 5 },
+  { id: 'gaucho', emoji: '🥟', name: 'Gaucho de adopción', desc: 'Ten 6 empanaderías a la vez.', test: (s) => count(s, 'empanadas') >= 6 },
+  { id: 'ladrillo', emoji: '🧱', name: 'Ladrillo, que nunca baja', desc: 'Ten 10 inmuebles (residenciales o pisos turísticos).', test: (s) => count(s, 'vivienda') + count(s, 'airbnb') >= 10 },
+  { id: 'millonario', emoji: '💰', name: 'Millonario (de patrimonio)', desc: 'Alcanza 1 millón de patrimonio.', test: (s) => patrimonio(s) >= 1e6 },
+  ...Object.entries(ENDINGS).map(([id, e]) => ({
+    id: `final_${id}`, emoji: e.tone === 'good' ? '🏆' : e.tone === 'bad' ? '💀' : '🎬', name: `Final: ${e.title}`, desc: 'Consigue este final.',
+    test: (s) => s.ending === id,
+  })),
+];

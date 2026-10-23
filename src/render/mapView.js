@@ -11,11 +11,12 @@ const BUILDING_SIZE = 66;
 const OBRADOR_SIZE = 104;
 
 export class MapView {
-  constructor(canvas, { getState, onCityClick }) {
+  constructor(canvas, { getState, onCityClick, onHover }) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.getState = getState;
     this.onCityClick = onCityClick;
+    this.onHover = onHover || (() => {});
     this.cam = { x: 0, y: 0, z: 1 };
     this.fitZ = 1;
     this.selected = null;
@@ -143,7 +144,10 @@ export class MapView {
       if (drag) {
         const dx = p.x - drag.sx;
         const dy = p.y - drag.sy;
-        if (Math.hypot(dx, dy) > 6) drag.moved = true;
+        if (Math.hypot(dx, dy) > 6) {
+          drag.moved = true;
+          this.onHover(null);
+        }
         if (drag.moved) {
           this.cam.x = drag.cx + dx;
           this.cam.y = drag.cy + dy;
@@ -152,12 +156,13 @@ export class MapView {
         }
         return;
       }
-      const h = this.cityAt(p.x, p.y);
+      const h = e.pointerType === 'mouse' ? this.cityAt(p.x, p.y) : null;
       if (h !== this.hover) {
         this.hover = h;
         cv.style.cursor = h ? 'pointer' : 'grab';
         this.dirty = true;
       }
+      this.onHover(h, p);
     });
     const end = (e) => {
       const p = pos(e);
@@ -176,6 +181,7 @@ export class MapView {
     cv.addEventListener('pointerup', end);
     cv.addEventListener('pointercancel', end);
     cv.addEventListener('pointerleave', () => {
+      this.onHover(null);
       if (this.hover) {
         this.hover = null;
         this.dirty = true;

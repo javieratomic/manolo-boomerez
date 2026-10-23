@@ -23,7 +23,7 @@ El recuadro de Canarias va de (13, 938) a (537, 1055) (coordenadas ficticias lon
 
 Puntos de control (el centro de la plaza de cada ciudad debe caer en tierra firme y cerca de su posición real):
 
-- Selaya (sede, obrador): (814, 148)
+- Selaya (sede, obrador): (770, 158)
 - Santander: (835, 104)
 - Bilbao: (962, 127)
 - Donostia: (1100, 120)

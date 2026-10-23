@@ -6,9 +6,12 @@ import { BUSINESS_TYPES, PERKS } from '../data/businesses.js';
 import { POLICIES } from '../data/policies.js';
 import { MANOLO_ACTIONS } from '../data/manoloActions.js';
 import { computeEconomy, estimateOpening, obradorCapacity, patrimonio, creditLimit, averageWage } from '../core/economy.js';
-import { canOpen, openingCost, sobaoTypeId, nextUpgrade, saleValue, LOAN_STEP } from '../core/actions.js';
+import { canOpen, openingCost, sobaoTypeId, nextUpgrade, saleValue, canRebrand, LOAN_STEP } from '../core/actions.js';
 import { money, moneyShort, dateLabel } from '../core/helpers.js';
 import { haciendaDebt } from '../core/inspections.js';
+import { difficultyOf } from '../core/state.js';
+import { ACHIEVEMENTS } from '../data/achievements.js';
+import { isUnlocked, unlockedCount } from './achievements.js';
 
 export const TABS = [
   { id: 'ciudad', label: 'Ciudad', emoji: '📍' },
@@ -132,8 +135,19 @@ function renderObrador(s) {
     ${up ? `<div class="upgrade"><div><b>${esc(up.name)}</b> · +${up.capacity.toLocaleString('es-ES')} uds/mes</div><div class="small muted">${esc(up.desc)}</div>
       <button class="btn small primary" data-act="upgrade" ${s.cash >= up.cost ? '' : 'disabled'}>Comprar (${moneyShort(up.cost)})</button></div>` : '<div class="small muted">El obrador está a tope de mejoras.</div>'}
     ${policyGroup(s, 'ingredientes', ing)}
+    ${renderRebrand(s)}
     ${s.contracts.length ? `<div class="small">Contratos: ${s.contracts.map((c) => `${esc(c.label)} (${c.units.toLocaleString('es-ES')} uds/mes, ${c.months} meses)`).join(', ')}</div>` : ''}
   </div>`;
+}
+
+function renderRebrand(s) {
+  if (!s.brand) return '';
+  const r = canRebrand(s);
+  const to = BUSINESS_TYPES[r.to];
+  return `<div class="upgrade"><div><b>Marca actual:</b> ${esc(BUSINESS_TYPES[s.brand].name)}</div>
+    <div class="small muted">¿Cambiar a ${esc(to.name)}? Se reconvierten todas las tiendas de sobaos${r.to === 'express' ? ' (reputación −6)' : ' (fama +5; cuida la calidad)'}.</div>
+    <button class="btn small" data-act="rebrand" ${r.ok ? '' : 'disabled'} title="${esc(r.msg || '')}">Rebranding${r.cost ? ` (${moneyShort(r.cost)})` : ''}</button>
+    ${!r.ok ? `<div class="small muted">${esc(r.msg)}</div>` : ''}</div>`;
 }
 
 function policyGroup(s, key, def, locked = false) {
@@ -205,7 +219,7 @@ export function renderFinance(s) {
     <div><span class="muted small">Cuota "optimizada"</span><b class="${s.evaded > 0 ? 'neg' : ''}">${moneyShort(haciendaDebt(s))}</b></div>
   </div>
   <div class="card"><h4>Caja Cantábrica · Póliza de crédito</h4>
-    <p class="small muted">Interés del 0,55 % mensual. Si te quedas en descubierto, el banco tira de la póliza automáticamente. Si no queda margen durante 3 meses: concurso de acreedores.</p>
+    <p class="small muted">Interés del ${(difficultyOf(s).interest * 100).toFixed(2).replace('.', ',')} % mensual. Si te quedas en descubierto, el banco tira de la póliza automáticamente. Si no queda margen durante 3 meses: concurso de acreedores.</p>
     ${bar(s.debt, limit, s.debt / limit > 0.8 ? 'danger' : '')}
     <div class="row gap wrap">
       <button class="btn small" data-act="borrow" ${s.debt + 1 > limit ? 'disabled' : ''}>Pedir ${moneyShort(LOAN_STEP)}</button>
@@ -316,6 +330,12 @@ export function renderManolo(s) {
       <div class="actions">
         ${MANOLO_ACTIONS.map((a) => `<button class="action" data-act="manolo" data-id="${a.id}" ${s.actionUsed || (a.cost && s.cash < a.cost) ? 'disabled' : ''}>
           <span class="emoji">${a.emoji}</span><span><b>${esc(a.name)}</b><small>${esc(a.desc)}</small></span></button>`).join('')}
+      </div>
+    </div>
+    <div class="card"><h4>Logros (${unlockedCount()}/${ACHIEVEMENTS.length})</h4>
+      <p class="small muted">Se guardan en este navegador entre partidas.</p>
+      <div class="achievements">
+        ${ACHIEVEMENTS.map((a) => `<div class="ach ${isUnlocked(a.id) ? 'on' : ''}" title="${esc(a.desc)}"><span class="emoji">${isUnlocked(a.id) ? a.emoji : '🔒'}</span><span><b>${esc(a.name)}</b><small>${esc(a.desc)}</small></span></div>`).join('')}
       </div>
     </div>`;
 }

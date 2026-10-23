@@ -1,4 +1,5 @@
-// Utilidades que mutan el estado de partida aplicando los modificadores de asesores.
+// Utilidades que mutan el estado de partida aplicando los modificadores de asesores y de dificultad.
+import { difficultyOf } from './state.js';
 
 export const clamp = (v, min = 0, max = 100) => Math.max(min, Math.min(max, v));
 
@@ -19,11 +20,15 @@ export function addFama(s, d) {
   s.fama = clamp(s.fama + d);
 }
 
+const heatMult = (s) => difficultyOf(s).heat;
+
 export function addHeatTrabajo(s, d) {
+  if (d > 0) d *= heatMult(s);
   s.heatTrabajo = clamp(s.heatTrabajo + d);
 }
 
 export function addHeatHacienda(s, d) {
+  if (d > 0) d *= heatMult(s);
   if (d > 0 && s.perks.gestor) d *= 0.65;
   s.heatHacienda = clamp(s.heatHacienda + d);
 }

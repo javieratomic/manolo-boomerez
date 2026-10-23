@@ -49,7 +49,7 @@ royalties. Si el franquiciado pierde dinero 4 meses seguidos, quiebra y viene a 
 
 ## 5. Recursos y estadísticas
 
-- **Caja**, **Deuda** (póliza de crédito: 0,55 % mensual) y **Patrimonio** (caja − deuda + activos).
+- **Caja**, **Deuda** (póliza de crédito: 0,55 % mensual en dificultad normal) y **Patrimonio** (caja − deuda + activos).
 - **Reputación** (0-100): multiplica la demanda.
 - **Moral de la plantilla** (0-100): afecta a la productividad y al servicio; por debajo de 25 hay riesgo de huelga.
 - **Fama** (0-100): Manolo en LinkedIn y en las tertulias. Alimenta la Maison y la Academy.
@@ -107,15 +107,26 @@ La saturación reduce la demanda cuando hay varios negocios del mismo tipo en un
 | **Pyme con ínfulas** | Al acabar con ≥ 800.000 € |
 | **Ruina lenta** | Al acabar por debajo de eso |
 
-## 10. Arte (2.5D)
+## 10. Progresión y rejugabilidad
+
+- **Objetivos encadenados** (primera tienda → 3 tiendas → mejorar el obrador → diversificar → 1 M€ → 50
+  empleados → 3 M€ → 5 M€ → 15 M€), con recompensas pequeñas y un aviso fijo en el mapa.
+- **Dificultad:** *Modo cuñado* (150.000 € de herencia, radares ×0,7, multas ×0,7, menos interés),
+  *Emprendedor* (normal) y *Modo Hacienda* (50.000 €, radares ×1,3, multas ×1,3, interés del 0,75 %).
+- **Rebranding:** se puede cambiar de Express a Maison (150.000 €) o al revés (60.000 €, reputación −6) una vez
+  cada 24 meses. Todas las tiendas de sobaos se reconvierten.
+- **Logros** persistentes entre partidas (21), entre ellos uno por cada final.
+- **Prensa:** titulares satíricos de *El Sobao Digital* en la hemeroteca.
+
+## 11. Arte (2.5D)
 
 Lo produce un agente aparte (Codex) a partir de `art/requests/`. El juego carga los recursos que aparecen
 en `assets/manifest.json` con `"status": "done"`; los demás se sustituyen por marcadores generados por
 código, así que el juego siempre se puede jugar. Consulta `AGENTS.md` y `art/STYLE_GUIDE.md`.
 
-## 11. Pendiente / ideas futuras
+## 12. Pendiente / ideas futuras
 
-- Audio (música de pasodoble lo-fi, efectos de caja registradora).
-- Rebranding entre Express y Maison a mitad de partida.
-- Logros, modo infinito y dificultad.
+- Música (pasodoble lo-fi). Los efectos de sonido ya están sintetizados.
+- Modo infinito y estadísticas históricas entre partidas.
+- Exportar e importar la partida para pasarla del PC al móvil.
 - Localización (gl, eu, ca, en).

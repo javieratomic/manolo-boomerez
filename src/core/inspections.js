@@ -1,5 +1,7 @@
 // Cálculo de la gravedad de inspecciones y auditorías.
 
+import { difficultyOf } from './state.js';
+
 export const DELITO_FISCAL = 120000;
 
 export function laborSeverity(s) {
@@ -16,11 +18,11 @@ export function laborSeverity(s) {
 export function laborFine(s) {
   const employees = s.lastReport?.employees ?? 10;
   const fine = laborSeverity(s) * (1500 + employees * 300);
-  return Math.round(fine * (s.perks.abogado ? 0.7 : 1));
+  return Math.round(fine * (s.perks.abogado ? 0.7 : 1) * difficultyOf(s).fines);
 }
 
 export function haciendaDebt(s) {
-  return Math.round(s.evaded * (s.perks.andorra ? 1.5 : 1));
+  return Math.round(s.evaded * (s.perks.andorra ? 1.5 : 1) * difficultyOf(s).fines);
 }
 
 // Probabilidad mensual de visita según el radar.

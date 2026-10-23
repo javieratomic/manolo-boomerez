@@ -2,12 +2,13 @@ import { test, assert, assertEq } from './runner.js';
 import { newGame, serialize, deserialize } from '../src/core/state.js';
 import { advanceMonth, resolvePending, currentPending, checkEnding, eligibleEvents } from '../src/core/sim.js';
 import { computeEconomy, patrimonio, creditLimit } from '../src/core/economy.js';
-import { openBusiness, canOpen, setPolicy, borrow, repay, buyUpgrade, sellBusiness, doManoloAction, togglePerk, currentGoal } from '../src/core/actions.js';
+import { openBusiness, canOpen, setPolicy, borrow, repay, buyUpgrade, sellBusiness, doManoloAction, togglePerk, currentGoal, rebrand } from '../src/core/actions.js';
 import { laborFine } from '../src/core/inspections.js';
 import { dateLabel } from '../src/core/helpers.js';
 import { EVENTS } from '../src/data/events.js';
 import { BUSINESS_TYPES } from '../src/data/businesses.js';
 import { MANOLO_ACTIONS } from '../src/data/manoloActions.js';
+import { ACHIEVEMENTS } from '../src/data/achievements.js';
 import { playGame } from './bot.js';
 
 const started = (seed = 42, brand = 0) => {
@@ -234,6 +235,36 @@ test('los objetivos se cumplen en cadena y dejan aviso', () => {
   openBusiness(s, 'express', 'sevilla', 'franquicia');
   openBusiness(s, 'express', 'murcia', 'franquicia');
   assertEq(currentGoal(s).id, 'mejora_obrador');
+});
+
+test('la dificultad cambia herencia, multas e intereses', () => {
+  const easy = newGame(1, 'cunado');
+  const hard = newGame(1, 'hacienda');
+  assert(easy.cash > hard.cash);
+  for (const s of [easy, hard]) {
+    resolvePending(s, 0);
+    setPolicy(s, 'salario', 'negro');
+    s.debt = 100000;
+  }
+  assert(laborFine(easy) < laborFine(hard), 'multas');
+  assert(computeEconomy(easy).costs.intereses < computeEconomy(hard).costs.intereses, 'intereses');
+});
+
+test('el rebranding reconvierte las tiendas y tiene enfriamiento', () => {
+  const s = started(4, 0);
+  s.cash = 1e6;
+  openBusiness(s, 'express', 'madrid');
+  openBusiness(s, 'express', 'bilbao', 'franquicia');
+  assert(rebrand(s).ok);
+  assertEq(s.brand, 'maison');
+  assert(s.businesses.every((b) => b.type === 'maison'));
+  assert(!rebrand(s).ok, 'no se puede repetir enseguida');
+});
+
+test('los logros se evalúan sin errores durante una partida', () => {
+  const r = playGame(77, { diversify: true, choice: 'random' });
+  for (const a of ACHIEVEMENTS) assert(typeof a.test(r.state) === 'boolean', a.id);
+  assert(ACHIEVEMENTS.some((a) => a.id === `final_${r.ending}` && a.test(r.state)), 'el final da logro');
 });
 
 test('fechas en español', () => {

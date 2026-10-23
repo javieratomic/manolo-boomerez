@@ -242,18 +242,22 @@
       "file": "assets/buildings/bld_city_base.png",
       "w": 256,
       "h": 128,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/03_edificios.md#bld_city_base"
+      "request": "art/requests/03_edificios.md#bld_city_base",
+      "version": 1,
+      "notes": "Sprite auxiliar transparente; dimensiones y peso verificados."
     },
     {
       "id": "bld_franchise_flag",
       "file": "assets/buildings/bld_franchise_flag.png",
       "w": 64,
       "h": 64,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/03_edificios.md#bld_franchise_flag"
+      "request": "art/requests/03_edificios.md#bld_franchise_flag",
+      "version": 1,
+      "notes": "Sprite auxiliar transparente; dimensiones y peso verificados."
     },
     {
       "id": "portrait_manolo_neutral",
@@ -491,36 +495,44 @@
       "file": "assets/portraits/portrait_vecina.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/04_retratos.md#portrait_vecina"
+      "request": "art/requests/04_retratos.md#portrait_vecina",
+      "version": 1,
+      "notes": "Busto 2.5D opaco a tres cuartos hacia la izquierda."
     },
     {
       "id": "portrait_hipster",
       "file": "assets/portraits/portrait_hipster.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/04_retratos.md#portrait_hipster"
+      "request": "art/requests/04_retratos.md#portrait_hipster",
+      "version": 1,
+      "notes": "Busto 2.5D opaco a tres cuartos hacia la izquierda."
     },
     {
       "id": "portrait_comercial",
       "file": "assets/portraits/portrait_comercial.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/04_retratos.md#portrait_comercial"
+      "request": "art/requests/04_retratos.md#portrait_comercial",
+      "version": 1,
+      "notes": "Busto 2.5D opaco a tres cuartos hacia la izquierda."
     },
     {
       "id": "portrait_banquero",
       "file": "assets/portraits/portrait_banquero.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/04_retratos.md#portrait_banquero"
+      "request": "art/requests/04_retratos.md#portrait_banquero",
+      "version": 1,
+      "notes": "Busto 2.5D opaco a tres cuartos hacia la izquierda."
     },
     {
       "id": "portrait_presentadora",

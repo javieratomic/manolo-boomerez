@@ -36,7 +36,13 @@ pellizco para el zoom · `Espacio` cierra el mes · `1`-`6` cambia de pestaña �
 | Turnos | 1 mes por turno, 96 meses (2026-2033) |
 | Marca | Al empezar eliges **Express** (low-cost, volumen) o **Maison** (boutique delicatessen) |
 | Producción | Todo sale del obrador de Selaya; si no da abasto, las tiendas venden menos. Tiene 3 mejoras |
-| Negocios | Tiendas de sobaos (propias o franquicias), Residencial para la plantilla, pisos turísticos, smash burgers, empanadas y la Academy |
+| Negocios | 11 tipos: tiendas de sobaos (propias o franquicias), pisos para la plantilla, pisos turísticos, taberna, smash burgers, empanadas, gimnasio, coworking, residencia de mayores y la Academy; reformas en 3 niveles |
+| Mapa | 30 ciudades de España (con Canarias en recuadro) |
+| Economía | Ciclo de expansión, burbuja, crisis y recuperación; costes de estructura crecientes |
+| Competencia | 9 cadenas rivales con IA que te copian; guerra de precios, reseñas falsas, fichajes y OPA |
+| Mercado | Campañas de marketing locales y nacionales, I+D con 12 productos |
+| Equipo | 5 puestos directivos con candidatos que tienen nivel y manías |
+| Vida | Caprichos de nuevo rico, relación con Merche (y divorcio), salida a Bolsa |
 | Políticas | Salarios, horas extra, becarios, alquiler de los pisos de la plantilla, contabilidad e ingredientes |
 | Riesgo | Radares de Inspección de Trabajo y de Hacienda → inspecciones, auditorías, multas y expedientes penales |
 | Sucesos | 39 cartas satíricas con decisiones (el cuñado y su SobaoCoin, la rata viral, la huelga, el jefe infiltrado...) |

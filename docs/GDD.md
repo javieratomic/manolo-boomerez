@@ -83,6 +83,17 @@ Cada opción mueve el coste, la productividad, la moral, la reputación y los ra
 | Manolo Smash Club | 4 tiendas o mes 18 | Burbuja: la moda del smash se desinfla con el tiempo |
 | Empanadas El Gaucho Pasiego | 4 tiendas o mes 18 | Negocio estable que va creciendo |
 | Boomerez Business Academy | Fama ≥ 25 | Cursos de "mentalidad de tiburón". Ingresos según la fama. Hacienda vigila |
+| La Taberna del Emprendedor | 2 tiendas o mes 6 | Tapas; mejor con turismo y en verano |
+| Boomer Fit 24h | Mes 12 o 5 tiendas | Gimnasio low-cost: lleno en enero, vacío en agosto |
+| Hustle Hub Coworking | Fama ≥ 35 o Academy | Vive de la fama de Manolo y de la renta de la ciudad |
+| Residencia Golden Age | Mes 24 o 2 M€ | 60 plazas; muy rentable en ciudades ricas, ruinosa en las pobres; plantilla grande |
+
+Cada negocio propio se puede **reformar** dos veces (+15 % de clientela por nivel; más plazas en
+residencias y viviendas, más pisos en los turísticos). Los costes de **estructura central** crecen como
+n^1,4 con el número de negocios: crecer tiene rendimientos decrecientes.
+
+**Mapa:** 30 ciudades (las 19 originales más Marbella, Ibiza, Pamplona, Vitoria, Burgos, León, Córdoba,
+Toledo, Cáceres, Tarragona y Almería).
 
 La saturación reduce la demanda cuando hay varios negocios del mismo tipo en una ciudad.
 
@@ -107,7 +118,39 @@ La saturación reduce la demanda cuando hay varios negocios del mismo tipo en un
 | **Pyme con ínfulas** | Al acabar con ≥ 800.000 € |
 | **Ruina lenta** | Al acabar por debajo de eso |
 
-## 10. Progresión y rejugabilidad
+## 10. Sistemas de gestión
+
+### Ciclo económico
+Recuperación (10-18 meses) → Expansión (14-24) → Burbuja (8-14) → Crisis (8-16). Cada fase cambia la
+demanda (−18 % a +12 %), el turismo, el límite de crédito (×0,65 a ×1,25), los intereses y la variación
+mensual del valor de los inmuebles (−1,2 % a +1,2 %). Cada cambio de fase trae una carta con decisiones
+(ERE, préstamo ICO, ampliar la póliza...).
+
+### Competencia
+Nueve cadenas rivales (Doña Rosa, MASA, Burger Bros, La Porteña, Vulture Capital, IronBros, Cañas & Tapas,
+Silver Care, WeHustle) aparecen cuando entras en su sector y se expanden con preferencia hacia las ciudades
+donde ganas dinero. Cada nivel de presencia (máx. 3) quita un 15 % de clientela a tus negocios del ramo.
+Acciones: guerra de precios (−15 % tres meses; 75 % de que retrocedan), reseñas falsas, fichar a su
+encargado y OPA (120.000 € por nivel; más barata en crisis; te quedas con hasta 4 locales).
+
+### Marketing e I+D
+Campañas locales (buzoneo, vallas, fútbol) y nacionales (radio, influencers, tele autonómica). Doce
+productos de I+D con efectos por sector, tipo de negocio, renta, tamaño de ciudad o temporada; la línea
+de congelados añade un contrato fijo que consume capacidad del obrador.
+
+### Equipo directivo
+Cinco puestos (Operaciones, RR. HH., Finanzas, Marketing, Expansión), candidatos que se renuevan cada seis
+meses con nivel 1-3 y un rasgo: leal, trepa (la competencia intenta ficharle), íntegro (te denuncia si
+explotas), al borde del burnout, tiburón (rinde más, cobra más, sube los radares), MBA o enchufado (familia).
+
+### Vida de Manolo y Bolsa
+Siete caprichos (reloj, todoterreno, palco, cuadro, caballo, yate, chalet en Marbella) con fama,
+mantenimiento y radar de Hacienda. La relación con Merche baja con el tamaño del imperio; por debajo de 30
+avisa y por debajo de 15 pide el divorcio (gananciales). Salida a Bolsa a partir del mes 36 con 4 M€:
+se vende el 25 % a 8 veces el beneficio con una prima según fama, reputación y ciclo; después la cotización
+fluctúa y las caídas del 30 % provocan juntas de accionistas furiosas.
+
+## 11. Progresión y rejugabilidad
 
 - **Objetivos encadenados** (primera tienda → 3 tiendas → mejorar el obrador → diversificar → 1 M€ → 50
   empleados → 3 M€ → 5 M€ → 15 M€), con recompensas pequeñas y un aviso fijo en el mapa.
@@ -119,13 +162,13 @@ La saturación reduce la demanda cuando hay varios negocios del mismo tipo en un
 - **Prensa:** titulares satíricos de *El Sobao Digital* en la hemeroteca.
 - **Exportar/importar partida** desde el menú (archivo JSON) para pasarla del PC al móvil.
 
-## 11. Arte (2.5D)
+## 12. Arte (2.5D)
 
 Lo produce un agente aparte (Codex) a partir de `art/requests/`. El juego carga los recursos que aparecen
 en `assets/manifest.json` con `"status": "done"`; los demás se sustituyen por marcadores generados por
 código, así que el juego siempre se puede jugar. Consulta `AGENTS.md` y `art/STYLE_GUIDE.md`.
 
-## 12. Pendiente / ideas futuras
+## 13. Pendiente / ideas futuras
 
 - Música (pasodoble lo-fi). Los efectos de sonido ya están sintetizados.
 - Modo infinito y estadísticas históricas entre partidas.

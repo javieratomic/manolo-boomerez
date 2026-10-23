@@ -476,16 +476,28 @@ function showHelp() {
     title: 'Cómo se juega',
     wide: true,
     html: `
-      <p>Cada turno es <b>un mes</b>. Tienes <b>8 años</b> para convertir el obrador de tu padre en un imperio... o en un caso de estudio.</p>
+      <p>Cada turno es <b>un mes</b>. Tienes <b>8 años</b> para convertir el obrador de tu padre en un imperio... o en un caso de estudio. Sigue los <b>objetivos</b> del recuadro del mapa si no sabes por dónde empezar.</p>
+      <h4>El negocio</h4>
       <ul>
-        <li>📍 <b>Haz clic en una ciudad</b> del mapa para abrir negocios. La estimación te dice cuánto ganarías al mes.</li>
+        <li>📍 <b>Haz clic en una ciudad</b> para abrir negocios: tiendas de sobaos, pisos para la plantilla, pisos turísticos, tabernas, smash burgers, empanadas, gimnasios, coworkings, residencias de mayores... La estimación te dice cuánto ganarías al mes.</li>
         <li>🏭 Los sobaos salen del <b>obrador de Selaya</b>. Si no da abasto, mejóralo o tus tiendas venderán menos.</li>
-        <li>🤝 Puedes <b>vender franquicias</b>: cobras el canon y no arriesgas tu dinero. El riesgo lo corre el franquiciado.</li>
-        <li>👷 En <b>Plantilla</b> eliges cuánto "optimizar" sueldos, horas y becarios. Es más barato y es más peligroso.</li>
-        <li>🔎 Los <b>radares</b> de Inspección y Hacienda suben con las malas prácticas. Cuanto más altos, más visitas.</li>
-        <li>😎 Manolo puede hacer <b>una acción al mes</b>: LinkedIn, el bar, el alcalde...</li>
-        <li>⌨️ Atajos: <b>Espacio</b> cierra el mes, <b>1-6</b> cambia de pestaña y <b>1-4</b> elige opción en las cartas.</li>
+        <li>🤝 Puedes <b>vender franquicias</b>: cobras el canon y el riesgo lo corre el franquiciado.</li>
+        <li>🔨 Cada negocio propio se puede <b>reformar</b> (3 niveles) y cada ciudad admite <b>campañas de marketing</b>.</li>
+        <li>🏢 Cuantos más negocios, más <b>estructura central</b>: crecer tiene rendimientos decrecientes.</li>
       </ul>
+      <h4>El mercado (pestaña 📊)</h4>
+      <ul>
+        <li>📈 La economía pasa por <b>expansión, burbuja, crisis y recuperación</b>. En burbuja todo vale más (y luego cae); en crisis se compra barato.</li>
+        <li>⚔️ <b>Cadenas rivales</b> aparecen y te copian donde ganas dinero. Puedes declararles una guerra de precios, robarles al encargado... o comprarlas con una OPA.</li>
+        <li>🧪 <b>I+D</b>: desarrolla productos nuevos (quesada, sobao proteico, congelados...).</li>
+      </ul>
+      <h4>La gente</h4>
+      <ul>
+        <li>👷 En <b>Plantilla</b> eliges cuánto "optimizar" sueldos, horas y becarios, y fichas a tu <b>equipo directivo</b> (cada uno con su manía).</li>
+        <li>🔎 Los <b>radares</b> de Inspección y Hacienda suben con las malas prácticas. Cuanto más altos, más visitas.</li>
+        <li>😎 Manolo hace <b>una acción al mes</b> (LinkedIn, el bar, el alcalde, una cena con Merche...), se compra <b>caprichos</b> y puede sacar la empresa a <b>Bolsa</b>. Ojo con descuidar a Merche: estáis en gananciales.</li>
+      </ul>
+      <p>⌨️ Atajos: <b>Espacio</b> cierra el mes, <b>1-7</b> cambia de pestaña y <b>1-4</b> elige opción en las cartas.</p>
       <p><b>Finales:</b> bancarrota, prisión, que la plantilla se quede la empresa... o salir en Forbes (sección curiosidades).</p>`,
   });
 }

@@ -278,6 +278,7 @@ blockquote { margin: 8px 0 0; font-family: var(--display); font-style: italic; b
 .modal h2 { font-size: 24px; margin: 0; }
 .modal-body { font-size: 15px; }
 .modal-body ul { padding-left: 18px; }
+.modal-body h4 { margin: 12px 0 4px; }
 .modal-choices { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
 .choice {
   display: flex; gap: 10px; align-items: center; text-align: left;

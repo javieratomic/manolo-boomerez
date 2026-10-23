@@ -315,9 +315,11 @@
       "file": "assets/portraits/portrait_manolo_thinking.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/04_retratos.md#portrait_manolo_thinking"
+      "request": "art/requests/04_retratos.md#portrait_manolo_thinking",
+      "version": 1,
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_padre_anselmo",
@@ -357,9 +359,11 @@
       "file": "assets/portraits/portrait_inspector_sanidad.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/04_retratos.md#portrait_inspector_sanidad"
+      "request": "art/requests/04_retratos.md#portrait_inspector_sanidad",
+      "version": 1,
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_empleada_maripili",
@@ -399,27 +403,33 @@
       "file": "assets/portraits/portrait_hija_vanessa.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/04_retratos.md#portrait_hija_vanessa"
+      "request": "art/requests/04_retratos.md#portrait_hija_vanessa",
+      "version": 1,
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_abogado_cosme",
       "file": "assets/portraits/portrait_abogado_cosme.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/04_retratos.md#portrait_abogado_cosme"
+      "request": "art/requests/04_retratos.md#portrait_abogado_cosme",
+      "version": 1,
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_gestor_paco",
       "file": "assets/portraits/portrait_gestor_paco.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/04_retratos.md#portrait_gestor_paco"
+      "request": "art/requests/04_retratos.md#portrait_gestor_paco",
+      "version": 1,
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_alcalde",

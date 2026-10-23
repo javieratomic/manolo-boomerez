@@ -1,6 +1,7 @@
 // Controlador principal de la interfaz.
 import { $, esc, showModal, toast, confirmModal, isModalOpen } from './dom.js';
-import { TABS, renderCity, renderEmpire, renderStaff, renderFinance, renderManolo, renderNews, drawChart, manoloMood } from './panels.js';
+import { TABS, renderCity, renderEmpire, renderMarket, renderStaff, renderFinance, renderManolo, renderNews, drawChart, manoloMood } from './panels.js';
+import { macroFx } from '../core/macro.js';
 import { MapView } from '../render/mapView.js';
 import { initAssets, imageUrl, hasArt } from '../render/assets.js';
 import { newGame, saveToStorage, loadFromStorage, clearStorage, serialize, deserialize, DIFFICULTIES } from '../core/state.js';
@@ -120,6 +121,7 @@ function renderHUD(s) {
     ${hudItem('icon_cash', '💶', 'Caja', `<span class="${s.cash < 0 ? 'neg' : ''}">${moneyShort(s.cash)}</span>`, '', 'Dinero disponible. Si baja de cero, el banco tira de la póliza.')}
     ${hudItem('icon_debt', '🏦', 'Deuda', moneyShort(s.debt), '', 'Lo que debes a la Caja Cantábrica. Genera intereses cada mes.')}
     ${hudItem('icon_patrimonio', '🏰', 'Patrimonio', moneyShort(pat), '', 'Caja − deuda + valor de obrador, negocios e inmuebles. Es lo que cuenta para los finales.')}
+    ${hudItem('icon_macro', macroFx(s).emoji, 'Economía', macroFx(s).label, '', macroFx(s).desc)}
     ${hudItem('icon_rep', '⭐', 'Reputación', Math.round(s.rep), meter(s.rep), 'Imagen pública. Multiplica la demanda de todos tus negocios.')}
     ${hudItem('icon_moral', '🙂', 'Moral', Math.round(s.moral), meter(s.moral), 'Ánimo de la plantilla. Baja: peor servicio, denuncias y huelgas. A 0: la plantilla se queda la empresa.')}
     ${hudItem('icon_fama', '📣', 'Fama', Math.round(s.fama), meter(s.fama), 'Lo conocido que es Manolo. Impulsa la Maison y la Academy. Se desvanece si no la alimentas.')}
@@ -140,6 +142,7 @@ function renderPanel(s) {
   const map = {
     ciudad: () => renderCity(s, game.city),
     imperio: () => renderEmpire(s),
+    mercado: () => renderMarket(s),
     plantilla: () => renderStaff(s),
     finanzas: () => renderFinance(s),
     manolo: () => renderManolo(s),
@@ -211,7 +214,7 @@ function bindGlobal() {
       e.preventDefault();
       endMonth();
     }
-    const idx = '123456'.indexOf(e.key);
+    const idx = '1234567'.indexOf(e.key);
     if (idx >= 0 && !e.ctrlKey && !e.metaKey) {
       game.tab = TABS[idx].id;
       renderAll();

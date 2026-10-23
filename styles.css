@@ -212,6 +212,14 @@ blockquote { margin: 8px 0 0; font-family: var(--display); font-style: italic; b
 .action:disabled { opacity: 0.45; cursor: not-allowed; }
 .action .emoji { font-size: 24px; }
 .action small { display: block; color: var(--muted); font-size: 12px; }
+.macro h3 { font-size: 22px; }
+.macro-burbuja { background: linear-gradient(135deg, #fff 60%, #e9f3ff); }
+.macro-crisis { background: linear-gradient(135deg, #fff 60%, #fde8e4); }
+.macro-expansion { background: linear-gradient(135deg, #fff 60%, #eaf6e4); }
+.cycle { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin: 6px 0; font-size: 12px; }
+.cycle span:not(.arrow) { padding: 2px 8px; border-radius: 999px; background: var(--bg); color: var(--muted); }
+.cycle span.on { background: var(--accent); color: #2b1a05; font-weight: 700; }
+.cycle .arrow { color: var(--muted); }
 .achievements { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 6px; }
 .ach { display: flex; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 10px; background: var(--bg); opacity: 0.55; font-size: 12px; }
 .ach.on { opacity: 1; background: #fff4dc; border: 1px solid #f0c47e; }
@@ -277,7 +285,7 @@ blockquote { margin: 8px 0 0; font-family: var(--display); font-style: italic; b
 .hud-value .short { display: none; }
 @media (max-width: 860px) {
   body { font-size: 14px; }
-  #hud { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; padding: 4px 6px; overflow: visible; }
+  #hud { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; padding: 4px 6px; overflow: visible; }
   .hud-item { padding: 3px 5px; gap: 4px; min-width: 0; }
   .hud-item > div { min-width: 0; flex: 1; }
   .hud-item img { width: 16px; height: 16px; }

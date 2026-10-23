@@ -11,11 +11,14 @@ import { money, moneyShort, dateLabel } from '../core/helpers.js';
 import { haciendaDebt } from '../core/inspections.js';
 import { difficultyOf } from '../core/state.js';
 import { ACHIEVEMENTS } from '../data/achievements.js';
+import { PHASES } from '../data/macro.js';
+import { macroFx } from '../core/macro.js';
 import { isUnlocked, unlockedCount } from './achievements.js';
 
 export const TABS = [
   { id: 'ciudad', label: 'Ciudad', emoji: '📍' },
   { id: 'imperio', label: 'Imperio', emoji: '🏰' },
+  { id: 'mercado', label: 'Mercado', emoji: '📊' },
   { id: 'plantilla', label: 'Plantilla', emoji: '👷' },
   { id: 'finanzas', label: 'Finanzas', emoji: '💶' },
   { id: 'manolo', label: 'Manolo', emoji: '😎' },
@@ -184,6 +187,27 @@ export function renderEmpire(s) {
   }
   html += `</tbody></table><p class="small muted">Sin incluir costes generales (asesores, intereses, extras) ni impuestos.</p></div>`;
   return html;
+}
+
+// ------------------------------------------------------------------ Mercado
+const pct = (f) => `${f >= 1 ? '+' : '−'}${Math.round(Math.abs(f - 1) * 100)} %`;
+
+export function renderMarket(s) {
+  const p = macroFx(s);
+  const order = ['recuperacion', 'expansion', 'burbuja', 'crisis'];
+  return `<div class="card macro macro-${s.macro.phase}">
+      <div class="kicker">Ciclo económico</div>
+      <h3>${p.emoji} ${esc(p.label)}</h3>
+      <p class="small">${esc(p.desc)}</p>
+      <div class="cycle">${order.map((id) => `<span class="${id === s.macro.phase ? 'on' : ''}">${PHASES[id].emoji} ${esc(PHASES[id].label)}</span>`).join('<span class="arrow">→</span>')}</div>
+      <div class="chips">
+        <span class="chip">🛒 Demanda: <b>${pct(p.demand)}</b></span>
+        <span class="chip">🧳 Turismo: <b>${pct(p.tourism)}</b></span>
+        <span class="chip">🧱 Ladrillo: <b>${p.property >= 0 ? '+' : '−'}${Math.abs(p.property * 100).toFixed(1).replace('.', ',')} %/mes</b></span>
+        <span class="chip">🏦 Crédito: <b>${pct(p.credit)}</b></span>
+      </div>
+      <p class="small muted">Lleva ${s.macro.months} ${s.macro.months === 1 ? 'mes' : 'meses'} en esta fase. Nadie sabe cuánto durará (bueno, los economistas dicen que sí, pero cada uno una cosa).</p>
+    </div>`;
 }
 
 // ---------------------------------------------------------------- Plantilla

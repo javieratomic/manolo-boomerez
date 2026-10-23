@@ -1,6 +1,7 @@
 // Cartas de sucesos. Cada evento:
 //  { id, title, portrait, image, text(s, params), weight(s) -> número (0 = no elegible / solo por guion),
-//    once?, cooldown?, choices: [{ label, hint?, available?(s, params), effect(s, params) -> texto }] }
+//    once?, cooldown?, forced?, choices: [{ label, hint?, available?(s, params), effect(s, params) -> texto }] }
+//  forced: true -> si es elegible, sale ese mismo mes sin pasar por el azar (pasos de arcos narrativos).
 import { chance, int } from '../core/rng.js';
 import {
   addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addExpediente, addMod, addMonthlyCost, log, money,
@@ -10,6 +11,9 @@ import { LEGAL_LABOR } from './policies.js';
 import { BUSINESS_TYPES } from './businesses.js';
 import { CITY_BY_ID } from './cities.js';
 import { sobaoOutlets } from '../core/actions.js';
+import { MACRO_EVENTS } from './eventsMacro.js';
+import { ARC_EVENTS } from './eventsArcs.js';
+import { EXTRA_EVENTS } from './eventsExtra.js';
 
 const employees = (s) => s.lastReport?.employees ?? 10;
 const has = (s, type) => s.businesses.some((b) => b.type === type);
@@ -22,7 +26,7 @@ const forceLegal = (s, months = 6) => {
   s.flags.forcedLegal = months;
 };
 
-export const EVENTS = [
+const BASE_EVENTS = [
   // ---------------------------------------------------------------- Guion
   {
     id: 'intro_herencia',
@@ -1356,5 +1360,7 @@ export const EVENTS = [
     ],
   },
 ];
+
+export const EVENTS = [...BASE_EVENTS, ...MACRO_EVENTS, ...ARC_EVENTS, ...EXTRA_EVENTS];
 
 export const EVENT_BY_ID = Object.fromEntries(EVENTS.map((e) => [e.id, e]));

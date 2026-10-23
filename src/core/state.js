@@ -1,7 +1,7 @@
 import { DEFAULT_POLICIES } from '../data/policies.js';
 
 export const SAVE_KEY = 'manolo-boomerez-save-v1';
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 
 export const DIFFICULTIES = {
   cunado: {
@@ -70,7 +70,27 @@ export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal
     ending: null,
     stats: { inspecciones: 0, auditorias: 0, multas: 0, maxPatrimonio: 0, abiertos: 0 },
     quote: null,
+    // --- v2: profundidad ---
+    macro: { phase: 'expansion', months: 0, length: 20 },
+    rivals: [],
+    campaigns: [],
+    products: [],
+    rd: null,
+    execs: {},
+    candidates: [],
+    candidatesMonth: -99,
+    lujo: [],
+    familia: 60,
+    ipo: null,
   };
+}
+
+// Rellena con valores por defecto lo que falte en partidas de versiones anteriores.
+export function migrate(s) {
+  const d = newGame(s.seed, s.difficulty || 'normal');
+  for (const [k, v] of Object.entries(d)) if (!(k in s)) s[k] = v;
+  s.version = SAVE_VERSION;
+  return s;
 }
 
 export function serialize(state) {
@@ -79,8 +99,10 @@ export function serialize(state) {
 
 export function deserialize(text) {
   const s = JSON.parse(text);
-  if (!s || s.version !== SAVE_VERSION) throw new Error('Partida incompatible');
-  return s;
+  if (!s || typeof s !== 'object' || !(s.version >= 1 && s.version <= SAVE_VERSION) || !Array.isArray(s.businesses)) {
+    throw new Error('Partida incompatible');
+  }
+  return migrate(s);
 }
 
 export function saveToStorage(state) {

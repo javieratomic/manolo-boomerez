@@ -267,6 +267,38 @@ test('los logros se evalúan sin errores durante una partida', () => {
   assert(ACHIEVEMENTS.some((a) => a.id === `final_${r.ending}` && a.test(r.state)), 'el final da logro');
 });
 
+test('el ciclo económico rota de fase y mueve el ladrillo', () => {
+  const s = started(21);
+  s.cash = 1e6;
+  s.unlocked.vivienda = true;
+  openBusiness(s, 'vivienda', 'madrid');
+  const seen = new Set([s.macro.phase]);
+  let minValue = Infinity;
+  let maxValue = 0;
+  for (let i = 0; i < 90; i++) {
+    s.cooldowns.trabajo = s.cooldowns.hacienda = 99;
+    advanceMonth(s);
+    resolveAll(s);
+    seen.add(s.macro.phase);
+    const v = s.businesses[0].value;
+    minValue = Math.min(minValue, v);
+    maxValue = Math.max(maxValue, v);
+  }
+  assertEq(seen.size, 4, 'pasa por las cuatro fases');
+  assert(maxValue > minValue * 1.1, 'el valor del inmueble oscila');
+});
+
+test('las partidas antiguas se migran al cargar', () => {
+  const old = started(3);
+  delete old.macro;
+  delete old.rivals;
+  old.version = 1;
+  const s = deserialize(serialize(old));
+  assertEq(s.version, 2);
+  assert(s.macro && Array.isArray(s.rivals));
+  advanceMonth(s);
+});
+
 test('fechas en español', () => {
   assertEq(dateLabel(0), 'Enero 2026');
   assertEq(dateLabel(13), 'Febrero 2027');

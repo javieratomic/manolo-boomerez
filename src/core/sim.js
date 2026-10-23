@@ -4,6 +4,7 @@ import { chance, weightedPick, pick } from './rng.js';
 import { addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, log, money, GAME_MONTHS, clamp } from './helpers.js';
 import { laborFine, haciendaDebt, inspectionChance, auditChance } from './inspections.js';
 import { checkUnlocks } from './actions.js';
+import { tickMacro, macroFx } from './macro.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
 import { CITY_BY_ID } from '../data/cities.js';
 import { EVENTS, EVENT_BY_ID } from '../data/events.js';
@@ -23,6 +24,7 @@ export function advanceMonth(s) {
   franchiseUpdates(s, r);
   driftStats(s, r);
   tickTimers(s);
+  tickMacro(s);
   ageAssets(s);
   handleOverdraft(s);
   rollVisits(s, r);
@@ -104,7 +106,7 @@ function ageAssets(s) {
   for (const b of s.businesses) {
     const t = BUSINESS_TYPES[b.type];
     if (b.mode === 'franquicia') continue;
-    if (t.realEstate) b.value *= 1.0025;
+    if (t.realEstate) b.value *= 1 + macroFx(s).property;
     else b.value = Math.max(t.cost * 0.4, b.value * 0.99);
   }
 }
@@ -172,8 +174,16 @@ export function eligibleEvents(s) {
 }
 
 function rollRandomEvent(s) {
+  const eligible = eligibleEvents(s);
+  // Los pasos de arcos narrativos salen en cuanto se cumplen sus condiciones (uno por mes).
+  const forced = eligible.find((e) => e.forced);
+  if (forced) {
+    s.pending.push({ kind: 'event', id: forced.id });
+    s.seen[forced.id] = s.month;
+    return;
+  }
   if (s.pending.length >= 2 || !chance(s, RANDOM_EVENT_CHANCE)) return;
-  const e = weightedPick(s, eligibleEvents(s), (x) => x.weight(s));
+  const e = weightedPick(s, eligible.filter((x) => !x.forced), (x) => x.weight(s));
   if (e) {
     s.pending.push({ kind: 'event', id: e.id });
     s.seen[e.id] = s.month;

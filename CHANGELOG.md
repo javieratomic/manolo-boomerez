@@ -33,10 +33,18 @@
 ### Plataformas
 - **Escritorio**: `.exe` portable para Windows con Electron (`desktop/`).
 
-### Correcciones
-- Exploits de dinero infinito con franquicias y de reventa tras una OPA.
-- El ERE ahora cobra las indemnizaciones; varios textos incoherentes corregidos.
-- Las partidas guardadas de la 0.1 se migran automáticamente.
+### Contenido (segunda tanda)
+- 24 sucesos ligados a ciudades (San Fermín, Fallas, Feria de Abril, el Pilar, carnaval de Las Palmas...),
+  5 acciones nuevas de Manolo, 30 titulares y 20 frases.
+
+### Calidad
+- Dos revisiones de sistemas con agentes y una auditoría completa del contenido (354 agentes: detección,
+  verificación doble y corrección). Los textos ya dicen exactamente lo que hace el código y no hay marcas
+  ni personas reales (el final de Forbes pasa a ser la revista de millonarios).
+- Exploits de dinero infinito con franquicias y de reventa tras una OPA, corregidos.
+- Las partidas guardadas de la 0.1 se migran automáticamente (objetivos incluidos).
+- Pruebas: 44 tests, partidas automáticas con varias estrategias, fuzzing de 40 partidas caóticas y prueba de
+  pulsaciones aleatorias en la interfaz, sin errores.
 
 ## 0.1.0 — Primera versión jugable
 - Simulación mensual de 8 años, mapa 2.5D de España, 7 tipos de negocio, políticas laborales y fiscales,

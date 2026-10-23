@@ -3,7 +3,7 @@ import { $, esc, showModal, toast, confirmModal, isModalOpen } from './dom.js';
 import { TABS, renderCity, renderEmpire, renderStaff, renderFinance, renderManolo, renderNews, drawChart, manoloMood } from './panels.js';
 import { MapView } from '../render/mapView.js';
 import { initAssets, imageUrl, hasArt } from '../render/assets.js';
-import { newGame, saveToStorage, loadFromStorage, clearStorage, DIFFICULTIES } from '../core/state.js';
+import { newGame, saveToStorage, loadFromStorage, clearStorage, serialize, deserialize, DIFFICULTIES } from '../core/state.js';
 import { advanceMonth, currentPending, resolvePending, checkEnding, score, pickQuote } from '../core/sim.js';
 import { patrimonio } from '../core/economy.js';
 import { openBusiness, sellBusiness, buyUpgrade, setPolicy, togglePerk, borrow, repay, doManoloAction, dropMonthlyCost, currentGoal, checkGoals, rebrand, canRebrand, LOAN_STEP } from '../core/actions.js';
@@ -339,9 +339,13 @@ async function showMenu() {
       { label: isMuted() ? 'Activar el sonido' : 'Silenciar el sonido' },
       { label: 'Volver al título' },
       { label: 'Reiniciar partida', danger: true },
+      { label: 'Exportar partida a un archivo', hint: 'Para llevártela a otro dispositivo.' },
+      { label: 'Importar partida desde un archivo' },
     ],
     dismissable: true,
   });
+  if (i === 5) exportSave();
+  if (i === 6) importSave();
   if (i === 1) showHelp();
   if (i === 2) {
     setMuted(!isMuted());
@@ -353,6 +357,38 @@ async function showMenu() {
     clearStorage();
     startGame(newGame());
   }
+}
+
+function exportSave() {
+  const s = game.s;
+  const blob = new Blob([serialize(s)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `boomerez-${dateLabel(s.month).replace(' ', '-').toLowerCase()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  toast('💾 Partida exportada');
+}
+
+function importSave() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'application/json,.json';
+  input.onchange = async () => {
+    const file = input.files?.[0];
+    if (!file) return;
+    try {
+      const s = deserialize(await file.text());
+      if (!(await confirmModal('Importar partida', `Se cargará la partida de ${dateLabel(s.month)} y se perderá la actual.`, 'Importar'))) return;
+      startGame(s);
+      toast('📂 Partida importada', 'good');
+    } catch {
+      toast('Ese archivo no es una partida de Manolo Boomerez.', 'bad');
+    }
+  };
+  input.click();
 }
 
 function showHelp() {

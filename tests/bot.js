@@ -16,9 +16,10 @@ const CITY_IDS = CITIES.filter((c) => !c.hq).map((c) => c.id);
  *  leverage: usa la póliza para invertir
  *  franchise: vende franquicias cuando la tienda propia no sale rentable
  *  choice: 'first' | 'random' para resolver sucesos
+ *  difficulty: 'cunado' | 'normal' | 'hacienda'
  */
 export function playGame(seed, strategy = {}) {
-  const s = newGame(seed);
+  const s = newGame(seed, strategy.difficulty || 'normal');
   resolvePending(s, strategy.brand === 'maison' ? 1 : 0);
   Object.assign(s.policies, strategy.policies || {});
   const trace = [];

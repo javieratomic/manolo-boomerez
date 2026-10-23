@@ -23,7 +23,8 @@ Necesitas Python 3 (solo como servidor local; los módulos ES no funcionan abrie
 python tools/serve.py 8080 --open
 ```
 
-En Windows también puedes hacer doble clic en `jugar.bat`. La partida se guarda sola en el navegador.
+En Windows también puedes hacer doble clic en `jugar.bat`. La partida se guarda sola en el navegador, y desde el
+menú (☰) se puede exportar a un archivo e importar en otro dispositivo.
 
 **Controles:** clic o toque en una ciudad para abrir negocios · arrastrar para mover el mapa · rueda o
 pellizco para el zoom · `Espacio` cierra el mes · `1`-`6` cambia de pestaña · `1`-`4` elige opción en las cartas.

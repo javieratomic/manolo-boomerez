@@ -117,6 +117,7 @@ La saturación reduce la demanda cuando hay varios negocios del mismo tipo en un
   cada 24 meses. Todas las tiendas de sobaos se reconvierten.
 - **Logros** persistentes entre partidas (21), entre ellos uno por cada final.
 - **Prensa:** titulares satíricos de *El Sobao Digital* en la hemeroteca.
+- **Exportar/importar partida** desde el menú (archivo JSON) para pasarla del PC al móvil.
 
 ## 11. Arte (2.5D)
 
@@ -128,5 +129,4 @@ código, así que el juego siempre se puede jugar. Consulta `AGENTS.md` y `art/S
 
 - Música (pasodoble lo-fi). Los efectos de sonido ya están sintetizados.
 - Modo infinito y estadísticas históricas entre partidas.
-- Exportar e importar la partida para pasarla del PC al móvil.
 - Localización (gl, eu, ca, en).

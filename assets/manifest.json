@@ -1095,9 +1095,11 @@
       "file": "assets/events/ev_divorcio.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/05_sucesos.md#ev_divorcio"
+      "request": "art/requests/05_sucesos.md#ev_divorcio",
+      "version": 1,
+      "notes": "Escena narrativa 2.5D opaca; identidades basadas en retratos entregados."
     },
     {
       "id": "ev_piso_ilegal",
@@ -1140,18 +1142,22 @@
       "file": "assets/events/ev_junta.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/05_sucesos.md#ev_junta"
+      "request": "art/requests/05_sucesos.md#ev_junta",
+      "version": 1,
+      "notes": "Escena narrativa 2.5D opaca; identidades basadas en retratos entregados."
     },
     {
       "id": "ev_arc_prensa_llamada",
       "file": "assets/events/ev_arc_prensa_llamada.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/05_sucesos.md#ev_arc_prensa_llamada"
+      "request": "art/requests/05_sucesos.md#ev_arc_prensa_llamada",
+      "version": 1,
+      "notes": "Escena narrativa 2.5D opaca; identidades basadas en retratos entregados."
     },
     {
       "id": "ev_arc_prensa_plantilla",
@@ -1257,9 +1263,11 @@
       "file": "assets/events/ev_arc_hojaldre_registro.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/05_sucesos.md#ev_arc_hojaldre_registro"
+      "request": "art/requests/05_sucesos.md#ev_arc_hojaldre_registro",
+      "version": 1,
+      "notes": "Escena narrativa 2.5D opaca; identidades basadas en retratos entregados."
     },
     {
       "id": "ev_arc_hojaldre_juzgado",
@@ -1311,18 +1319,22 @@
       "file": "assets/events/ev_arc_anselmo_lata.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/05_sucesos.md#ev_arc_anselmo_lata"
+      "request": "art/requests/05_sucesos.md#ev_arc_anselmo_lata",
+      "version": 1,
+      "notes": "Escena narrativa 2.5D opaca; identidades basadas en retratos entregados."
     },
     {
       "id": "ev_arc_anselmo_carta",
       "file": "assets/events/ev_arc_anselmo_carta.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/05_sucesos.md#ev_arc_anselmo_carta"
+      "request": "art/requests/05_sucesos.md#ev_arc_anselmo_carta",
+      "version": 1,
+      "notes": "Escena narrativa 2.5D opaca; identidades basadas en retratos entregados."
     },
     {
       "id": "ev_arc_anselmo_receta",
@@ -1464,9 +1476,11 @@
       "file": "assets/events/ev_fiestas_patronales.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/05_sucesos.md#ev_fiestas_patronales"
+      "request": "art/requests/05_sucesos.md#ev_fiestas_patronales",
+      "version": 1,
+      "notes": "Escena narrativa 2.5D opaca; identidades basadas en retratos entregados."
     },
     {
       "id": "ev_black_friday",

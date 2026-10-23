@@ -1,7 +1,18 @@
 // Utilidades que mutan el estado de partida aplicando los modificadores de asesores y de dificultad.
 import { difficultyOf } from './state.js';
 
-export const clamp = (v, min = 0, max = 100) => Math.max(min, Math.min(max, v));
+let clampOff = false;
+export const clamp = (v, min = 0, max = 100) => (clampOff ? v : Math.max(min, Math.min(max, v)));
+
+// Solo para las previsiones: ejecuta fn sin los topes de 0 a 100, para medir cuánto empuja cada cosa.
+export function unclamped(fn) {
+  clampOff = true;
+  try {
+    return fn();
+  } finally {
+    clampOff = false;
+  }
+}
 
 export function addCash(s, amount) {
   s.cash += amount;

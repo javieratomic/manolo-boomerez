@@ -9,7 +9,7 @@ import {
   addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addExpediente, addMod, addMonthlyCost, log, money, custom, clamp,
 } from '../core/helpers.js';
 import { addStress } from '../core/life.js';
-import { laborVisitParams, complaintFine, DELITO_FISCAL, dossier, trickOdds, trickCount, recordTrick, recordSanction, recidivism, recentSanctions, clearRecord } from '../core/inspections.js';
+import { laborVisitParams, DELITO_FISCAL, dossier, trickOdds, trickCount, recordTrick, recordSanction, recidivism, recentSanctions, clearRecord } from '../core/inspections.js';
 import { LEGAL_LABOR } from './policies.js';
 import { BUSINESS_TYPES } from './businesses.js';
 import { CITY_BY_ID } from './cities.js';
@@ -32,6 +32,7 @@ const veces = (n) => `${n} ${n === 1 ? 'vez' : 'veces'}`;
 // Al cerrar una inspección de Trabajo se empieza historial nuevo.
 const closeLaborVisit = (s) => {
   dossier(s).historial = [];
+  delete s.flags.denunciaVacaciones;
 };
 
 // Lo que Marisa lleva en la carpeta (con los datos de cuando se calculó la multa, si los hay).
@@ -192,7 +193,7 @@ const BASE_EVENTS = [
         hint: (s) => {
           const c = custom(s, 'agosto');
           const n = c.last === 'trabajar' ? c.streak + 1 : 1;
-          if (n >= 3) return `${n === 3 ? 'Tercer' : `${n}.º`} agosto seguido: la abogada laboralista ya ha denunciado. Viene Marisa (o, si no puede venir aún, radar +15).`;
+          if (n >= 3) return `${n === 3 ? 'Tercer' : `${n}.º`} agosto seguido: la abogada laboralista denuncia y Marisa viene con multa (si aún no puede venir, radar +15 y la multa espera a su próxima visita).`;
           if (n === 2) return 'Segundo agosto seguido: moral −10 y radar +8.';
           return undefined;
         },
@@ -205,13 +206,14 @@ const BASE_EVENTS = [
             addMoral(s, -10);
             if (s.cooldowns.trabajo <= 0) {
               // Negar las vacaciones es una infracción en sí: aunque el resto esté en regla, hay multa.
-              s.pending.push({ kind: 'event', id: 'inspeccion_trabajo', params: laborVisitParams(s, { minFine: complaintFine(s), motivo: 'vacaciones' }) });
+              s.pending.push({ kind: 'event', id: 'inspeccion_trabajo', params: laborVisitParams(s, { veranos: n }) });
               s.cooldowns.trabajo = 4;
               s.stats.inspecciones++;
               return `${ord} sin vacaciones. La abogada laboralista ya no está apuntada en el calendario: está en la puerta, y viene con Marisa. Moral −10.`;
             }
             addHeatTrabajo(s, 15);
-            return `${ord} sin vacaciones. La abogada laboralista manda un burofax a la Inspección; Marisa lo grapa a tu carpeta para la próxima visita. Moral −10, radar de Inspección +15.`;
+            s.flags.denunciaVacaciones = n; // la próxima visita viene con multa por las vacaciones
+            return `${ord} sin vacaciones. La abogada laboralista manda un burofax a la Inspección; Marisa lo grapa a tu carpeta para la próxima visita, que vendrá con multa. Moral −10, radar de Inspección +15.`;
           }
           if (n === 2) {
             addMoral(s, -10);
@@ -248,7 +250,7 @@ const BASE_EVENTS = [
     portrait: 'portrait_inspectora_trabajo', image: 'ev_inspeccion',
     text: (s, p) =>
       p.fine > 0
-        ? `La inspectora Marisa Ortega se presenta en el obrador sin avisar, con una carpeta muy gorda.\n\n${p.motivo === 'vacaciones' ? '"Buenos días, Don Manuel. Venimos por una denuncia de su plantilla: tres veranos sin vacaciones. Las vacaciones son un derecho, no una sugerencia."' : '"Buenos días, Don Manuel. Venimos por unas denuncias anónimas. Muy anónimas. Firmadas por toda la plantilla."'}\n\nMulta estimada: ${money(p.fine)}.${laborFileNote(s, p)}`
+        ? `La inspectora Marisa Ortega se presenta en el obrador sin avisar, con una carpeta muy gorda.\n\n${p.motivo === 'vacaciones' ? `"Buenos días, Don Manuel. Venimos por una denuncia de su plantilla: ${p.veranos && p.veranos !== 3 ? p.veranos : 'tres'} veranos sin vacaciones. Las vacaciones son un derecho, no una sugerencia."` : '"Buenos días, Don Manuel. Venimos por unas denuncias anónimas. Muy anónimas. Firmadas por toda la plantilla."'}\n\nMulta estimada: ${money(p.fine)}.${laborFileNote(s, p)}`
         : 'La inspectora Marisa Ortega revisa contratos, nóminas y registros horarios de los últimos meses.\n\n...Todo está en regla. Se la nota decepcionada.',
     weight: () => 0,
     choices: [
@@ -367,7 +369,7 @@ const BASE_EVENTS = [
       },
       {
         label: 'Culpar al gestor',
-        hint: (s) => `${pct(trickOdds(s, 'gestor'))}: pagas solo la cuota${trickCount(s, 'gestor') ? ` (ya lo usaste ${veces(trickCount(s, 'gestor'))})` : ''}. Si no, ×1,5 (y expediente si es delito fiscal).${s.perks.gestor && trickCount(s, 'gestor') === 2 ? ' Paco está harto: a la tercera se va.' : s.perks.gestor && trickCount(s, 'gestor') >= 3 ? ' Paco ya se fue una vez por esto: si le culpas, se vuelve a ir.' : ''}`,
+        hint: (s) => `${pct(trickOdds(s, 'gestor'))}: pagas solo la cuota${trickCount(s, 'gestor') ? ` (ya lo usaste ${veces(trickCount(s, 'gestor'))})` : ''}. Si no, ×1,5 (y expediente si es delito fiscal).${s.perks.gestor && (s.flags.pacoCulpas ?? 0) === 2 ? ' Paco está harto: a la tercera se va.' : ''}`,
         available: (s, p) => p.debt > 0,
         effect(s, p) {
           const odds = trickOdds(s, 'gestor');
@@ -376,8 +378,11 @@ const BASE_EVENTS = [
           s.evaded = 0;
           addHeatHacienda(s, -40);
           let paco = '';
-          if (s.perks.gestor && trickCount(s, 'gestor') >= 3) {
+          // Paco solo cuenta las veces que le has culpado estando contratado.
+          if (s.perks.gestor) s.flags.pacoCulpas = (s.flags.pacoCulpas ?? 0) + 1;
+          if (s.perks.gestor && s.flags.pacoCulpas >= 3) {
             s.perks.gestor = false;
+            s.flags.pacoCulpas = 0;
             s.flags.pacoSeFue = s.month;
             paco = '\n\nPaco te deja: "A la tercera, Manolo, te defiendes tú solo." No te cogerá el teléfono en un año.';
           }

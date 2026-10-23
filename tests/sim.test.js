@@ -3,7 +3,7 @@ import { newGame, serialize, deserialize } from '../src/core/state.js';
 import { advanceMonth, resolvePending, currentPending, checkEnding, eligibleEvents } from '../src/core/sim.js';
 import { computeEconomy, patrimonio, creditLimit, grossPatrimonio } from '../src/core/economy.js';
 import { openBusiness, canOpen, setPolicy, borrow, repay, buyUpgrade, sellBusiness, doManoloAction, togglePerk, currentGoal, rebrand } from '../src/core/actions.js';
-import { laborFine, trickOdds, recordTrick, recidivism, tickLaborHistory, clearRecord } from '../src/core/inspections.js';
+import { laborFine, trickOdds, recordTrick, recidivism, tickLaborHistory, clearRecord, laborVisitParams } from '../src/core/inspections.js';
 import { dateLabel } from '../src/core/helpers.js';
 import { EVENTS } from '../src/data/events.js';
 import { BUSINESS_TYPES, OBRADOR_UPGRADES } from '../src/data/businesses.js';
@@ -1114,7 +1114,7 @@ test('regresión 0.3: la visita limpia tacha una sanción vigente, no una caduca
 test('regresión 0.3: Paco no vuelve en un año', () => {
   const s = started();
   s.perks.gestor = true;
-  s.dossier.trucos.gestor = 2;
+  s.flags.pacoCulpas = 2;
   pick(s, visit(s, 'auditoria_hacienda', { debt: 5000 }), 'gestor');
   assert(!s.perks.gestor);
   assert(!togglePerk(s, 'gestor').ok, 'no coge el teléfono');
@@ -1134,8 +1134,9 @@ test('regresión 0.3: la culpa se ve aunque la moral esté en el tope', () => {
   s.policies.salario = 'negro';
   s.policies.horas = 'tiburon';
   const b = blame(s, 'moral');
-  assert(b.atLimit && b.rows.length === 2, JSON.stringify(b));
+  assert(b.clamp > 0 && b.rows.length === 2, JSON.stringify(b));
   assert(b.rows.every((x) => x.value < 0));
+  assert(Math.abs(b.rows.reduce((a, x) => a + x.value, 0) + b.rest + b.clamp - b.total) < 1e-9, 'las partes suman el total');
 });
 
 test('regresión 0.3: una huelga que acaba este mes no tapa el riesgo de la siguiente', () => {
@@ -1206,4 +1207,92 @@ test('regresión 0.3: los motivos del parte van en el sentido de la cifra', () =
   t.net = prev.net + 12000;
   const tax = netDrivers(prev, t, s).find((x) => x.key === 'impuestos');
   assert(tax && !tax.reason?.includes('más impuestos'), `impuestos: ${tax?.reason}`);
+});
+
+test('regresión 0.3b: el burofax de agosto espera a la próxima visita de Marisa', () => {
+  const s = started(3);
+  s.cooldowns.trabajo = 2;
+  for (let i = 0; i < 3; i++) yearly(s, 'agosto', 'En agosto');
+  assertEq(s.pending.length, 0);
+  assertEq(s.flags.denunciaVacaciones, 3);
+  const params = laborVisitParams(s);
+  assert(params.fine > 0 && params.motivo === 'vacaciones');
+  const p = visit(s, 'inspeccion_trabajo', params);
+  assert(!p.choices.some((c) => c.label.includes('Ofrecerle un sobao')));
+  pick(s, p, 'Colaborar');
+  assertEq(s.flags.denunciaVacaciones, undefined, 'la denuncia se resuelve');
+  const q = started(4);
+  q.cooldowns.trabajo = 0;
+  q.customs.agosto = { count: 3, streak: 3, last: 'trabajar', counts: { trabajar: 3 } };
+  yearly(q, 'agosto', 'En agosto');
+  assert(currentPending(q).text.includes('4 veranos'), 'cuenta los veranos de verdad');
+});
+
+test('regresión 0.3b: Paco solo cuenta las culpas que se lleva él', () => {
+  const s = started();
+  for (let i = 0; i < 3; i++) pick(s, visit(s, 'auditoria_hacienda', { debt: 5000 }), 'gestor');
+  assert(togglePerk(s, 'gestor').ok);
+  const h = visit(s, 'auditoria_hacienda', { debt: 5000 }).choices.find((c) => c.label.includes('gestor')).hint;
+  assert(!h.includes('harto') && !h.includes('se fue'), h);
+  pick(s, visit(s, 'auditoria_hacienda', { debt: 5000 }), 'gestor');
+  assert(s.perks.gestor, 'la primera vez no se va');
+});
+
+test('regresión 0.3b: la culpa se mide sin topes y cuadra con la previsión', () => {
+  const s = started(42);
+  s.heatHacienda = 99;
+  s.policies.contabilidad = 'artistica';
+  const b = blame(s, 'heatHacienda');
+  assert(b.clamp < 0, `el radar de Hacienda choca con 100: ${b.clamp}`);
+  const r = started(42);
+  r.rep = 97;
+  r.perks.comunicacion = true;
+  r.policies.ingredientes = 'margarina';
+  const br = blame(r, 'rep');
+  assertEq(br.clamp, 0);
+  const marginal = -policyPreview(r, 'ingredientes', 'mantequilla').rep;
+  assert(Math.abs(br.rows[0].value - marginal) < 1e-9, `${br.rows[0].value} vs ${marginal}`);
+});
+
+test('regresión 0.3b: cláusula cerrada en partidas viejas y sin aviso del ICO', () => {
+  const s = withClause('sin_bancos');
+  s.endless = true;
+  s.month = 100;
+  const back = deserialize(serialize(s));
+  assert(back.clausula.closed, 'el modo infinito la cierra al cargar');
+  back.pending = [{ kind: 'event', id: 'macro_crisis', params: {} }];
+  const ico = currentPending(back).choices.find((c) => c.label.includes('ICO'));
+  assert(ico && !ico.hint, 'sin promesas de cláusula');
+});
+
+test('regresión 0.3b: el parte no culpa a una apertura de bajar costes ni a una huelga que sigue igual', () => {
+  const s = started();
+  s.cash = 1e6;
+  openBusiness(s, 'express', 'madrid');
+  const prev = computeEconomy(s);
+  openBusiness(s, 'express', 'bilbao');
+  const r = computeEconomy(s);
+  r.month = prev.month + 1;
+  r.costs.materias = prev.costs.materias - 8000;
+  r.net = prev.net + 8000;
+  const m = netDrivers(prev, r, s).find((x) => x.key === 'materias');
+  assert(!m?.reason?.includes('apertura'), `materias: ${m?.reason}`);
+  const a = JSON.parse(JSON.stringify(prev));
+  a.strike = 0.55;
+  const b = JSON.parse(JSON.stringify(a));
+  b.month = a.month + 1;
+  b.revenueByCat.sobaos -= 6000;
+  b.fill = a.fill - 0.1;
+  b.net -= 6000;
+  const d = netDrivers(a, b, s).find((x) => x.key === 'sobaos');
+  assert(d?.reason !== 'huelga', `sobaos: ${d?.reason}`);
+  const c = JSON.parse(JSON.stringify(prev));
+  delete c.debt;
+  const e = JSON.parse(JSON.stringify(prev));
+  e.month = prev.month + 1;
+  e.debt = 1000;
+  e.costs.intereses = prev.costs.intereses + 2000;
+  e.net = prev.net - 2000;
+  const i = netDrivers(c, e, s).find((x) => x.key === 'intereses');
+  assert(i && i.reason == null, `intereses: ${i?.reason}`);
 });

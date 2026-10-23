@@ -364,6 +364,7 @@ async function onClick(e) {
       if (res.ok) toast(`Devueltos ${money(res.amount)}`, 'info');
       break;
     case 'manolo':
+      if (!(await clauseOk(s, (c) => doManoloAction(c, el.dataset.id)))) return;
       res = doManoloAction(s, el.dataset.id);
       if (res.ok) {
         renderAll();
@@ -408,6 +409,7 @@ async function onClick(e) {
       break;
     }
     case 'lujo-buy':
+      if (!(await clauseOk(s, (c) => buyLujo(c, el.dataset.id)))) return;
       res = buyLujo(s, el.dataset.id);
       if (res.ok) {
         play('cash');
@@ -436,6 +438,7 @@ async function onClick(e) {
     case 'fire': {
       const e = execOf(s, el.dataset.pos);
       if (!e || !(await confirmModal('Despedir', `¿Despides a ${e.name}? La indemnización es de ${money(severance(e))}.${e.trait === 'enchufado' ? ' Es de la familia: habrá consecuencias en casa.' : ''}`, 'Despedir'))) return;
+      if (!(await clauseOk(s, (c) => fireExec(c, el.dataset.pos)))) return;
       res = fireExec(s, el.dataset.pos);
       break;
     }

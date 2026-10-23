@@ -79,10 +79,14 @@ export function complaintFine(s) {
   return Math.round((1500 + employees * 300) * (s.perks.abogado ? 0.7 : 1) * difficultyOf(s).fines * recidivism(s));
 }
 
-// Datos de una visita de Trabajo: la multa y lo que Marisa lleva en la carpeta en ese momento.
+// Datos de una visita de Trabajo: la multa y lo que Marisa lleva en la carpeta en ese momento. Una denuncia
+// por vacaciones pendiente (s.flags.denunciaVacaciones = veranos seguidos) viaja con la próxima visita.
 export function laborVisitParams(s, extra = {}) {
-  const fine = Math.max(laborFine(s), extra.minFine ?? 0);
-  return { fine, recid: recidivism(s), sanciones: recentSanctions(s), ...(extra.motivo ? { motivo: extra.motivo } : {}) };
+  const veranos = extra.veranos ?? s.flags?.denunciaVacaciones ?? 0;
+  const minFine = Math.max(extra.minFine ?? 0, veranos ? complaintFine(s) : 0);
+  const out = { fine: Math.max(laborFine(s), minFine), recid: recidivism(s), sanciones: recentSanctions(s) };
+  if (veranos) Object.assign(out, { motivo: 'vacaciones', veranos });
+  return out;
 }
 
 export function laborFine(s) {

@@ -144,6 +144,7 @@ export function togglePerk(s, id) {
     log(s, '🇦🇩 Constituyes "Boomerez Holding Andorra S.L.U.". El domicilio es un buzón entre otros 400 buzones.', 'info');
   }
   s.perks[id] = !s.perks[id];
+  if (id === 'gestor' && s.perks.gestor) s.flags.pacoCulpas = 0; // empieza de cero con él
   return { ok: true, on: s.perks[id] };
 }
 

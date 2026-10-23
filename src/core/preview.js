@@ -2,8 +2,8 @@
 // mismas funciones del cierre de mes (computeEconomy y driftStats), así que no hay fórmulas duplicadas.
 import { computeEconomy, moralFactor, repFactor, policyFx, hasCondition } from './economy.js';
 import { driftStats } from './sim.js';
-import { laborFine, haciendaDebt, inspectionChance, auditChance, tickLaborHistory, recidivism, DELITO_FISCAL } from './inspections.js';
-import { clamp } from './helpers.js';
+import { laborVisitParams, haciendaDebt, inspectionChance, auditChance, tickLaborHistory, recidivism, DELITO_FISCAL } from './inspections.js';
+import { clamp, unclamped } from './helpers.js';
 import { POLICIES } from '../data/policies.js';
 
 export const STATS = ['moral', 'rep', 'fama', 'heatTrabajo', 'heatHacienda'];
@@ -35,7 +35,7 @@ export function forecast(s, mutate) {
 function fineAtClose(c) {
   const tmp = { ...c, dossier: { ...(c.dossier || {}), historial: [...(c.dossier?.historial || [])] } };
   tickLaborHistory(tmp);
-  return laborFine(tmp);
+  return laborVisitParams(tmp).fine; // incluye una denuncia pendiente (vacaciones)
 }
 
 // Neto acumulado a varios meses, ya descontadas la moral (va dentro de la economía) y las multas esperadas.
@@ -51,7 +51,7 @@ export function horizonNet(s, mutate, months = HORIZON) {
     c.cooldowns.trabajo--;
     c.cooldowns.hacienda--;
     tickLaborHistory(c);
-    if (c.cooldowns.trabajo <= 0) total -= inspectionChance(c.heatTrabajo) * laborFine(c);
+    if (c.cooldowns.trabajo <= 0) total -= inspectionChance(c.heatTrabajo) * laborVisitParams(c).fine;
     if (c.cooldowns.hacienda <= 0) total -= auditChance(c.heatHacienda) * haciendaDebt(c) * 1.2;
   }
   return total;
@@ -93,29 +93,33 @@ export function riskInfo(s, f = forecast(s)) {
 
 // Quién tiene la culpa de que `stat` se mueva: cada política que no está en su primera opción (la honrada)
 // frente a volver a ella, y un resto con todo lo demás (tamaño, directivos, tendencia natural, enfriamiento).
-// Cerca del tope (0 o 100) el recorte esconde lo que empuja cada política, así que entonces se mide con el
-// indicador puesto a 50 (la tendencia natural se anula en la diferencia) y el recorte queda en el resto.
-const NEAR_LIMIT = 8;
+// Cuánto se movería cada indicador el mes que viene si no existieran los topes de 0 y 100.
+function rawDrift(s, mutate) {
+  const c = clone(s);
+  if (mutate) mutate(c);
+  const r = computeEconomy(c);
+  c.lastReport = r;
+  c.cash += r.net;
+  c.evaded += r.evaded;
+  const before = statsOf(c);
+  unclamped(() => driftStats(c, r));
+  return Object.fromEntries(STATS.map((k) => [k, c[k] - before[k]]));
+}
 
-export function blame(s, stat, base = previewBase(s), get = (k, o) => policyPreview(s, k, o, base)) {
-  const after = base.f.after[stat];
-  const atLimit = after <= 0 || after >= 100;
-  const nearLimit = after <= NEAR_LIMIT || after >= 100 - NEAR_LIMIT || s[stat] <= NEAR_LIMIT || s[stat] >= 100 - NEAR_LIMIT;
-  const mid = (c) => {
-    c[stat] = 50;
-  };
-  const midBase = nearLimit ? forecast(s, mid) : null;
+// El empujón de cada política se mide sin topes (si no, con la moral a 0 ninguna «tendría la culpa») y lo
+// que se come el tope va aparte: `clamp` (negativo si choca con 100, positivo si choca con 0).
+export function blame(s, stat, base = previewBase(s)) {
+  const raw = rawDrift(s);
   const rows = [];
   for (const [key, def] of Object.entries(POLICIES)) {
     const first = Object.keys(def.options)[0];
     const cur = s.policies[key];
     if (!cur || cur === first) continue;
-    const v = nearLimit
-      ? midBase.d[stat] - forecast(s, (c) => { mid(c); c.policies[key] = first; }).d[stat]
-      : -get(key, first)[stat];
+    const v = raw[stat] - rawDrift(s, (c) => { c.policies[key] = first; })[stat];
     if (Math.abs(v) >= 0.05) rows.push({ key, label: def.label, option: def.options[cur].label, value: v });
   }
   const total = base.f.d[stat];
-  const rest = total - rows.reduce((a, x) => a + x.value, 0);
-  return { from: s[stat], to: after, total, rows, rest, atLimit };
+  const clampPart = total - raw[stat];
+  const rest = raw[stat] - rows.reduce((a, x) => a + x.value, 0);
+  return { from: s[stat], to: base.f.after[stat], total, rows, rest, clamp: Math.abs(clampPart) >= 0.05 ? clampPart : 0 };
 }

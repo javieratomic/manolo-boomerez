@@ -62,7 +62,7 @@ function revenueReason(prev, r, s, cat, delta) {
     const k = cat === 'inmobiliario' ? 'tourism' : 'demand';
     if (((PHASES[r.phase]?.[k] ?? 1) > (PHASES[prev.phase]?.[k] ?? 1)) === up) return `cambio de ciclo: ${PHASES[r.phase]?.label ?? r.phase}`;
   }
-  if ((r.strike ?? 1) < 1 && !up && ((cat === 'sobaos' && r.fill < prev.fill) || cat === 'hosteleria' || cat === 'servicios')) return 'huelga';
+  if ((r.strike ?? 1) < (prev.strike ?? 1) && !up && ((cat === 'sobaos' && r.fill < prev.fill) || cat === 'hosteleria' || cat === 'servicios')) return 'huelga';
   const sNow = seasonOf(r.lines, cat, r.month % 12);
   const sPrev = seasonOf(r.lines, cat, prev.month % 12);
   if (Math.abs(sNow / sPrev - 1) > 0.08 && (sNow > sPrev) === up) return sNow > sPrev ? 'temporada alta' : 'temporada baja';
@@ -78,12 +78,18 @@ function costReason(prev, r, s, key) {
     return null;
   }
   if (key === 'intereses') {
-    if (r.costs.intereses > prev.costs.intereses) return (r.debt ?? 0) > (prev.debt ?? 0) ? 'más deuda' : 'sube el tipo de interés';
-    if (r.costs.intereses < prev.costs.intereses && (r.debt ?? 0) < (prev.debt ?? 0)) return 'menos deuda';
+    const known = prev.debt != null && r.debt != null;
+    if (r.costs.intereses > prev.costs.intereses) return known ? (r.debt > prev.debt ? 'más deuda' : 'sube el tipo de interés') : null;
+    if (r.costs.intereses < prev.costs.intereses && known && r.debt < prev.debt) return 'menos deuda';
     return null;
   }
-  const opened = r.lines.filter((l) => !prev.lines.some((p) => p.id === l.id)).length;
-  if (opened && ['salarios', 'alquileres', 'materias'].includes(key)) return opened === 1 ? '1 apertura' : `${opened} aperturas`;
+  if (['salarios', 'alquileres', 'materias'].includes(key)) {
+    const up = (r.costs[key] || 0) > (prev.costs?.[key] || 0);
+    const opened = r.lines.filter((l) => !prev.lines.some((p) => p.id === l.id)).length;
+    const closed = prev.lines.filter((l) => !r.lines.some((p) => p.id === l.id)).length;
+    if (opened && up) return opened === 1 ? '1 apertura' : `${opened} aperturas`;
+    if (closed && !up) return closed === 1 ? '1 cierre' : `${closed} cierres`;
+  }
   return null;
 }
 

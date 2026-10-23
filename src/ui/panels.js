@@ -341,17 +341,17 @@ function riskText(s, stat, risk) {
 export function renderWhy(s, stat) {
   const w = WHY[stat];
   const c = previewCache(s);
-  const b = blame(s, stat, c.base, (k, o) => previewOf(s, k, o));
+  const b = blame(s, stat, c.base);
   const tone = (v) => (v * w.good >= 0 ? 'pos' : 'neg');
   const rows = b.rows
     .sort((x, y) => Math.abs(y.value) - Math.abs(x.value))
     .map((x) => `<li><span>${esc(x.label)}: <i>${esc(x.option)}</i></span><b class="${tone(x.value)}">${fmt1(x.value)}</b></li>`)
     .join('');
-  const rest = Math.abs(b.rest) >= 0.05 ? `<li class="rest"><span>Resto (tamaño, directivos, tendencia natural, enfriamiento)</span><b class="${tone(b.rest)}">${fmt1(b.rest)}</b></li>` : '';
+  const rest = (Math.abs(b.rest) >= 0.05 ? `<li class="rest"><span>Resto (tamaño, directivos, tendencia natural, enfriamiento)</span><b class="${tone(b.rest)}">${fmt1(b.rest)}</b></li>` : '') +
+    (b.clamp ? `<li class="rest"><span>Tope: no puede ${b.clamp > 0 ? 'bajar de 0' : 'subir de 100'}</span><b>${fmt1(b.clamp)}</b></li>` : '');
   return `<p class="why-head"><b>${dec1(b.from)} → ${dec1(b.to)}</b> <span class="${tone(b.total)}">(${Math.abs(b.total) < 0.05 ? '=' : fmt1(b.total)})</span> el mes que viene, si no pasa nada.</p>
     ${rows || rest ? `<h4>Qué lo mueve</h4><ul class="why">${rows}${rest}</ul>` : ''}
-    ${b.atLimit ? `<p class="small muted">Está en el tope: aunque lo empujen, no puede ${b.to <= 0 ? 'bajar de 0' : 'subir de 100'}.</p>` : ''}
-    ${!b.rows.length && !b.atLimit ? '<p class="small muted">Ninguna de tus políticas lo está empujando: todo es tendencia natural.</p>' : ''}
+    ${!b.rows.length ? '<p class="small muted">Ninguna de tus políticas lo está empujando: todo es tendencia natural.</p>' : ''}
     <h4>Riesgo</h4><p>${riskText(s, stat, riskInfo(s, c.base.f))}</p>
     <p class="small muted">Paco, el gestor: «${esc(w.paco)}»</p>`;
 }
@@ -477,7 +477,7 @@ function renderRD(s) {
 
 // ---------------------------------------------------------------- Plantilla
 export function renderStaff(s) {
-  const r = s.lastReport || computeEconomy(s);
+  const r = previewCache(s).base.f.r; // la plantilla de ahora (con lo abierto o vendido este mes)
   const locked = s.flags.forcedLegal > 0;
   const hasHousing = s.businesses.some((b) => b.type === 'vivienda');
   return `<div class="card kpis">

@@ -105,6 +105,9 @@ export function migrate(s) {
   // Las partidas empezadas sin cláusula no heredan una a mitad.
   if (!('clausula' in s)) s.clausula = null;
   if (!('gameVersion' in s)) s.gameVersion = '0.2';
+  // En modo infinito la partida ya terminó: una cláusula sin cumplir queda cerrada.
+  if (s.endless && s.clausula && !s.clausula.done && !s.clausula.broken) s.clausula.closed = true;
+  if (s.lastReport && s.lastReport.debt == null) s.lastReport.debt = s.debt;
   const d = newGame(s.seed, s.difficulty || 'normal');
   for (const [k, v] of Object.entries(d)) if (!(k in s)) s[k] = v;
   s.policies = { ...DEFAULT_POLICIES, ...s.policies };

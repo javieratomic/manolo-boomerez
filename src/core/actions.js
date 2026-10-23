@@ -37,7 +37,7 @@ export function canOpen(s, typeId, cityId, mode = 'propia') {
   if (t.category !== 'sobaos' && !s.unlocked[typeId]) return { ok: false, msg: 'Aún no está desbloqueado.' };
   if (mode === 'franquicia' && t.category !== 'sobaos') return { ok: false, msg: 'Solo las tiendas de sobaos se franquician.' };
   if (t.unique && s.businesses.some((b) => b.type === typeId)) return { ok: false, msg: 'Solo puede haber una.' };
-  if (c.hq && t.category !== 'sobaos' && typeId !== 'vivienda') return { ok: false, msg: 'En Selaya no hay mercado para eso.' };
+  if (c.hq && t.category !== 'sobaos' && !['vivienda', 'taberna', 'residencia'].includes(typeId)) return { ok: false, msg: 'En Selaya no hay mercado para eso.' };
   if (s.businesses.filter((b) => b.city === cityId).length >= MAX_PER_CITY) return { ok: false, msg: 'Ya no caben más negocios en esta ciudad.' };
   const cost = openingCost(s, typeId, mode);
   if (cost > s.cash) return { ok: false, msg: `Necesitas ${money(cost)} en caja.` };
@@ -200,6 +200,10 @@ const UNLOCKS = [
   { id: 'smash', test: (s) => sobaoOutlets(s) >= 4 || s.month >= 18, text: '🔓 Desbloqueado: Manolo Smash Club. Hay que diversificar.' },
   { id: 'empanadas', test: (s) => sobaoOutlets(s) >= 4 || s.month >= 18 || s.flags.primoSocio, text: '🔓 Desbloqueado: Empanadas El Gaucho Pasiego.' },
   { id: 'academy', test: (s) => s.fama >= 25, text: '🔓 Desbloqueado: Boomerez Business Academy. Tu fama ya da para vender cursos.' },
+  { id: 'taberna', test: (s) => sobaoOutlets(s) >= 2 || s.month >= 6, text: '🔓 Desbloqueado: La Taberna del Emprendedor. Donde se cierran los negocios de verdad.' },
+  { id: 'gimnasio', test: (s) => s.month >= 12 || sobaoOutlets(s) >= 5, text: '🔓 Desbloqueado: Boomer Fit 24h. "Mens sana in corpore sobao."' },
+  { id: 'coworking', test: (s) => s.fama >= 35 || s.businesses.some((b) => b.type === 'academy'), text: '🔓 Desbloqueado: Hustle Hub Coworking. Las startups pagan por sentarse cerca de ti.' },
+  { id: 'residencia', test: (s) => s.month >= 24 || s.stats.maxPatrimonio >= 2e6, text: '🔓 Desbloqueado: Residencia Golden Age. "La plata está en las canas", te dice un fondo.' },
 ];
 
 export function checkUnlocks(s) {

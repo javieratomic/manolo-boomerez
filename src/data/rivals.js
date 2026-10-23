@@ -40,5 +40,27 @@ export const RIVALS = {
   },
 };
 
+export const RIVALS_EXTRA = {
+  canas: {
+    name: 'Grupo Cañas & Tapas', short: 'Cañas & Tapas', emoji: '🍺', color: '#a04000',
+    targets: ['taberna'], aggr: 0.45, seedCities: ['madrid', 'sevilla', 'valencia', 'zaragoza', 'bilbao', 'cordoba'],
+    spawn: (s) => s.businesses.some((b) => b.type === 'taberna'),
+    desc: 'Tabernas "de toda la vida" abiertas el mes pasado, con azulejos impresos en vinilo.',
+  },
+  silver: {
+    name: 'Silver Care Partners', short: 'Silver Care', emoji: '🧓', color: '#566573',
+    targets: ['residencia'], aggr: 0.35, seedCities: ['madrid', 'barcelona', 'valencia', 'bilbao', 'malaga', 'marbella'],
+    spawn: (s) => s.businesses.some((b) => b.type === 'residencia'),
+    desc: 'Un fondo que compra residencias de mayores "para optimizar procesos". Los procesos son las cuidadoras.',
+  },
+  hub: {
+    name: 'WeHustle Spaces', short: 'WeHustle', emoji: '💻', color: '#117a65',
+    targets: ['coworking'], aggr: 0.4, seedCities: ['madrid', 'barcelona', 'valencia', 'malaga', 'bilbao'],
+    spawn: (s) => s.businesses.some((b) => b.type === 'coworking'),
+    desc: 'Coworkings con futbolín, cerveza gratis los viernes y una valoración de mil millones sin haber ganado un euro.',
+  },
+};
+Object.assign(RIVALS, RIVALS_EXTRA);
+
 export const RIVAL_LEVEL_PENALTY = 0.15; // pérdida de demanda por nivel de presencia rival
 export const RIVAL_MAX_LEVEL = 3;

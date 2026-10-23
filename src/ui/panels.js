@@ -40,6 +40,10 @@ const LOCK_HINTS = {
   smash: 'Se desbloquea con 4 tiendas de sobaos o en el mes 18.',
   empanadas: 'Se desbloquea con 4 tiendas de sobaos o en el mes 18.',
   academy: 'Se desbloquea con fama 25.',
+  taberna: 'Se desbloquea con 2 tiendas de sobaos o en el mes 6.',
+  gimnasio: 'Se desbloquea en el mes 12 o con 5 tiendas de sobaos.',
+  coworking: 'Se desbloquea con fama 35 o con la Academy abierta.',
+  residencia: 'Se desbloquea en el mes 24 o con 2 millones de patrimonio.',
 };
 
 const level = (v, labels = ['Muy bajo', 'Bajo', 'Medio', 'Alto', 'Muy alto']) => {
@@ -104,11 +108,10 @@ export function renderCity(s, cityId) {
   if (here.some((b) => b.mode !== 'franquicia') || c.hq) html += renderLocalMarketing(s, c);
 
   html += `<div class="card"><h4>Abrir en ${esc(c.name)}</h4><div class="open-list">`;
-  const types = [sobaoTypeId(s), 'vivienda', 'airbnb', 'smash', 'empanadas', 'academy'];
+  const types = [sobaoTypeId(s), 'vivienda', 'airbnb', 'taberna', 'smash', 'empanadas', 'gimnasio', 'coworking', 'residencia', 'academy'];
   for (const id of types) {
     const t = BUSINESS_TYPES[id];
-    if (c.hq && !['sobaos', 'inmobiliario'].includes(t.category)) continue;
-    if (c.hq && id === 'airbnb') continue;
+    if (c.hq && t.category !== 'sobaos' && !['vivienda', 'taberna', 'residencia'].includes(id)) continue;
     const locked = t.category !== 'sobaos' && !s.unlocked[id];
     const own = canOpen(s, id, c.id, 'propia');
     const est = !locked ? estimateOpening(s, id, c.id, 'propia') : null;

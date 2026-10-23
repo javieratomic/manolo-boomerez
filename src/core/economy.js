@@ -181,11 +181,15 @@ export function computeEconomy(s) {
     let revenue = 0;
     let cost = 0;
     let lineStaff = t.staff;
-    if (t.category === 'hosteleria') {
+    if (t.model === 'service') {
+      // Hostelería y servicios: demanda por población, renta y turismo; la plantilla crece con la clientela.
       const trend = s.trends[t.trend] ?? 1;
-      revenue = t.baseRevenue * Math.pow(c.pop, 0.5) * Math.pow(c.wealth, 0.4) * trend * repF * service * sat(b) *
-        (0.7 + 0.3 * quality) * strike * macro.demand * bizMult(s, b, 'hosteleria', c, m);
-      const materials = revenue * t.cogs * (0.6 + 0.4 * fx.ing.cost);
+      const tourism = 1 + (t.tourismW || 0) * (c.tourism - 0.5);
+      const fama = t.famaW ? 0.8 + s.fama / 250 : 1;
+      const food = t.food ? 0.7 + 0.3 * quality : 1;
+      revenue = t.baseRevenue * Math.pow(c.pop, t.popExp) * Math.pow(c.wealth, t.wealthExp) * tourism * fama * trend * repF * service * sat(b) *
+        food * strike * macro.demand * (t.season ? t.season[m] : 1) * bizMult(s, b, t.category, c, m);
+      const materials = revenue * t.cogs * (t.food ? 0.6 + 0.4 * fx.ing.cost : 1);
       // Más clientela, más plantilla.
       lineStaff = Math.ceil(t.staff * Math.pow(Math.max(1, revenue / t.baseRevenue), 0.85));
       const wages = lineStaff * wage;
@@ -198,6 +202,20 @@ export function computeEconomy(s) {
         costs.otros += revenue * 0.1; // el 10 % del primo Rodrigo
         cost += revenue * 0.1;
       }
+      employees += lineStaff;
+    } else if (t.model === 'care') {
+      // Residencia: plazas limitadas; el precio depende de la renta y la ocupación de la población y la reputación.
+      const beds = t.beds + 10 * ((b.level || 1) - 1);
+      const price = 1250 * Math.pow(c.wealth, 1.2);
+      const occupancy = Math.min(0.98, (0.55 + 0.3 * Math.sqrt(c.pop)) * Math.sqrt(repF) * Math.sqrt(service));
+      revenue = beds * price * occupancy * macro.demand ** 0.3 * bizMult(s, b, 'servicios', c, m);
+      lineStaff = Math.ceil(t.staff * beds / t.beds);
+      const materials = revenue * t.cogs * (0.6 + 0.4 * fx.ing.cost);
+      const wages = lineStaff * wage;
+      costs.materias += materials;
+      costs.salarios += wages;
+      costs.otros += t.upkeep;
+      cost = materials + wages + t.upkeep;
       employees += lineStaff;
     } else if (b.type === 'airbnb') {
       const nightly = 60 * c.wealth * (0.6 + 0.6 * c.tourism);

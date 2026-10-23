@@ -25,6 +25,7 @@ import { ownsLujo, canIPO, companyValuation, ipoPremium, annualProfit, IPO_FLOAT
 import { grossPatrimonio } from '../core/economy.js';
 import { money, moneyShort, dateLabel } from '../core/helpers.js';
 import { haciendaDebt } from '../core/inspections.js';
+import { policyPreview, previewBase, riskInfo, blame, HORIZON } from '../core/preview.js';
 import { difficultyOf } from '../core/state.js';
 import { ACHIEVEMENTS } from '../data/achievements.js';
 import { PHASES } from '../data/macro.js';
@@ -229,14 +230,120 @@ function renderRebrand(s) {
     ${!r.ok ? `<div class="small muted">${esc(r.msg)}</div>` : ''}</div>`;
 }
 
+// ------------------------------------------------------------- Previsiones
+// Se recalculan solo cuando cambia algo que las afecta (cada previsión simula unos meses sobre una copia).
+let pvCache = { key: '', base: null, map: {} };
+function previewCache(s) {
+  const key = [s.month, JSON.stringify(s.policies), s.nextId, Math.round(s.cash), s.debt, s.moral, s.rep, s.fama, s.heatTrabajo, s.heatHacienda,
+    JSON.stringify(s.perks), JSON.stringify(s.execs), s.flags.forcedLegal, s.mods.length].join('|');
+  if (pvCache.key !== key) pvCache = { key, base: previewBase(s), map: {} };
+  return pvCache;
+}
+function previewOf(s, key, opt) {
+  const c = previewCache(s);
+  return (c.map[`${key}:${opt}`] ||= policyPreview(s, key, opt, c.base));
+}
+
+const LABOR_KEYS = ['salario', 'horas', 'becarios', 'alquiler'];
+const fmt1 = (v) => `${v > 0 ? '+' : '−'}${Math.abs(v).toFixed(1).replace('.', ',')}`;
+const signMoney = (v) => `${v > 0 ? '+' : '−'}${moneyShort(Math.abs(v))}`;
+
+// Hasta 4 cifras bajo una opción: lo que cambiaría el mes que viene respecto a lo que tienes ahora.
+function policyChips(s, key, id) {
+  const p = previewOf(s, key, id);
+  const chips = [];
+  if (Math.abs(p.net) >= 50) chips.push([cls(p.net), `${signMoney(p.net)}/mes`]);
+  if (Math.abs(p.moral) >= 0.05) chips.push([cls(p.moral), `Moral ${fmt1(p.moral)}/mes`]);
+  if (Math.abs(p.rep) >= 0.05) chips.push([cls(p.rep), `Reputación ${fmt1(p.rep)}/mes`]);
+  if (Math.abs(p.heatTrabajo) >= 0.05) chips.push([cls(-p.heatTrabajo), `Radar Trabajo ${fmt1(p.heatTrabajo)}/mes`]);
+  if (Math.abs(p.heatHacienda) >= 0.05) chips.push([cls(-p.heatHacienda), `Radar Hacienda ${fmt1(p.heatHacienda)}/mes`]);
+  if (LABOR_KEYS.includes(key) && p.fine > 0) chips.push(['neg', `Multa si viene: ${moneyShort(p.fine)}`]);
+  let html = chips.length ? `<span class="chips">${chips.slice(0, 4).map(([c, t]) => `<span class="chip ${c}">${esc(t)}</span>`).join('')}</span>` : '';
+  if (key === 'contabilidad' && id !== 'limpia' && p.evaded <= 0) html += '<span class="pv-note">Este mes no hay beneficio: no te ahorrarías impuestos, solo subiría el radar.</span>';
+  else if (Math.abs(p.net6) >= 100) html += `<span class="pv-note">A ${HORIZON} meses: <b class="${cls(p.net6)}">${signMoney(p.net6)}</b>, ya descontadas la moral y las multas esperadas.</span>`;
+  return html;
+}
+
+function pvFootnote(s, r) {
+  return `<p class="small muted pv-foot">Cifras del mes que viene con tu plantilla actual (${r.employees} personas), si no pasa nada más.</p>`;
+}
+
 function policyGroup(s, key, def, locked = false) {
+  const first = Object.keys(def.options)[0];
   return `<fieldset class="policy"><legend>${esc(def.label)}</legend>
     ${Object.entries(def.options)
-      .map(([id, o]) => `<label class="opt ${s.policies[key] === id ? 'on' : ''}">
-        <input type="radio" name="pol-${key}" data-act="policy" data-key="${key}" value="${id}" ${s.policies[key] === id ? 'checked' : ''} ${locked && id !== Object.keys(def.options)[0] ? 'disabled' : ''}>
-        <span><b>${esc(o.label)}</b><small>${esc(o.desc)}</small></span></label>`)
+      .map(([id, o]) => {
+        const on = s.policies[key] === id;
+        const off = locked && id !== first;
+        return `<label class="opt ${on ? 'on' : ''}">
+        <input type="radio" name="pol-${key}" data-act="policy" data-key="${key}" value="${id}" ${on ? 'checked' : ''} ${off ? 'disabled' : ''}>
+        <span><b>${esc(o.label)}</b>${on ? ' <span class="tag">Actual</span>' : ''}<small>${esc(o.desc)}</small>${on ? '' : `${off ? '<span class="pv-note">Lo que Manolo se está perdiendo:</span>' : ''}${policyChips(s, key, id)}`}</span></label>`;
+      })
       .join('')}
   </fieldset>`;
+}
+
+// ------------------------------------------------------------- ¿Por qué?
+const WHY = {
+  moral: { label: 'Moral de la plantilla', good: 1, paco: 'La moral no se arregla con una pizza el viernes, Manolo. Bueno, un poco sí.' },
+  rep: { label: 'Reputación', good: 1, paco: 'Lo que sale en el periódico no se tapa con un post en LinkedIn.' },
+  fama: { label: 'Fama de Manolo', good: 1, paco: 'La fama se gasta sola. Si no sales en ningún sitio, te olvidan.' },
+  heatTrabajo: { label: 'Radar de la Inspección de Trabajo', good: -1, paco: 'El radar no baja por mirarlo fijamente, Manolo.' },
+  heatHacienda: { label: 'Radar de Hacienda', good: -1, paco: 'Don Fermín no se olvida de nada. Yo tampoco, y eso que te cobro poco.' },
+};
+export const WHY_STATS = Object.keys(WHY);
+export const whyTitle = (stat) => WHY[stat]?.label || '';
+
+const pct100 = (x) => `${Math.round(x * 100)} %`;
+const meses = (n) => `${n} ${n === 1 ? 'mes' : 'meses'}`;
+const factor = (x) => `×${x.toFixed(2).replace('.', ',')}`;
+const dec1 = (v) => v.toFixed(1).replace('.', ',');
+
+function riskText(s, stat, risk) {
+  switch (stat) {
+    case 'heatTrabajo': {
+      const t = risk.trabajo;
+      if (t.wait) return `Marisa no puede volver hasta dentro de ${meses(t.wait)}.`;
+      const fine = t.fine > 0 ? ` Si viene, multa de ${money(t.fine)}${t.recidivism > 1 ? ` (con agravante ${factor(t.recidivism)} por reincidente)` : ''}.` : ' Si viniera ahora, no encontraría nada.';
+      return `Probabilidad de visita al cerrar el mes: <b>${pct100(t.chance)}</b>.${fine}`;
+    }
+    case 'heatHacienda': {
+      const h = risk.hacienda;
+      const debt = h.debt > 0 ? ` Te reclamaría ${money(h.debt)}${h.delito ? ': por encima de 120.000 € es delito fiscal y puede acabar en expediente' : ''}.` : ' Ahora mismo no hay nada que reclamar.';
+      if (h.wait) return `Don Fermín no puede volver hasta dentro de ${meses(h.wait)}.${debt}`;
+      return `Probabilidad de auditoría al cerrar el mes: <b>${pct100(h.chance)}</b>.${debt}`;
+    }
+    case 'moral': {
+      const m = risk.moral;
+      let t = `La plantilla rinde al <b>${factor(m.factor)}</b>.`;
+      if (m.strike > 0) t += ` Por debajo de 25 puede haber huelga: ${pct100(m.strike)} al cerrar el mes.`;
+      if (m.zeroMonths > 0) t += ` Lleva ${meses(m.zeroMonths)} a cero: a los 2, la plantilla se queda la empresa.`;
+      return t;
+    }
+    case 'rep':
+      return `La demanda de todos tus negocios va al <b>${factor(risk.rep.factor)}</b>.`;
+    case 'fama':
+      return `La fama hace vender a la Maison y a la Academy, y se desvanece sola (−0,5 al mes y un 3 % más). La Academy se desbloquea con 25 y el coworking con 35.`;
+    default:
+      return '';
+  }
+}
+
+export function renderWhy(s, stat) {
+  const w = WHY[stat];
+  const c = previewCache(s);
+  const b = blame(s, stat, c.base, (k, o) => previewOf(s, k, o));
+  const tone = (v) => (v * w.good >= 0 ? 'pos' : 'neg');
+  const rows = b.rows
+    .sort((x, y) => Math.abs(y.value) - Math.abs(x.value))
+    .map((x) => `<li><span>${esc(x.label)}: <i>${esc(x.option)}</i></span><b class="${tone(x.value)}">${fmt1(x.value)}</b></li>`)
+    .join('');
+  const rest = Math.abs(b.rest) >= 0.05 ? `<li class="rest"><span>Resto (tamaño, directivos, tendencia natural, enfriamiento)</span><b class="${tone(b.rest)}">${fmt1(b.rest)}</b></li>` : '';
+  return `<p class="why-head"><b>${dec1(b.from)} → ${dec1(b.to)}</b> <span class="${tone(b.total)}">(${Math.abs(b.total) < 0.05 ? '=' : fmt1(b.total)})</span> el mes que viene, si no pasa nada.</p>
+    ${rows || rest ? `<h4>Qué lo mueve</h4><ul class="why">${rows}${rest}</ul>` : ''}
+    ${!b.rows.length ? '<p class="small muted">Ninguna de tus políticas lo está empujando: todo es tendencia natural.</p>' : ''}
+    <h4>Riesgo</h4><p>${riskText(s, stat, riskInfo(s, c.base.f))}</p>
+    <p class="small muted">Paco, el gestor: «${esc(w.paco)}»</p>`;
 }
 
 // ------------------------------------------------------------------ Imperio
@@ -377,6 +484,7 @@ export function renderStaff(s) {
       ${policyGroup(s, 'becarios', POLICIES.becarios, locked)}
       ${hasHousing ? policyGroup(s, 'alquiler', POLICIES.alquiler) : `<p class="small muted">🔑 Cuando tengas un Residencial Boomerez podrás alojar a la plantilla y fijar su alquiler.</p>`}
       ${hasHousing ? `<p class="small">Alojados: <b>${r.housed}/${r.beds}</b>. Con más control hay menos denuncias y menos huelgas.</p>` : ''}
+      ${pvFootnote(s, r)}
     </div>
     ${renderExecs(s)}`;
 }
@@ -457,7 +565,7 @@ export function renderFinance(s) {
         <button class="btn small ghost" data-act="drop-cost" data-index="${i}">Quitar</button></li>`).join('')}
     </ul></div>`;
   }
-  html += `<div class="card">${policyGroup(s, 'contabilidad', POLICIES.contabilidad)}</div>
+  html += `<div class="card">${policyGroup(s, 'contabilidad', POLICIES.contabilidad)}${pvFootnote(s, s.lastReport || computeEconomy(s))}</div>
   <div class="card">${policyGroup(s, 'mantenimiento', POLICIES.mantenimiento)}
     <p class="small muted">Cada local tiene un estado de conservación: los descuidados venden menos (hasta un −25 %) y pueden sufrir averías. Una reforma los deja como nuevos.</p></div>
   <div class="card"><h4>Asesores</h4><ul class="perk-list">

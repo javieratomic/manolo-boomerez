@@ -1,6 +1,6 @@
 // Controlador principal de la interfaz.
 import { $, esc, showModal, toast, confirmModal, isModalOpen } from './dom.js';
-import { TABS, renderCity, renderEmpire, renderMarket, renderStaff, renderFinance, renderManolo, renderNews, drawChart, drawCategoryChart, manoloMood } from './panels.js';
+import { TABS, renderCity, renderEmpire, renderMarket, renderStaff, renderFinance, renderManolo, renderNews, drawChart, drawCategoryChart, manoloMood, renderWhy, whyTitle } from './panels.js';
 import { macroFx } from '../core/macro.js';
 import { MapView } from '../render/mapView.js';
 import { initAssets, imageUrl, hasArt } from '../render/assets.js';
@@ -144,9 +144,12 @@ function renderAll() {
   else for (const a of fresh) toast(`🏆 Logro: ${a.name}`, 'good');
 }
 
-function hudItem(icon, emoji, label, value, extra = '', title = '') {
+function hudItem(icon, emoji, label, value, extra = '', title = '', stat = '') {
   const img = hasArt(icon) ? `<img src="${imageUrl(icon)}" alt="">` : `<span class="emoji">${emoji}</span>`;
-  return `<div class="hud-item" title="${esc(title || label)}">${img}<div><span class="hud-label">${label}</span><span class="hud-value">${value}</span>${extra}</div></div>`;
+  const inner = `${img}<div><span class="hud-label">${label}</span><span class="hud-value">${value}</span>${extra}</div>`;
+  // Los indicadores que se mueven solos se pueden tocar para ver por qué (en móvil no hay title).
+  if (stat) return `<button type="button" class="hud-item" data-act="explain" data-stat="${stat}" title="${esc(`${title} Toca para ver por qué se mueve.`)}">${inner}</button>`;
+  return `<div class="hud-item" title="${esc(title || label)}">${inner}</div>`;
 }
 
 function meter(v, danger = false) {
@@ -162,11 +165,11 @@ function renderHUD(s) {
     ${hudItem('icon_debt', '🏦', 'Deuda', moneyShort(s.debt), '', 'Lo que debes a la Caja Cantábrica. Genera intereses cada mes.')}
     ${hudItem('icon_patrimonio', '🏰', 'Patrimonio', moneyShort(pat), '', 'Caja − deuda + valor del obrador, los negocios y los caprichos. Es lo que cuenta para los finales.')}
     ${hudItem('icon_macro', macroFx(s).emoji, 'Economía', macroFx(s).label, '', macroFx(s).desc)}
-    ${hudItem('icon_rep', '⭐', 'Reputación', Math.round(s.rep), meter(s.rep), 'Imagen pública. Multiplica la demanda de todos tus negocios.')}
-    ${hudItem('icon_moral', '🙂', 'Moral', Math.round(s.moral), meter(s.moral), 'Ánimo de la plantilla. Baja: peor servicio, denuncias y huelgas. Dos meses a 0: la plantilla se queda la empresa.')}
-    ${hudItem('icon_fama', '📣', 'Fama', Math.round(s.fama), meter(s.fama), 'Lo conocido que es Manolo. Impulsa la Maison y la Academy. Se desvanece si no la alimentas.')}
-    ${hudItem('icon_inspeccion', '🔎', 'Insp. Trabajo', Math.round(s.heatTrabajo), meter(s.heatTrabajo, true), 'Radar de la Inspección de Trabajo: cuanto más alto, más probable es una visita.')}
-    ${hudItem('icon_hacienda', '🏛️', 'Hacienda', Math.round(s.heatHacienda), meter(s.heatHacienda, true), 'Radar de Hacienda: cuanto más alto, más probable es una auditoría.')}
+    ${hudItem('icon_rep', '⭐', 'Reputación', Math.round(s.rep), meter(s.rep), 'Imagen pública. Multiplica la demanda de todos tus negocios.', 'rep')}
+    ${hudItem('icon_moral', '🙂', 'Moral', Math.round(s.moral), meter(s.moral), 'Ánimo de la plantilla. Baja: peor servicio, denuncias y huelgas. Dos meses a 0: la plantilla se queda la empresa.', 'moral')}
+    ${hudItem('icon_fama', '📣', 'Fama', Math.round(s.fama), meter(s.fama), 'Lo conocido que es Manolo. Impulsa la Maison y la Academy. Se desvanece si no la alimentas.', 'fama')}
+    ${hudItem('icon_inspeccion', '🔎', 'Insp. Trabajo', Math.round(s.heatTrabajo), meter(s.heatTrabajo, true), 'Radar de la Inspección de Trabajo: cuanto más alto, más probable es una visita.', 'heatTrabajo')}
+    ${hudItem('icon_hacienda', '🏛️', 'Hacienda', Math.round(s.heatHacienda), meter(s.heatHacienda, true), 'Radar de Hacienda: cuanto más alto, más probable es una auditoría.', 'heatHacienda')}
     <button class="btn small ghost hud-menu" data-act="menu" aria-label="Menú">☰</button>`;
 }
 
@@ -429,6 +432,9 @@ async function onClick(e) {
       return;
     case 'menu':
       return showMenu();
+    case 'explain':
+      play('click');
+      return showModal({ kicker: '¿Por qué?', title: whyTitle(el.dataset.stat), html: renderWhy(s, el.dataset.stat), dismissable: true, className: 'why-modal', choices: [{ label: 'Entendido', primary: true }] });
     default:
       return;
   }

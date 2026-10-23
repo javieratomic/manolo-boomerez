@@ -77,7 +77,7 @@ function franchiseUpdates(s, r) {
   }
 }
 
-function driftStats(s, r) {
+export function driftStats(s, r) {
   const fx = policyFx(s);
   const hasHousing = s.businesses.some((b) => b.type === 'vivienda');
   const control = r.control;

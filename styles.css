@@ -102,6 +102,9 @@ p { margin: 0 0 8px; }
 .hud-item { display: flex; align-items: center; gap: 6px; padding: 4px 8px; background: rgba(255, 255, 255, 0.07); border-radius: 10px; white-space: nowrap; }
 .hud-item img { width: 24px; height: 24px; }
 .hud-item .emoji { font-size: 20px; }
+button.hud-item { font: inherit; color: inherit; border: 0; text-align: left; cursor: pointer; }
+button.hud-item:hover { background: rgba(255, 255, 255, 0.14); }
+button.hud-item:focus-visible { outline: 2px solid #ffd36b; outline-offset: 1px; }
 .hud-label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; }
 .hud-value { font-weight: 700; font-size: 14px; }
 .hud-value .neg { color: #ff8c7f; }
@@ -200,6 +203,15 @@ p { margin: 0 0 8px; }
 .opt input { margin-top: 3px; accent-color: var(--accent-dark); }
 .opt small { display: block; color: var(--muted); }
 .opt:has(input:disabled) { opacity: 0.5; cursor: not-allowed; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.chip { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #f6efe2; border: 1px solid var(--line); white-space: nowrap; }
+.pv-note { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; }
+.pv-foot { margin-top: 8px; }
+.why-head { font-size: 16px; }
+.why { list-style: none; padding: 0; margin: 4px 0 10px; }
+.why li { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border-bottom: 1px dashed var(--line); }
+.why li.rest { color: var(--muted); }
+.why li b { white-space: nowrap; }
 
 .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .tbl th { text-align: left; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--line); padding: 4px; }

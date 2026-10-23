@@ -15,6 +15,8 @@ import { transportCost } from '../src/core/logistics.js';
 import { advice } from '../src/core/advice.js';
 import { tickRivals, rivalFactor, actOnRival, acquireRival, acquisitionPrice } from '../src/core/rivals.js';
 import { launchCampaign, startRD, upgradeBusiness, upgradeCost } from '../src/core/market.js';
+import { forecast, policyPreview, previewBase, riskInfo, blame, STATS } from '../src/core/preview.js';
+import { GOALS } from '../src/data/goals.js';
 import { playGame } from './bot.js';
 
 const started = (seed = 42, brand = 0) => {
@@ -706,4 +708,88 @@ test('expediente: las cartas nunca enseñan funciones y el expediente se guarda'
   delete old.dossier;
   const migrated = deserialize(JSON.stringify(old));
   assertEq(migrated.dossier.sanciones.length, 0, 'las partidas viejas empiezan con el expediente limpio');
+});
+
+// ------------------------------------------------------------- Previsiones
+test('previsión: la opción actual no cambia nada', () => {
+  const s = started();
+  const p = policyPreview(s, 'salario', s.policies.salario);
+  for (const k of ['net', 'evaded', 'net6', ...STATS]) assert(Math.abs(p[k]) < 1e-9, `${k} = ${p[k]}`);
+});
+
+test('previsión: pasar a negro da dinero, baja la moral y sube el radar', () => {
+  const s = started();
+  const p = policyPreview(s, 'salario', 'negro');
+  assert(p.net > 0 && p.moral < 0 && p.heatTrabajo > 0 && p.fine > 0, JSON.stringify(p));
+  assert(p.net6 < p.net * 6, 'a 6 meses rinde menos que 6 veces el primer mes');
+});
+
+test('previsión: el neto previsto coincide con el real y no toca la partida', () => {
+  const s = started(9);
+  s.cash = 600000;
+  openBusiness(s, 'express', 'madrid');
+  openBusiness(s, 'smash', 'bilbao');
+  const before = serialize(s);
+  const base = computeEconomy(s).net;
+  const p = policyPreview(s, 'horas', 'tiburon');
+  riskInfo(s);
+  blame(s, 'moral');
+  assertEq(serialize(s), before, 'el estado no cambia');
+  setPolicy(s, 'horas', 'tiburon');
+  assert(Math.abs(computeEconomy(s).net - (base + p.net)) < 1e-6);
+});
+
+test('previsión: la contabilidad creativa solo ahorra si hay beneficio', () => {
+  const s = started(4);
+  const r = computeEconomy(s);
+  const p = policyPreview(s, 'contabilidad', 'creativa');
+  assert(r.net > 0 && p.evaded > 0 && p.heatHacienda > 0);
+  s.cash = 900000;
+  for (const c of ['madrid', 'barcelona', 'valencia', 'sevilla']) openBusiness(s, 'express', c);
+  s.extraMonthly.push({ label: 'Pérdidas', amount: 500000 });
+  assertEq(policyPreview(s, 'contabilidad', 'creativa').evaded, 0);
+});
+
+test('previsión: los indicadores coinciden con el cierre de mes', () => {
+  const setups = [
+    {},
+    { salario: 'negro', horas: 'gratis', becarios: 'legion' },
+    { contabilidad: 'artistica', alquiler: 'abusivo', salario: 'minimo', ingredientes: 'misteriosa' },
+  ];
+  for (let seed = 1; seed <= 5; seed++) {
+    for (const pol of setups) {
+      const s = started(seed);
+      s.cash = 1e6;
+      openBusiness(s, 'express', 'madrid');
+      openBusiness(s, 'vivienda', 'santander');
+      Object.assign(s.policies, pol);
+      s.rd = null;
+      s.goalsDone = GOALS.map((g) => g.id);
+      s.cooldowns.trabajo = s.cooldowns.hacienda = 99;
+      const f = forecast(s);
+      advanceMonth(s);
+      for (const k of STATS) assert(Math.abs(s[k] - f.after[k]) < 1e-9, `semilla ${seed} ${k}: ${s[k]} vs ${f.after[k]}`);
+    }
+  }
+});
+
+test('previsión: riesgo de visita según el periodo de espera', () => {
+  const s = started();
+  s.heatTrabajo = 60;
+  s.cooldowns.trabajo = 1;
+  assert(riskInfo(s).trabajo.chance > 0);
+  s.cooldowns.trabajo = 2;
+  const r = riskInfo(s).trabajo;
+  assertEq(r.chance, 0);
+  assertEq(r.wait, 1);
+});
+
+test('previsión: con solo el salario en negro, la culpa es del salario', () => {
+  const s = started();
+  s.policies.salario = 'negro';
+  const b = blame(s, 'heatTrabajo');
+  assertEq(b.rows.length, 1);
+  assertEq(b.rows[0].key, 'salario');
+  const legal = forecast(s, (c) => { c.policies.salario = 'convenio'; });
+  assert(Math.abs(b.rest - legal.d.heatTrabajo) < 1e-9, 'el resto es lo que pasaría siendo legal');
 });

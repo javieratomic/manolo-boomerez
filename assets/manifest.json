@@ -752,9 +752,11 @@
       "file": "assets/events/ev_rata.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/05_sucesos.md#ev_rata"
+      "request": "art/requests/05_sucesos.md#ev_rata",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; dimensiones y peso verificados."
     },
     {
       "id": "ev_smi",
@@ -1013,36 +1015,44 @@
       "file": "assets/events/ev_macro_expansion.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/05_sucesos.md#ev_macro_expansion"
+      "request": "art/requests/05_sucesos.md#ev_macro_expansion",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; dimensiones y peso verificados."
     },
     {
       "id": "ev_macro_burbuja",
       "file": "assets/events/ev_macro_burbuja.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/05_sucesos.md#ev_macro_burbuja"
+      "request": "art/requests/05_sucesos.md#ev_macro_burbuja",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; dimensiones y peso verificados."
     },
     {
       "id": "ev_macro_crisis",
       "file": "assets/events/ev_macro_crisis.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/05_sucesos.md#ev_macro_crisis"
+      "request": "art/requests/05_sucesos.md#ev_macro_crisis",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; dimensiones y peso verificados."
     },
     {
       "id": "ev_macro_recuperacion",
       "file": "assets/events/ev_macro_recuperacion.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/05_sucesos.md#ev_macro_recuperacion"
+      "request": "art/requests/05_sucesos.md#ev_macro_recuperacion",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; dimensiones y peso verificados."
     },
     {
       "id": "ev_rival_copia",

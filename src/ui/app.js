@@ -137,10 +137,11 @@ function renderAll() {
   renderGoal(s);
   game.map.dirty = true;
   saveToStorage(s);
-  for (const a of checkAchievements(s)) {
-    play('goal');
-    toast(`🏆 Logro: ${a.name}`, 'good');
-  }
+  const fresh = checkAchievements(s);
+  if (fresh.length) play('goal');
+  // Si llegan muchos de golpe (p. ej. al importar una partida), un solo aviso.
+  if (fresh.length > 2) toast(`🏆 ${fresh.length} logros nuevos (pestaña Manolo)`, 'good');
+  else for (const a of fresh) toast(`🏆 Logro: ${a.name}`, 'good');
 }
 
 function hudItem(icon, emoji, label, value, extra = '', title = '') {

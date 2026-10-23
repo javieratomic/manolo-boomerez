@@ -279,6 +279,7 @@ GROUPS = [
             dict(id="ev_chivato", file="assets/events/ev_chivato.png", w=768, h=432, priority=3, prompt="Despacho de Manolo: un directivo de pie, muy serio, deja una memoria USB sobre la mesa; detrás, por la ventana, se ve la cola de becarios trabajando de noche."),
             dict(id="ev_divorcio", file="assets/events/ev_divorcio.png", w=768, h=432, priority=2, prompt="Cocina de casa adosada: Merche, con una carpeta y una abogada a su lado, frente a un Manolo que todavía lleva el móvil en la mano; la nevera llena de imanes de viajes que hizo ella sola."),
             dict(id="ev_piso_ilegal", file="assets/events/ev_piso_ilegal.png", w=768, h=432, priority=3, prompt="Una vecina mayor con prismáticos en su balcón vigila el portal de enfrente, donde entran turistas con maletas; abajo, dos inspectores municipales con carpetas llaman al telefonillo."),
+            dict(id="ev_elecciones", file="assets/events/ev_elecciones.png", w=768, h=432, priority=3, prompt="Noche electoral en un colegio electoral de pueblo: urnas transparentes, carteles de dos partidos inventados (una rosa roja y un águila azul) y Manolo dándole la mano a la vez a dos tesoreros, uno con cada mano."),
             dict(id="ev_junta", file="assets/events/ev_junta.png", w=768, h=432, priority=2, prompt="Junta de accionistas en un salón de hotel: un gráfico de cotización cayendo en una pantalla enorme, accionistas indignados de pie y un jubilado lanzando un sobao hacia el estrado donde está Manolo."),
         ],
     ),

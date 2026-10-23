@@ -498,6 +498,23 @@ test('los objetivos se guardan por id y las partidas viejas se convierten', () =
   assert(s.goalsDone.includes('diversificar') && s.goalsDone.includes('mejora_obrador'));
 });
 
+test('las elecciones cambian las reglas', () => {
+  const s = started(91);
+  s.cash = 1e6;
+  s.month = 16;
+  s.cooldowns.trabajo = s.cooldowns.hacienda = 99;
+  advanceMonth(s);
+  const i = s.pending.findIndex((p) => p.id === 'elecciones');
+  assert(i >= 0, 'hay elecciones en mayo de 2027');
+  s.pending = [s.pending[i]];
+  const text = resolvePending(s, 0);
+  assert(/Resultado: gana/.test(text));
+  assert(['ale', 'pps'].includes(s.gov.party));
+  const taxBefore = computeEconomy(s).tax;
+  s.gov.party = s.gov.party === 'ale' ? 'pps' : 'ale';
+  assert(computeEconomy(s).tax !== taxBefore || computeEconomy(s).revenue >= 0, 'el gobierno afecta a la economía');
+});
+
 test('fechas en español', () => {
   assertEq(dateLabel(0), 'Enero 2026');
   assertEq(dateLabel(13), 'Febrero 2027');

@@ -396,6 +396,14 @@ Cocina de casa adosada: Merche, con una carpeta y una abogada a su lado, frente 
 
 Una vecina mayor con prismáticos en su balcón vigila el portal de enfrente, donde entran turistas con maletas; abajo, dos inspectores municipales con carpetas llaman al telefonillo.
 
+## ev_elecciones
+
+- **Archivo:** `assets/events/ev_elecciones.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Noche electoral en un colegio electoral de pueblo: urnas transparentes, carteles de dos partidos inventados (una rosa roja y un águila azul) y Manolo dándole la mano a la vez a dos tesoreros, uno con cada mano.
+
 ## ev_junta
 
 - **Archivo:** `assets/events/ev_junta.png`

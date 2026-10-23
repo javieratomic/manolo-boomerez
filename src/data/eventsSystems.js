@@ -1,6 +1,6 @@
 // Sucesos ligados a sistemas: competencia y directivos.
 import { chance } from '../core/rng.js';
-import { addCash, addRep, addMoral, addFama, addHeatTrabajo, addMod, money } from '../core/helpers.js';
+import { addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addMod, money } from '../core/helpers.js';
 import { RIVALS } from './rivals.js';
 import { BUSINESS_TYPES } from './businesses.js';
 import { CITY_BY_ID } from './cities.js';
@@ -9,6 +9,8 @@ import { LEGAL_LABOR } from './policies.js';
 import { rivalHit, rivalTotal } from '../core/rivals.js';
 import { execOf, fireExec } from '../core/execs.js';
 import { divorce } from '../core/life.js';
+import { holdElection } from '../core/politics.js';
+import { PARTIES } from './politics.js';
 
 const biggestRival = (s) => [...(s.rivals || [])].sort((a, b) => rivalTotal(b) - rivalTotal(a))[0] || null;
 const biggestCity = (r) => Object.entries(r.presence).sort((a, b) => b[1] - a[1])[0]?.[0];
@@ -19,7 +21,56 @@ function coveted(s) {
   return [...s.businesses].filter((b) => b.mode !== 'franquicia' && wanted.has(b.type)).sort((a, b) => b.value - a.value)[0] || null;
 }
 
+const electionResult = (s, lean, extra = '') => {
+  const r = holdElection(s, lean);
+  const p = PARTIES[r.party];
+  return `${extra}${extra ? '\n\n' : ''}Resultado: gana ${p.emoji} ${p.name}.\n\n${p.summary}`;
+};
+
 export const SYSTEM_EVENTS = [
+  {
+    id: 'elecciones',
+    title: 'Elecciones',
+    portrait: 'portrait_alcalde', image: 'ev_elecciones',
+    text: () => `Hay elecciones. Los dos grandes partidos se disputan el país:\n\n${PARTIES.pps.emoji} ${PARTIES.pps.name}: ${PARTIES.pps.slogan}. ${PARTIES.pps.summary}\n\n${PARTIES.ale.emoji} ${PARTIES.ale.name}: ${PARTIES.ale.slogan}. ${PARTIES.ale.summary}\n\nUn tesorero de cada partido te ha escrito "para tomar un café".`,
+    weight: () => 0,
+    choices: [
+      {
+        label: 'Donar 20.000 € a la ALE',
+        hint: 'Le das un empujón (y Hacienda se fija en el sobre).',
+        effect(s) {
+          addCash(s, -20000);
+          addHeatHacienda(s, 4);
+          return electionResult(s, 1, 'Entregas un sobre en un restaurante de Madrid. El tesorero te llama "un patriota".');
+        },
+      },
+      {
+        label: 'Donar 20.000 € al PPS',
+        hint: 'Le das un empujón (y Hacienda se fija en el sobre).',
+        effect(s) {
+          addCash(s, -20000);
+          addHeatHacienda(s, 4);
+          return electionResult(s, -1, 'Haces una "aportación a un think tank verde". El tesorero te llama "un empresario comprometido".');
+        },
+      },
+      {
+        label: 'Donar a los dos (35.000 €)',
+        hint: 'Gane quien gane, Manolo gana.',
+        effect(s) {
+          addCash(s, -35000);
+          addHeatHacienda(s, 6);
+          addFama(s, 3);
+          return electionResult(s, 0, 'Pagas una cena a cada partido. En las dos te sientan al lado del candidato. Fama +3.');
+        },
+      },
+      {
+        label: 'No meterse en política',
+        effect(s) {
+          return electionResult(s, 0, '"Yo no soy ni de izquierdas ni de derechas, soy de mi cuenta de resultados."');
+        },
+      },
+    ],
+  },
   {
     id: 'piso_ilegal',
     title: 'Inspección de pisos turísticos',

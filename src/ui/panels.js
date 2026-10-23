@@ -12,6 +12,7 @@ import { computeEconomy, estimateOpening, obradorCapacity, patrimonio, creditLim
 import { canOpen, openingCost, sobaoTypeId, nextUpgrade, saleValue, canRebrand, franchiseFee, needsLicense, LOAN_STEP } from '../core/actions.js';
 import { nearestSite, transportCost } from '../core/logistics.js';
 import { advice } from '../core/advice.js';
+import { PARTIES, ELECTION_MONTHS } from '../data/politics.js';
 import { RIVALS, RIVAL_MAX_LEVEL } from '../data/rivals.js';
 import { CAMPAIGNS, PRODUCTS, MAX_LEVEL } from '../data/market.js';
 import { POSITIONS, TRAITS } from '../data/execs.js';
@@ -286,11 +287,22 @@ export function renderMarket(s) {
       </div>
       <p class="small muted">Lleva ${s.macro.months} ${s.macro.months === 1 ? 'mes' : 'meses'} en esta fase. Nadie sabe cuánto durará (bueno, los economistas dicen que sí, pero cada uno una cosa).</p>
     </div>
+    ${renderGov(s)}
     ${renderRivals(s)}
     <div class="card"><h4>Campañas nacionales</h4><div class="campaigns">
       ${CAMPAIGNS.filter((x) => x.scope === 'national').map((x) => campaignRow(s, x)).join('')}
     </div>${execOf(s, 'marketing') ? '<p class="small muted">Tu responsable de Marketing hace que las campañas rindan más.</p>' : ''}</div>
     ${renderRD(s)}`;
+}
+
+function renderGov(s) {
+  const p = PARTIES[s.gov?.party];
+  const next = ELECTION_MONTHS.find((m) => m >= s.month);
+  return `<div class="card"><h4>🗳️ Gobierno</h4>
+    ${p ? `<div><b style="color:${p.color}">${p.emoji} ${esc(p.name)}</b></div><p class="small">${esc(p.summary)}</p>`
+      : '<p class="small">Gobierno en funciones: nadie se atreve a cambiar nada. Reglas de siempre.</p>'}
+    <p class="small muted">${next != null ? `Próximas elecciones: ${dateLabel(next)}.` : 'No hay más elecciones a la vista.'}</p>
+  </div>`;
 }
 
 function renderRivals(s) {

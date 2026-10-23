@@ -9,6 +9,7 @@ import { productFactor, levelFactor } from './market.js';
 import { execBonus, execSalaries } from './execs.js';
 import { lujoValue, lujoUpkeep } from './life.js';
 import { transportCost, regionalCount, REGIONAL_CAPACITY } from './logistics.js';
+import { govFx } from './politics.js';
 
 export const SOBAO_SEASON = [1.05, 0.95, 0.95, 1, 1, 0.9, 0.85, 0.9, 1, 1.05, 1.1, 1.35];
 export const TOURISM_SEASON = [0.6, 0.65, 0.8, 0.95, 1, 1.2, 1.5, 1.55, 1.15, 0.9, 0.7, 0.85];
@@ -96,7 +97,8 @@ export function computeEconomy(s) {
   const repF = repFactor(s.rep);
   const quality = fx.ing.quality;
   const strike = modFactor(s, 'strike');
-  const macro = macroFx(s);
+  const gov = govFx(s);
+  const macro = { ...macroFx(s), demand: macroFx(s).demand * gov.demand };
   const sobaoSeason = SOBAO_SEASON[m] * macro.demand;
   const tourSeason = TOURISM_SEASON[m] * macro.tourism;
 
@@ -296,7 +298,7 @@ export function computeEconomy(s) {
   let tax = 0;
   let evaded = 0;
   if (profit > 0) {
-    const due = profit * CORPORATE_TAX;
+    const due = profit * CORPORATE_TAX * gov.tax;
     const declared = fx.con.declared * (s.perks.andorra ? 0.7 : 1);
     evaded = due * (1 - declared);
     // La fundación desgrava (legalmente) un 10 % de lo declarado.

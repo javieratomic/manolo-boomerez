@@ -10,6 +10,7 @@ import { tickRD } from './market.js';
 import { tickExecs, execBonus, execSkill, execHeat } from './execs.js';
 import { laborSeverity } from './inspections.js';
 import { tickLife, tickIPO } from './life.js';
+import { tickPolitics, govFx } from './politics.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
 import { CITY_BY_ID } from '../data/cities.js';
 import { EVENTS, EVENT_BY_ID } from '../data/events.js';
@@ -39,6 +40,7 @@ export function advanceMonth(s) {
   handleOverdraft(s);
   rollVisits(s, r);
   rollScheduled(s);
+  tickPolitics(s);
   rollRandomEvent(s);
   if (chance(s, 0.4)) log(s, `📰 ${pick(s, HEADLINES)}`, 'news');
 
@@ -87,7 +89,7 @@ function driftStats(s, r) {
   const size = Math.min(3, 0.5 + r.employees / 40);
   const inspGain = (fx.sal.insp + fx.hor.insp + fx.bec.insp + (hasHousing ? fx.alq.insp * control : 0)) *
     size * (1 - 0.5 * control) * (s.moral < 30 ? 1.5 : 1);
-  addHeatTrabajo(s, inspGain * (1 - execBonus(s, 'rrhh')) + execHeat(s) - 1.5);
+  addHeatTrabajo(s, inspGain * (1 - execBonus(s, 'rrhh')) * govFx(s).inspection + execHeat(s) - 1.5);
 
   const hacGain = fx.sal.hac + fx.con.hac * Math.min(3, 0.5 + r.revenue / 150000) +
     (s.businesses.some((b) => b.type === 'academy') ? 0.6 : 0) + (s.perks.andorra ? 0.8 : 0) + 0.3 * (s.lujo?.length || 0) +
@@ -163,13 +165,15 @@ function rollVisits(s, r) {
     s.pending.push({ kind: 'event', id: 'huelga' });
   }
   for (const b of s.businesses) {
-    if (b.ilegal && chance(s, 0.04)) s.pending.push({ kind: 'event', id: 'piso_ilegal', params: { businessId: b.id, city: b.city } });
+    const strict = { estricto: 1.5, laxo: 0.5 }[govFx(s).tourism] ?? 1;
+    if (b.ilegal && chance(s, 0.04 * strict)) s.pending.push({ kind: 'event', id: 'piso_ilegal', params: { businessId: b.id, city: b.city } });
   }
   for (const b of s.businesses) {
     if (b.type !== 'airbnb' || b.banned) continue;
     const c = CITY_BY_ID[b.city];
     if (c.tourism < 0.75) continue;
-    if (chance(s, s.flags.alcaldeShield > 0 ? 0.005 : 0.02)) {
+    const strictBan = { estricto: 1.5, laxo: 0.5 }[govFx(s).tourism] ?? 1;
+    if (chance(s, (s.flags.alcaldeShield > 0 ? 0.005 : 0.02) * strictBan)) {
       b.banned = true;
       s.pending.push({ kind: 'event', id: 'pisos_prohibidos', params: { businessId: b.id, city: b.city } });
     }

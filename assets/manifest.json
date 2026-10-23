@@ -590,36 +590,44 @@
       "file": "assets/events/ev_intro_herencia.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
-      "request": "art/requests/05_sucesos.md#ev_intro_herencia"
+      "request": "art/requests/05_sucesos.md#ev_intro_herencia",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; identidades de personajes basadas en sus retratos entregados."
     },
     {
       "id": "ev_inspeccion",
       "file": "assets/events/ev_inspeccion.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
-      "request": "art/requests/05_sucesos.md#ev_inspeccion"
+      "request": "art/requests/05_sucesos.md#ev_inspeccion",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; identidades de personajes basadas en sus retratos entregados."
     },
     {
       "id": "ev_hacienda",
       "file": "assets/events/ev_hacienda.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
-      "request": "art/requests/05_sucesos.md#ev_hacienda"
+      "request": "art/requests/05_sucesos.md#ev_hacienda",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; identidades de personajes basadas en sus retratos entregados."
     },
     {
       "id": "ev_huelga",
       "file": "assets/events/ev_huelga.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
-      "request": "art/requests/05_sucesos.md#ev_huelga"
+      "request": "art/requests/05_sucesos.md#ev_huelga",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; identidades de personajes basadas en sus retratos entregados."
     },
     {
       "id": "ev_navidad",

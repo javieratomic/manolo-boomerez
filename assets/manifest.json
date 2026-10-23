@@ -1034,45 +1034,55 @@
       "file": "assets/events/ev_fondos.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_fondos"
+      "request": "art/requests/05_sucesos.md#ev_fondos",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_peor_jefe",
       "file": "assets/events/ev_peor_jefe.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_peor_jefe"
+      "request": "art/requests/05_sucesos.md#ev_peor_jefe",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_mantequilla",
       "file": "assets/events/ev_mantequilla.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_mantequilla"
+      "request": "art/requests/05_sucesos.md#ev_mantequilla",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_vanessa",
       "file": "assets/events/ev_vanessa.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_vanessa"
+      "request": "art/requests/05_sucesos.md#ev_vanessa",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_cena",
       "file": "assets/events/ev_cena.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_cena"
+      "request": "art/requests/05_sucesos.md#ev_cena",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_macro_expansion",
@@ -1123,9 +1133,11 @@
       "file": "assets/events/ev_rival_copia.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_rival_copia"
+      "request": "art/requests/05_sucesos.md#ev_rival_copia",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_rival_oferta",

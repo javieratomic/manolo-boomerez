@@ -1474,54 +1474,66 @@
       "file": "assets/events/ev_residencia_motin.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_residencia_motin"
+      "request": "art/requests/05_sucesos.md#ev_residencia_motin",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_gimnasio_bajas",
       "file": "assets/events/ev_gimnasio_bajas.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_gimnasio_bajas"
+      "request": "art/requests/05_sucesos.md#ev_gimnasio_bajas",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_coworking_cabina",
       "file": "assets/events/ev_coworking_cabina.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_coworking_cabina"
+      "request": "art/requests/05_sucesos.md#ev_coworking_cabina",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_taberna_pinchos",
       "file": "assets/events/ev_taberna_pinchos.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_taberna_pinchos"
+      "request": "art/requests/05_sucesos.md#ev_taberna_pinchos",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_express_dependiente",
       "file": "assets/events/ev_express_dependiente.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_express_dependiente"
+      "request": "art/requests/05_sucesos.md#ev_express_dependiente",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_maison_critico",
       "file": "assets/events/ev_maison_critico.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_maison_critico"
+      "request": "art/requests/05_sucesos.md#ev_maison_critico",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_vivienda_caldera",

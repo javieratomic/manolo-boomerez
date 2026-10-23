@@ -1144,27 +1144,33 @@
       "file": "assets/events/ev_rival_oferta.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_rival_oferta"
+      "request": "art/requests/05_sucesos.md#ev_rival_oferta",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_fichaje",
       "file": "assets/events/ev_fichaje.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_fichaje"
+      "request": "art/requests/05_sucesos.md#ev_fichaje",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_chivato",
       "file": "assets/events/ev_chivato.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_chivato"
+      "request": "art/requests/05_sucesos.md#ev_chivato",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_divorcio",
@@ -1182,27 +1188,33 @@
       "file": "assets/events/ev_piso_ilegal.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_piso_ilegal"
+      "request": "art/requests/05_sucesos.md#ev_piso_ilegal",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_elecciones",
       "file": "assets/events/ev_elecciones.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_elecciones"
+      "request": "art/requests/05_sucesos.md#ev_elecciones",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_susto_padel",
       "file": "assets/events/ev_susto_padel.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_susto_padel"
+      "request": "art/requests/05_sucesos.md#ev_susto_padel",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_averia",

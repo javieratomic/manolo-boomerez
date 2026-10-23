@@ -688,45 +688,55 @@
       "file": "assets/events/ev_navidad.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/05_sucesos.md#ev_navidad"
+      "request": "art/requests/05_sucesos.md#ev_navidad",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; personajes coherentes con los retratos entregados."
     },
     {
       "id": "ev_agosto",
       "file": "assets/events/ev_agosto.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/05_sucesos.md#ev_agosto"
+      "request": "art/requests/05_sucesos.md#ev_agosto",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; personajes coherentes con los retratos entregados."
     },
     {
       "id": "ev_franquiciado",
       "file": "assets/events/ev_franquiciado.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/05_sucesos.md#ev_franquiciado"
+      "request": "art/requests/05_sucesos.md#ev_franquiciado",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; personajes coherentes con los retratos entregados."
     },
     {
       "id": "ev_pisos_turisticos",
       "file": "assets/events/ev_pisos_turisticos.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/05_sucesos.md#ev_pisos_turisticos"
+      "request": "art/requests/05_sucesos.md#ev_pisos_turisticos",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; personajes coherentes con los retratos entregados."
     },
     {
       "id": "ev_cripto",
       "file": "assets/events/ev_cripto.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/05_sucesos.md#ev_cripto"
+      "request": "art/requests/05_sucesos.md#ev_cripto",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; personajes coherentes con los retratos entregados."
     },
     {
       "id": "ev_influencer",

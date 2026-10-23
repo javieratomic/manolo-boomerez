@@ -556,54 +556,66 @@
       "file": "assets/portraits/portrait_exec_1.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/04_retratos.md#portrait_exec_1"
+      "request": "art/requests/04_retratos.md#portrait_exec_1",
+      "version": 1,
+      "notes": "Retrato directivo 2.5D reutilizable; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_exec_2",
       "file": "assets/portraits/portrait_exec_2.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/04_retratos.md#portrait_exec_2"
+      "request": "art/requests/04_retratos.md#portrait_exec_2",
+      "version": 1,
+      "notes": "Retrato directivo 2.5D reutilizable; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_exec_3",
       "file": "assets/portraits/portrait_exec_3.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/04_retratos.md#portrait_exec_3"
+      "request": "art/requests/04_retratos.md#portrait_exec_3",
+      "version": 1,
+      "notes": "Retrato directivo 2.5D reutilizable; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_exec_4",
       "file": "assets/portraits/portrait_exec_4.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/04_retratos.md#portrait_exec_4"
+      "request": "art/requests/04_retratos.md#portrait_exec_4",
+      "version": 1,
+      "notes": "Retrato directivo 2.5D reutilizable; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_exec_5",
       "file": "assets/portraits/portrait_exec_5.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/04_retratos.md#portrait_exec_5"
+      "request": "art/requests/04_retratos.md#portrait_exec_5",
+      "version": 1,
+      "notes": "Retrato directivo 2.5D reutilizable; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_exec_6",
       "file": "assets/portraits/portrait_exec_6.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/04_retratos.md#portrait_exec_6"
+      "request": "art/requests/04_retratos.md#portrait_exec_6",
+      "version": 1,
+      "notes": "Retrato directivo 2.5D reutilizable; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_periodista",

@@ -1221,9 +1221,11 @@
       "file": "assets/events/ev_averia.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_averia"
+      "request": "art/requests/05_sucesos.md#ev_averia",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_junta",
@@ -1252,45 +1254,55 @@
       "file": "assets/events/ev_arc_prensa_plantilla.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_arc_prensa_plantilla"
+      "request": "art/requests/05_sucesos.md#ev_arc_prensa_plantilla",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_arc_prensa_portada",
       "file": "assets/events/ev_arc_prensa_portada.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_arc_prensa_portada"
+      "request": "art/requests/05_sucesos.md#ev_arc_prensa_portada",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_arc_prensa_juicio",
       "file": "assets/events/ev_arc_prensa_juicio.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_arc_prensa_juicio"
+      "request": "art/requests/05_sucesos.md#ev_arc_prensa_juicio",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_arc_jonathan_sobaoverso",
       "file": "assets/events/ev_arc_jonathan_sobaoverso.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_arc_jonathan_sobaoverso"
+      "request": "art/requests/05_sucesos.md#ev_arc_jonathan_sobaoverso",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_arc_jonathan_gala",
       "file": "assets/events/ev_arc_jonathan_gala.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_arc_jonathan_gala"
+      "request": "art/requests/05_sucesos.md#ev_arc_jonathan_gala",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_arc_jonathan_redada",

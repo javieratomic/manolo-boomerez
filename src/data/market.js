@@ -25,7 +25,7 @@ export const PRODUCTS = [
     desc: 'El otro clásico de los Valles. Ventas de sobaos +5 %.' },
   { id: 'sin_gluten', name: 'Sobao sin gluten (casi)', cost: 50000, months: 4,
     effects: [{ category: 'sobaos', factor: 1.12, minWealth: 1.1 }],
-    desc: 'Ventas de sobaos +12 % en ciudades ricas. "Casi" sin gluten. Ojo con los alérgicos.' },
+    desc: 'Ventas de sobaos +12 % en ciudades ricas. "Casi" sin gluten.' },
   { id: 'proteico', name: 'Sobao proteico "Gym Bro"', cost: 60000, months: 4,
     effects: [{ category: 'sobaos', factor: 1.1, minPop: 0.9 }, { types: ['gimnasio'], factor: 1.08 }], fama: 3,
     desc: '30 g de proteína y 600 kcal. Ventas de sobaos +10 % en ciudades grandes (y algo en los gimnasios).' },

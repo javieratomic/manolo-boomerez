@@ -18,13 +18,13 @@ export const TRAITS = {
   trepa: { label: 'Trepa', desc: 'Si hay competencia, intentarán ficharle.' },
   chivato: { label: 'Íntegro', desc: 'Si explotas a la plantilla, puede denunciarte.' },
   quemado: { label: 'Al borde del burnout', desc: 'Si la moral cae por debajo de 35, puede dimitir.' },
-  tiburon: { label: 'Tiburón', desc: 'Rinde un nivel más, cobra un 50 % más y es agresivo (radares +0,5/mes).' },
+  tiburon: { label: 'Tiburón', desc: 'Rinde un nivel más (hasta el máximo de 3), cobra un 50 % más y es agresivo (radares +0,5/mes).' },
   enchufado: { label: 'Enchufado', desc: 'Es de la familia: barato y flojo. Despedirle te costará una cena familiar muy tensa.' },
   mba: { label: 'MBA de escuela cara', desc: 'Muy bueno en PowerPoint. Cobra un 25 % más.' },
 };
 
 export const FIRST_NAMES = ['Lucía', 'Iñigo', 'Marta', 'Borja', 'Nerea', 'Álvaro', 'Carmen', 'Javier', 'Ainhoa', 'Pelayo', 'Rocío', 'Gonzalo', 'Itziar', 'Fermín', 'Patricia', 'Unai', 'Begoña', 'Cayetano', 'Sonia', 'Rubén'];
-export const LAST_NAMES = ['Ruiz de la Prada', 'Etxeberria', 'Gutiérrez', 'Sainz-Trápaga', 'Lombardero', 'Pérez de Albéniz', 'Mazón', 'Ceballos', 'Revuelta', 'Arrizabalaga', 'Quintana', 'Del Hoyo', 'Bustamante', 'Sobrado', 'Villegas', 'Cubillas'];
+export const LAST_NAMES = ['Ruiz de la Vega', 'Etxeberria', 'Gutiérrez', 'Sainz-Trápaga', 'Lombardero', 'Pérez de Albéniz', 'Mazón', 'Ceballos', 'Revuelta', 'Arrizabalaga', 'Quintana', 'Del Hoyo', 'Bustamante', 'Sobrado', 'Villegas', 'Cubillas'];
 export const FAMILY = [
   { name: 'Kevin Boomerez', note: 'tu sobrino' },
   { name: 'Jonathan Fernández', note: 'tu cuñado' },

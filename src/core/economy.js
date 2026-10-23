@@ -155,7 +155,7 @@ export function computeEconomy(s) {
   const produced = totalDemand * fill;
 
   // --- Obrador ---------------------------------------------------------------
-  const robot = s.obrador.upgrades.includes('robot') ? 0.85 : 1;
+  const robot = s.obrador.upgrades.includes('robot') ? (OBRADOR_UPGRADES.find((u) => u.id === 'robot')?.laborSave ?? 1) : 1;
   // Lo que no cabe en Selaya lo fabrican los obradores regionales con su propia plantilla.
   const selayaCap = capacity - REGIONAL_CAPACITY * regionalCount(s) * (1 + execBonus(s, 'operaciones')) * strike;
   const obradorStaff = 3 + Math.ceil((Math.min(produced, Math.max(0, selayaCap)) / 3000) * robot);

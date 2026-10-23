@@ -226,8 +226,9 @@ export const EXTRA_EVENTS = [
     choices: [
       {
         label: 'Poner un segundo dependiente en cada tienda Express propia',
+        available: (s) => ownCount(s, 'express') > 0,
         effect(s) {
-          const c = Math.max(1, ownCount(s, 'express')) * 1500;
+          const c = ownCount(s, 'express') * 1500;
           addMonthlyCost(s, 'Segundo dependiente en las tiendas Express', c);
           addRep(s, 5);
           addMoral(s, 5);
@@ -340,7 +341,7 @@ export const EXTRA_EVENTS = [
           addCash(s, -400);
           addMoral(s, -6);
           addHeatTrabajo(s, s.policies.alquiler === 'abusivo' ? 6 : 3);
-          return 'Mantas polares naranjas con el lema "Boomerez: el calor de una familia". Nadie le ve la gracia. Moral −6.';
+          return `Mantas polares naranjas con el lema "Boomerez: el calor de una familia". Nadie le ve la gracia. Moral −6, radar de Inspección +${s.policies.alquiler === 'abusivo' ? 6 : 3}.`;
         },
       },
       {
@@ -531,7 +532,7 @@ export const EXTRA_EVENTS = [
           if (chance(s, 0.3)) {
             fine(s, 8000);
             addHeatHacienda(s, 5);
-            return 'Ernesto denuncia la Academy ante Consumo por publicidad engañosa. Multa de 8.000 € y Hacienda pregunta cuánto facturas en "mentalidad". Fama +4, reputación −6, radar de Hacienda +5.';
+            return 'Ernesto denuncia a la Academy ante Consumo por publicidad engañosa. Multa de 8.000 € y Hacienda pregunta cuánto facturas en "mentalidad". Fama +4, reputación −6, radar de Hacienda +5.';
           }
           return 'Tus alumnos aplauden. Uno graba la clase y Ernesto la ve. Fama +4, reputación −6.';
         },
@@ -547,7 +548,7 @@ export const EXTRA_EVENTS = [
     text: () =>
       'Iván, uno de tus becarios (400 € al mes), ha programado en sus ratos libres una aplicación que organiza los turnos, calcula la masa del día y avisa cuando falta mantequilla. Ahorra tres horas diarias de oficina.\n\n' +
       'La ha llamado "AnselmoBot".',
-    weight: (s) => (s.policies.becarios !== 'ninguno' ? 1.5 : s.month >= 12 ? 0.3 : 0),
+    weight: (s) => (s.policies.becarios !== 'ninguno' ? 1.5 : 0),
     cooldown: 30,
     choices: [
       {
@@ -595,7 +596,7 @@ export const EXTRA_EVENTS = [
     title: 'Se jubila Conchi',
     portrait: 'portrait_empleada_maripili', image: 'ev_jubilacion_conchi',
     text: () =>
-      'Conchi se jubila. Entró en el obrador con dieciséis años, cuando tu padre aún tenía pelo, y en cuarenta y ocho años no ha faltado ni un día, salvo en sus tres partos (y a uno vino por la tarde).\n\n' +
+      'Conchi se jubila. Entró en el obrador con dieciséis años, cuando tu padre aún tenía pelo, y en cuarenta y ocho años no ha faltado ni un día, salvo en sus tres partos (y el día de uno vino por la tarde).\n\n' +
       'La plantilla ha preparado una despedida en el obrador y te mira, esperando a ver qué dices.',
     weight: (s) => (s.month >= 12 ? 0.8 : 0),
     once: true,
@@ -742,7 +743,7 @@ export const EXTRA_EVENTS = [
     title: 'Se acerca el Black Friday',
     portrait: 'portrait_gestor_paco', image: 'ev_black_friday',
     text: () =>
-      'Llega el Black Friday y cada uno tiene su idea. Paco propone la clásica: subir los precios un 30 % ahora y "rebajarlos" un 30 % en noviembre. ' +
+      'Llega el Black Friday y cada uno tiene su idea. Paco propone la clásica: subir los precios un 30 % a principios de mes y "rebajarlos" un 30 % el día del Black Friday.' +
       'Vanessa propone un descuento de verdad y una campaña bonita. Kevin propone un "Black Sobao Month" que dure del 1 de noviembre al 6 de enero.',
     weight: (s) => (moy(s) === 9 && s.month >= 9 ? 3.5 : 0),
     cooldown: 10,
@@ -839,13 +840,13 @@ export const EXTRA_EVENTS = [
     title: 'El puente de mayo',
     portrait: 'portrait_manolo_thinking', image: 'ev_puente_mayo',
     text: () =>
-      'Se acerca el puente de mayo: el 1 cae en jueves y media España hace puente hasta el domingo. La plantilla pregunta si se cierra el viernes.\n\n' +
+      'Se acerca el puente de mayo y media España junta el festivo con el fin de semana. La plantilla pregunta si se cierra también el día de puente.\n\n' +
       'Tú haces cuentas en una servilleta: un puente con turistas es un puente con sobaos.',
     weight: (s) => (moy(s) === 3 && s.month >= 3 ? 3.5 : 0),
     cooldown: 10,
     choices: [
       {
-        label: 'Cerrar el viernes: puente para todos',
+        label: 'Cerrar el día de puente: puente para todos',
         effect(s) {
           addMod(s, { kind: 'revenue', category: 'sobaos', factor: 0.96, months: 1, label: 'Puente de mayo' });
           addMoral(s, 5);
@@ -1050,6 +1051,7 @@ export const EXTRA_EVENTS = [
           b.leased = true;
           addCash(s, cash);
           addMonthlyCost(s, 'Alquiler al fondo (venta con arrendamiento posterior)', rent, null);
+          s.extraMonthly[s.extraMonthly.length - 1].leaseOf = b.id;
           return `Cobras ${money(cash)} y el edificio sigue funcionando como siempre, pero ya no es tuyo: pagas ${money(rent)} al mes de alquiler. Paco lo llama "ingeniería financiera". Tu padre lo habría llamado "vender la vaca y pagar por la leche".`;
         },
       },

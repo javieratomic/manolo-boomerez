@@ -34,9 +34,9 @@ const BASE_EVENTS = [
     id: 'intro_herencia',
     title: 'La herencia',
     portrait: 'portrait_padre_anselmo', image: 'ev_intro_herencia',
-    text: () =>
+    text: (s) =>
       'Notaría de Villacarriedo. El notario lee el testamento de Don Anselmo Boomerez (q.e.p.d.):\n\n' +
-      '"A mi hijo Manolo le dejo el obrador, la receta de la abuela y 80.000 € de ahorros. ' +
+      `"A mi hijo Manolo le dejo el obrador, la receta de la abuela y ${money(s.cash)} de ahorros. ` +
       'Que no haga tonterías."\n\n' +
       'Manolo, 55 años, joven emprendedor, se ajusta las gafas de sol sobre la cabeza. ' +
       'Va a hacer tonterías. Pero tonterías ESCALABLES.\n\n¿Qué modelo de negocio va a conquistar España?',
@@ -56,7 +56,7 @@ const BASE_EVENTS = [
         hint: 'Precio alto, poco volumen. Ciudades ricas y turísticas. La calidad importa mucho.',
         effect(s) {
           s.brand = 'maison';
-          log(s, '✨ Nace "Maison Boomerez — Pâtisserie Pasiega". Con acento en la e.', 'good');
+          log(s, '✨ Nace "Maison Boomerez — Pâtisserie Pasiega". Con acento circunflejo y todo.', 'good');
           return '"El sobao es un producto de lujo que el mercado no ha sabido valorar." Has elegido la vía gourmet. La margarina aquí no perdona.';
         },
       },
@@ -113,7 +113,7 @@ const BASE_EVENTS = [
         effect(s) {
           addMoral(s, 5);
           addMod(s, { kind: 'revenue', factor: 0.93, months: 1, label: 'Vacaciones' });
-          return 'Rotáis turnos y nadie se muere. Moral +5. Algo menos de producción en septiembre.';
+          return 'Rotáis turnos y nadie se muere. Moral +5. Algo menos de producción este mes.';
         },
       },
       {
@@ -161,8 +161,8 @@ const BASE_EVENTS = [
       },
       {
         label: 'Esconder a los becarios en la cámara frigorífica',
-        hint: '55 %: no pasa nada. Si sale mal: multa ×1,5 y escándalo.',
-        available: (s, p) => p.fine > 0,
+        hint: '55 %: no pasa nada. Si sale mal: multa ×1,5, escándalo y 6 meses de legalidad forzosa.',
+        available: (s, p) => p.fine > 0 && s.policies.becarios !== 'ninguno',
         effect(s, p) {
           if (chance(s, 0.55)) {
             addHeatTrabajo(s, -15);
@@ -198,7 +198,7 @@ const BASE_EVENTS = [
         effect(s, p) {
           pay(s, p.fine * 0.6);
           addHeatTrabajo(s, -35);
-          return `Don Cosme llega en un Mercedes de 1994 y cita jurisprudencia de 1987. Multa reducida: ${money(p.fine * 0.6)}. Puedes seguir con tus políticas (de momento).`;
+          return `Don Cosme llega en una berlina de 1994 y cita jurisprudencia de 1987. Multa reducida: ${money(p.fine * 0.6)}. Puedes seguir con tus políticas (de momento).`;
         },
       },
     ],
@@ -234,7 +234,7 @@ const BASE_EVENTS = [
       },
       {
         label: 'Culpar al gestor',
-        hint: '50 % (70 % si tienes a Paco): pagas solo la cuota. Si no, ×1,5.',
+        hint: '50 % (70 % si tienes a Paco): pagas solo la cuota. Si no, ×1,5 (y expediente si es delito fiscal).',
         available: (s, p) => p.debt > 0,
         effect(s, p) {
           const ok = chance(s, s.perks.gestor ? 0.7 : 0.5);
@@ -267,14 +267,14 @@ const BASE_EVENTS = [
       },
       {
         label: 'Hacerse el anciano confuso',
-        hint: '20 %: te tienen lástima (×0,7). Si no: ×1,5 y vídeo viral.',
+        hint: '20 %: te tienen lástima (×0,7). Si no: ×1,5 y reputación −5.',
         available: (s, p) => p.debt > 0,
         effect(s, p) {
           s.evaded = 0;
           addHeatHacienda(s, -35);
           if (chance(s, 0.2)) {
             pay(s, p.debt * 0.7);
-            return `"¿Hacienda? ¿Qué Hacienda? Yo soy un pobre pasiego..." Te dejan pagar a plazos: ${money(p.debt * 0.7)}.`;
+            return `"¿Hacienda? ¿Qué Hacienda? Yo soy un pobre pasiego..." Te rebajan la cuenta: ${money(p.debt * 0.7)}.`;
           }
           pay(s, p.debt * 1.5);
           addRep(s, -5);
@@ -370,7 +370,7 @@ const BASE_EVENTS = [
         label: 'Reconvertirlos en Residencial Boomerez para la plantilla',
         effect(s, p) {
           const b = s.businesses.find((x) => x.id === p.businessId);
-          if (b) b.type = 'vivienda';
+          if (b) { b.type = 'vivienda'; b.ilegal = false; }
           return '"Ahora son viviendas para mis trabajadores. Soy un benefactor." Los pisos pasan a ser residencial de empleados.';
         },
       },
@@ -410,7 +410,7 @@ const BASE_EVENTS = [
           addCash(s, -20000);
           if (chance(s, 0.35)) {
             addCash(s, 60000);
-            return 'Increíble: un fondo coreano compra SobaoCoin por error. Recuperas 60.000 €. Jonathan ya se ha comprado un Cupra.';
+            return 'Increíble: un fondo coreano compra SobaoCoin por error. Recuperas 60.000 €. Jonathan ya se ha comprado un deportivo tuneado.';
           }
           return 'SobaoCoin cae un 99,7 % cuando Jonathan pierde la contraseña de la wallet. "Es una corrección del mercado, cuñao."';
         },
@@ -491,6 +491,7 @@ const BASE_EVENTS = [
       },
       {
         label: 'Culpar al becario que grabó el vídeo',
+        available: (s) => s.policies.becarios !== 'ninguno',
         effect(s) {
           addRep(s, -5);
           addMoral(s, -8);
@@ -526,6 +527,7 @@ const BASE_EVENTS = [
       },
       {
         label: 'Pasar a todo el mundo a falso autónomo',
+        available: (s) => !(s.flags.forcedLegal > 0),
         effect(s) {
           s.policies.salario = 'negro';
           addHeatTrabajo(s, 10);
@@ -548,7 +550,7 @@ const BASE_EVENTS = [
           addCash(s, -600);
           if (chance(s, 0.5)) {
             addMoral(s, 4);
-            return 'Cuatro barbacoas familiares. Algo se calma el ambiente. Moral +4.';
+            return 'Cuarenta barbacoas familiares. Algo se calma el ambiente. Moral +4.';
           }
           addMoral(s, -3);
           return '"¿Pizza? ¿En serio?" Se la comen igual, pero se ríen de ti. Moral −3.';
@@ -677,7 +679,7 @@ const BASE_EVENTS = [
         effect(s) {
           addRep(s, -8);
           addFama(s, 5);
-          return 'Sales en el telediario nacional. Te hacen un meme con tu cara y un mapa del Monopoly. Reputación −8, fama +5.';
+          return 'Sales en el telediario nacional. Te hacen un meme con tu cara y un tablero de juego de comprar calles. Reputación −8, fama +5.';
         },
       },
     ],
@@ -721,7 +723,7 @@ const BASE_EVENTS = [
     id: 'primo_argentino',
     title: 'El primo de Buenos Aires',
     portrait: 'portrait_primo_argentino', image: 'ev_primo',
-    text: () => 'Aparece Rodrigo Boomerez, primo segundo de Buenos Aires: "Che, Manolo, el tío Anselmo me prometió una parte del obrador. Lo tengo en un audio de WhatsApp de 2014."',
+    text: () => 'Aparece Rodrigo Boomerez, primo segundo de Buenos Aires: "Che, Manolo, el tío Anselmo me prometió una parte del obrador. Lo tengo en un audio del móvil de 2014."',
     weight: (s) => (s.month >= 3 ? 1 : 0), once: true,
     choices: [
       {
@@ -735,6 +737,9 @@ const BASE_EVENTS = [
         label: 'Hacerle socio de un negocio de empanadas',
         effect(s) {
           s.flags.primoSocio = true;
+          if (s.unlocked.empanadas) {
+            return '"¡Empanadas, boludo! Mi abuela hacía las mejores de Palermo." Rodrigo entra de socio en Empanadas El Gaucho Pasiego y se lleva un 10 % de sus ventas.';
+          }
           s.unlocked.empanadas = true;
           log(s, '🔓 Desbloqueado: Empanadas El Gaucho Pasiego (gracias, primo).', 'good');
           return '"¡Empanadas, boludo! Mi abuela hacía las mejores de Palermo." Desbloqueas Empanadas El Gaucho Pasiego. Rodrigo se lleva un 10 % de sus ventas.';
@@ -743,7 +748,7 @@ const BASE_EVENTS = [
       {
         label: 'Ir a juicio',
         effect(s) {
-          if (chance(s, 0.5)) return 'El juez escucha el audio de WhatsApp: tu padre solo decía "Rodrigo, ¿has comido?". Ganas el juicio.';
+          if (chance(s, 0.5)) return 'El juez escucha el audio: tu padre solo decía "Rodrigo, ¿has comido?". Ganas el juicio.';
           addCash(s, -60000);
           return 'El audio dice textualmente "el obrador es tuyo también, Rodri". Pagas 60.000 €.';
         },
@@ -832,7 +837,7 @@ const BASE_EVENTS = [
             return 'Tus 80 cuentas falsas surten efecto. MASA cierra. Vergonzoso, pero eficaz.';
           }
           addRep(s, -10);
-          return 'Google descubre que las 80 reseñas salen de la misma IP: la del obrador. Sales en un reportaje. Reputación −10.';
+          return 'La plataforma de reseñas descubre que las 80 reseñas salen de la misma IP: la del obrador. Sales en un reportaje. Reputación −10.';
         },
       },
     ],
@@ -1051,7 +1056,7 @@ const BASE_EVENTS = [
         label: '"Yo ya nací tiburón"',
         effect(s) {
           addFama(s, 1);
-          return 'Iker se marcha a captar a otro empresario. Lo verás en Instagram con un concejal.';
+          return 'Iker se marcha a captar a otro empresario. Lo verás en redes con un concejal.';
         },
       },
     ],
@@ -1134,7 +1139,9 @@ const BASE_EVENTS = [
         effect(s) {
           addCash(s, -4000);
           addMod(s, { kind: 'revenue', category: 'inmobiliario', factor: 0.9, months: 6, label: 'Okupas' });
-          return 'Abogado, juzgado y paciencia. Seis meses con ingresos inmobiliarios un 10 % más bajos y 4.000 € en costas.';
+          return has(s, 'airbnb')
+            ? 'Abogado, juzgado y paciencia. Seis meses con los pisos turísticos ingresando un 10 % menos y 4.000 € en costas.'
+            : 'Abogado, juzgado y paciencia. Recuperas el piso tras meses de papeleo. 4.000 € en costas.';
         },
       },
       {
@@ -1188,17 +1195,17 @@ const BASE_EVENTS = [
       {
         label: 'Entrar en la app',
         effect(s) {
-          addMod(s, { kind: 'revenue', category: 'hosteleria', factor: 1.12, months: 24, label: 'Reparto a domicilio' });
+          addMod(s, { kind: 'revenue', category: 'hosteleria', types: ['smash', 'empanadas'], factor: 1.12, months: 24, label: 'Reparto a domicilio' });
           addMonthlyCost(s, 'Comisiones de la app de reparto', 1500 * s.businesses.filter((b) => ['smash', 'empanadas'].includes(b.type)).length, 24);
-          return 'Las ventas de hostelería suben un 12 % durante dos años. Las comisiones se comen buena parte. Los riders van en bici bajo la lluvia, como manda la economía colaborativa.';
+          return 'Las ventas de hamburguesas y empanadas suben un 12 % durante dos años. Las comisiones se comen buena parte. Los riders van en bici bajo la lluvia, como manda la economía colaborativa.';
         },
       },
       {
         label: 'Montar tu propia flota de riders "autónomos"',
         effect(s) {
-          addMod(s, { kind: 'revenue', category: 'hosteleria', factor: 1.15, months: 24, label: 'Riders Boomerez' });
+          addMod(s, { kind: 'revenue', category: 'hosteleria', types: ['smash', 'empanadas'], factor: 1.15, months: 24, label: 'Riders Boomerez' });
           addHeatTrabajo(s, 15);
-          return 'Riders Boomerez: chalecos naranjas y contrato mercantil. Ventas de hostelería +15 %. La Inspección ya conoce esta película (radar +15).';
+          return 'Riders Boomerez: chalecos naranjas y contrato mercantil. Ventas de hamburguesas y empanadas +15 %. La Inspección ya conoce esta película (radar +15).';
         },
       },
       {
@@ -1348,7 +1355,7 @@ const BASE_EVENTS = [
         label: 'Sacar la calculadora y enseñarle tus números',
         effect(s) {
           addFama(s, 1);
-          return 'Le enseñas la cuenta de resultados en el móvil. Jonathan responde con un pantallazo de su Lamborghini en un videojuego. Empate técnico.';
+          return 'Le enseñas la cuenta de resultados en el móvil. Jonathan responde con un pantallazo de su deportivo de lujo en un videojuego. Empate técnico.';
         },
       },
       {

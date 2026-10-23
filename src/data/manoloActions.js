@@ -6,7 +6,7 @@ import { EXTRA_ACTIONS } from './manoloActionsExtra.js';
 export const MANOLO_ACTIONS = [
   {
     id: 'linkedin',
-    name: 'Publicar una reflexión en LinkedIn',
+    name: 'Publicar una reflexión en la red profesional',
     desc: 'Sube la fama (menos cuanto más famoso eres). Riesgo de ridículo viral.',
     icon: 'icon_action_linkedin', emoji: '💼',
     run(s) {
@@ -51,13 +51,13 @@ export const MANOLO_ACTIONS = [
   {
     id: 'alcalde',
     name: 'Comida con el alcalde (3.000 €)',
-    desc: 'Te protege de normativas municipales 6 meses. A Hacienda no le hace gracia.',
+    desc: 'Te protege de normativas municipales 5 meses. A Hacienda no le hace gracia.',
     icon: 'icon_action_alcalde', emoji: '🏛️', cost: 3000,
     run(s) {
       addCash(s, -3000);
-      s.flags.alcaldeShield = 6;
+      s.flags.alcaldeShield = 6; // tickTimers lo descuenta antes de la primera comprobación: 5 meses efectivos.
       addHeatHacienda(s, 3);
-      return 'Chuletón, vino de reserva y puro. El alcalde te llama "un generador de riqueza". Durante 6 meses, las ordenanzas municipales te afectarán menos. Radar de Hacienda +3.';
+      return 'Chuletón, vino de reserva y puro. El alcalde te llama "un generador de riqueza". Durante 5 meses, las ordenanzas municipales te afectarán menos. Radar de Hacienda +3.';
     },
   },
   {
@@ -99,7 +99,7 @@ export const MANOLO_ACTIONS = [
         s.creditBonus += 100000;
         return 'Pierdes a propósito contra el director de la Caja Cantábrica. Te amplía la póliza en 100.000 €. Fama +2.';
       }
-      return 'Ganas 6-0 6-0 al director del banco. Muy satisfactorio. Ninguna consecuencia financiera positiva. Fama +2.';
+      return 'Ganas 6-0, 6-0 al director del banco. Muy satisfactorio. Ninguna consecuencia financiera positiva. Fama +2.';
     },
   },
   {
@@ -112,7 +112,7 @@ export const MANOLO_ACTIONS = [
       addMoral(s, 4);
       s.familia = Math.max(0, (s.familia ?? 60) - 8);
       log(s, '🏖️ Manolo sube 14 stories desde un beach club de Marbella.', 'info');
-      return 'Una semana en un beach club, subiendo stories con el hashtag #NeverStopGrinding. Sin ti en la oficina, la plantilla trabaja más tranquila. Moral +4.';
+      return `Una semana en un beach club, subiendo stories con el hashtag #NeverStopGrinding. Sin ti en la oficina, la plantilla trabaja más tranquila. Moral +4${s.flags.divorciado ? '' : ', familia −8'}.`;
     },
   },
 ];
@@ -141,7 +141,7 @@ MANOLO_ACTIONS.push(
       s.familia = Math.min(100, (s.familia ?? 60) + 22);
       return s.flags.divorciado
         ? 'Te vas solo a un balneario de Cantabria. Sale caro, pero duermes como un bebé. Moral +2.'
-        : 'Un fin de semana en un parador. Merche recuerda por qué se casó contigo (el chiste de los sobaos, que sigue haciéndole gracia). Familia +22.';
+        : 'Un fin de semana en un parador. Merche recuerda por qué se casó contigo (el chiste de los sobaos, que sigue haciéndole gracia). Familia +22, moral +2.';
     },
   },
 );

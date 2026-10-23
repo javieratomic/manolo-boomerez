@@ -5,7 +5,7 @@ export const LUJOS = [
   { id: 'reloj', emoji: '⌚', name: 'Reloj suizo de edición limitada', cost: 25000, upkeep: 0, drift: -0.003, fama: 2, familia: 0, hac: 2,
     desc: 'Pesa más que un sobao. Lo enseña en cada apretón de manos.' },
   { id: 'coche', emoji: '🚙', name: 'Todoterreno alemán de alta gama', cost: 95000, upkeep: 900, drift: -0.012, fama: 4, familia: 2, hac: 3,
-    desc: 'Negro, con lunas tintadas. Lo aparca en la plaza de minusválidos "solo un momento".' },
+    desc: 'Negro, con lunas tintadas. Lo aparca en la plaza para personas con movilidad reducida "solo un momento".' },
   { id: 'palco', emoji: '🏟️', name: 'Palco VIP en el estadio', cost: 80000, upkeep: 2000, drift: -0.02, fama: 5, familia: -2, hac: 2, credit: 150000,
     desc: 'Networking con constructores, banqueros y algún concejal. Tu límite de crédito sube 150.000 €.' },
   { id: 'cuadro', emoji: '🖼️', name: 'Cuadro de un artista contemporáneo', cost: 200000, upkeep: 0, drift: 0.004, fama: 3, familia: 4, hac: 8,

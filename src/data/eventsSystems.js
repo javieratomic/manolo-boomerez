@@ -55,7 +55,7 @@ export const SYSTEM_EVENTS = [
       },
       {
         label: 'Que lo apañe Kevin otra vez',
-        hint: 'Gratis. El local vende la mitad este mes y la reputación sufre.',
+        hint: 'Gratis. Si es un local de cara al público, este mes vende la mitad; la reputación sufre.',
         effect(s, p) {
           const b = s.businesses.find((x) => x.id === p.businessId);
           if (b) {
@@ -64,7 +64,8 @@ export const SYSTEM_EVENTS = [
             b.brokenMonth = null;
           }
           addRep(s, -3);
-          return 'Kevin llega con tres rollos de cinta y una sonrisa. El vídeo del cliente tiene 80.000 visualizaciones. Ventas a la mitad este mes; reputación −3.';
+          const vende = b && b.type !== 'vivienda' && BUSINESS_TYPES[b.type].model !== 'production';
+          return `Kevin llega con tres rollos de cinta y una sonrisa. El vídeo del cliente tiene 80.000 visualizaciones. ${vende ? 'Ventas a la mitad este mes; reputación −3.' : 'Reputación −3.'}`;
         },
       },
     ],
@@ -82,6 +83,8 @@ export const SYSTEM_EVENTS = [
         effect(s) {
           s.restMonths = 3;
           addStress(s, -40);
+          if (s.flags.divorciado) return 'Tres meses de paseos por el Pas, caldo y el móvil apagado por prescripción médica. La empresa sobrevive sin ti, lo cual es preocupante.';
+          if (s.flags.divorciado) return 'Tres meses de paseos por el Pas y caldo en casa de tu madre, que te esconde el móvil. La empresa sobrevive sin ti, lo cual es preocupante.';
           s.familia = Math.min(100, (s.familia ?? 60) + 8);
           return 'Tres meses de paseos por el Pas, caldo y Merche vigilando el móvil. La empresa sobrevive sin ti, lo cual es preocupante. Familia +8.';
         },
@@ -159,7 +162,7 @@ export const SYSTEM_EVENTS = [
     id: 'piso_ilegal',
     title: 'Inspección de pisos turísticos',
     portrait: 'portrait_vecina', image: 'ev_piso_ilegal',
-    text: (s, p) => `Los inspectores municipales de ${CITY_BY_ID[p.city]?.name ?? 'la ciudad'} han detectado tus pisos turísticos sin licencia gracias a una vecina con prismáticos y mucho tiempo libre.`,
+    text: (s, p) => `Los inspectores municipales de ${CITY_BY_ID[p.city]?.name ?? 'la ciudad'} han detectado tus pisos turísticos sin licencia gracias a la denuncia de una vecina harta de oír maletas con ruedas a las cuatro de la mañana.`,
     weight: () => 0,
     choices: [
       {
@@ -172,7 +175,7 @@ export const SYSTEM_EVENTS = [
             b.ilegal = false;
             b.value += 120000 * 0.85;
           }
-          return 'Pagas 40.000 € de multa y 120.000 € de licencia. Ahora tus pisos son legales y la vecina está desolada.';
+          return 'Pagas 40.000 € de multa y 120.000 € de licencia. Ahora tus pisos son legales y tú ya hablas de "compromiso con el barrio" como si hubiera sido idea tuya.';
         },
       },
       {
@@ -181,7 +184,7 @@ export const SYSTEM_EVENTS = [
         effect(s) {
           addCash(s, -40000);
           addRep(s, -3);
-          return 'Pagas y sigues. La vecina compra unos prismáticos mejores. Reputación −3.';
+          return 'Pagas y sigues. Las maletas siguen rodando a las cuatro de la mañana y la vecina guarda el teléfono de los inspectores en favoritos. Reputación −3.';
         },
       },
       {
@@ -210,7 +213,7 @@ export const SYSTEM_EVENTS = [
         effect(s) {
           const r = divorce(s, 0.3);
           addFama(s, 3);
-          return `Firmáis en una notaría sin gritos. Merche se queda con ${money(r.cashPart)} y los caprichos más caros (valorados en ${money(r.lost)}). Te mudas a un ático "de soltero de oro".`;
+          return `Firmáis en una notaría sin gritos. Merche se queda con ${money(r.cashPart)}${r.lost ? ` y los caprichos más caros (valorados en ${money(r.lost)})` : ''}. Te mudas a un ático "de soltero de oro".`;
         },
       },
       {
@@ -337,7 +340,7 @@ export const SYSTEM_EVENTS = [
             return `El juez te da la razón. ${RIVALS[r.id].short} te paga 25.000 € y cierra un local.`;
           }
           addRep(s, -2);
-          return 'El juez considera que "un sobao es un sobao". Pierdes y encima sales en el periódico. Reputación −2.';
+          return 'El juez considera que "un logo es un logo". Pierdes y encima sales en el periódico. Reputación −2.';
         },
       },
       {
@@ -365,7 +368,7 @@ export const SYSTEM_EVENTS = [
     text: (s) => {
       const b = coveted(s);
       if (!b) return 'Un ejecutivo de una cadena rival quería comprarte un negocio, pero ya no tienes nada que le interese.';
-      return `Un ejecutivo de una cadena rival te ofrece comprar tu ${BUSINESS_TYPES[b.type].name} de ${CITY_BY_ID[b.city].name} por ${money(b.value * 1.6)}: un 60 % más de lo que vale. "Considéralo un cumplido, Manolo."`;
+      return `Un ejecutivo de una cadena rival te ofrece comprar tu negocio ${BUSINESS_TYPES[b.type].name} de ${CITY_BY_ID[b.city].name} por ${money(b.value * 1.6)}: un 60 % más de lo que vale. "Considéralo un cumplido, Manolo."`;
     },
     weight: (s) => (coveted(s) ? 0.8 : 0), cooldown: 18,
     choices: [
@@ -379,7 +382,7 @@ export const SYSTEM_EVENTS = [
           s.businesses = s.businesses.filter((x) => x !== b);
           const r = s.rivals.find((x) => RIVALS[x.id].targets.includes(b.type));
           if (r) r.presence[b.city] = Math.min(3, (r.presence[b.city] || 0) + 1);
-          return `Vendes por ${money(price)}. El lunes siguiente ya han cambiado el rótulo. Tu ex clientela, también.`;
+          return `Vendes por ${money(price)}. El lunes siguiente ya han cambiado el rótulo. Tu antigua clientela, también.`;
         },
       },
       {
@@ -438,7 +441,7 @@ export const SYSTEM_EVENTS = [
     portrait: 'portrait_exec_5', image: 'ev_chivato',
     text: (s, p) => {
       const e = execOf(s, p.pos);
-      return `${e ? e.name : 'Uno de tus directivos'} entra en tu despacho y cierra la puerta. "Manolo, lo de los falsos autónomos y las horas extra no pagadas tiene que acabar. O lo arreglas o voy a la Inspección."`;
+      return `${e ? e.name : 'Uno de tus directivos'} entra en tu despacho y cierra la puerta. "Manolo, lo que le estás haciendo a la plantilla tiene que acabar. O lo arreglas o voy a la Inspección."`;
     },
     weight: () => 0,
     choices: [
@@ -466,7 +469,7 @@ export const SYSTEM_EVENTS = [
         effect(s, p) {
           addCash(s, -30000);
           if (chance(s, 0.5)) return 'Acepta el "bonus por objetivos". Se queda, pero ya no te mira a los ojos.';
-          if (execOf(s, p.pos)) fireExec(s, p.pos, 'dimite indignado');
+          if (execOf(s, p.pos)) fireExec(s, p.pos, 'dimite por principios');
           addHeatTrabajo(s, 20);
           addRep(s, -5);
           return 'Te devuelve el sobre, dimite y lo cuenta todo. Radar de Trabajo +20, reputación −5.';

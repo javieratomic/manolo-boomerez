@@ -14,6 +14,6 @@ export const PARTIES = {
     name: 'Alianza por la Libertad de Empresa (ALE)', short: 'ALE', emoji: '🦅', color: '#1f618d',
     slogan: '"Menos Estado, más emprendedores (y más rotondas)"',
     effects: { wage: 1, inspection: 0.85, demand: 0.98, tax: 0.92, tourism: 'laxo' },
-    summary: 'Impuesto de sociedades un 8 % más bajo y una Inspección un 15 % más tranquila; a cambio, recortes y un 2 % menos de consumo.',
+    summary: 'Impuesto de sociedades un 8 % más bajo, una Inspección un 15 % más tranquila y manga ancha con los pisos turísticos; a cambio, recortes y un 2 % menos de consumo.',
   },
 };

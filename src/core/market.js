@@ -31,6 +31,7 @@ export function launchCampaign(s, id, city = null) {
   addCash(s, -c.cost);
   const boost = 1 + (c.factor - 1) * (1 + execBonus(s, 'marketing'));
   addMod(s, { kind: 'revenue', city: city || undefined, factor: boost, months: c.months, label: c.name, campaign: id });
+  s.flags.campaignDone = true;
   if (c.rep) addRep(s, c.rep);
   if (c.fama) addFama(s, c.fama);
   log(s, `📢 Campaña: ${c.name}${city ? ` en ${CITY_BY_ID[city].name}` : ' en toda España'}.`, 'info');

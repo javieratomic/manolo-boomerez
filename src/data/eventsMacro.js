@@ -53,7 +53,7 @@ export const MACRO_EVENTS = [
           addRep(s, 1);
           return pay > 0
             ? `Devuelves ${money(pay)} al banco. Tu gestor te mira con respeto. Tu cuñado, con lástima.`
-            : 'No debes nada que amortizar. Te sientes sabio igualmente.';
+            : s.debt > 0 ? 'Anuncias a bombo y platillo que vas a amortizar deuda, pero no tienes caja. En el pueblo se comenta lo prudente que eres; tu gestor, no.' : 'No debes nada que amortizar. Te sientes sabio igualmente.';
         },
       },
       {
@@ -89,7 +89,7 @@ export const MACRO_EVENTS = [
           s.debt += 100000;
           addCash(s, 100000);
           addHeatHacienda(s, 2);
-          return 'El Estado al que tanto criticas te presta 100.000 € a buen interés. Lo cuentas en las cenas como "una operación financiera".';
+          return 'El Estado al que tanto criticas te presta 100.000 €. Lo cuentas en las cenas como "una operación financiera".';
         },
       },
       {
@@ -97,7 +97,7 @@ export const MACRO_EVENTS = [
         effect(s) {
           addMoral(s, 8);
           addRep(s, 3);
-          return 'Reúnes a la plantilla: "Aquí no se va nadie." Por una vez, lo de la familia Boomerez suena verdad. Moral +8, reputación +3.';
+          return 'Reúnes a la plantilla: "Aquí no se va nadie." Por una vez, lo de la familia Boomerez suena a verdad. Moral +8, reputación +3.';
         },
       },
     ],

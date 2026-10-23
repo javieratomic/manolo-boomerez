@@ -3,7 +3,7 @@ export const ENDINGS = {
   bancarrota: {
     title: 'Concurso de acreedores',
     image: 'end_bancarrota', tone: 'bad',
-    text: 'El juzgado mercantil de Santander declara el concurso de acreedores de Boomerez S.L. Manolo vuelve a casa de su madre, que le recibe con un sobao y un "ya te lo dijo tu padre". Ahora da charlas en LinkedIn sobre "el valor del fracaso".',
+    text: 'El juzgado mercantil de Santander declara el concurso de acreedores del imperio Boomerez. Manolo vuelve a casa de su madre, que le recibe con un sobao y un "ya te lo dijo tu padre". Ahora da charlas en LinkedIn sobre "el valor del fracaso".',
   },
   carcel: {
     title: 'Soto del Real',
@@ -16,14 +16,14 @@ export const ENDINGS = {
     text: 'La plantilla, harta, aprovecha un vacío legal (y la paciencia de un juez laboral) para quedarse con la empresa. Nace "Sobaos Pasiegos S. Coop.", con Maripili de presidenta. Pagan bien, venden más y en la puerta hay un cartel: "Prohibida la entrada a Manolo".',
   },
   forbes: {
-    title: 'Forbes (sección curiosidades)',
+    title: 'Revista de millonarios (sección curiosidades)',
     image: 'end_forbes', tone: 'good',
-    text: 'Manolo supera los 15 millones de patrimonio. Forbes le dedica media página en "Fortunas peculiares", entre un señor que colecciona yates y una heredera de las pinzas para la ropa. Manolo la enmarca y la cuelga en el obrador, encima del retrato de su padre.',
+    text: 'Manolo supera los 15 millones de patrimonio. Una revista de millonarios le dedica media página en "Fortunas peculiares", entre un señor que colecciona yates y una heredera de las pinzas para la ropa. Manolo la enmarca y la cuelga en el obrador, encima del retrato de su padre.',
   },
   tiburon: {
     title: 'Tiburón Pasiego',
     image: 'end_tiburon', tone: 'good',
-    text: 'Ocho años después, el imperio Boomerez vale más de 5 millones. Manolo se compra un Audi Q8, un barco en Laredo y un hueco en una tertulia de los domingos. Su padre no lo habría aprobado. Su cuenta de LinkedIn, sí.',
+    text: 'Ocho años después, el imperio Boomerez vale más de 5 millones. Manolo se compra un Audi Q8, un barco en Laredo y un hueco en una tertulia de los domingos. Su padre no lo habría aprobado. Su perfil en redes profesionales, sí.',
   },
   pyme: {
     title: 'Pyme con ínfulas',
@@ -33,6 +33,6 @@ export const ENDINGS = {
   ruina_lenta: {
     title: 'Ruina lenta',
     image: 'end_ruina', tone: 'bad',
-    text: 'Ocho años después, el negocio vale menos que cuando lo heredaste. El obrador sigue en pie gracias a las mismas pasiegas de siempre. Manolo culpa al Gobierno, a los jóvenes, al clima y a la masa madre.',
+    text: 'Ocho años después, el negocio no ha llegado ni a doblar lo que valía cuando lo heredó. El obrador sigue en pie gracias a las mismas pasiegas de siempre. Manolo culpa al Gobierno, a los jóvenes, al clima y a la masa madre.',
   },
 };

@@ -6,7 +6,7 @@ export const POLICIES = {
     label: 'Política salarial',
     options: {
       convenio: { label: 'Convenio', desc: 'Lo que dice la ley. Tu padre lo hacía así.', wage: 1900, moral: 1, insp: 0, hac: 0 },
-      minimo: { label: 'Salario mínimo y gracias', desc: 'Legal... por los pelos.', wage: 1500, moral: -0.5, insp: 0.4, hac: 0 },
+      minimo: { label: 'Salario mínimo y gracias', desc: 'Legal... según Manolo.', wage: 1500, moral: -0.5, insp: 0.4, hac: 0 },
       negro: { label: 'Falsos autónomos y sobres', desc: '"Así tienen más libertad."', wage: 950, moral: -2.5, insp: 2.0, hac: 0.8 },
     },
   },

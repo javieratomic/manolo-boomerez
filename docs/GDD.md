@@ -113,7 +113,7 @@ La saturación reduce la demanda cuando hay varios negocios del mismo tipo en un
 | **Concurso de acreedores** | 3 meses seguidos en descubierto por encima del límite de crédito |
 | **Soto del Real** | 3 expedientes penales |
 | **La Cooperativa** | Moral a 0 durante 2 meses: la plantilla se queda la empresa |
-| **Forbes (sección curiosidades)** | Patrimonio ≥ 15 M€ |
+| **Revista de millonarios (sección curiosidades)** | Patrimonio ≥ 15 M€ |
 | **Tiburón Pasiego** | Al acabar los 8 años con ≥ 5 M€ |
 | **Pyme con ínfulas** | Al acabar con ≥ 800.000 € |
 | **Ruina lenta** | Al acabar por debajo de eso |
@@ -186,7 +186,7 @@ coach de mindfulness o arriesgarse a uno peor.
 - **Exportar/importar partida** desde el menú (archivo JSON) para pasarla del PC al móvil.
 - **Balance de fin de año** cada diciembre, con el post de LinkedIn de Manolo.
 - **Salón de la fama** local con las 10 mejores partidas.
-- **Modo infinito** al terminar los 8 años (o al llegar a Forbes).
+- **Modo infinito** al terminar los 8 años (o al salir en la revista de millonarios).
 - **Fundación Boomerez**: asesor que da reputación y fama y desgrava un 10 % del impuesto.
 
 ## 12. Arte (2.5D)

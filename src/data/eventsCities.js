@@ -242,7 +242,7 @@ export const CITY_EVENTS = [
         },
       },
       {
-        label: 'Cobrarle el triple "porque se nota que puede"',
+        label: 'Cobrarle más del doble "porque se nota que puede"',
         hint: 'El Barón no mira los precios. Su contable, sí.',
         effect(s) {
           if (chance(s, 0.6)) {
@@ -325,7 +325,7 @@ export const CITY_EVENTS = [
       'Verano en Barcelona. Una asamblea vecinal contra la saturación turística recorre tu barrio con pancartas, silbatos y pistolas de agua. Se paran justo delante de tu negocio: en el escaparate cuelga tu cartel nuevo, "Barcelona Experience by Boomerez", y la cola de cruceristas llega a la esquina.' +
       `${at(s, 'barcelona', ['airbnb']) ? ' Dos portales más allá, los balcones de tus apartamentos de "Casa Manolo" están llenos de toallas de playa.' : ''}\n\n` +
       'Una vecina de setenta años, con la pistola de agua cargada, pregunta quién es el responsable.',
-    weight: (s) => (at(s, 'barcelona') && [4, 5, 6, 7].includes(moy(s)) ? 1.5 : 0),
+    weight: (s) => (at(s, 'barcelona', FOOD) && [4, 5, 6, 7].includes(moy(s)) ? 1.5 : 0),
     cooldown: 24,
     choices: [
       {
@@ -502,7 +502,7 @@ export const CITY_EVENTS = [
         effect(s) {
           addFamilia(s, 6);
           addFama(s, 2);
-          return 'Desfilas con cachirulo y faja, sujetando a tu madre de un brazo y el ramo con el otro. En la plaza, el cierzo te arranca el cachirulo y lo manda hacia el Ebro. Tu madre sale en la tele autonómica; tú, de espaldas, persiguiendo un pañuelo. Familia +6, fama +2.';
+          return 'Desfilas con cachirulo y faja, sujetando a tu madre con un brazo y el ramo con el otro. En la plaza, el cierzo te arranca el cachirulo y lo manda hacia el Ebro. Tu madre sale en la tele autonómica; tú, de espaldas, persiguiendo un pañuelo. Familia +6, fama +2.';
         },
       },
       {
@@ -548,7 +548,7 @@ export const CITY_EVENTS = [
       },
       {
         label: 'Pedir el turno de réplica y dar tu propia ponencia',
-        hint: '50 %: el auditorio te da la razón, por pura sorpresa.',
+        hint: '50 %: el auditorio te aplaude, por pura sorpresa.',
         effect(s) {
           addFama(s, 5);
           if (chance(s, 0.5)) {
@@ -660,7 +660,7 @@ export const CITY_EVENTS = [
         },
       },
       {
-        label: 'Lanzar el "Desayuno Funcionario": café, sobao y caldo caliente',
+        label: 'Lanzar el "Desayuno Funcionario": café, sobao y caldo caliente (1.500 €)',
         effect(s) {
           addCash(s, -1500);
           cityMod(s, 'valladolid', 1.12, 2, 'Desayuno Funcionario');
@@ -1077,7 +1077,7 @@ export const CITY_EVENTS = [
         },
       },
       {
-        label: 'Ofrecerles plaza con descuento en la Residencia Golden Age',
+        label: 'Recomendarles una buena residencia de mayores, que es lo suyo',
         effect(s) {
           addRep(s, -4);
           addFama(s, 1);

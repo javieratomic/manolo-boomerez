@@ -55,5 +55,5 @@ Manolo tampoco hizo caso a nadie.
 - Los caprichos dan fama, pero cuestan mantenimiento y Hacienda los mira con lupa.
 
 ## Finales
-- **Tiburón Pasiego** (5 M€ al acabar) requiere diversificar bien. **Forbes** (15 M€) es para tiburones de
+- **Tiburón Pasiego** (5 M€ al acabar) requiere diversificar bien. **La revista de millonarios** (15 M€) es para tiburones de
   verdad. Si terminas los 8 años con ganas de más, el modo infinito te deja seguir.

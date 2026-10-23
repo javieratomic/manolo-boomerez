@@ -14,14 +14,16 @@ export function execSalaries(s) {
 }
 
 function makeCandidate(s, pos) {
-  const family = chance(s, 0.15);
+  const taken = new Set([...Object.values(s.execs || {}), ...(s.candidates || [])].map((e) => e.name));
+  const famPool = FAMILY.filter((f) => !taken.has(f.name) && !(s.flags.divorciado && f.note === 'tu mujer'));
+  const family = famPool.length > 0 && chance(s, 0.15);
   const trait = family ? 'enchufado' : pick(s, ['leal', 'trepa', 'chivato', 'quemado', 'tiburon', 'mba', 'leal', 'trepa']);
   let skill = family ? 1 : int(s, 1, 3);
   if (trait === 'tiburon') skill = Math.min(3, skill + 1);
   let salary = family ? 1800 : 3200 + 1500 * skill;
   if (trait === 'tiburon') salary *= 1.5;
   if (trait === 'mba') salary *= 1.25;
-  const fam = family ? pick(s, FAMILY.filter((f) => !(s.flags.divorciado && f.note === 'tu mujer'))) : null;
+  const fam = family ? pick(s, famPool) : null;
   return {
     id: `c${s.month}_${pos}_${int(s, 100, 999)}`,
     name: fam ? fam.name : `${pick(s, FIRST_NAMES)} ${pick(s, LAST_NAMES)}`,

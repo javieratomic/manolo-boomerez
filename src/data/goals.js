@@ -12,7 +12,7 @@ export const GOALS = [
     test: (s) => outlets(s) >= 1,
     reward(s) {
       addFama(s, 3);
-      return 'Tu madre comparte la inauguración en Facebook. Fama +3.';
+      return 'Tu madre comparte la inauguración en todas sus redes sociales. Fama +3.';
     },
   },
   {
@@ -30,7 +30,7 @@ export const GOALS = [
     test: (s) => s.obrador.upgrades.length >= 1,
     reward(s) {
       addRep(s, 3);
-      return 'El Diario Montañés titula "El obrador Boomerez crece". Reputación +3.';
+      return 'El periódico regional titula "El obrador Boomerez crece". Reputación +3.';
     },
   },
   {
@@ -103,7 +103,7 @@ export const GOALS = [
     test: (s) => patrimonio(s) >= 5e6,
     reward(s) {
       addFama(s, 10);
-      return 'Ya eres oficialmente un tiburón. Ahora, a por Forbes (15 M€). Fama +10.';
+      return 'Ya eres oficialmente un tiburón. Ahora, a salir en una revista de millonarios (15 M€). Fama +10.';
     },
   },
   {
@@ -111,7 +111,7 @@ export const GOALS = [
     text: 'El sueño: 15 millones de patrimonio.',
     test: (s) => patrimonio(s) >= 15e6,
     reward() {
-      return 'Forbes ya está al teléfono.';
+      return 'La revista de millonarios ya está al teléfono.';
     },
   },
 ];

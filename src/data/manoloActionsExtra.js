@@ -16,7 +16,7 @@ export const EXTRA_ACTIONS = [
     run(s) {
       const own = s.businesses.filter((b) => b.mode !== 'franquicia' && (BUSINESS_TYPES[b.type]?.staff ?? 0) > 0);
       const b = own.length ? pick(s, own) : null;
-      const where = b ? `tu ${BUSINESS_TYPES[b.type].short} de ${CITY_BY_ID[b.city]?.name ?? 'provincias'}` : 'el obrador de Selaya';
+      const where = b ? `tu negocio "${BUSINESS_TYPES[b.type].short}" de ${CITY_BY_ID[b.city]?.name ?? 'provincias'}` : 'el obrador de Selaya';
       const r = int(s, 1, 10);
       if (r <= 5) {
         addMoral(s, 3);
@@ -26,7 +26,7 @@ export const EXTRA_ACTIONS = [
       if (r <= 8) {
         addCash(s, -1500);
         addMoral(s, 5);
-        return `En ${where} descubres que la cámara frigorífica lleva un mes goteando y que la plantilla la mantiene viva con cinta americana y fe. Por una vez escuchas, llamas al técnico y lo pagas en el acto: 1.500 €. Moral +5.`;
+        return `En ${where} descubres que la caldera lleva un mes goteando y que la plantilla la mantiene viva con cinta americana y fe. Por una vez escuchas, llamas al técnico y lo pagas en el acto: 1.500 €. Moral +5.`;
       }
       addRep(s, -5);
       addFama(s, 3);

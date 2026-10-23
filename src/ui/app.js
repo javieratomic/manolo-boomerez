@@ -160,10 +160,10 @@ function renderHUD(s) {
     ${hudItem('icon_calendar', '📅', 'Fecha', `<span class="long">${dateLabel(s.month)}</span><span class="short">${dateLabel(s.month).slice(0, 3)} ${String(dateLabel(s.month)).slice(-2)}</span>`, `<span class="hud-sub">${s.endless ? `Mes ${s.month + 1} · ♾️` : `Mes ${Math.min(s.month + 1, GAME_MONTHS)}/${GAME_MONTHS}`}</span>`)}
     ${hudItem('icon_cash', '💶', 'Caja', `<span class="${s.cash < 0 ? 'neg' : ''}">${moneyShort(s.cash)}</span>`, '', 'Dinero disponible. Si baja de cero, el banco tira de la póliza.')}
     ${hudItem('icon_debt', '🏦', 'Deuda', moneyShort(s.debt), '', 'Lo que debes a la Caja Cantábrica. Genera intereses cada mes.')}
-    ${hudItem('icon_patrimonio', '🏰', 'Patrimonio', moneyShort(pat), '', 'Caja − deuda + valor de obrador, negocios e inmuebles. Es lo que cuenta para los finales.')}
+    ${hudItem('icon_patrimonio', '🏰', 'Patrimonio', moneyShort(pat), '', 'Caja − deuda + valor del obrador, los negocios y los caprichos. Es lo que cuenta para los finales.')}
     ${hudItem('icon_macro', macroFx(s).emoji, 'Economía', macroFx(s).label, '', macroFx(s).desc)}
     ${hudItem('icon_rep', '⭐', 'Reputación', Math.round(s.rep), meter(s.rep), 'Imagen pública. Multiplica la demanda de todos tus negocios.')}
-    ${hudItem('icon_moral', '🙂', 'Moral', Math.round(s.moral), meter(s.moral), 'Ánimo de la plantilla. Baja: peor servicio, denuncias y huelgas. A 0: la plantilla se queda la empresa.')}
+    ${hudItem('icon_moral', '🙂', 'Moral', Math.round(s.moral), meter(s.moral), 'Ánimo de la plantilla. Baja: peor servicio, denuncias y huelgas. Dos meses a 0: la plantilla se queda la empresa.')}
     ${hudItem('icon_fama', '📣', 'Fama', Math.round(s.fama), meter(s.fama), 'Lo conocido que es Manolo. Impulsa la Maison y la Academy. Se desvanece si no la alimentas.')}
     ${hudItem('icon_inspeccion', '🔎', 'Insp. Trabajo', Math.round(s.heatTrabajo), meter(s.heatTrabajo, true), 'Radar de la Inspección de Trabajo: cuanto más alto, más probable es una visita.')}
     ${hudItem('icon_hacienda', '🏛️', 'Hacienda', Math.round(s.heatHacienda), meter(s.heatHacienda, true), 'Radar de Hacienda: cuanto más alto, más probable es una auditoría.')}
@@ -295,7 +295,7 @@ async function onClick(e) {
       res = openBusiness(s, el.dataset.type, game.city, el.dataset.mode);
       if (res.ok) play(el.dataset.mode === 'franquicia' ? 'cash' : 'build');
       if (res.ok && el.dataset.mode === 'ilegal') toast(`🙈 Pisos "de temporada" abiertos en ${CITY_BY_ID[game.city].name}`, 'bad');
-      else if (res.ok) toast(el.dataset.mode === 'franquicia' ? `🤝 Franquicia vendida en ${CITY_BY_ID[game.city].name}` : `🏗️ ${t.name} abierto en ${CITY_BY_ID[game.city].name}`, 'good');
+      else if (res.ok) toast(el.dataset.mode === 'franquicia' ? `🤝 Franquicia vendida en ${CITY_BY_ID[game.city].name}` : `🏗️ Abres ${t.name} en ${CITY_BY_ID[game.city].name}`, 'good');
       break;
     }
     case 'sell': {
@@ -349,7 +349,7 @@ async function onClick(e) {
       break;
     case 'rd':
       res = startRD(s, el.dataset.id);
-      if (res.ok) toast(`🧪 ${PRODUCT_BY_ID[el.dataset.id].name}: ${res.months} meses`, 'good');
+      if (res.ok) toast(`🧪 ${PRODUCT_BY_ID[el.dataset.id].name}: ${res.months} ${res.months === 1 ? 'mes' : 'meses'}`, 'good');
       break;
     case 'rival-act':
       res = actOnRival(s, el.dataset.rival, el.dataset.city, el.dataset.action);
@@ -477,7 +477,7 @@ async function showMenu() {
   if (i === 4) showTitle();
   if (i === 5 && (await confirmModal('¿Reiniciar?', 'Perderás la partida actual.', 'Reiniciar'))) {
     clearStorage();
-    startGame(newGame());
+    startGame(newGame(undefined, game.s.difficulty));
   }
 }
 
@@ -503,7 +503,7 @@ function importSave() {
     if (!file) return;
     try {
       const s = deserialize(await file.text());
-      if (!(await confirmModal('Importar partida', `Se cargará la partida de ${dateLabel(s.month)} y se perderá la actual.`, 'Importar'))) return;
+      if (!(await confirmModal('Importar partida', `Se cargará la partida de ${dateLabel(s.month).toLowerCase()} y se perderá la actual.`, 'Importar'))) return;
       startGame(s);
       toast('📂 Partida importada', 'good');
     } catch {
@@ -540,7 +540,7 @@ function showHelp() {
         <li>😎 Manolo hace <b>una acción al mes</b> (LinkedIn, el bar, el alcalde, una cena con Merche...), se compra <b>caprichos</b> y puede sacar la empresa a <b>Bolsa</b>. Ojo con descuidar a Merche: estáis en gananciales.</li>
       </ul>
       <p>⌨️ Atajos: <b>Espacio</b> cierra el mes, <b>1-7</b> cambia de pestaña y <b>1-4</b> elige opción en las cartas.</p>
-      <p><b>Finales:</b> bancarrota, prisión, que la plantilla se quede la empresa... o salir en Forbes (sección curiosidades).</p>`,
+      <p><b>Finales:</b> bancarrota, prisión, que la plantilla se quede la empresa... o salir en la lista de millonarios de una revista económica (sección curiosidades).</p>`,
   });
 }
 
@@ -570,7 +570,7 @@ function showYearSummary(s, r) {
   const net = months.reduce((a, h) => a + h.net, 0);
   const startPat = s.history.find((h) => h.month === r.month - 12)?.patrimonio ?? months[0]?.patrimonio ?? 0;
   const endPat = months[months.length - 1]?.patrimonio ?? 0;
-  const lines = r.lines.filter((l) => l.id !== 'obrador').map((l) => ({ ...l, p: l.revenue - l.cost })).sort((a, b) => b.p - a.p);
+  const lines = r.lines.filter((l) => l.id !== 'obrador' && l.type !== 'obrador_regional').map((l) => ({ ...l, p: l.revenue - l.cost })).sort((a, b) => b.p - a.p);
   const best = lines[0];
   const worst = lines[lines.length - 1];
   const opened = s.businesses.filter((b) => Math.floor((b.openedMonth ?? -1) / 12) === Math.floor(r.month / 12)).length;
@@ -673,15 +673,16 @@ async function showEnding(id) {
     </table>
     <h4>Evolución del patrimonio</h4>
     <canvas id="chart-ending" height="140"></canvas>`;
-  const rank = addRecord({
+  const rank = s.recorded ? -1 : addRecord({
     title: e.title, ending: id, patrimonio: Math.round(patrimonio(s)), score: score(s), months: s.month,
     brand: s.brand, difficulty: s.difficulty || 'normal', date: new Date().toLocaleDateString('es-ES'),
   });
-  // Si el final es por tiempo o por Forbes, se puede seguir jugando sin límite.
+  // Si el final es por tiempo o por la revista de millonarios, se puede seguir jugando sin límite.
   const canContinue = ['tiburon', 'pyme', 'ruina_lenta', 'forbes'].includes(id);
   const choices = [{ label: 'Nueva partida', primary: true }, { label: 'Volver al título' }];
-  if (canContinue) choices.push({ label: 'Seguir jugando (modo infinito)', hint: 'Sin límite de tiempo. El récord ya está guardado.' });
+  if (canContinue) choices.push({ label: 'Seguir jugando (modo infinito)', hint: rank >= 0 ? 'Sin límite de tiempo. El récord ya está guardado.' : 'Sin límite de tiempo.' });
   requestAnimationFrame(() => drawChart($('#chart-ending'), s));
+  s.recorded = true;
   const i = await showModal({ title: e.title, kicker: rank >= 0 ? `FIN · Puesto ${rank + 1} del Salón de la fama` : 'FIN', image: e.image, html, wide: true, className: `ending ${e.tone}`, choices });
   if (i === 2) {
     s.ending = null;
@@ -692,5 +693,5 @@ async function showEnding(id) {
   }
   clearStorage();
   // Se difiere para que la cola de sucesos actual termine antes de empezar otra partida.
-  setTimeout(() => (i === 0 ? startGame(newGame()) : showTitle()));
+  setTimeout(() => (i === 0 ? startGame(newGame(undefined, s.difficulty)) : showTitle()));
 }

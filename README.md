@@ -51,7 +51,7 @@ pellizco para el zoom · `Espacio` cierra el mes · `1`-`6` cambia de pestaña �
 | Objetivos | 9 objetivos encadenados que guían la partida y dan pequeñas recompensas |
 | Dificultad | Modo cuñado (fácil), Emprendedor (normal) y Modo Hacienda (difícil) |
 | Logros | 21 logros que se guardan entre partidas, uno por cada final |
-| Finales | Concurso de acreedores, Soto del Real, la Cooperativa, Forbes, Tiburón Pasiego, Pyme con ínfulas, Ruina lenta |
+| Finales | Concurso de acreedores, Soto del Real, la Cooperativa, la Revista de millonarios, Tiburón Pasiego, Pyme con ínfulas, Ruina lenta |
 | Sonido | Efectos y música de fondo (pasodoble lo-fi generativo) sintetizados con WebAudio, sin ficheros de audio; se silencian por separado en el menú |
 
 El diseño completo está en [`docs/GDD.md`](docs/GDD.md) y los consejos de estrategia en [`docs/GUIA.md`](docs/GUIA.md).

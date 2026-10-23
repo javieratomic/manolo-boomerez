@@ -119,7 +119,7 @@ function tickTimers(s) {
   s.cooldowns.trabajo--;
   s.cooldowns.hacienda--;
   s.trends.smash = Math.max(0.55, s.trends.smash - 0.012);
-  s.trends.empanadas = Math.min(1.3, s.trends.empanadas + 0.003);
+  if (s.trends.empanadas < 1.3) s.trends.empanadas = Math.min(1.3, s.trends.empanadas + 0.003);
 }
 
 function ageAssets(s) {

@@ -332,7 +332,7 @@ GROUPS = [
                 ("la_portena", "'La Porteña': una empanada con sombrero de gaucho, celeste y blanco."),
                 ("vulture", "'Vulture Capital': un buitre geométrico sobre un edificio, morado y plata, estilo fondo de inversión."),
                 ("gym_bros", "'IronBros 24h': una mancuerna con brazos musculosos, naranja quemado."),
-                ("canas", "'Cañas & Tapas': una caña de cerveza con una tapa encima, marrón y dorado."),
+                ("canas", "'Tasca Eterna': una caña de cerveza con una tapa encima, marrón y dorado."),
                 ("silver", "'Silver Care': una hoja plateada con forma de corazón, gris azulado, aséptico."),
                 ("hub", "'WeHustle': un cohete saliendo de un portátil, verde esmeralda."),
             ]

@@ -314,7 +314,7 @@ Logotipo circular inventado para una cadena rival, fondo transparente, legible a
 - **Tamaño:** 128×128 px
 - **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
 
-Logotipo circular inventado para una cadena rival, fondo transparente, legible a 24 px, sin texto salvo una inicial: 'Cañas & Tapas': una caña de cerveza con una tapa encima, marrón y dorado.
+Logotipo circular inventado para una cadena rival, fondo transparente, legible a 24 px, sin texto salvo una inicial: 'Tasca Eterna': una caña de cerveza con una tapa encima, marrón y dorado.
 
 ## logo_rival_silver
 

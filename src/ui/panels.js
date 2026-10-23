@@ -12,7 +12,8 @@ import { computeEconomy, estimateOpening, obradorCapacity, patrimonio, creditLim
 import { canOpen, openingCost, sobaoTypeId, nextUpgrade, saleValue, canRebrand, franchiseFee, needsLicense, LOAN_STEP } from '../core/actions.js';
 import { nearestSite, transportCost } from '../core/logistics.js';
 import { advice } from '../core/advice.js';
-import { PARTIES, ELECTION_MONTHS } from '../data/politics.js';
+import { PARTIES } from '../data/politics.js';
+import { nextElectionMonth } from '../core/politics.js';
 import { RIVALS, RIVAL_MAX_LEVEL } from '../data/rivals.js';
 import { CAMPAIGNS, PRODUCTS, MAX_LEVEL } from '../data/market.js';
 import { POSITIONS, TRAITS } from '../data/execs.js';
@@ -102,7 +103,7 @@ export function renderCity(s, cityId) {
         <div class="grow">
           <div><b>${esc(t.name)}</b>${b.mode === 'franquicia' ? ' <span class="tag">Franquicia</span>' : ` <span class="stars" title="Nivel de reforma">${BUSINESS_TYPES[b.type].model === 'production' ? '' : `${'★'.repeat(b.level || 1)}${'☆'.repeat(MAX_LEVEL - (b.level || 1))}`}</span>`}</div>
           <div class="muted small">${profit == null ? 'Recién abierto' : `Último mes: <span class="${cls(profit)}">${signed(profit)}</span>`}
-          ${l?.franchise ? ` · Franquiciado: <span class="${cls(l.franchiseeProfit)}">${signed(l.franchiseeProfit)}</span>${b.lossMonths ? ` (${b.lossMonths} meses en pérdidas)` : ''}` : ''}
+          ${l?.franchise ? ` · Franquiciado: <span class="${cls(l.franchiseeProfit)}">${signed(l.franchiseeProfit)}</span>${b.lossMonths ? ` (${b.lossMonths} ${b.lossMonths === 1 ? 'mes' : 'meses'} en pérdidas)` : ''}` : ''}
           ${l?.occupied != null ? ` · ${l.occupied}/${t.beds + 5 * ((b.level || 1) - 1)} plazas ocupadas` : ''}</div>
           ${b.mode === 'franquicia' ? '' : `<div class="cond" title="Estado de conservación: ${Math.round(b.cond ?? 100)}/100">${bar(b.cond ?? 100, 100, (b.cond ?? 100) < 40 ? 'danger' : 'ok')}</div>`}
         </div>
@@ -214,7 +215,7 @@ function renderObrador(s) {
       <button class="btn small primary" data-act="upgrade" ${s.cash >= up.cost ? '' : 'disabled'}>Comprar (${moneyShort(up.cost)})</button></div>` : '<div class="small muted">El obrador está a tope de mejoras.</div>'}
     ${policyGroup(s, 'ingredientes', ing)}
     ${renderRebrand(s)}
-    ${s.contracts.length ? `<div class="small">Contratos: ${s.contracts.map((c) => `${esc(c.label)} (${c.units.toLocaleString('es-ES')} uds/mes, ${c.months} meses)`).join(', ')}</div>` : ''}
+    ${s.contracts.length ? `<div class="small">Contratos: ${s.contracts.map((c) => `${esc(c.label)} (${c.units.toLocaleString('es-ES')} uds/mes, ${c.months > 120 ? 'indefinido' : `${c.months} ${c.months === 1 ? 'mes' : 'meses'}`})`).join(', ')}</div>` : ''}
   </div>`;
 }
 
@@ -298,7 +299,7 @@ export function renderMarket(s) {
 
 function renderGov(s) {
   const p = PARTIES[s.gov?.party];
-  const next = ELECTION_MONTHS.find((m) => m >= s.month);
+  const next = nextElectionMonth(s.month);
   return `<div class="card"><h4>🗳️ Gobierno</h4>
     ${p ? `<div><b style="color:${p.color}">${p.emoji} ${esc(p.name)}</b></div><p class="small">${esc(p.summary)}</p>`
       : '<p class="small">Gobierno en funciones: nadie se atreve a cambiar nada. Reglas de siempre.</p>'}
@@ -311,7 +312,7 @@ function renderRivals(s) {
     return '<div class="card"><h4>Competencia</h4><p class="small muted">De momento nadie te hace sombra. En cuanto huelan dinero, aparecerán.</p></div>';
   }
   return `<div class="card"><h4>Competencia</h4>
-    <p class="small muted">Cada punto de presencia rival en una ciudad le quita un 15 % de clientela a tus negocios del ramo. Y te copian: van a donde ganas dinero.</p>
+    <p class="small muted">Cada punto de presencia rival en una ciudad le resta clientela a tus negocios del ramo: un 13 % con uno, un 23 % con dos y un 31 % con tres. Y te copian: van a donde ganas dinero.</p>
     ${s.rivals.map((r) => {
       const d = RIVALS[r.id];
       const price = acquisitionPrice(s, r.id);
@@ -320,7 +321,7 @@ function renderRivals(s) {
       const cities = all.filter(([c]) => mine.has(c));
       const others = all.filter(([c]) => !mine.has(c));
       return `<div class="rival-card" style="--rc:${d.color}">
-        <div class="row between"><b>${artOr(`logo_rival_${r.id}`, d.emoji)} ${esc(d.name)}</b><span class="small muted">${rivalTotal(r)} locales${r.calm ? ' · en pausa' : ''}</span></div>
+        <div class="row between"><b>${artOr(`logo_rival_${r.id}`, d.emoji)} ${esc(d.name)}</b><span class="small muted">${rivalTotal(r)} ${rivalTotal(r) === 1 ? 'local' : 'locales'}${r.calm ? ' · en pausa' : ''}</span></div>
         <div class="small muted">${esc(d.desc)}</div>
         <div class="small">Compite con: ${esc(d.targets.map((t) => BUSINESS_TYPES[t]?.name || t).join(', '))}</div>
         ${cities.length ? `<details class="rival-details"><summary>Plantarles cara (${cities.length} ${cities.length === 1 ? 'ciudad' : 'ciudades'} donde coincidís)</summary>` : ''}
@@ -342,14 +343,14 @@ function renderRivals(s) {
 function renderRD(s) {
   const rd = s.rd;
   return `<div class="card"><h4>I+D: nuevos productos</h4>
-    ${rd ? `<div class="rd-now"><b>En desarrollo:</b> ${esc(PRODUCT_BY_ID[rd.id].name)} · faltan ${rd.monthsLeft} meses ${bar(rd.total - rd.monthsLeft, rd.total, 'ok')}</div>`
+    ${rd ? `<div class="rd-now"><b>En desarrollo:</b> ${esc(PRODUCT_BY_ID[rd.id].name)} · ${rd.monthsLeft === 1 ? 'falta 1 mes' : `faltan ${rd.monthsLeft} meses`} ${bar(rd.total - rd.monthsLeft, rd.total, 'ok')}</div>`
       : '<p class="small muted">El "laboratorio" (la trastienda del obrador, con una pizarra) está libre.</p>'}
     <div class="products">
       ${PRODUCTS.map((p) => {
         const has = s.products.includes(p.id);
         const ok = canStartRD(s, p.id);
         return `<div class="product ${has ? 'on' : ''}">
-          <div class="grow"><b>${has ? '✅ ' : ''}${esc(p.name)}</b> ${has ? '' : `<span class="muted small">${moneyShort(p.cost)} · ${p.months} meses</span>`}
+          <div class="grow"><b>${has ? '✅ ' : ''}${esc(p.name)}</b> ${has ? '' : `<span class="muted small">${moneyShort(p.cost)} · ${p.months} ${p.months === 1 ? 'mes' : 'meses'}</span>`}
             <div class="small muted">${esc(p.desc)}</div></div>
           ${has ? '' : `<button class="btn small" data-act="rd" data-id="${p.id}" ${ok.ok ? '' : 'disabled'} title="${esc(ok.msg || '')}">Desarrollar</button>`}
         </div>`;
@@ -368,13 +369,13 @@ export function renderStaff(s) {
       <div><span class="muted small">Moral</span><b>${Math.round(s.moral)}</b></div>
       <div><span class="muted small">Control</span><b>${Math.round(r.control * 100)} %</b></div>
     </div>
-    ${locked ? `<div class="card warn">⚖️ Tras la inspección, durante ${s.flags.forcedLegal} meses más solo puedes aplicar condiciones legales.</div>` : ''}
+    ${locked ? `<div class="card warn">⚖️ Tras la inspección, durante ${s.flags.forcedLegal} ${s.flags.forcedLegal === 1 ? 'mes' : 'meses'} más solo puedes aplicar condiciones legales.</div>` : ''}
     <div class="card">
       <p class="small muted">Las condiciones "emprendedoras" abaratan costes, pero bajan la moral y encienden el radar de la Inspección de Trabajo. Las plantillas grandes llaman más la atención.</p>
       ${policyGroup(s, 'salario', POLICIES.salario, locked)}
       ${policyGroup(s, 'horas', POLICIES.horas, locked)}
       ${policyGroup(s, 'becarios', POLICIES.becarios, locked)}
-      ${hasHousing ? policyGroup(s, 'alquiler', POLICIES.alquiler) : `<p class="small muted">🔑 Cuando tengas un Residencial Boomerez podrás alojar a la plantilla (${r.housed}/${r.beds} plazas) y fijar su alquiler.</p>`}
+      ${hasHousing ? policyGroup(s, 'alquiler', POLICIES.alquiler) : `<p class="small muted">🔑 Cuando tengas un Residencial Boomerez podrás alojar a la plantilla y fijar su alquiler.</p>`}
       ${hasHousing ? `<p class="small">Alojados: <b>${r.housed}/${r.beds}</b>. Con más control hay menos denuncias y menos huelgas.</p>` : ''}
     </div>
     ${renderExecs(s)}`;
@@ -383,7 +384,7 @@ export function renderStaff(s) {
 function renderExecs(s) {
   const next = CANDIDATE_REFRESH - (s.month - (s.candidatesMonth ?? 0));
   return `<div class="card"><h4>Equipo directivo</h4>
-    <p class="small muted">Directivos con nombre y apellidos (y manías). La headhunter cobra un mes de sueldo; despedir cuesta tres. Nuevos currículums en ${Math.min(CANDIDATE_REFRESH, Math.max(1, next))} ${next === 1 ? "mes" : "meses"}.</p>
+    <p class="small muted">Directivos con nombre y apellidos (y manías). La headhunter cobra un mes de sueldo; despedir cuesta tres. Nuevos currículums en ${Math.min(CANDIDATE_REFRESH, Math.max(1, next))} ${Math.max(1, next) === 1 ? 'mes' : 'meses'}.</p>
     ${Object.entries(POSITIONS).map(([pos, p]) => {
       const e = execOf(s, pos);
       const cands = (s.candidates || []).filter((c) => c.pos === pos);
@@ -417,7 +418,7 @@ export function renderFinance(s) {
     <div><span class="muted small">Cuota "optimizada"</span><b class="${s.evaded > 0 ? 'neg' : ''}">${moneyShort(haciendaDebt(s))}</b></div>
   </div>
   <div class="card"><h4>Caja Cantábrica · Póliza de crédito</h4>
-    <p class="small muted">Interés del ${(difficultyOf(s).interest * 100).toFixed(2).replace('.', ',')} % mensual. Si te quedas en descubierto, el banco tira de la póliza automáticamente. Si no queda margen durante 3 meses: concurso de acreedores.</p>
+    <p class="small muted">Interés del ${((difficultyOf(s).interest + macroFx(s).interest) * 100).toFixed(2).replace('.', ',')} % mensual. Si te quedas en descubierto, el banco tira de la póliza automáticamente. Si no queda margen durante 3 meses: concurso de acreedores.</p>
     ${bar(s.debt, limit, s.debt / limit > 0.8 ? 'danger' : '')}
     <div class="row gap wrap">
       <button class="btn small" data-act="borrow" ${s.debt + 1 > limit ? 'disabled' : ''}>Pedir ${moneyShort(LOAN_STEP)}</button>
@@ -452,7 +453,7 @@ export function renderFinance(s) {
   }
   if (s.extraMonthly.length) {
     html += `<div class="card"><h4>Gastos fijos extra</h4><ul class="perk-list">
-      ${s.extraMonthly.map((x, i) => `<li class="perk"><div class="grow"><b>${esc(x.label)}</b> <span class="muted small">${money(x.amount)}/mes${x.months != null ? ` · ${x.months} meses más` : ''}</span></div>
+      ${s.extraMonthly.map((x, i) => `<li class="perk"><div class="grow"><b>${esc(x.label)}</b> <span class="muted small">${money(x.amount)}/mes${x.months != null ? ` · ${x.months} ${x.months === 1 ? 'mes' : 'meses'} más` : ''}</span></div>
         <button class="btn small ghost" data-act="drop-cost" data-index="${i}">Quitar</button></li>`).join('')}
     </ul></div>`;
   }

@@ -312,12 +312,12 @@ const ARC_PRENSA = [
           advance(s, 'prensa', 4);
           if (chance(s, 0.25)) {
             addRep(s, 3);
-            return 'El juez considera "excesivo" llamar "trastienda" a tu obrador. Ganas. No lo publica nadie, salvo tu LinkedIn. Reputación +3.';
+            return 'El juez considera "excesivo" el tono del reportaje. Ganas. No lo publica nadie, salvo tu LinkedIn. Reputación +3.';
           }
           fine(s, 12000);
           addRep(s, -6);
           addFama(s, 3);
-          return 'El juez desestima la querella y te condena en costas: 12.000 €. Lucía publica la sentencia entera, con un pie de foto de tu cara al salir. Reputación −6, fama +3.';
+          return 'El juez desestima la querella y te condena en costas: 12.000 €. Lucía publica la sentencia entera, con una foto de tu cara al salir. Reputación −6, fama +3.';
         },
       },
       {
@@ -408,7 +408,7 @@ const ARC_JONATHAN = [
           addCash(s, -10000);
           addMoral(s, -4);
           addHeatTrabajo(s, 4);
-          return 'Das una charla en el vestuario: "Chicos, esto es mejor que un plan de pensiones". Veinte personas compran parcelas. Maripili no, pero apunta los nombres. Pagas 10.000 €. Moral −4, radar de Inspección +4.';
+          return 'Das una charla en el vestuario: "Chicos, esto es mejor que un plan de pensiones". Media plantilla compra parcelas. Maripili no, pero apunta los nombres. Pagas 10.000 €. Moral −4, radar de Inspección +4.';
         },
       },
       {
@@ -483,7 +483,7 @@ const ARC_JONATHAN = [
           advance(s, 'jonathan', 2);
           s.flags.jonDenuncia = true;
           addFamilia(s, -6);
-          return 'Vas a comisaría con gorra y gafas de sol. El agente te reconoce por el anuncio de los sobaos: "Gracias, Don Manuel. Ya teníamos a medio Telegram denunciando". Merche se acabará enterando. Familia −6.';
+          return 'Vas a comisaría con gorra y gafas de sol. El agente te reconoce por el anuncio de los sobaos: "Gracias, Don Manuel. Ya teníamos a media comarca denunciando". Merche se acabará enterando. Familia −6.';
         },
       },
       {
@@ -504,7 +504,7 @@ const ARC_JONATHAN = [
       const you = e >= 3
         ? 'Tu nombre aparece 47 veces en el sumario. Hay audios tuyos captando socios "con mentalidad" y una foto tuya en la Gala Diamante, con la copa en alto.'
         : e >= 1
-          ? 'Tu nombre aparece en el sumario, en un grupo de WhatsApp llamado "Cuñaos al Millón" y en una diapositiva titulada "Socios de referencia".'
+          ? 'Tu nombre aparece en el sumario, en un grupo de chat llamado "Cuñaos al Millón" y en una diapositiva titulada "Socios de referencia".'
           : s.flags.jonDenuncia
             ? 'Tu nombre aparece en el sumario... en la denuncia que pusiste tú. Firmaste con nombre y apellidos, porque no sabías hacerlo de otra manera.'
             : 'Tu nombre aparece en el sumario de pasada: "cuñado del investigado; no consta participación". Respiras.';
@@ -533,7 +533,7 @@ const ARC_JONATHAN = [
         },
       },
       {
-        label: 'Borrar los WhatsApps y salirte de "Cuñaos al Millón"',
+        label: 'Borrar los mensajes y salirte de "Cuñaos al Millón"',
         hint: 'Destruir pruebas es delito. Y la policía ya tiene el móvil de Jonathan.',
         effect(s) {
           const e = jonExpo(s);
@@ -576,7 +576,7 @@ const ARC_JONATHAN = [
           addCash(s, -6000);
           if (e >= 3) fine(s, 10000);
           addRep(s, -1);
-          return `Don Cosme consigue que pases de investigado a testigo con una sola frase: "Mi cliente, señoría, no sabe usar ni el Bizum". Pagas 6.000 €${e >= 3 ? ' y 10.000 € en devoluciones' : ''}. Reputación −1.`;
+          return `Don Cosme consigue que pases de investigado a testigo con una sola frase: "Mi cliente, señoría, no sabe ni hacer un pago con el móvil". Pagas 6.000 €${e >= 3 ? ' y 10.000 € en devoluciones' : ''}. Reputación −1.`;
         },
       },
     ],
@@ -708,7 +708,7 @@ const ARC_COMITE = [
         colabora: 'La comisión ha trabajado en serio, en tu cocina y con tu café.',
         soborno: 'Maripili rechazó tu "ascenso" y ahora preside la comisión negociadora.',
         represalia: 'Maripili volvió readmitida por el juzgado y la eligieron presidenta de la comisión por unanimidad. Incluido Kevin.',
-        amarillo: 'El comité de Kevin duró tres semanas. La plantilla eligió a Maripili por cuarenta votos contra dos (Kevin y su madre).',
+        amarillo: 'El comité de Kevin duró tres semanas. La plantilla eligió a Maripili con todos los votos menos dos (Kevin y su madre).',
       }[s.flags.comiteActitud] ?? 'La comisión negociadora está lista.';
       return `${intro}\n\nTe presentan su plataforma: una subida del 6 %, registro horario de verdad, el fin de los becarios encadenados` +
         `${has(s, 'vivienda') ? ', un tope al alquiler de los pisos de la plantilla' : ''} y que el sobao de la merienda deje de descontarse de la nómina.`;
@@ -789,7 +789,7 @@ const ARC_COMITE = [
           s.wageIndex = (s.wageIndex || 1) * 1.03;
           s.policies.salario = 'convenio';
           addMoral(s, 6);
-          return 'Regateas como en un rastrillo. Queda una subida del 3 % y un registro horario "flexible". Maripili firma con la boca pequeña. Costes salariales +3 % para siempre, moral +6.';
+          return 'Regateas como en un rastrillo. Queda una subida del 3 % y un registro horario "flexible". Maripili firma con la boca pequeña. Salario de convenio para toda la plantilla y costes salariales +3 % para siempre, moral +6.';
         },
       },
       {
@@ -831,7 +831,7 @@ const ARC_COMITE = [
           Object.assign(s.policies, { salario: 'convenio', horas: 'pagadas' });
           addMoral(s, 12);
           addRep(s, 2);
-          return 'Firmas sobre el capó del Audi, delante del piquete. Primero, aplausos irónicos; luego, sinceros. Costes salariales +7 % para siempre, moral +12, reputación +2.';
+          return 'Firmas sobre el capó del Audi, delante del piquete. Primero, aplausos irónicos; luego, sinceros. Salario de convenio y horas extra pagadas; costes salariales +7 % para siempre, moral +12, reputación +2.';
         },
       },
       {
@@ -872,7 +872,7 @@ const ARC_COMITE = [
           s.wageIndex = (s.wageIndex || 1) * 1.04;
           s.policies.salario = 'convenio';
           addMoral(s, 8);
-          return 'Don Cosme encierra a Maripili y a ti en una sala con sobaos y no os deja salir hasta que firmáis. Subida del 4 %. Pagas 4.000 € de minuta. Costes salariales +4 % para siempre, moral +8.';
+          return 'Don Cosme os encierra a Maripili y a ti en una sala con sobaos y no os deja salir hasta que firméis. Subida del 4 %. Pagas 4.000 € de minuta. Salario de convenio para toda la plantilla y costes salariales +4 % para siempre, moral +8.';
         },
       },
     ],
@@ -1025,7 +1025,7 @@ const ARC_HOJALDRE = [
         : e <= 2
           ? 'La fiscal pide para ti una multa y la prohibición de contratar con la Administración.'
           : 'La fiscal pide para ti dos años por cohecho y obstrucción. Hasta el alcalde te mira con lástima.';
-      return `Año y pico después de los registros empieza el juicio. El alcalde llega con el traje de las fiestas, pero sin la banda.\n\n${you}`;
+      return `Nueve meses después de los registros empieza el juicio. El alcalde llega con el traje de las fiestas, pero sin la banda.\n\n${you}`;
     },
     weight: (s) => (ready(s, 'hojaldre', 2, 4) ? 1 : 0),
     once: true, forced: true,
@@ -1062,7 +1062,7 @@ const ARC_HOJALDRE = [
             fine(s, 30000);
             addRep(s, -10);
             log(s, '⚖️ Operación Hojaldre: condenados el alcalde y el empresario Manolo Boomerez.', 'news');
-            return 'Condenado. La jueza cita textualmente tu frase sobre el chuletón. Pagas 10.000 € de abogados y 30.000 € de multa. Reputación −10.';
+            return `Condenado.${s.flags.hojaldreDecl === 'culpa' ? ' La jueza cita textualmente tu frase sobre el chuletón.' : ''} Pagas 10.000 € de abogados y 30.000 € de multa. Reputación −10.`;
           }
           addRep(s, 4);
           addFama(s, 4);
@@ -1088,7 +1088,7 @@ const ARC_HOJALDRE = [
           return (grab
             ? 'Pones en la sala el audio del prado: el chuletón, el orujo y el "donativo". El alcalde se tapa la cara. La fiscal te da las gracias.'
             : `Hablas tres horas: chuletones, licencias, la orquesta de las fiestas... Multa reducida por colaborar: ${money(amount)}.`) +
-            ' El ayuntamiento ya no te hará favores nunca más. Reputación +5, fama +6.';
+            ' Se acabaron los favores del ayuntamiento: cualquier protección municipal que tuvieras desaparece hoy. Reputación +5, fama +6.';
         },
       },
     ],
@@ -1111,7 +1111,7 @@ const ARC_MERCHE = [
     text: (s) =>
       'Merche, tu mujer, te encuentra a las dos de la mañana en la cocina viendo vídeos de "hombres de alto valor", con una chupa de cuero que todavía lleva la etiqueta.\n\n' +
       '"Manolo, ¿qué te pasa?"\n"Nada, Merche. Que tengo 55 años y todavía no he vivido."\n' +
-      `"Tienes un obrador, una hija, la casa pagada y ${s.businesses.length} negocios."\n"Por eso. Me falta algo."`,
+      `"Tienes un obrador, una hija, la casa pagada y ${s.businesses.length === 1 ? 'un negocio' : `${s.businesses.length} negocios`}."\n"Por eso. Me falta algo."`,
     weight: (s) => (canStart(s, 6) && mercheOk(s) && (s.fama >= 30 || s.cash >= 120000) ? 1.1 : 0),
     once: true,
     choices: [
@@ -1288,7 +1288,7 @@ const ARC_MERCHE = [
           addFamilia(s, -4);
           addMoral(s, -2);
           addFama(s, 1);
-          return 'Duermes en el sofá del despacho, debajo del retrato de tu padre, que te mira como siempre. El turno de mañana te encuentra en calzoncillos. Familia −4, moral −2.';
+          return 'Duermes en el sofá del despacho, debajo del retrato de tu padre, que te mira como siempre. El turno de mañana te encuentra en calzoncillos. Familia −4, moral −2, fama +1.';
         },
       },
       {

@@ -105,6 +105,16 @@ La saturación reduce la demanda cuando hay varios negocios del mismo tipo en un
 - **Auditoría de Hacienda**: se basa en la cuota defraudada acumulada. Opciones: pagar la paralela,
   culpar al gestor, colar tickets de cenas como gastos de representación, hacerse el anciano confuso.
   Si la cuota supera los 120.000 € y no regularizas, abren expediente por delito fiscal.
+- **El expediente** (`src/core/inspections.js`): los inspectores tienen memoria.
+  - Cada truco se apunta antes de tirar el dado y su probabilidad baja al repetirlo: frigorífico 55 % → 27,5 %
+    → 14 %; orujo 30 % → 10 % → 3 %; culpar al gestor −20 puntos por vez (mínimo 10 %); tickets a la mitad;
+    el anciano confuso solo cuela una vez. Las pistas de la carta enseñan la probabilidad real.
+  - Cada multa laboral pagada es una sanción; las de los últimos 24 meses agravan la siguiente (+25 % cada una,
+    hasta ×1,75).
+  - La multa usa la mayor entre la gravedad del mes y la media de los últimos 6 meses, así que pasarse a
+    legal justo antes de la visita no sirve. El historial se vacía al resolver la inspección.
+  - Una visita sin infracciones tacha la sanción más antigua y resta un uso a cada truco de ese inspector.
+  - Paco, el gestor, se va la tercera vez que le echas la culpa.
 
 ## 9. Finales
 
@@ -181,19 +191,56 @@ coach de mindfulness o arriesgarse a uno peor.
   *Emprendedor* (normal) y *Modo Hacienda* (50.000 €, radares ×1,3, multas ×1,3, interés del 0,75 %).
 - **Rebranding:** se puede cambiar de Express a Maison (150.000 €) o al revés (60.000 €, reputación −6) una vez
   cada 24 meses. Todas las tiendas de sobaos se reconvierten.
-- **Logros** persistentes entre partidas (21), entre ellos uno por cada final.
+- **Logros** persistentes entre partidas (34), entre ellos uno por cada final y uno por cada cláusula.
 - **Prensa:** titulares satíricos de *El Sobao Digital* en la hemeroteca.
 - **Exportar/importar partida** desde el menú (archivo JSON) para pasarla del PC al móvil.
 - **Balance de fin de año** cada diciembre, con el post de LinkedIn de Manolo.
 - **Salón de la fama** local con las 10 mejores partidas.
 - **Modo infinito** al terminar los 8 años (o al salir en la revista de millonarios).
 - **Fundación Boomerez**: asesor que da reputación y fama y desgrava un 10 % del impuesto.
+- **La cláusula del testamento** (`src/data/clauses.js`): un reto por partida, elegido por la semilla sin tocar
+  el generador. Se rompe para siempre al incumplirse y se comprueba al terminar con pyme, tiburón o revista;
+  si se cumple, multiplica la puntuación y da 300.000 € (una sola vez, también en modo infinito). Antes de
+  abrir, pedir un préstamo o lanzar una OPA que la rompería, el juego avisa.
+
+  | Cláusula | Regla | Multiplicador |
+  |---|---|---|
+  | Pocos y bien hechos | nunca más de 12 negocios | ×1,75 |
+  | De aquí no se sale | todo en Galicia, Asturias, Cantabria, País Vasco, Navarra y Castilla y León | ×2,5 |
+  | El sobao, lo primero | el sobao es el sector que más ingresa en el último año | ×1,5 |
+  | Antes de los sesenta | 5 M€ de patrimonio antes del mes 60 | ×1,25 |
+  | Nada de vender humo | ni franquicias, ni Academy, ni coworking | ×1,2 |
+  | Cuida de Merche | la relación nunca baja de 50 y no hay divorcio | ×1,1 |
+  | Ni un duro de los bancos | no pedir préstamos (la póliza automática no cuenta) y acabar sin deuda | ×1,15 |
+
+  Los multiplicadores están calibrados con el bot para que cumplir una cláusula difícil compense jugar más
+  pequeño, sin que las fáciles disparen la puntuación.
+- **Costumbres de la casa**: los sucesos con `memory: true` recuerdan qué opción se eligió (por su `key`).
+  Navidad cambia de texto según la tradición y castiga romperla; agosto escala (el tercer año seguido sin
+  vacaciones llega una inspección) y, tras dos veranos de descanso, se puede cerrar el mes entero. A partir de
+  la tercera vez seguida con la misma opción, el resultado sale como aviso en vez de otra ventana.
+- **Semilla compartible**: código en base 36 (hasta 7 caracteres) en el título; el **reto de la semana** usa
+  la semana ISO como semilla (FNV-1a) y dificultad normal. Los récords guardan semilla, reto, versión y
+  cláusula. La semilla solo reproduce la partida con la misma versión del juego (`GAME_VERSION`).
+
+### Información al jugador
+- **Previsiones** (`src/core/preview.js`): se simula sobre copias del estado con las mismas funciones del
+  cierre (`computeEconomy`, `driftStats`), así que la previsión coincide con lo que pasa si no hay sucesos.
+  Bajo cada política: cambio de neto, moral, reputación y radares por mes, multa si viniera Marisa y neto a
+  6 meses con la moral y las multas esperadas ya descontadas.
+- **¿Por qué?**: los indicadores del HUD (y las variaciones del informe) explican qué política empuja cada uno
+  frente a su opción honrada, más un resto con la tendencia natural, y el riesgo concreto del mes.
+- **Parte del mes** (`src/core/digest.js`): las tres partidas que más mueven el neto con su motivo si se
+  detecta, lo que ha dejado el cierre en el registro y lo que viene en los dos próximos cierres (nunca las
+  inspecciones).
 
 ## 12. Arte (2.5D)
 
 Lo produce un agente aparte (Codex) a partir de `art/requests/`. El juego carga los recursos que aparecen
 en `assets/manifest.json` con `"status": "done"`; los demás se sustituyen por marcadores generados por
 código, así que el juego siempre se puede jugar. Consulta `AGENTS.md` y `art/STYLE_GUIDE.md`.
+Al arrancar solo se espera lo imprescindible (mapa, edificios, iconos, título y retratos de Manolo); el resto
+se precarga en segundo plano.
 
 ## 13. Pendiente / ideas futuras
 

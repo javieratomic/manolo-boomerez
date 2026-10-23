@@ -29,6 +29,10 @@ Tu trabajo es convertir las peticiones de `art/requests/` en imágenes dentro de
   marcador procedural, así que puedes entregar poco a poco.
 - Para ver el resultado: `python tools/serve.py 8080 --open` (o `jugar.bat` en Windows). Los marcadores
   que veas en el juego indican la posición y el tamaño que debe ocupar cada imagen.
+- **Peso:** el juego es web y también se juega en el móvil. Procura que cada PNG pese poco: retratos y escenas
+  por debajo de unos 300 KB (paleta reducida u optimizador sin pérdida visible, p. ej. pngquant/oxipng),
+  iconos y edificios por debajo de 80 KB. Hoy los retratos rondan 500 KB y las escenas más; cuando puedas,
+  re-optimiza los ya entregados sin cambiar `id`, `file` ni el tamaño en píxeles.
 - Valores posibles de `status`: `requested` → `done` (o `blocked`). Si el agente de código vuelve a pedir
   un recurso ya hecho, lo pondrá en `revise` con una nota: rehazlo y vuelve a marcarlo como `done`.
 

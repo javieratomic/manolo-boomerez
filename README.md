@@ -44,13 +44,15 @@ pellizco para el zoom · `Espacio` cierra el mes · `1`-`6` cambia de pestaña �
 | Equipo | 5 puestos directivos con candidatos que tienen nivel y manías |
 | Vida | Caprichos de nuevo rico, relación con Merche (y divorcio), salida a Bolsa |
 | Logística | Transporte por kilómetro desde el obrador más cercano, obradores regionales, licencias de pisos turísticos |
-| Rejugabilidad | Balance anual, salón de la fama, logros entre partidas y modo infinito |
+| Rejugabilidad | Cláusula del testamento (reto opcional por partida), semilla compartible y reto de la semana, balance anual, salón de la fama, logros entre partidas y modo infinito |
+| Información | Previsión de cada política (mes que viene y 6 meses), «¿Por qué?» en cada indicador y parte del mes |
+| Memoria | Los inspectores recuerdan tus trucos y sanciones; Navidad y agosto recuerdan tus costumbres |
 | Políticas | Salarios, horas extra, becarios, alquiler de los pisos de la plantilla, contabilidad e ingredientes |
 | Riesgo | Radares de Inspección de Trabajo y de Hacienda → inspecciones, auditorías, multas y expedientes penales |
-| Sucesos | 39 cartas satíricas con decisiones (el cuñado y su SobaoCoin, la rata viral, la huelga, el jefe infiltrado...) |
+| Sucesos | Más de 120 cartas satíricas con decisiones (el cuñado y su SobaoCoin, la rata viral, la huelga, el jefe infiltrado...) |
 | Objetivos | 9 objetivos encadenados que guían la partida y dan pequeñas recompensas |
 | Dificultad | Modo cuñado (fácil), Emprendedor (normal) y Modo Hacienda (difícil) |
-| Logros | 21 logros que se guardan entre partidas, uno por cada final |
+| Logros | 34 logros que se guardan entre partidas: uno por cada final y uno por cada cláusula, entre otros |
 | Finales | Concurso de acreedores, Soto del Real, la Cooperativa, la Revista de millonarios, Tiburón Pasiego, Pyme con ínfulas, Ruina lenta |
 | Sonido | Efectos y música de fondo (pasodoble lo-fi generativo) sintetizados con WebAudio, sin ficheros de audio; se silencian por separado en el menú |
 

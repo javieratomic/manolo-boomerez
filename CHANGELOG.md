@@ -1,6 +1,34 @@
 # Cambios
 
-## 0.2.0 — Profundidad
+## 0.3.0 — Decisiones con memoria
+
+### Sistemas nuevos
+- **El expediente Boomerez**: Marisa (Trabajo) y Don Fermín (Hacienda) se acuerdan de todo. Cada truco
+  (la cámara frigorífica, el orujo, culpar al gestor, los tickets, el anciano confuso) funciona peor cada vez
+  y las pistas enseñan la probabilidad real. Las sanciones de los últimos 24 meses agravan la multa (hasta
+  ×1,75) y la multa mira la media de los últimos 6 meses: pasarse a legal el mes de la visita ya no la borra.
+  Paco se va a la tercera vez que le culpas.
+- **La tentación, con números**: bajo cada opción de política salen lo que cambiaría el mes que viene
+  (dinero, moral, radares, multa si viniera Marisa) y el neto a 6 meses ya descontadas la moral y las multas
+  esperadas. Los indicadores del HUD se pueden tocar: «¿Por qué?» explica qué política empuja cada uno y el
+  riesgo de visita, huelga o auditoría.
+- **Costumbres de la casa**: Navidad, agosto y los franquiciados arruinados recuerdan lo que elegiste. Romper
+  una tradición de cestas duele; el tercer agosto sin vacaciones trae a la Inspección; tras dos veranos de
+  descanso se puede «cerrar agosto como en Francia». Lo de siempre ya no abre otra ventana: sale como aviso.
+- **La cláusula del testamento**: cada partida trae un reto opcional (siete posibles, según la semilla). Si
+  acabas cumpliéndolo, la puntuación se multiplica y heredas el prado de Vega de Pas con 40 vacas pasiegas.
+- **Parte del mes**: el informe explica qué partidas han movido el neto y por qué (una cadena rival en una
+  ciudad, la temporada, aperturas, el obrador que no da abasto...), qué ha pasado y qué viene.
+- **Semilla compartible y reto de la semana**: un código de hasta 7 caracteres reproduce la partida; el
+  botón «Reto de la semana» da la misma partida (y cláusula) a todo el mundo esa semana.
+
+### Interfaz y técnica
+- El título ya no espera a todo el arte: se cargan primero el mapa, los edificios, los iconos y Manolo; el
+  resto se precarga en segundo plano.
+- Espacio o Intro sobre un botón ya no cierran el mes.
+- Se quitan las últimas marcas reales de los textos.
+- 78 tests (34 nuevos).
+
 
 ### Sistemas nuevos
 - **Ciclo económico**: expansión, burbuja, crisis y recuperación, con efectos en la demanda, el turismo, el

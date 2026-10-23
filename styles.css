@@ -355,3 +355,13 @@ blockquote { margin: 8px 0 0; font-family: var(--display); font-style: italic; b
 @media (max-width: 420px) {
   #manolo-bubble { display: none; }
 }
+
+/* ------------------------------------------------------- Texto grande */
+body.big-text { font-size: 17px; }
+body.big-text .small, body.big-text .tbl, body.big-text .tip, body.big-text .news li { font-size: 15px; }
+body.big-text .modal-body { font-size: 17px; }
+body.big-text .choice small, body.big-text .opt small, body.big-text .action small { font-size: 14px; }
+body.big-text #panel { grid-template-columns: none; }
+@media (min-width: 861px) {
+  body.big-text #main { grid-template-columns: 1fr minmax(400px, 480px); }
+}

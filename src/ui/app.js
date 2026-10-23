@@ -27,7 +27,24 @@ import { ENDINGS } from '../data/endings.js';
 const game = { s: null, tab: 'ciudad', city: HQ_CITY, map: null, busy: false };
 window.__boomerez = game; // para depurar desde la consola
 
+const BIG_TEXT_KEY = 'manolo-boomerez-big-text';
+
+function setBigText(on) {
+  document.body.classList.toggle('big-text', on);
+  try {
+    localStorage.setItem(BIG_TEXT_KEY, on ? '1' : '0');
+  } catch {
+    /* sin almacenamiento: solo para esta sesión */
+  }
+  if (game.map) requestAnimationFrame(() => game.map.resize());
+}
+
 export async function boot() {
+  try {
+    document.body.classList.toggle('big-text', localStorage.getItem(BIG_TEXT_KEY) === '1');
+  } catch {
+    /* sin almacenamiento */
+  }
   await initAssets();
   setupTitle();
   bindGlobal();
@@ -439,11 +456,13 @@ async function showMenu() {
       { label: 'Reiniciar partida', danger: true },
       { label: 'Exportar partida a un archivo', hint: 'Para llevártela a otro dispositivo.' },
       { label: 'Importar partida desde un archivo' },
+      { label: document.body.classList.contains('big-text') ? 'Texto de tamaño normal' : 'Texto más grande' },
     ],
     dismissable: true,
   });
   if (i === 6) exportSave();
   if (i === 7) importSave();
+  if (i === 8) setBigText(!document.body.classList.contains('big-text'));
   if (i === 1) showHelp();
   if (i === 2) {
     setMuted(!isMuted());

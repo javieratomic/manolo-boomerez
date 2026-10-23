@@ -36,16 +36,25 @@ async function serve(request) {
 
 // SMOKE=1: abre el juego oculto, comprueba que arranca y que se puede empezar una partida, y sale.
 const SMOKE = process.env.SMOKE === '1';
+// La prueba usa un perfil temporal: empieza limpia y no toca las partidas guardadas de verdad.
+if (SMOKE) app.setPath('userData', path.join(require('node:os').tmpdir(), `boomerez-smoke-${process.pid}`));
 
 async function smokeTest(win) {
   const errors = [];
-  win.webContents.on('console-message', (e) => {
-    if (e.level === 'error') errors.push(e.message);
+  win.webContents.on('console-message', (...args) => {
+    // Electron cambió la firma del evento entre versiones: se aceptan las dos.
+    const e = args[0];
+    const level = e?.level ?? args[1];
+    const message = e?.message ?? args[2];
+    if (level === 'error' || level === 3) errors.push(message);
   });
+  win.webContents.on('did-fail-load', (_e, code, desc, url) => errors.push(`did-fail-load ${code} ${desc} ${url}`));
   await new Promise((r) => win.webContents.once('did-finish-load', r));
   const result = await win.webContents.executeJavaScript(`(async () => {
     const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-    await sleep(800);
+    // Espera a que el título esté listo (carga del manifiesto de arte incluida).
+    for (let i = 0; i < 50 && !document.getElementById('title-portrait').getAttribute('src'); i++) await sleep(100);
+    await sleep(300);
     document.getElementById('btn-new').click();
     await sleep(400);
     const pick = (i) => [...document.querySelectorAll('#modal-root .modal-backdrop:not(.closing) button.choice')][i]?.click();
@@ -54,7 +63,14 @@ async function smokeTest(win) {
     pick(0); await sleep(400);
     document.getElementById('end-month').click();
     await sleep(800);
-    return { title: document.title, month: window.__boomerez?.s?.month, fatal: document.querySelector('.fatal')?.textContent || null };
+    return {
+      title: document.title,
+      month: window.__boomerez?.s?.month,
+      booted: typeof window.__boomerez,
+      gameVisible: !document.getElementById('game').hidden,
+      modal: document.querySelector('#modal-root h2')?.textContent || null,
+      fatal: document.querySelector('.fatal')?.textContent || null,
+    };
   })()`);
   console.log(JSON.stringify({ ...result, errors }));
   app.exit(result.month >= 1 && !result.fatal && !errors.length ? 0 : 1);

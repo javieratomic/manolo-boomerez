@@ -359,18 +359,22 @@
       "file": "assets/portraits/portrait_becario.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
-      "request": "art/requests/04_retratos.md#portrait_becario"
+      "request": "art/requests/04_retratos.md#portrait_becario",
+      "version": 1,
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_cunado_jonathan",
       "file": "assets/portraits/portrait_cunado_jonathan.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
-      "request": "art/requests/04_retratos.md#portrait_cunado_jonathan"
+      "request": "art/requests/04_retratos.md#portrait_cunado_jonathan",
+      "version": 1,
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_hija_vanessa",
@@ -503,9 +507,11 @@
       "file": "assets/portraits/portrait_esposa_merche.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
-      "request": "art/requests/04_retratos.md#portrait_esposa_merche"
+      "request": "art/requests/04_retratos.md#portrait_esposa_merche",
+      "version": 1,
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_exec_1",

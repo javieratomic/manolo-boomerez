@@ -12,6 +12,7 @@ import { ACHIEVEMENTS } from '../src/data/achievements.js';
 import { refreshCandidates, hireExec, execBonus } from '../src/core/execs.js';
 import { buyLujo, doIPO } from '../src/core/life.js';
 import { transportCost } from '../src/core/logistics.js';
+import { advice } from '../src/core/advice.js';
 import { tickRivals, rivalFactor, actOnRival, acquireRival, acquisitionPrice } from '../src/core/rivals.js';
 import { launchCampaign, startRD, upgradeBusiness, upgradeCost } from '../src/core/market.js';
 import { playGame } from './bot.js';
@@ -441,6 +442,18 @@ test('modo infinito: tras el final por tiempo se puede seguir', () => {
   s.cooldowns.trabajo = s.cooldowns.hacienda = 99;
   advanceMonth(s);
   assertEq(s.month, 97);
+});
+
+test('el informe del gestor detecta problemas', () => {
+  const s = started(71);
+  assert(advice(s).length >= 1, 'sin informe en el mes 0 no hay datos, pero da una pista');
+  s.cooldowns.trabajo = s.cooldowns.hacienda = 99;
+  advanceMonth(s);
+  s.heatHacienda = 90;
+  s.familia = 10;
+  const tips = advice(s);
+  assert(tips.some((t) => t.level === 'alta' && /Hacienda/.test(t.text)));
+  assert(tips.some((t) => /Merche/.test(t.text)));
 });
 
 test('fechas en español', () => {

@@ -11,6 +11,7 @@ import { MANOLO_ACTIONS } from '../data/manoloActions.js';
 import { computeEconomy, estimateOpening, obradorCapacity, patrimonio, creditLimit, averageWage } from '../core/economy.js';
 import { canOpen, openingCost, sobaoTypeId, nextUpgrade, saleValue, canRebrand, franchiseFee, needsLicense, LOAN_STEP } from '../core/actions.js';
 import { nearestSite, transportCost } from '../core/logistics.js';
+import { advice } from '../core/advice.js';
 import { RIVALS, RIVAL_MAX_LEVEL } from '../data/rivals.js';
 import { CAMPAIGNS, PRODUCTS, MAX_LEVEL } from '../data/market.js';
 import { POSITIONS, TRAITS } from '../data/execs.js';
@@ -245,7 +246,8 @@ export function renderEmpire(s) {
     <div><span class="muted small">Plantilla</span><b>${r ? r.employees : '—'}</b></div>
     <div><span class="muted small">Beneficio último mes</span><b class="${r ? cls(r.net) : ''}">${r ? moneyShort(r.net) : '—'}</b></div>
   </div>`;
-  if (!r) return html + '<div class="card muted">Cierra el primer mes para ver las cuentas del imperio.</div>';
+  html += renderAdvice(s);
+  if (!r) return html;
   html += `<div class="card"><h4>Ingresos por sector</h4>
     <canvas id="chart-cat" height="170"></canvas>
     <div class="legend">${Object.entries(CAT_COLORS).map(([k, c]) => `<span><i style="background:${c}"></i>${CAT_LABELS[k]}</span>`).join('')}<span><i class="line"></i>Beneficio neto</span></div>
@@ -470,6 +472,14 @@ function renderIPO(s) {
     <button class="btn small primary" data-act="ipo" ${ok.ok ? '' : 'disabled'}>Salir a Bolsa</button>
     ${ok.ok ? '' : `<div class="small muted">${esc(ok.msg)}</div>`}
   </div>`;
+}
+
+function renderAdvice(s) {
+  const tips = advice(s);
+  if (!tips.length) return '<div class="card advice"><h4>📋 Informe de Paco</h4><p class="small">"Todo en orden, Manolo. Sospechosamente en orden."</p></div>';
+  return `<div class="card advice"><h4>📋 Informe de Paco, tu gestor</h4><ul>
+    ${tips.map((t) => `<li class="tip ${t.level}">${t.tab ? `<a href="#" data-act="tab" data-tab="${t.tab}">` : ''}${esc(t.text)}${t.tab ? '</a>' : ''}</li>`).join('')}
+  </ul></div>`;
 }
 
 export const CAT_COLORS = { sobaos: '#e8a33a', hosteleria: '#d4402b', inmobiliario: '#2f8fc4', servicios: '#16a085', formacion: '#7a4fa0' };

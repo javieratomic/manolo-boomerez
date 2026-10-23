@@ -50,7 +50,9 @@ export function playGame(seed, strategy = {}) {
       }
     }
     if (best && s.cash > 40000) openBusiness(s, best.t, best.c, best.mode);
-    const action = strategy.smart && !s.flags.divorciado && s.familia < 35 ? 'cena' : strategy.action || 'linkedin';
+    let action = strategy.action || 'linkedin';
+    if (strategy.smart && (s.estres ?? 0) > 65) action = s.cash > 20000 ? 'escapada' : 'padel';
+    else if (strategy.smart && !s.flags.divorciado && s.familia < 35) action = 'cena';
     doManoloAction(s, action);
     advanceMonth(s);
     while (s.pending.length) {
@@ -96,4 +98,5 @@ function manage(s, off) {
   if (!off.includes('campaign') && s.cash > 800000) launchCampaign(s, 'tele');
   if (!off.includes('opa')) for (const r of [...s.rivals]) if (s.cash > acquisitionPrice(s, r.id) * 3) acquireRival(s, r.id);
   if (s.macro.phase === 'burbuja' && canIPO(s, grossPatrimonio(s)).ok) doIPO(s, grossPatrimonio(s));
+  s.policies.mantenimiento = s.cash > 500000 ? 'profesional' : 'manitas';
 }

@@ -232,6 +232,12 @@ export function renderFinance(s) {
       <tr class="total"><td>Resultado neto</td><td class="${cls(r.net)}">${signed(r.net)}</td></tr>
     </table>${r.evaded > 0 ? `<p class="small warn">Este mes has "optimizado" ${money(r.evaded)} de impuestos.</p>` : ''}</div>`;
   }
+  if (s.extraMonthly.length) {
+    html += `<div class="card"><h4>Gastos fijos extra</h4><ul class="perk-list">
+      ${s.extraMonthly.map((x, i) => `<li class="perk"><div class="grow"><b>${esc(x.label)}</b> <span class="muted small">${money(x.amount)}/mes${x.months != null ? ` · ${x.months} meses más` : ''}</span></div>
+        <button class="btn small ghost" data-act="drop-cost" data-index="${i}">Quitar</button></li>`).join('')}
+    </ul></div>`;
+  }
   html += `<div class="card">${policyGroup(s, 'contabilidad', POLICIES.contabilidad)}</div>
   <div class="card"><h4>Asesores</h4><ul class="perk-list">
     ${Object.entries(PERKS).map(([id, p]) => `<li class="perk ${s.perks[id] ? 'on' : ''}">

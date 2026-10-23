@@ -1077,6 +1077,284 @@ export const EVENTS = [
       },
     ],
   },
+  {
+    id: 'jefe_infiltrado',
+    title: 'Jefe infiltrado',
+    portrait: 'portrait_presentadora', image: 'ev_jefe_infiltrado',
+    text: () => 'Un programa de televisión te propone disfrazarte de empleado nuevo y trabajar una semana de incógnito en una de tus tiendas. Con bigote postizo (encima del tuyo).',
+    weight: (s) => (s.fama >= 20 && s.businesses.length >= 4 ? 1 : 0), once: true,
+    choices: [
+      {
+        label: 'Aceptar y ser sincero en cámara',
+        effect(s) {
+          addCash(s, -employees(s) * 50);
+          addRep(s, 8);
+          addMoral(s, 8);
+          addFama(s, 6);
+          return 'Descubres que tu plantilla trabaja muchísimo y lloras en el capítulo final. Repartes pagas y abrazos. Reputación +8, moral +8, fama +6.';
+        },
+      },
+      {
+        label: 'Aceptar y montar un guion "motivacional"',
+        effect(s) {
+          addFama(s, 10);
+          if (chance(s, 0.5)) {
+            addRep(s, -10);
+            addMoral(s, -6);
+            return 'Un cámara filtra el making-of: les pedías a los empleados que "lloraran más fuerte". Fama +10, reputación −10, moral −6.';
+          }
+          addRep(s, 3);
+          return 'El montaje te deja como un líder cercano. Nadie se cree nada, pero hay audiencia. Fama +10, reputación +3.';
+        },
+      },
+      {
+        label: 'Rechazarlo: "Yo no me disfrazo de pobre"',
+        effect(s) {
+          addFama(s, 2);
+          return 'La frase se filtra igualmente. Fama +2.';
+        },
+      },
+    ],
+  },
+  {
+    id: 'okupas',
+    title: 'Okupas en un piso',
+    portrait: 'portrait_vecina', image: 'ev_okupas',
+    text: () => 'Se ha colado gente en uno de tus pisos. Tu vecina te llama a las 7 de la mañana para contártelo con todo lujo de detalles.',
+    weight: (s) => (has(s, 'vivienda') || has(s, 'airbnb') ? 0.8 : 0), cooldown: 24,
+    choices: [
+      {
+        label: 'Vía judicial',
+        effect(s) {
+          addCash(s, -4000);
+          addMod(s, { kind: 'revenue', category: 'inmobiliario', factor: 0.9, months: 6, label: 'Okupas' });
+          return 'Abogado, juzgado y paciencia. Seis meses con ingresos inmobiliarios un 10 % más bajos y 4.000 € en costas.';
+        },
+      },
+      {
+        label: 'Contratar a una empresa de "desokupación" (12.000 €)',
+        effect(s) {
+          addCash(s, -12000);
+          addRep(s, -5);
+          return 'Llegan cuatro armarios con camiseta negra y un pitbull. Recuperas el piso en dos horas y sales en un vídeo viral. Reputación −5.';
+        },
+      },
+      {
+        label: 'Resulta que es tu sobrino Kevin',
+        effect(s) {
+          addMoral(s, 1);
+          return 'Kevin "estaba guardando el piso para que no entraran okupas". Le pones a trabajar en el obrador. Problema resuelto (más o menos).';
+        },
+      },
+    ],
+  },
+  {
+    id: 'sobao_igp',
+    title: 'El Consejo Regulador del Sobao',
+    portrait: 'portrait_padre_anselmo', image: 'ev_igp',
+    text: () => 'El Consejo Regulador de la Indicación Geográfica "Sobao Pasiego" te avisa: o vuelves a la mantequilla de verdad o te retiran el sello. Tu padre fue su presidente durante 20 años.',
+    weight: (s) => (s.policies.ingredientes !== 'mantequilla' ? 1.2 : 0), cooldown: 24,
+    choices: [
+      {
+        label: 'Volver a la mantequilla pasiega',
+        effect(s) {
+          s.policies.ingredientes = 'mantequilla';
+          addRep(s, 5);
+          return 'El sobao vuelve a saber a sobao. Los costes suben, pero los clientes lo notan. Reputación +5.';
+        },
+      },
+      {
+        label: 'Renunciar al sello: "El mercado manda"',
+        effect(s) {
+          addRep(s, s.brand === 'maison' ? -12 : -6);
+          return `Tus cajas pasan a decir "bollo tipo sobao". La prensa regional te crucifica. Reputación ${s.brand === 'maison' ? '−12' : '−6'}.`;
+        },
+      },
+    ],
+  },
+  {
+    id: 'riders',
+    title: 'Plataforma de reparto a domicilio',
+    portrait: 'portrait_comercial', image: 'ev_riders',
+    text: () => 'Una app de reparto te ofrece llevar tus hamburguesas y empanadas a domicilio. Se queda con el 35 % de cada pedido, pero vendes más.',
+    weight: (s) => (has(s, 'smash') || has(s, 'empanadas') ? 1 : 0), once: true,
+    choices: [
+      {
+        label: 'Entrar en la app',
+        effect(s) {
+          addMod(s, { kind: 'revenue', category: 'hosteleria', factor: 1.12, months: 24, label: 'Reparto a domicilio' });
+          addMonthlyCost(s, 'Comisiones de la app de reparto', 1500 * s.businesses.filter((b) => ['smash', 'empanadas'].includes(b.type)).length, 24);
+          return 'Las ventas de hostelería suben un 12 % durante dos años. Las comisiones se comen buena parte. Los riders van en bici bajo la lluvia, como manda la economía colaborativa.';
+        },
+      },
+      {
+        label: 'Montar tu propia flota de riders "autónomos"',
+        effect(s) {
+          addMod(s, { kind: 'revenue', category: 'hosteleria', factor: 1.15, months: 24, label: 'Riders Boomerez' });
+          addHeatTrabajo(s, 15);
+          return 'Riders Boomerez: chalecos naranjas y contrato mercantil. Ventas de hostelería +15 %. La Inspección ya conoce esta película (radar +15).';
+        },
+      },
+      {
+        label: 'No: "La comida se come en el local"',
+        effect(s) {
+          addRep(s, 1);
+          return 'Tu purismo gusta a cuatro señores. Reputación +1.';
+        },
+      },
+    ],
+  },
+  {
+    id: 'fondos_europeos',
+    title: 'Fondos europeos para digitalizar',
+    portrait: 'portrait_gestor_paco', image: 'ev_fondos',
+    text: () => 'Paco te cuenta que hay fondos europeos para la "transformación digital de pymes". Hay que rellenar 140 páginas de formularios. O inventárselas.',
+    weight: (s) => (s.month >= 8 ? 0.8 : 0), once: true,
+    choices: [
+      {
+        label: 'Pedirlos honradamente',
+        effect(s) {
+          if (chance(s, 0.5)) {
+            addCash(s, 40000);
+            return 'Tras ocho meses de papeleo, llegan 40.000 €. Te compras una tableta para el obrador y cinco ordenadores.';
+          }
+          return 'Te lo deniegan porque el formulario 34-B iba grapado en vez de clipado. Nada.';
+        },
+      },
+      {
+        label: 'Facturas infladas de "consultoría digital"',
+        effect(s) {
+          addCash(s, 90000);
+          addHeatHacienda(s, 20);
+          s.evaded += 30000;
+          return 'Tu cuñado Jonathan factura 90.000 € por "implantar un ecosistema blockchain" (una web en WordPress). Cobras. El radar de Hacienda sube 20.';
+        },
+      },
+      {
+        label: 'Pasar: "Europa nos roba"',
+        effect() {
+          return 'No pides nada, pero te quejas igual en la sobremesa.';
+        },
+      },
+    ],
+  },
+  {
+    id: 'peor_jefe',
+    title: 'Premio al Peor Jefe del Año',
+    portrait: 'portrait_empleada_maripili', image: 'ev_peor_jefe',
+    text: () => 'Un periódico digital organiza el premio "Peor Jefe del Año" a partir de las votaciones de trabajadores. Vas primero, con mucha ventaja.',
+    weight: (s) => (s.moral < 30 ? 2 : 0), cooldown: 24,
+    choices: [
+      {
+        label: 'Pedir perdón públicamente y subir sueldos',
+        effect(s) {
+          s.policies.salario = 'convenio';
+          addMoral(s, 10);
+          addRep(s, 3);
+          return 'Tu comunicado parece escrito por un abogado (lo es), pero la subida es real. Moral +10, reputación +3.';
+        },
+      },
+      {
+        label: 'Ir a recogerlo en persona',
+        effect(s) {
+          addFama(s, 10);
+          addRep(s, -6);
+          return 'Te presentas con esmoquin y das un discurso de agradecimiento. Media España te odia; la otra media te sigue en redes. Fama +10, reputación −6.';
+        },
+      },
+      {
+        label: 'Amenazar al periódico con una demanda',
+        effect(s) {
+          addRep(s, -8);
+          addCash(s, -5000);
+          return 'El periódico publica tu carta de amenaza en portada. Don Cosme te cobra 5.000 € por escribirla. Reputación −8.';
+        },
+      },
+    ],
+  },
+  {
+    id: 'mantequilla_cara',
+    title: 'La mantequilla se dispara',
+    portrait: 'portrait_manolo_scared', image: 'ev_mantequilla',
+    text: () => 'Una sequía en el norte de Europa dispara el precio de la mantequilla. Tus proveedores te suben la factura de golpe.',
+    weight: (s) => (s.policies.ingredientes === 'mantequilla' && s.month >= 6 ? 0.8 : 0), cooldown: 30,
+    choices: [
+      {
+        label: 'Absorber el sobrecoste (1 € extra por sobao durante 3 meses)',
+        effect(s) {
+          const extra = Math.round((s.lastReport?.produced ?? 8000) * 1);
+          addMonthlyCost(s, 'Sobrecoste de la mantequilla', extra, 3);
+          return `Mantienes la receta. Te costará unos ${money(extra)} al mes durante tres meses.`;
+        },
+      },
+      {
+        label: 'Pasarte "temporalmente" a margarina',
+        effect(s) {
+          s.policies.ingredientes = 'margarina';
+          return 'Temporalmente. Como todo lo temporal en España. (Puedes volver a la mantequilla en el obrador cuando quieras.)';
+        },
+      },
+    ],
+  },
+  {
+    id: 'vanessa_vuelve',
+    title: 'Vanessa ha terminado la carrera',
+    portrait: 'portrait_hija_vanessa', image: 'ev_vanessa',
+    text: (s) =>
+      s.flags.vanessaADE
+        ? 'Vanessa ha terminado ADE con matrícula de honor... y un máster en Derecho Laboral que nadie le pidió. Ha leído tus nóminas.'
+        : 'Vanessa ha terminado Bellas Artes y te propone rediseñar toda la imagen de la marca. Gratis. "Bueno, a cambio de que pagues el convenio."',
+    weight: (s) => ((s.flags.vanessaADE || s.flags.vanessaArtista) && s.month >= 30 ? 2 : 0), once: true,
+    choices: [
+      {
+        label: 'Escucharla',
+        effect(s) {
+          if (s.flags.vanessaADE) {
+            Object.assign(s.policies, { salario: 'convenio', horas: 'pagadas', becarios: 'ninguno' });
+            addHeatTrabajo(s, -30);
+            addMoral(s, 12);
+            return 'Vanessa te regulariza la empresa en una semana. La Inspección pierde interés por ti (radar −30) y la plantilla la adora. Moral +12.';
+          }
+          s.policies.salario = 'convenio';
+          addRep(s, 8);
+          addMod(s, { kind: 'revenue', category: 'sobaos', factor: 1.08, months: 24, label: 'Rediseño de Vanessa' });
+          return 'Nuevo logo, cajas preciosas y un escaparate que sale en revistas de diseño. Ventas de sobaos +8 % durante dos años. Reputación +8. Salarios de convenio.';
+        },
+      },
+      {
+        label: '"Cuando tengas tu empresa, decides tú"',
+        effect(s) {
+          addMoral(s, -3);
+          s.flags.vanessaRival = true;
+          return 'Vanessa se va... a montar una cooperativa de repostería con tres de tus mejores pasteleras. Moral −3.';
+        },
+      },
+    ],
+  },
+  {
+    id: 'cena_cunado',
+    title: 'Cena familiar',
+    portrait: 'portrait_cunado_jonathan', image: 'ev_cena',
+    text: () => 'Cena en casa de tu suegra. Jonathan se pasa la noche explicando que "lo tuyo con los sobaos lo hace él mejor con un dropshipping de fundas de móvil".',
+    weight: () => 0.6, cooldown: 18,
+    choices: [
+      {
+        label: 'Sacar la calculadora y enseñarle tus números',
+        effect(s) {
+          addFama(s, 1);
+          return 'Le enseñas la cuenta de resultados en el móvil. Jonathan responde con un pantallazo de su Lamborghini en un videojuego. Empate técnico.';
+        },
+      },
+      {
+        label: 'Ofrecerle un puesto de "Director de Innovación"',
+        effect(s) {
+          addMonthlyCost(s, 'Sueldo de Jonathan (Dir. Innovación)', 2500);
+          addFama(s, 3);
+          return 'Jonathan acepta, se imprime tarjetas y monta un "laboratorio de ideas" en el almacén. Cuesta 2.500 € al mes. Ideas, de momento, ninguna.';
+        },
+      },
+    ],
+  },
 ];
 
 export const EVENT_BY_ID = Object.fromEntries(EVENTS.map((e) => [e.id, e]));

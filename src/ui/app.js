@@ -6,7 +6,8 @@ import { initAssets, imageUrl, hasArt } from '../render/assets.js';
 import { newGame, saveToStorage, loadFromStorage, clearStorage } from '../core/state.js';
 import { advanceMonth, currentPending, resolvePending, checkEnding, score, pickQuote } from '../core/sim.js';
 import { patrimonio } from '../core/economy.js';
-import { openBusiness, sellBusiness, buyUpgrade, setPolicy, togglePerk, borrow, repay, doManoloAction, LOAN_STEP } from '../core/actions.js';
+import { openBusiness, sellBusiness, buyUpgrade, setPolicy, togglePerk, borrow, repay, doManoloAction, dropMonthlyCost, currentGoal, checkGoals, LOAN_STEP } from '../core/actions.js';
+import { play, isMuted, setMuted } from './sound.js';
 import { money, moneyShort, dateLabel, GAME_MONTHS } from '../core/helpers.js';
 import { HQ_CITY, CITY_BY_ID } from '../data/cities.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
@@ -81,6 +82,7 @@ function renderAll() {
   renderTabs();
   renderPanel(s);
   renderManoloBox(s);
+  renderGoal(s);
   game.map.dirty = true;
   saveToStorage(s);
 }
@@ -98,7 +100,7 @@ function renderHUD(s) {
   const pat = patrimonio(s);
   $('#hud').innerHTML = `
     <div class="hud-brand">${esc(s.brand === 'maison' ? 'Maison Boomerez' : 'Boomerez S.L.')}</div>
-    ${hudItem('icon_calendar', '📅', 'Fecha', `<span class="long">${dateLabel(s.month)}</span><span class="short">${dateLabel(s.month).slice(0, 3)} ${String(dateLabel(s.month)).slice(-2)}</span>`, `<span class="hud-sub">Mes ${s.month + 1}/${GAME_MONTHS}</span>`)}
+    ${hudItem('icon_calendar', '📅', 'Fecha', `<span class="long">${dateLabel(s.month)}</span><span class="short">${dateLabel(s.month).slice(0, 3)} ${String(dateLabel(s.month)).slice(-2)}</span>`, `<span class="hud-sub">Mes ${Math.min(s.month + 1, GAME_MONTHS)}/${GAME_MONTHS}</span>`)}
     ${hudItem('icon_cash', '💶', 'Caja', `<span class="${s.cash < 0 ? 'neg' : ''}">${moneyShort(s.cash)}</span>`)}
     ${hudItem('icon_debt', '🏦', 'Deuda', moneyShort(s.debt))}
     ${hudItem('icon_patrimonio', '🏰', 'Patrimonio', moneyShort(pat))}
@@ -133,6 +135,23 @@ function renderPanel(s) {
   const btn = $('#end-month');
   btn.disabled = game.busy || !!s.ending || s.pending.length > 0;
   btn.innerHTML = `Cerrar ${esc(dateLabel(s.month))} <span>▶</span>`;
+}
+
+function renderGoal(s) {
+  const g = currentGoal(s);
+  const el = $('#goal-chip');
+  el.hidden = !g || !!s.ending;
+  if (g) el.innerHTML = `<span class="goal-kicker">🎯 Objetivo ${Math.min((s.goalIndex ?? 0) + 1, 99)}</span>${esc(g.text)}`;
+}
+
+async function showNotices() {
+  const s = game.s;
+  while (s?.notices?.length) {
+    const n = s.notices.shift();
+    play('goal');
+    await showModal({ title: n.title, kicker: '🎯 Objetivo', portrait: 'portrait_manolo_happy', text: n.text });
+  }
+  renderAll();
 }
 
 function renderManoloBox(s) {
@@ -175,6 +194,7 @@ async function onClick(e) {
   let res = null;
   switch (act) {
     case 'tab':
+      play('click');
       game.tab = el.dataset.tab;
       document.body.classList.add('panel-open');
       break;
@@ -192,6 +212,7 @@ async function onClick(e) {
         if (!ok) return;
       }
       res = openBusiness(s, el.dataset.type, game.city, el.dataset.mode);
+      if (res.ok) play(el.dataset.mode === 'franquicia' ? 'cash' : 'build');
       if (res.ok) toast(el.dataset.mode === 'franquicia' ? `🤝 Franquicia vendida en ${CITY_BY_ID[game.city].name}` : `🏗️ ${t.name} abierto en ${CITY_BY_ID[game.city].name}`, 'good');
       break;
     }
@@ -207,7 +228,10 @@ async function onClick(e) {
     }
     case 'upgrade':
       res = buyUpgrade(s);
-      if (res.ok) toast(`🏭 ${res.upgrade.name}`, 'good');
+      if (res.ok) {
+        play('build');
+        toast(`🏭 ${res.upgrade.name}`, 'good');
+      }
       break;
     case 'perk':
       res = togglePerk(s, el.dataset.id);
@@ -227,6 +251,21 @@ async function onClick(e) {
         await showModal({ title: 'Manolo en acción', portrait: `portrait_manolo_${manoloMood(s)}`, text: res.text });
       }
       break;
+    case 'drop-cost': {
+      const x = s.extraMonthly[Number(el.dataset.index)];
+      if (!x || !(await confirmModal('Quitar gasto', `¿Dejas de pagar "${x.label}"? Si es un familiar, la próxima cena va a ser tensa.`, 'Quitar'))) return;
+      res = dropMonthlyCost(s, Number(el.dataset.index));
+      break;
+    }
+    case 'zoom-in':
+    case 'zoom-out': {
+      const m = game.map;
+      m.zoomAt(m.w / 2, m.h / 2, act === 'zoom-in' ? 1.35 : 1 / 1.35);
+      return;
+    }
+    case 'zoom-fit':
+      game.map.fit();
+      return;
     case 'menu':
       return showMenu();
     default:
@@ -234,6 +273,7 @@ async function onClick(e) {
   }
   if (res && !res.ok && res.msg) toast(res.msg, 'bad');
   renderAll();
+  await showNotices();
 }
 
 function onChange(e) {
@@ -248,12 +288,23 @@ async function showMenu() {
   const i = await showModal({
     title: 'Menú',
     text: 'La partida se guarda automáticamente en este navegador.',
-    choices: [{ label: 'Seguir jugando', primary: true }, { label: 'Cómo se juega' }, { label: 'Volver al título' }, { label: 'Reiniciar partida', danger: true }],
+    choices: [
+      { label: 'Seguir jugando', primary: true },
+      { label: 'Cómo se juega' },
+      { label: isMuted() ? 'Activar el sonido' : 'Silenciar el sonido' },
+      { label: 'Volver al título' },
+      { label: 'Reiniciar partida', danger: true },
+    ],
     dismissable: true,
   });
   if (i === 1) showHelp();
-  if (i === 2) showTitle();
-  if (i === 3 && (await confirmModal('¿Reiniciar?', 'Perderás la partida actual.', 'Reiniciar'))) {
+  if (i === 2) {
+    setMuted(!isMuted());
+    play('click');
+    toast(isMuted() ? '🔇 Sonido desactivado' : '🔊 Sonido activado');
+  }
+  if (i === 3) showTitle();
+  if (i === 4 && (await confirmModal('¿Reiniciar?', 'Perderás la partida actual.', 'Reiniciar'))) {
     clearStorage();
     startGame(newGame());
   }
@@ -288,6 +339,7 @@ async function endMonth() {
   renderAll();
   if (r) {
     game.map.showProfits(r);
+    play(r.net >= 0 ? 'cash' : 'loss');
     await showReport(r, prev);
   }
   game.busy = false;
@@ -336,6 +388,7 @@ async function processQueue() {
 async function runQueue(s) {
   while (s.pending.length && game.s === s) {
     const p = currentPending(s);
+    play(['inspeccion_trabajo', 'auditoria_hacienda', 'sanidad'].includes(p.pending.id) ? 'stamp' : 'event');
     const i = await showModal({
       title: p.title,
       kicker: 'Suceso',
@@ -350,6 +403,8 @@ async function runQueue(s) {
     await showModal({ title: p.title, kicker: 'Resultado', portrait: p.portrait, text: result });
   }
   if (game.s !== s) return;
+  checkGoals(s);
+  await showNotices();
   const end = checkEnding(s);
   renderAll();
   if (end) await showEnding(end);
@@ -358,6 +413,7 @@ async function runQueue(s) {
 async function showEnding(id) {
   const s = game.s;
   const e = ENDINGS[id];
+  play('ending');
   const html = `${e.text.split('\n').map((t) => `<p>${esc(t)}</p>`).join('')}
     <table class="tbl pl">
       <tr><td>Meses al frente</td><td>${s.month}</td></tr>
@@ -371,6 +427,6 @@ async function showEnding(id) {
     </table>`;
   const i = await showModal({ title: e.title, kicker: 'FIN', image: e.image, html, wide: true, className: `ending ${e.tone}`, choices: [{ label: 'Nueva partida', primary: true }, { label: 'Volver al título' }] });
   clearStorage();
-  if (i === 0) startGame(newGame());
-  else showTitle();
+  // Se difiere para que la cola de sucesos actual termine antes de empezar otra partida.
+  setTimeout(() => (i === 0 ? startGame(newGame()) : showTitle()));
 }

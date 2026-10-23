@@ -30,6 +30,8 @@ export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0) {
     mods: [],
     flags: {},
     seen: {},
+    goalIndex: 0,
+    notices: [],
     wageIndex: 1,
     unlocked: { sobaos: true },
     cooldowns: { trabajo: 2, hacienda: 4 },

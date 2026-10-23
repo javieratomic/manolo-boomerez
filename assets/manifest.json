@@ -672,6 +672,87 @@
       "request": "art/requests/05_sucesos.md#ev_erte"
     },
     {
+      "id": "ev_jefe_infiltrado",
+      "file": "assets/events/ev_jefe_infiltrado.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_jefe_infiltrado"
+    },
+    {
+      "id": "ev_okupas",
+      "file": "assets/events/ev_okupas.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_okupas"
+    },
+    {
+      "id": "ev_igp",
+      "file": "assets/events/ev_igp.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_igp"
+    },
+    {
+      "id": "ev_riders",
+      "file": "assets/events/ev_riders.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_riders"
+    },
+    {
+      "id": "ev_fondos",
+      "file": "assets/events/ev_fondos.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_fondos"
+    },
+    {
+      "id": "ev_peor_jefe",
+      "file": "assets/events/ev_peor_jefe.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_peor_jefe"
+    },
+    {
+      "id": "ev_mantequilla",
+      "file": "assets/events/ev_mantequilla.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_mantequilla"
+    },
+    {
+      "id": "ev_vanessa",
+      "file": "assets/events/ev_vanessa.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_vanessa"
+    },
+    {
+      "id": "ev_cena",
+      "file": "assets/events/ev_cena.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_cena"
+    },
+    {
       "id": "end_bancarrota",
       "file": "assets/endings/end_bancarrota.png",
       "w": 1280,

@@ -8,6 +8,7 @@ import { BUSINESS_TYPES } from '../data/businesses.js';
 import { CITY_BY_ID } from '../data/cities.js';
 import { EVENTS, EVENT_BY_ID } from '../data/events.js';
 import { QUOTES, CONDITIONAL_QUOTES } from '../data/quotes.js';
+import { HEADLINES } from '../data/headlines.js';
 
 export const RANDOM_EVENT_CHANCE = 0.45;
 
@@ -27,6 +28,7 @@ export function advanceMonth(s) {
   rollVisits(s, r);
   rollScheduled(s);
   rollRandomEvent(s);
+  if (chance(s, 0.4)) log(s, `📰 ${pick(s, HEADLINES)}`, 'news');
 
   const pat = patrimonio(s);
   s.stats.maxPatrimonio = Math.max(s.stats.maxPatrimonio, pat);

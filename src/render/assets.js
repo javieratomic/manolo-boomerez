@@ -350,6 +350,7 @@ const SCENE_EMOJI = {
   ev_hija: '🎨', ev_supermercado: '🛒', ev_smash: '🍔', ev_vecinos: '🪧', ev_hilo: '🧵', ev_primo: '🧉', ev_premio: '🏆',
   ev_sanidad: '🧪', ev_rival: '☕', ev_banco: '🏦', ev_tv: '📺', ev_maletin: '💼', ev_sindicato: '🗳️', ev_robot: '🤖',
   ev_empanadas: '🥟', ev_calor: '🥵', ev_coach: '🧘', ev_erte: '📋',
+  ev_jefe_infiltrado: '🥸', ev_okupas: '🔒', ev_igp: '🏅', ev_riders: '🛵', ev_fondos: '🇪🇺', ev_peor_jefe: '👎', ev_mantequilla: '🧈', ev_vanessa: '🎓', ev_cena: '🍽️',
   end_bancarrota: '📉', end_carcel: '⛓️', end_cooperativa: '🤝', end_forbes: '💎', end_tiburon: '🦈', end_pyme: '🏪', end_ruina: '🥀',
 };
 

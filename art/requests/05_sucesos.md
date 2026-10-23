@@ -243,3 +243,75 @@ Retiro en Ibiza: Manolo descalzo y con collar de flores en círculo con otros em
 - **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
 
 El gestor Paco susurra al oído de Manolo con un papel donde pone 'ERTE'; al fondo, la plantilla trabaja como siempre.
+
+## ev_jefe_infiltrado
+
+- **Archivo:** `assets/events/ev_jefe_infiltrado.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Manolo disfrazado de dependiente nuevo con un bigote postizo encima del suyo y una gorra de Sobaos Manolo Express; un cámara de televisión escondido detrás de una estantería.
+
+## ev_okupas
+
+- **Archivo:** `assets/events/ev_okupas.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Puerta de un piso con la cerradura cambiada y una nota pegada; la vecina en bata señala la puerta mientras habla por teléfono, muy emocionada.
+
+## ev_igp
+
+- **Archivo:** `assets/events/ev_igp.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Sala solemne del Consejo Regulador del Sobao Pasiego: señores mayores con boina y bastón alrededor de una mesa, con el retrato de Don Anselmo en la pared y un sello dorado gigante.
+
+## ev_riders
+
+- **Archivo:** `assets/events/ev_riders.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Riders en bici con mochilas cúbicas naranjas bajo la lluvia, saliendo de un Manolo Smash Club con neón rosa.
+
+## ev_fondos
+
+- **Archivo:** `assets/events/ev_fondos.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+El gestor Paco y Manolo enterrados en una montaña de formularios con estrellas amarillas sobre fondo azul (motivo europeo genérico, sin logotipos oficiales).
+
+## ev_peor_jefe
+
+- **Archivo:** `assets/events/ev_peor_jefe.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Trofeo dorado con un pulgar hacia abajo sobre un atril; plantilla aplaudiendo con sorna.
+
+## ev_mantequilla
+
+- **Archivo:** `assets/events/ev_mantequilla.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Un bloque de mantequilla en un pedestal con una flecha de precio disparada hacia arriba; Manolo se agarra la cartera.
+
+## ev_vanessa
+
+- **Archivo:** `assets/events/ev_vanessa.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Vanessa con birrete de graduación y una carpeta enorme, explicando un gráfico en una pizarra a un Manolo empequeñecido.
+
+## ev_cena
+
+- **Archivo:** `assets/events/ev_cena.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Cena familiar en casa de la suegra: el cuñado Jonathan explica algo en el móvil con mucha energía y Manolo pone los ojos en blanco; cocido en la mesa.

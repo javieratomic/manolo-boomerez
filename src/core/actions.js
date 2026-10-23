@@ -3,6 +3,7 @@ import { BUSINESS_TYPES, OBRADOR_UPGRADES, PERKS, SOBAO_TYPE_BY_BRAND } from '..
 import { CITY_BY_ID } from '../data/cities.js';
 import { POLICIES } from '../data/policies.js';
 import { ACTION_BY_ID } from '../data/manoloActions.js';
+import { GOALS } from '../data/goals.js';
 import { creditLimit } from './economy.js';
 import { addCash, log, money } from './helpers.js';
 
@@ -138,6 +139,15 @@ export function repay(s, amount = LOAN_STEP) {
   return { ok: true, amount: a };
 }
 
+// Prescindir de un gasto fijo (sueldos de familiares, seguros del banco...).
+export function dropMonthlyCost(s, index) {
+  const x = s.extraMonthly[index];
+  if (!x) return { ok: false, msg: 'Ese gasto ya no existe.' };
+  s.extraMonthly.splice(index, 1);
+  log(s, `✂️ Quitas el gasto: ${x.label}.`, 'info');
+  return { ok: true, item: x };
+}
+
 export function doManoloAction(s, id) {
   if (s.actionUsed) return { ok: false, msg: 'Manolo ya ha hecho bastante este mes. Necesita su siesta.' };
   const a = ACTION_BY_ID[id];
@@ -166,5 +176,24 @@ export function checkUnlocks(s) {
       found.push(u.id);
     }
   }
+  checkGoals(s);
   return found;
+}
+
+export function currentGoal(s) {
+  return GOALS[s.goalIndex ?? 0] || null;
+}
+
+// Completa objetivos en cadena y deja el aviso en s.notices para la interfaz.
+export function checkGoals(s) {
+  s.goalIndex ??= 0;
+  s.notices ??= [];
+  let g = currentGoal(s);
+  while (g && g.test(s)) {
+    const text = g.reward(s);
+    log(s, `🎯 Objetivo cumplido: ${g.text} ${text}`, 'good');
+    s.notices.push({ title: 'Objetivo cumplido', text: [g.text, text].join('\n\n') });
+    s.goalIndex++;
+    g = currentGoal(s);
+  }
 }

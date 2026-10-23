@@ -116,6 +116,14 @@ p { margin: 0 0 8px; }
 #main { display: grid; grid-template-columns: 1fr minmax(360px, 430px); min-height: 0; }
 #map-wrap { position: relative; min-width: 0; min-height: 0; overflow: hidden; }
 #map { position: absolute; inset: 0; display: block; touch-action: none; cursor: grab; }
+#goal-chip {
+  position: absolute; left: 12px; top: 12px; max-width: min(380px, calc(100% - 80px));
+  background: rgba(255, 250, 240, 0.95); border: 1px solid var(--line); border-left: 4px solid var(--accent);
+  border-radius: 10px; padding: 6px 10px; font-size: 13px; box-shadow: var(--shadow);
+}
+.goal-kicker { display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-dark); }
+.map-zoom { position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.map-zoom .btn { width: 36px; height: 36px; padding: 0; font-size: 18px; line-height: 1; box-shadow: var(--shadow); }
 .map-hint { position: absolute; right: 10px; bottom: 8px; font-size: 11px; color: rgba(255, 255, 255, 0.85); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6); pointer-events: none; }
 
 #manolo-box {
@@ -199,6 +207,7 @@ blockquote { margin: 8px 0 0; font-family: var(--display); font-style: italic; b
 .news li { font-size: 13px; padding: 6px 8px; border-radius: 8px; background: var(--bg); }
 .news li.good { background: #eef7e8; }
 .news li.bad { background: #fbeae6; }
+.news li.news { background: #f1ede6; font-family: var(--display); font-style: italic; }
 
 /* ---------------------------------------------------------------- Modales */
 #modal-root { position: fixed; inset: 0; pointer-events: none; z-index: 50; }
@@ -274,6 +283,9 @@ blockquote { margin: 8px 0 0; font-family: var(--display); font-style: italic; b
   #manolo-portrait { width: 56px; height: 56px; border-width: 3px; }
   #manolo-bubble { font-size: 12px; margin-bottom: 18px; }
   .map-hint { display: none; }
+  #goal-chip { font-size: 11px; padding: 4px 8px; top: 8px; left: 8px; }
+  .map-zoom { top: 8px; right: 8px; }
+  .map-zoom .btn { width: 30px; height: 30px; font-size: 15px; }
   .tab .tab-label { font-size: 11px; }
   .end-month { margin: 8px 12px calc(10px + env(safe-area-inset-bottom)); }
   .modal-backdrop { padding: 10px; align-items: end; }

@@ -2,7 +2,7 @@ import { test, assert, assertEq } from './runner.js';
 import { newGame, serialize, deserialize } from '../src/core/state.js';
 import { advanceMonth, resolvePending, currentPending, checkEnding, eligibleEvents } from '../src/core/sim.js';
 import { computeEconomy, patrimonio, creditLimit } from '../src/core/economy.js';
-import { openBusiness, canOpen, setPolicy, borrow, repay, buyUpgrade, sellBusiness, doManoloAction, togglePerk } from '../src/core/actions.js';
+import { openBusiness, canOpen, setPolicy, borrow, repay, buyUpgrade, sellBusiness, doManoloAction, togglePerk, currentGoal } from '../src/core/actions.js';
 import { laborFine } from '../src/core/inspections.js';
 import { dateLabel } from '../src/core/helpers.js';
 import { EVENTS } from '../src/data/events.js';
@@ -223,6 +223,17 @@ test('los sucesos de una sola vez no se repiten', () => {
   s.month = 30;
   s.seen.hija_bellasartes = 2;
   assert(!eligibleEvents(s).some((e) => e.id === 'hija_bellasartes'));
+});
+
+test('los objetivos se cumplen en cadena y dejan aviso', () => {
+  const s = started();
+  assertEq(currentGoal(s).id, 'primera_tienda');
+  openBusiness(s, 'express', 'zaragoza');
+  assertEq(currentGoal(s).id, 'tres_tiendas');
+  assertEq(s.notices.length, 1);
+  openBusiness(s, 'express', 'sevilla', 'franquicia');
+  openBusiness(s, 'express', 'murcia', 'franquicia');
+  assertEq(currentGoal(s).id, 'mejora_obrador');
 });
 
 test('fechas en español', () => {

@@ -167,65 +167,75 @@
       "file": "assets/buildings/bld_taberna.png",
       "w": 256,
       "h": 256,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
       "request": "art/requests/03_edificios.md#bld_taberna",
       "anchor": [
         128,
         240
-      ]
+      ],
+      "version": 1,
+      "notes": "Diorama transparente; escala común y ancla frontal alineada a (128, 240)."
     },
     {
       "id": "bld_gimnasio",
       "file": "assets/buildings/bld_gimnasio.png",
       "w": 256,
       "h": 256,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
       "request": "art/requests/03_edificios.md#bld_gimnasio",
       "anchor": [
         128,
         240
-      ]
+      ],
+      "version": 1,
+      "notes": "Diorama transparente; escala común y ancla frontal alineada a (128, 240)."
     },
     {
       "id": "bld_coworking",
       "file": "assets/buildings/bld_coworking.png",
       "w": 256,
       "h": 256,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
       "request": "art/requests/03_edificios.md#bld_coworking",
       "anchor": [
         128,
         240
-      ]
+      ],
+      "version": 1,
+      "notes": "Diorama transparente; escala común y ancla frontal alineada a (128, 240)."
     },
     {
       "id": "bld_residencia",
       "file": "assets/buildings/bld_residencia.png",
       "w": 256,
       "h": 256,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
       "request": "art/requests/03_edificios.md#bld_residencia",
       "anchor": [
         128,
         240
-      ]
+      ],
+      "version": 1,
+      "notes": "Diorama transparente; escala común y ancla frontal alineada a (128, 240)."
     },
     {
       "id": "bld_obrador_regional",
       "file": "assets/buildings/bld_obrador_regional.png",
       "w": 256,
       "h": 256,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
       "request": "art/requests/03_edificios.md#bld_obrador_regional",
       "anchor": [
         128,
         240
-      ]
+      ],
+      "version": 1,
+      "notes": "Diorama transparente; escala común y ancla frontal alineada a (128, 240)."
     },
     {
       "id": "bld_city_base",

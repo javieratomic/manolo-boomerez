@@ -1,0 +1,20 @@
+{
+  "name": "Manolo Boomerez S.L.",
+  "short_name": "Boomerez",
+  "description": "Juego de gestión satírico de sobaos, ladrillo y mentalidad de tiburón.",
+  "lang": "es",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f6ecd9",
+  "theme_color": "#3b2a1a",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

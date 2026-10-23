@@ -1,0 +1,12 @@
+{
+  "name": "manolo-boomerez-sl",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Juego de gestión satírico. JS puro, sin dependencias.",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "test": "node tests/run-node.mjs",
+    "serve": "python -m http.server 8080"
+  }
+}

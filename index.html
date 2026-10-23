@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#3b2a1a">
+  <meta name="description" content="Juego de gestión satírico: Manolo Boomerez, joven emprendedor de 55 años, quiere convertir el obrador de sobaos pasiegos de su padre en un imperio.">
+  <title>Manolo Boomerez S.L.</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <section id="title-screen">
+    <div class="title-inner">
+      <div id="title-logo" class="title-logo">
+        <div class="logo-text">Manolo Boomerez <span>S.L.</span></div>
+        <div class="logo-sub">Sobaos, ladrillo y mentalidad de tiburón</div>
+      </div>
+      <img id="title-portrait" class="title-portrait" alt="Manolo Boomerez">
+      <p class="title-quote">"Yo a vuestra edad ya tenía un Audi."</p>
+      <div class="title-buttons">
+        <button id="btn-continue" class="btn big primary" hidden>Continuar <small></small></button>
+        <button id="btn-new" class="btn big primary">Nueva partida</button>
+        <button id="btn-help" class="btn big ghost">Cómo se juega</button>
+      </div>
+      <p class="title-foot">Una sátira. Cualquier parecido con un empresario real es pura coincidencia (o no).</p>
+    </div>
+  </section>
+
+  <div id="game" hidden>
+    <header id="hud"></header>
+    <main id="main">
+      <div id="map-wrap">
+        <canvas id="map" aria-label="Mapa de España con el imperio Boomerez"></canvas>
+        <button id="manolo-box" aria-label="Abrir panel de Manolo">
+          <img id="manolo-portrait" alt="">
+          <span id="manolo-bubble"></span>
+        </button>
+        <div class="map-hint">Arrastra para mover · rueda o pellizco para hacer zoom · clic en una ciudad</div>
+      </div>
+      <aside id="panel">
+        <nav id="tabs"></nav>
+        <div id="panel-body"></div>
+        <button id="end-month" class="btn primary end-month">Cerrar mes ▶</button>
+      </aside>
+    </main>
+  </div>
+
+  <div id="modal-root"></div>
+  <div id="toast-root"></div>
+  <noscript>Este juego necesita JavaScript. Como todo emprendedor moderno.</noscript>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

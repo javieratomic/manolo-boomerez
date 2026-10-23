@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="28" fill="#e8a33a"/>
+  <ellipse cx="64" cy="86" rx="44" ry="16" fill="#b9741a"/>
+  <rect x="20" y="48" width="88" height="38" rx="10" fill="#f6c56b"/>
+  <ellipse cx="64" cy="48" rx="44" ry="16" fill="#fbe3a8"/>
+  <text x="64" y="58" font-family="Georgia,serif" font-size="30" font-weight="700" text-anchor="middle" fill="#7a4613">MB</text>
+</svg>

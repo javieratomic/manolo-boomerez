@@ -1,0 +1,170 @@
+// Acciones del jugador durante el mes (todas validan y devuelven { ok, msg }).
+import { BUSINESS_TYPES, OBRADOR_UPGRADES, PERKS, SOBAO_TYPE_BY_BRAND } from '../data/businesses.js';
+import { CITY_BY_ID } from '../data/cities.js';
+import { POLICIES } from '../data/policies.js';
+import { ACTION_BY_ID } from '../data/manoloActions.js';
+import { creditLimit } from './economy.js';
+import { addCash, log, money } from './helpers.js';
+
+export const LOAN_STEP = 25000;
+export const MAX_PER_CITY = 6;
+
+export function sobaoOutlets(s) {
+  return s.businesses.filter((b) => BUSINESS_TYPES[b.type].category === 'sobaos').length;
+}
+
+export function sobaoTypeId(s) {
+  return SOBAO_TYPE_BY_BRAND[s.brand] || 'express';
+}
+
+export function openingCost(s, typeId, mode = 'propia') {
+  const t = BUSINESS_TYPES[typeId];
+  if (mode === 'franquicia') return 0;
+  return Math.round(t.cost * (1 - (s.discountNext || 0)));
+}
+
+export function canOpen(s, typeId, cityId, mode = 'propia') {
+  const t = BUSINESS_TYPES[typeId];
+  const c = CITY_BY_ID[cityId];
+  if (!t || !c) return { ok: false, msg: 'Negocio o ciudad desconocidos.' };
+  if (t.category === 'sobaos' && typeId !== sobaoTypeId(s)) return { ok: false, msg: 'Esa no es tu marca.' };
+  if (t.category !== 'sobaos' && !s.unlocked[typeId]) return { ok: false, msg: 'Aún no está desbloqueado.' };
+  if (mode === 'franquicia' && t.category !== 'sobaos') return { ok: false, msg: 'Solo las tiendas de sobaos se franquician.' };
+  if (t.unique && s.businesses.some((b) => b.type === typeId)) return { ok: false, msg: 'Solo puede haber una.' };
+  if (c.hq && t.category !== 'sobaos' && typeId !== 'vivienda') return { ok: false, msg: 'En Selaya no hay mercado para eso.' };
+  if (s.businesses.filter((b) => b.city === cityId).length >= MAX_PER_CITY) return { ok: false, msg: 'Ya no caben más negocios en esta ciudad.' };
+  const cost = openingCost(s, typeId, mode);
+  if (cost > s.cash) return { ok: false, msg: `Necesitas ${money(cost)} en caja.` };
+  return { ok: true, cost };
+}
+
+export function openBusiness(s, typeId, cityId, mode = 'propia') {
+  const check = canOpen(s, typeId, cityId, mode);
+  if (!check.ok) return check;
+  const t = BUSINESS_TYPES[typeId];
+  const c = CITY_BY_ID[cityId];
+  const b = { id: s.nextId++, type: typeId, city: cityId, mode, openedMonth: s.month, value: 0, lossMonths: 0 };
+  if (mode === 'franquicia') {
+    addCash(s, t.franchiseFee);
+    log(s, `🤝 Un incauto de ${c.name} compra una franquicia de ${t.name} por ${money(t.franchiseFee)}.`, 'good');
+  } else {
+    addCash(s, -check.cost);
+    // Los inmuebles pierden un 15 % al comprarlos (notaría, ITP, comisión del primo agente inmobiliario).
+    b.value = t.realEstate ? check.cost * 0.85 : check.cost;
+    s.discountNext = 0;
+    log(s, `🏗️ Abres ${t.name} en ${c.name}.`, 'good');
+  }
+  s.businesses.push(b);
+  s.stats.abiertos++;
+  checkUnlocks(s);
+  return { ok: true, business: b };
+}
+
+export function saleValue(b) {
+  const t = BUSINESS_TYPES[b.type];
+  return Math.round((b.value || 0) * (t.realEstate ? 0.9 : 0.6));
+}
+
+export function sellBusiness(s, businessId) {
+  const i = s.businesses.findIndex((b) => b.id === businessId);
+  if (i < 0) return { ok: false, msg: 'No existe.' };
+  const b = s.businesses[i];
+  const t = BUSINESS_TYPES[b.type];
+  const value = saleValue(b);
+  addCash(s, value);
+  s.businesses.splice(i, 1);
+  const c = CITY_BY_ID[b.city];
+  log(s, b.mode === 'franquicia'
+    ? `✂️ Rescindes la franquicia de ${c.name}. El franquiciado llora; tú no.`
+    : `💸 Vendes ${t.name} de ${c.name} por ${money(value)}.`, 'info');
+  return { ok: true, value };
+}
+
+export function nextUpgrade(s) {
+  return OBRADOR_UPGRADES.find((u) => !s.obrador.upgrades.includes(u.id)) || null;
+}
+
+export function buyUpgrade(s) {
+  const u = nextUpgrade(s);
+  if (!u) return { ok: false, msg: 'El obrador ya está a tope.' };
+  if (s.cash < u.cost) return { ok: false, msg: `Necesitas ${money(u.cost)}.` };
+  addCash(s, -u.cost);
+  s.obrador.upgrades.push(u.id);
+  log(s, `🏭 Obrador mejorado: ${u.name}.`, 'good');
+  return { ok: true, upgrade: u };
+}
+
+export function setPolicy(s, key, value) {
+  if (!POLICIES[key]?.options[value]) return { ok: false, msg: 'Política desconocida.' };
+  if (s.flags.forcedLegal > 0 && isIllegalChoice(key, value)) {
+    return { ok: false, msg: `La Inspección te vigila: no puedes cambiar esto durante ${s.flags.forcedLegal} meses.` };
+  }
+  s.policies[key] = value;
+  return { ok: true };
+}
+
+function isIllegalChoice(key, value) {
+  return (key === 'salario' && value !== 'convenio') || (key === 'horas' && value !== 'pagadas') || (key === 'becarios' && value !== 'ninguno');
+}
+
+export function togglePerk(s, id) {
+  const p = PERKS[id];
+  if (!p) return { ok: false, msg: 'Asesor desconocido.' };
+  if (!s.perks[id] && p.setup && !s.andorraPaid) {
+    if (s.cash < p.setup) return { ok: false, msg: `Montarlo cuesta ${money(p.setup)}.` };
+    addCash(s, -p.setup);
+    s.andorraPaid = true;
+    log(s, '🇦🇩 Constituyes "Boomerez Holding Andorra S.L.U.". El domicilio es un buzón entre otros 400 buzones.', 'info');
+  }
+  s.perks[id] = !s.perks[id];
+  return { ok: true, on: s.perks[id] };
+}
+
+export function borrow(s, amount = LOAN_STEP) {
+  const limit = creditLimit(s);
+  const room = limit - s.debt;
+  if (room <= 0) return { ok: false, msg: 'El banco dice que no. Ni con un sobao de regalo.' };
+  const a = Math.min(amount, room);
+  s.debt += a;
+  addCash(s, a);
+  return { ok: true, amount: a };
+}
+
+export function repay(s, amount = LOAN_STEP) {
+  const a = Math.min(amount, s.debt, Math.max(0, s.cash));
+  if (a <= 0) return { ok: false, msg: 'No hay nada que devolver (o no tienes con qué).' };
+  s.debt -= a;
+  addCash(s, -a);
+  return { ok: true, amount: a };
+}
+
+export function doManoloAction(s, id) {
+  if (s.actionUsed) return { ok: false, msg: 'Manolo ya ha hecho bastante este mes. Necesita su siesta.' };
+  const a = ACTION_BY_ID[id];
+  if (!a) return { ok: false, msg: 'Acción desconocida.' };
+  if (a.cost && s.cash < a.cost) return { ok: false, msg: `Necesitas ${money(a.cost)}.` };
+  s.actionUsed = true;
+  const text = a.run(s);
+  checkUnlocks(s);
+  return { ok: true, text };
+}
+
+const UNLOCKS = [
+  { id: 'vivienda', test: (s) => sobaoOutlets(s) >= 3, text: '🔓 Desbloqueado: Residencial Boomerez. "¿Y si mis empleados me pagan el alquiler a mí?"' },
+  { id: 'airbnb', test: (s) => s.month >= 12 || s.cash >= 250000, text: '🔓 Desbloqueado: Apartamentos turísticos "Casa Manolo".' },
+  { id: 'smash', test: (s) => sobaoOutlets(s) >= 4 || s.month >= 18, text: '🔓 Desbloqueado: Manolo Smash Club. Hay que diversificar.' },
+  { id: 'empanadas', test: (s) => sobaoOutlets(s) >= 4 || s.month >= 18 || s.flags.primoSocio, text: '🔓 Desbloqueado: Empanadas El Gaucho Pasiego.' },
+  { id: 'academy', test: (s) => s.fama >= 25, text: '🔓 Desbloqueado: Boomerez Business Academy. Tu fama ya da para vender cursos.' },
+];
+
+export function checkUnlocks(s) {
+  const found = [];
+  for (const u of UNLOCKS) {
+    if (!s.unlocked[u.id] && u.test(s)) {
+      s.unlocked[u.id] = true;
+      log(s, u.text, 'good');
+      found.push(u.id);
+    }
+  }
+  return found;
+}

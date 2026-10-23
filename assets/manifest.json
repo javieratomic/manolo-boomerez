@@ -1,0 +1,936 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "id": "map_spain",
+      "file": "assets/map/map_spain.png",
+      "w": 2048,
+      "h": 1088,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/02_mapa.md#map_spain"
+    },
+    {
+      "id": "bld_obrador_1",
+      "file": "assets/buildings/bld_obrador_1.png",
+      "w": 256,
+      "h": 256,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/03_edificios.md#bld_obrador_1",
+      "anchor": [
+        128,
+        240
+      ]
+    },
+    {
+      "id": "bld_obrador_2",
+      "file": "assets/buildings/bld_obrador_2.png",
+      "w": 256,
+      "h": 256,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/03_edificios.md#bld_obrador_2",
+      "anchor": [
+        128,
+        240
+      ]
+    },
+    {
+      "id": "bld_obrador_3",
+      "file": "assets/buildings/bld_obrador_3.png",
+      "w": 256,
+      "h": 256,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/03_edificios.md#bld_obrador_3",
+      "anchor": [
+        128,
+        240
+      ]
+    },
+    {
+      "id": "bld_sobaos_express",
+      "file": "assets/buildings/bld_sobaos_express.png",
+      "w": 256,
+      "h": 256,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/03_edificios.md#bld_sobaos_express",
+      "anchor": [
+        128,
+        240
+      ]
+    },
+    {
+      "id": "bld_sobaos_maison",
+      "file": "assets/buildings/bld_sobaos_maison.png",
+      "w": 256,
+      "h": 256,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/03_edificios.md#bld_sobaos_maison",
+      "anchor": [
+        128,
+        240
+      ]
+    },
+    {
+      "id": "bld_vivienda",
+      "file": "assets/buildings/bld_vivienda.png",
+      "w": 256,
+      "h": 256,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/03_edificios.md#bld_vivienda",
+      "anchor": [
+        128,
+        240
+      ]
+    },
+    {
+      "id": "bld_airbnb",
+      "file": "assets/buildings/bld_airbnb.png",
+      "w": 256,
+      "h": 256,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/03_edificios.md#bld_airbnb",
+      "anchor": [
+        128,
+        240
+      ]
+    },
+    {
+      "id": "bld_smash",
+      "file": "assets/buildings/bld_smash.png",
+      "w": 256,
+      "h": 256,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/03_edificios.md#bld_smash",
+      "anchor": [
+        128,
+        240
+      ]
+    },
+    {
+      "id": "bld_empanadas",
+      "file": "assets/buildings/bld_empanadas.png",
+      "w": 256,
+      "h": 256,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/03_edificios.md#bld_empanadas",
+      "anchor": [
+        128,
+        240
+      ]
+    },
+    {
+      "id": "bld_academy",
+      "file": "assets/buildings/bld_academy.png",
+      "w": 256,
+      "h": 256,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/03_edificios.md#bld_academy",
+      "anchor": [
+        128,
+        240
+      ]
+    },
+    {
+      "id": "bld_city_base",
+      "file": "assets/buildings/bld_city_base.png",
+      "w": 256,
+      "h": 128,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/03_edificios.md#bld_city_base"
+    },
+    {
+      "id": "bld_franchise_flag",
+      "file": "assets/buildings/bld_franchise_flag.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/03_edificios.md#bld_franchise_flag"
+    },
+    {
+      "id": "portrait_manolo_neutral",
+      "file": "assets/portraits/portrait_manolo_neutral.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/04_retratos.md#portrait_manolo_neutral"
+    },
+    {
+      "id": "portrait_manolo_smug",
+      "file": "assets/portraits/portrait_manolo_smug.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/04_retratos.md#portrait_manolo_smug"
+    },
+    {
+      "id": "portrait_manolo_happy",
+      "file": "assets/portraits/portrait_manolo_happy.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/04_retratos.md#portrait_manolo_happy"
+    },
+    {
+      "id": "portrait_manolo_angry",
+      "file": "assets/portraits/portrait_manolo_angry.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/04_retratos.md#portrait_manolo_angry"
+    },
+    {
+      "id": "portrait_manolo_scared",
+      "file": "assets/portraits/portrait_manolo_scared.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/04_retratos.md#portrait_manolo_scared"
+    },
+    {
+      "id": "portrait_manolo_thinking",
+      "file": "assets/portraits/portrait_manolo_thinking.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/04_retratos.md#portrait_manolo_thinking"
+    },
+    {
+      "id": "portrait_padre_anselmo",
+      "file": "assets/portraits/portrait_padre_anselmo.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/04_retratos.md#portrait_padre_anselmo"
+    },
+    {
+      "id": "portrait_inspectora_trabajo",
+      "file": "assets/portraits/portrait_inspectora_trabajo.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/04_retratos.md#portrait_inspectora_trabajo"
+    },
+    {
+      "id": "portrait_inspector_hacienda",
+      "file": "assets/portraits/portrait_inspector_hacienda.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/04_retratos.md#portrait_inspector_hacienda"
+    },
+    {
+      "id": "portrait_inspector_sanidad",
+      "file": "assets/portraits/portrait_inspector_sanidad.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/04_retratos.md#portrait_inspector_sanidad"
+    },
+    {
+      "id": "portrait_empleada_maripili",
+      "file": "assets/portraits/portrait_empleada_maripili.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/04_retratos.md#portrait_empleada_maripili"
+    },
+    {
+      "id": "portrait_becario",
+      "file": "assets/portraits/portrait_becario.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/04_retratos.md#portrait_becario"
+    },
+    {
+      "id": "portrait_cunado_jonathan",
+      "file": "assets/portraits/portrait_cunado_jonathan.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/04_retratos.md#portrait_cunado_jonathan"
+    },
+    {
+      "id": "portrait_hija_vanessa",
+      "file": "assets/portraits/portrait_hija_vanessa.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/04_retratos.md#portrait_hija_vanessa"
+    },
+    {
+      "id": "portrait_abogado_cosme",
+      "file": "assets/portraits/portrait_abogado_cosme.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/04_retratos.md#portrait_abogado_cosme"
+    },
+    {
+      "id": "portrait_gestor_paco",
+      "file": "assets/portraits/portrait_gestor_paco.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/04_retratos.md#portrait_gestor_paco"
+    },
+    {
+      "id": "portrait_alcalde",
+      "file": "assets/portraits/portrait_alcalde.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/04_retratos.md#portrait_alcalde"
+    },
+    {
+      "id": "portrait_influencer",
+      "file": "assets/portraits/portrait_influencer.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/04_retratos.md#portrait_influencer"
+    },
+    {
+      "id": "portrait_primo_argentino",
+      "file": "assets/portraits/portrait_primo_argentino.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/04_retratos.md#portrait_primo_argentino"
+    },
+    {
+      "id": "portrait_inversor_misterioso",
+      "file": "assets/portraits/portrait_inversor_misterioso.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/04_retratos.md#portrait_inversor_misterioso"
+    },
+    {
+      "id": "portrait_franquiciado",
+      "file": "assets/portraits/portrait_franquiciado.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/04_retratos.md#portrait_franquiciado"
+    },
+    {
+      "id": "portrait_vecina",
+      "file": "assets/portraits/portrait_vecina.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/04_retratos.md#portrait_vecina"
+    },
+    {
+      "id": "portrait_hipster",
+      "file": "assets/portraits/portrait_hipster.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/04_retratos.md#portrait_hipster"
+    },
+    {
+      "id": "portrait_comercial",
+      "file": "assets/portraits/portrait_comercial.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/04_retratos.md#portrait_comercial"
+    },
+    {
+      "id": "portrait_banquero",
+      "file": "assets/portraits/portrait_banquero.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/04_retratos.md#portrait_banquero"
+    },
+    {
+      "id": "portrait_presentadora",
+      "file": "assets/portraits/portrait_presentadora.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/04_retratos.md#portrait_presentadora"
+    },
+    {
+      "id": "portrait_coach",
+      "file": "assets/portraits/portrait_coach.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/04_retratos.md#portrait_coach"
+    },
+    {
+      "id": "ev_intro_herencia",
+      "file": "assets/events/ev_intro_herencia.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/05_sucesos.md#ev_intro_herencia"
+    },
+    {
+      "id": "ev_inspeccion",
+      "file": "assets/events/ev_inspeccion.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/05_sucesos.md#ev_inspeccion"
+    },
+    {
+      "id": "ev_hacienda",
+      "file": "assets/events/ev_hacienda.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/05_sucesos.md#ev_hacienda"
+    },
+    {
+      "id": "ev_huelga",
+      "file": "assets/events/ev_huelga.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/05_sucesos.md#ev_huelga"
+    },
+    {
+      "id": "ev_navidad",
+      "file": "assets/events/ev_navidad.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_navidad"
+    },
+    {
+      "id": "ev_agosto",
+      "file": "assets/events/ev_agosto.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_agosto"
+    },
+    {
+      "id": "ev_franquiciado",
+      "file": "assets/events/ev_franquiciado.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_franquiciado"
+    },
+    {
+      "id": "ev_pisos_turisticos",
+      "file": "assets/events/ev_pisos_turisticos.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_pisos_turisticos"
+    },
+    {
+      "id": "ev_cripto",
+      "file": "assets/events/ev_cripto.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_cripto"
+    },
+    {
+      "id": "ev_influencer",
+      "file": "assets/events/ev_influencer.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_influencer"
+    },
+    {
+      "id": "ev_rata",
+      "file": "assets/events/ev_rata.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_rata"
+    },
+    {
+      "id": "ev_smi",
+      "file": "assets/events/ev_smi.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_smi"
+    },
+    {
+      "id": "ev_hija",
+      "file": "assets/events/ev_hija.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_hija"
+    },
+    {
+      "id": "ev_supermercado",
+      "file": "assets/events/ev_supermercado.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_supermercado"
+    },
+    {
+      "id": "ev_smash",
+      "file": "assets/events/ev_smash.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_smash"
+    },
+    {
+      "id": "ev_vecinos",
+      "file": "assets/events/ev_vecinos.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_vecinos"
+    },
+    {
+      "id": "ev_hilo",
+      "file": "assets/events/ev_hilo.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_hilo"
+    },
+    {
+      "id": "ev_primo",
+      "file": "assets/events/ev_primo.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_primo"
+    },
+    {
+      "id": "ev_premio",
+      "file": "assets/events/ev_premio.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_premio"
+    },
+    {
+      "id": "ev_sanidad",
+      "file": "assets/events/ev_sanidad.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_sanidad"
+    },
+    {
+      "id": "ev_rival",
+      "file": "assets/events/ev_rival.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_rival"
+    },
+    {
+      "id": "ev_banco",
+      "file": "assets/events/ev_banco.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_banco"
+    },
+    {
+      "id": "ev_tv",
+      "file": "assets/events/ev_tv.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_tv"
+    },
+    {
+      "id": "ev_maletin",
+      "file": "assets/events/ev_maletin.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_maletin"
+    },
+    {
+      "id": "ev_sindicato",
+      "file": "assets/events/ev_sindicato.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_sindicato"
+    },
+    {
+      "id": "ev_robot",
+      "file": "assets/events/ev_robot.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_robot"
+    },
+    {
+      "id": "ev_empanadas",
+      "file": "assets/events/ev_empanadas.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_empanadas"
+    },
+    {
+      "id": "ev_calor",
+      "file": "assets/events/ev_calor.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_calor"
+    },
+    {
+      "id": "ev_coach",
+      "file": "assets/events/ev_coach.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_coach"
+    },
+    {
+      "id": "ev_erte",
+      "file": "assets/events/ev_erte.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_erte"
+    },
+    {
+      "id": "end_bancarrota",
+      "file": "assets/endings/end_bancarrota.png",
+      "w": 1280,
+      "h": 720,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/06_finales.md#end_bancarrota"
+    },
+    {
+      "id": "end_carcel",
+      "file": "assets/endings/end_carcel.png",
+      "w": 1280,
+      "h": 720,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/06_finales.md#end_carcel"
+    },
+    {
+      "id": "end_cooperativa",
+      "file": "assets/endings/end_cooperativa.png",
+      "w": 1280,
+      "h": 720,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/06_finales.md#end_cooperativa"
+    },
+    {
+      "id": "end_forbes",
+      "file": "assets/endings/end_forbes.png",
+      "w": 1280,
+      "h": 720,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/06_finales.md#end_forbes"
+    },
+    {
+      "id": "end_tiburon",
+      "file": "assets/endings/end_tiburon.png",
+      "w": 1280,
+      "h": 720,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/06_finales.md#end_tiburon"
+    },
+    {
+      "id": "end_pyme",
+      "file": "assets/endings/end_pyme.png",
+      "w": 1280,
+      "h": 720,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/06_finales.md#end_pyme"
+    },
+    {
+      "id": "end_ruina",
+      "file": "assets/endings/end_ruina.png",
+      "w": 1280,
+      "h": 720,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/06_finales.md#end_ruina"
+    },
+    {
+      "id": "logo_game",
+      "file": "assets/ui/logo_game.png",
+      "w": 1024,
+      "h": 512,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/07_interfaz.md#logo_game"
+    },
+    {
+      "id": "bg_title",
+      "file": "assets/ui/bg_title.png",
+      "w": 1920,
+      "h": 1080,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/07_interfaz.md#bg_title"
+    },
+    {
+      "id": "app_icon_512",
+      "file": "assets/ui/app_icon_512.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/07_interfaz.md#app_icon_512"
+    },
+    {
+      "id": "app_icon_192",
+      "file": "assets/ui/app_icon_192.png",
+      "w": 192,
+      "h": 192,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/07_interfaz.md#app_icon_192"
+    },
+    {
+      "id": "icon_cash",
+      "file": "assets/ui/icon_cash.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_cash"
+    },
+    {
+      "id": "icon_debt",
+      "file": "assets/ui/icon_debt.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_debt"
+    },
+    {
+      "id": "icon_patrimonio",
+      "file": "assets/ui/icon_patrimonio.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_patrimonio"
+    },
+    {
+      "id": "icon_rep",
+      "file": "assets/ui/icon_rep.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_rep"
+    },
+    {
+      "id": "icon_moral",
+      "file": "assets/ui/icon_moral.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_moral"
+    },
+    {
+      "id": "icon_fama",
+      "file": "assets/ui/icon_fama.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_fama"
+    },
+    {
+      "id": "icon_inspeccion",
+      "file": "assets/ui/icon_inspeccion.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_inspeccion"
+    },
+    {
+      "id": "icon_hacienda",
+      "file": "assets/ui/icon_hacienda.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_hacienda"
+    },
+    {
+      "id": "icon_calendar",
+      "file": "assets/ui/icon_calendar.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_calendar"
+    },
+    {
+      "id": "icon_staff",
+      "file": "assets/ui/icon_staff.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_staff"
+    },
+    {
+      "id": "icon_control",
+      "file": "assets/ui/icon_control.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_control"
+    },
+    {
+      "id": "icon_action_linkedin",
+      "file": "assets/ui/icon_action_linkedin.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_action_linkedin"
+    },
+    {
+      "id": "icon_action_bar",
+      "file": "assets/ui/icon_action_bar.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_action_bar"
+    },
+    {
+      "id": "icon_action_alcalde",
+      "file": "assets/ui/icon_action_alcalde.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_action_alcalde"
+    },
+    {
+      "id": "icon_action_charla",
+      "file": "assets/ui/icon_action_charla.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_action_charla"
+    },
+    {
+      "id": "icon_action_cuentas",
+      "file": "assets/ui/icon_action_cuentas.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_action_cuentas"
+    },
+    {
+      "id": "icon_action_padel",
+      "file": "assets/ui/icon_action_padel.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_action_padel"
+    },
+    {
+      "id": "icon_action_marbella",
+      "file": "assets/ui/icon_action_marbella.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_action_marbella"
+    }
+  ]
+}

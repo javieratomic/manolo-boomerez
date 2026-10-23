@@ -52,6 +52,16 @@ export const POLICIES = {
   },
 };
 
+// Mantenimiento de los locales: coste mensual sobre su valor y variación mensual de su estado (0-100).
+POLICIES.mantenimiento = {
+  label: 'Mantenimiento de los locales',
+  options: {
+    profesional: { label: 'Empresa de mantenimiento', desc: 'Todo reluce. Cuesta el 0,8 % del valor al mes.', costPct: 0.008, drift: 0.4, insp: 0 },
+    manitas: { label: 'El manitas del barrio', desc: 'Va tirando. Un 0,35 % al mes.', costPct: 0.0035, drift: -0.4, insp: 0 },
+    kevin: { label: 'Kevin con cinta americana', desc: 'Casi gratis. Los locales se caen a trozos (y alguien acabará denunciando).', costPct: 0.0005, drift: -1.5, insp: 0.3 },
+  },
+};
+
 export const DEFAULT_POLICIES = {
   salario: 'convenio',
   horas: 'pagadas',
@@ -59,6 +69,7 @@ export const DEFAULT_POLICIES = {
   alquiler: 'mercado',
   contabilidad: 'limpia',
   ingredientes: 'mantequilla',
+  mantenimiento: 'manitas',
 };
 
 export const LEGAL_LABOR = { salario: 'convenio', horas: 'pagadas', becarios: 'ninguno' };

@@ -533,6 +533,30 @@ test('el estrés sube con el imperio, baja con el descanso y avisa con un susto'
   assert(s.estres < before, 'el reposo baja el estrés');
 });
 
+test('mantenimiento: los locales se deterioran y venden menos', () => {
+  const s = started(97);
+  s.cash = 1e6;
+  openBusiness(s, 'express', 'zaragoza');
+  setPolicy(s, 'mantenimiento', 'kevin');
+  const fresh = computeEconomy(s).totalDemand;
+  for (let i = 0; i < 30; i++) {
+    s.cooldowns.trabajo = s.cooldowns.hacienda = 99;
+    advanceMonth(s);
+    resolveAll(s);
+  }
+  const b = s.businesses.find((x) => x.type === 'express');
+  if (b) {
+    assert(b.cond < 70, `se deteriora (${b.cond})`);
+    s.policies.mantenimiento = 'profesional';
+    assert(computeEconomy(s).costs.mantenimiento > 0);
+    b.cond = 100;
+    const shiny = computeEconomy(s).totalDemand;
+    b.cond = 0;
+    assert(computeEconomy(s).totalDemand < shiny, 'deteriorado vende menos');
+  }
+  assert(fresh > 0);
+});
+
 test('fechas en español', () => {
   assertEq(dateLabel(0), 'Enero 2026');
   assertEq(dateLabel(13), 'Febrero 2027');

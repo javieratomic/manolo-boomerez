@@ -29,6 +29,47 @@ const electionResult = (s, lean, extra = '') => {
 
 export const SYSTEM_EVENTS = [
   {
+    id: 'averia',
+    title: 'Se cae el local a trozos',
+    portrait: 'portrait_becario', image: 'ev_averia',
+    text: (s, p) => {
+      const b = s.businesses.find((x) => x.id === p.businessId);
+      return b
+        ? `En tu ${BUSINESS_TYPES[b.type].name} de ${CITY_BY_ID[b.city].name} se ha roto todo a la vez: la cámara frigorífica, la persiana y una tubería que lleva años sujeta con la cinta americana de Kevin. Un cliente lo está grabando.`
+        : 'Se ha roto algo en un local que ya no es tuyo. Por una vez, no es tu problema.';
+    },
+    weight: () => 0,
+    choices: [
+      {
+        label: 'Reparación a fondo',
+        hint: 'Cuesta el 12 % del valor del local y lo deja casi como nuevo.',
+        effect(s, p) {
+          const b = s.businesses.find((x) => x.id === p.businessId);
+          if (!b) return 'No hay nada que reparar.';
+          const cost = Math.round((b.value || 0) * 0.12);
+          addCash(s, -cost);
+          b.cond = 85;
+          b.brokenMonth = null;
+          return `Viene una cuadrilla de verdad. Factura: ${money(cost)}. El local queda casi como nuevo y Kevin, ofendido.`;
+        },
+      },
+      {
+        label: 'Que lo apañe Kevin otra vez',
+        hint: 'Gratis. El local vende la mitad este mes y la reputación sufre.',
+        effect(s, p) {
+          const b = s.businesses.find((x) => x.id === p.businessId);
+          if (b) {
+            addMod(s, { kind: 'revenue', city: b.city, types: [b.type], factor: 0.5, months: 1, label: 'Avería' });
+            b.cond = Math.min(100, (b.cond ?? 0) + 10);
+            b.brokenMonth = null;
+          }
+          addRep(s, -3);
+          return 'Kevin llega con tres rollos de cinta y una sonrisa. El vídeo del cliente tiene 80.000 visualizaciones. Ventas a la mitad este mes; reputación −3.';
+        },
+      },
+    ],
+  },
+  {
     id: 'susto_padel',
     title: 'Un susto en la pista de pádel',
     portrait: 'portrait_manolo_scared', image: 'ev_susto_padel',

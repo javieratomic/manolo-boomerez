@@ -36,6 +36,9 @@ export function advice(s) {
     out.push({ level: 'media', text: `${l.label} de ${CITY_BY_ID[l.city]?.name} pierde ${money(-(l.revenue - l.cost))} al mes${losers.length > 1 ? ` (y hay ${losers.length - 1} más en pérdidas)` : ''}. ¿Reformar, hacer campaña o vender?`, tab: 'imperio' });
   }
 
+  const shabby = s.businesses.filter((b) => b.mode !== 'franquicia' && (b.cond ?? 100) < 40).length;
+  if (shabby) out.push({ level: 'media', text: `Tienes ${shabby} ${shabby === 1 ? 'local' : 'locales'} hechos un desastre (venden menos y pueden averiarse). Sube el mantenimiento o reforma.`, tab: 'finanzas' });
+
   // Competencia fuerte donde tienes negocio.
   for (const rv of s.rivals || []) {
     const d = RIVALS[rv.id];

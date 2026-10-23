@@ -92,6 +92,7 @@ export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal
 export function migrate(s) {
   const d = newGame(s.seed, s.difficulty || 'normal');
   for (const [k, v] of Object.entries(d)) if (!(k in s)) s[k] = v;
+  s.policies = { ...DEFAULT_POLICIES, ...s.policies };
   s.version = SAVE_VERSION;
   return s;
 }

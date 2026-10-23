@@ -104,6 +104,7 @@ export function renderCity(s, cityId) {
           <div class="muted small">${profit == null ? 'Recién abierto' : `Último mes: <span class="${cls(profit)}">${signed(profit)}</span>`}
           ${l?.franchise ? ` · Franquiciado: <span class="${cls(l.franchiseeProfit)}">${signed(l.franchiseeProfit)}</span>${b.lossMonths ? ` (${b.lossMonths} meses en pérdidas)` : ''}` : ''}
           ${l?.occupied != null ? ` · ${l.occupied}/${t.beds + 5 * ((b.level || 1) - 1)} plazas ocupadas` : ''}</div>
+          ${b.mode === 'franquicia' ? '' : `<div class="cond" title="Estado de conservación: ${Math.round(b.cond ?? 100)}/100">${bar(b.cond ?? 100, 100, (b.cond ?? 100) < 40 ? 'danger' : 'ok')}</div>`}
         </div>
         <div class="biz-actions">
           ${upgradeCost(b) != null ? `<button class="btn small" data-act="upgrade-biz" data-id="${b.id}" ${s.cash >= upgradeCost(b) ? '' : 'disabled'} title="Reforma: ${upgradeEffect(b)}">Reformar ${moneyShort(upgradeCost(b))}</button>` : ''}
@@ -435,6 +436,7 @@ export function renderFinance(s) {
       ${r.revenueByCat.formacion ? `<tr><td>&nbsp;· Formación</td><td>${money(r.revenueByCat.formacion)}</td></tr>` : ''}
       ${r.revenueByCat.servicios ? `<tr><td>&nbsp;· Servicios</td><td>${money(r.revenueByCat.servicios)}</td></tr>` : ''}
       <tr><td>Salarios</td><td class="neg">−${money(c.salarios)}</td></tr>
+      ${c.mantenimiento ? `<tr><td>Mantenimiento</td><td class="neg">−${money(c.mantenimiento)}</td></tr>` : ''}
       ${c.directivos ? `<tr><td>Directivos</td><td class="neg">−${money(c.directivos)}</td></tr>` : ''}
       ${c.estructura ? `<tr><td title="Oficinas, gestorías y abogados: crece más deprisa que el número de negocios. Operaciones lo reduce.">Estructura central</td><td class="neg">−${money(c.estructura)}</td></tr>` : ''}
       <tr><td>Materias primas</td><td class="neg">−${money(c.materias)}</td></tr>
@@ -455,6 +457,8 @@ export function renderFinance(s) {
     </ul></div>`;
   }
   html += `<div class="card">${policyGroup(s, 'contabilidad', POLICIES.contabilidad)}</div>
+  <div class="card">${policyGroup(s, 'mantenimiento', POLICIES.mantenimiento)}
+    <p class="small muted">Cada local tiene un estado de conservación: los descuidados venden menos (hasta un −25 %) y pueden sufrir averías. Una reforma los deja como nuevos.</p></div>
   <div class="card"><h4>Asesores</h4><ul class="perk-list">
     ${Object.entries(PERKS).map(([id, p]) => `<li class="perk ${s.perks[id] ? 'on' : ''}">
       <div class="grow"><b>${esc(p.name)}</b> <span class="muted small">${money(p.monthly)}/mes${p.setup && !s.andorraPaid ? ` + ${money(p.setup)} de alta` : ''}</span><div class="small muted">${esc(p.desc)}</div></div>

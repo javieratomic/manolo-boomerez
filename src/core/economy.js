@@ -28,6 +28,7 @@ export function policyFx(s) {
     alq: POLICIES.alquiler.options[p.alquiler],
     con: POLICIES.contabilidad.options[p.contabilidad],
     ing: POLICIES.ingredientes.options[p.ingredientes],
+    man: POLICIES.mantenimiento.options[p.mantenimiento || 'manitas'],
   };
 }
 
@@ -62,9 +63,18 @@ function modFactor(s, kind, category, city, type) {
   return f;
 }
 
+// Un local descuidado vende menos: hasta un −25 % con el estado a cero.
+export const conditionFactor = (b) => 0.75 + 0.25 * (b.cond ?? 100) / 100;
+
 // Todo lo que multiplica la demanda de un negocio concreto.
 function bizMult(s, b, category, city, month) {
-  return modFactor(s, 'revenue', category, b.city, b.type) * rivalFactor(s, b) * levelFactor(b) * productFactor(s, b.type, category, city, month);
+  return modFactor(s, 'revenue', category, b.city, b.type) * rivalFactor(s, b) * levelFactor(b) * productFactor(s, b.type, category, city, month) *
+    (b.mode === 'franquicia' ? 1 : conditionFactor(b));
+}
+
+export function maintenanceCost(s) {
+  const pct = policyFx(s).man.costPct;
+  return s.businesses.reduce((a, b) => a + (b.mode === 'franquicia' ? 0 : (b.value || 0) * pct), 0);
 }
 
 // Todo lo que vale la empresa (y los caprichos de Manolo), antes de descontar a los accionistas.
@@ -111,7 +121,7 @@ export function computeEconomy(s) {
   const sat = (b) => 1 / (1 + 0.45 * ((counts[`${b.city}:${b.type}`] || 1) - 1));
 
   const lines = [];
-  const costs = { salarios: 0, directivos: 0, estructura: 0, alquileres: 0, materias: 0, transporte: 0, otros: 0, intereses: 0, asesores: 0, personales: 0, impuestos: 0 };
+  const costs = { salarios: 0, directivos: 0, estructura: 0, mantenimiento: 0, alquileres: 0, materias: 0, transporte: 0, otros: 0, intereses: 0, asesores: 0, personales: 0, impuestos: 0 };
   const revenueByCat = { sobaos: 0, inmobiliario: 0, hosteleria: 0, formacion: 0, servicios: 0, produccion: 0 };
   let employees = 0;
 
@@ -244,7 +254,7 @@ export function computeEconomy(s) {
       const occupancy = Math.min(0.95, (0.25 + 0.65 * c.tourism) * tourSeason);
       const flats = t.flats + 2 * ((b.level || 1) - 1);
       revenue = flats * nightly * 30 * occupancy * Math.sqrt(repF) * sat(b) * modFactor(s, 'revenue', 'inmobiliario', b.city, b.type) *
-        rivalFactor(s, b) * productFactor(s, b.type, 'inmobiliario', c, m);
+        rivalFactor(s, b) * productFactor(s, b.type, 'inmobiliario', c, m) * conditionFactor(b);
       const wages = t.staff * wage;
       costs.salarios += wages;
       costs.otros += t.upkeep;
@@ -290,9 +300,10 @@ export function computeEconomy(s) {
   costs.directivos = execSalaries(s);
   costs.estructura = structureCost(s);
   costs.personales = lujoUpkeep(s);
+  costs.mantenimiento = maintenanceCost(s);
 
   const revenue = Object.values(revenueByCat).reduce((a, b) => a + b, 0);
-  const totalCost = costs.salarios + costs.directivos + costs.alquileres + costs.materias + costs.otros + costs.intereses + costs.asesores + costs.personales + costs.estructura + costs.transporte;
+  const totalCost = costs.salarios + costs.directivos + costs.alquileres + costs.materias + costs.otros + costs.intereses + costs.asesores + costs.personales + costs.estructura + costs.transporte + costs.mantenimiento;
   const profit = revenue - totalCost;
 
   let tax = 0;

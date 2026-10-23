@@ -114,6 +114,7 @@ export function upgradeBusiness(s, id) {
   if (s.cash < cost) return { ok: false, msg: `Necesitas ${money(cost)}.` };
   addCash(s, -cost);
   b.level = (b.level || 1) + 1;
+  b.cond = 100; // la reforma lo deja como nuevo
   b.value = (b.value || 0) + cost * 0.8;
   log(s, `🔨 Reformas ${BUSINESS_TYPES[b.type].name} de ${CITY_BY_ID[b.city].name} (nivel ${b.level}).`, 'good');
   return { ok: true, level: b.level };

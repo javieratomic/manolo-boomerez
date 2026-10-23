@@ -89,7 +89,7 @@ function driftStats(s, r) {
   const size = Math.min(3, 0.5 + r.employees / 40);
   const inspGain = (fx.sal.insp + fx.hor.insp + fx.bec.insp + (hasHousing ? fx.alq.insp * control : 0)) *
     size * (1 - 0.5 * control) * (s.moral < 30 ? 1.5 : 1);
-  addHeatTrabajo(s, inspGain * (1 - execBonus(s, 'rrhh')) * govFx(s).inspection + execHeat(s) - 1.5);
+  addHeatTrabajo(s, (inspGain + fx.man.insp * size) * (1 - execBonus(s, 'rrhh')) * govFx(s).inspection + execHeat(s) - 1.5);
 
   const hacGain = fx.sal.hac + fx.con.hac * Math.min(3, 0.5 + r.revenue / 150000) +
     (s.businesses.some((b) => b.type === 'academy') ? 0.6 : 0) + (s.perks.andorra ? 0.8 : 0) + 0.3 * (s.lujo?.length || 0) +
@@ -123,9 +123,15 @@ function tickTimers(s) {
 }
 
 function ageAssets(s) {
+  const man = policyFx(s).man;
   for (const b of s.businesses) {
     const t = BUSINESS_TYPES[b.type];
     if (b.mode === 'franquicia') continue;
+    b.cond = clamp((b.cond ?? 100) + man.drift);
+    if (b.cond < 30 && !b.brokenMonth && chance(s, 0.06)) {
+      b.brokenMonth = s.month;
+      s.pending.push({ kind: 'event', id: 'averia', params: { businessId: b.id, city: b.city } });
+    }
     if (t.realEstate) b.value *= 1 + macroFx(s).property;
     else b.value = Math.max(t.cost * 0.4, b.value * 0.99);
   }

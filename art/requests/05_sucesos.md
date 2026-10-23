@@ -412,6 +412,14 @@ Noche electoral en un colegio electoral de pueblo: urnas transparentes, carteles
 
 Pista de pádel acristalada: Manolo sentado en el suelo junto a la red, pálido, con la pala en la mano, mientras el director del banco llama por el móvil y un sanitario entra corriendo con un maletín.
 
+## ev_averia
+
+- **Archivo:** `assets/events/ev_averia.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Interior de una tienda de sobaos con la persiana medio caída, una tubería goteando sujeta con cinta americana gris y Kevin (sobrino de Manolo, joven con gorra) subido a una escalera con otro rollo de cinta; un cliente lo graba con el móvil.
+
 ## ev_junta
 
 - **Archivo:** `assets/events/ev_junta.png`

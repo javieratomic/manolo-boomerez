@@ -225,6 +225,7 @@ blockquote { margin: 8px 0 0; font-family: var(--display); font-style: italic; b
 .cycle span:not(.arrow) { padding: 2px 8px; border-radius: 999px; background: var(--bg); color: var(--muted); }
 .cycle span.on { background: var(--accent); color: #2b1a05; font-weight: 700; }
 .cycle .arrow { color: var(--muted); }
+.cond .bar { height: 4px; margin: 3px 0 0; max-width: 140px; }
 .biz-actions { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
 .stars { color: var(--accent-dark); letter-spacing: 1px; font-size: 12px; }
 .chip.rival { background: color-mix(in srgb, var(--rc) 14%, white); border: 1px solid color-mix(in srgb, var(--rc) 40%, white); }

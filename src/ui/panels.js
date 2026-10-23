@@ -505,6 +505,7 @@ export function drawCategoryChart(canvas, s) {
   const h = 170;
   canvas.width = w * dpr;
   canvas.height = h * dpr;
+  canvas.style.height = `${h}px`;
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
   const data = s.history.filter((x) => x.cat);
@@ -555,6 +556,7 @@ export function drawChart(canvas, s) {
   const h = 140;
   canvas.width = w * dpr;
   canvas.height = h * dpr;
+  canvas.style.height = `${h}px`;
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
   const data = s.history.map((x) => x.patrimonio);

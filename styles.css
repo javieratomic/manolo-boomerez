@@ -364,3 +364,6 @@ body.big-text .choice small, body.big-text .opt small, body.big-text .action sma
 @media (min-width: 861px) {
   body.big-text #main { grid-template-columns: 1fr minmax(400px, 480px); }
 }
+
+/* Gráficos: el ancho lo marca el contenedor; el alto, el script. */
+#chart, #chart-cat, #chart-ending { display: block; width: 100%; }

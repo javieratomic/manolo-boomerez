@@ -669,7 +669,9 @@ async function showEnding(id) {
       <tr><td>Auditorías de Hacienda</td><td>${s.stats.auditorias}</td></tr>
       <tr><td>Multas pagadas</td><td>${money(s.stats.multas)}</td></tr>
       <tr class="total"><td>Puntuación Boomerez</td><td>${score(s).toLocaleString('es-ES')}</td></tr>
-    </table>`;
+    </table>
+    <h4>Evolución del patrimonio</h4>
+    <canvas id="chart-ending" height="140"></canvas>`;
   const rank = addRecord({
     title: e.title, ending: id, patrimonio: Math.round(patrimonio(s)), score: score(s), months: s.month,
     brand: s.brand, difficulty: s.difficulty || 'normal', date: new Date().toLocaleDateString('es-ES'),
@@ -678,6 +680,7 @@ async function showEnding(id) {
   const canContinue = ['tiburon', 'pyme', 'ruina_lenta', 'forbes'].includes(id);
   const choices = [{ label: 'Nueva partida', primary: true }, { label: 'Volver al título' }];
   if (canContinue) choices.push({ label: 'Seguir jugando (modo infinito)', hint: 'Sin límite de tiempo. El récord ya está guardado.' });
+  requestAnimationFrame(() => drawChart($('#chart-ending'), s));
   const i = await showModal({ title: e.title, kicker: rank >= 0 ? `FIN · Puesto ${rank + 1} del Salón de la fama` : 'FIN', image: e.image, html, wide: true, className: `ending ${e.tone}`, choices });
   if (i === 2) {
     s.ending = null;

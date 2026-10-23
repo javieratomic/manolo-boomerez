@@ -1,0 +1,35 @@
+{
+  "name": "manolo-boomerez-desktop",
+  "productName": "Manolo Boomerez S.L.",
+  "version": "0.2.0",
+  "description": "Versión de escritorio de Manolo Boomerez S.L. (Electron).",
+  "private": true,
+  "main": "main.cjs",
+  "license": "MIT",
+  "scripts": {
+    "prepare-app": "node prepare.mjs",
+    "start": "node prepare.mjs && electron .",
+    "dist": "node prepare.mjs && electron-builder --win portable"
+  },
+  "build": {
+    "appId": "es.boomerez.manolo",
+    "productName": "Manolo Boomerez S.L.",
+    "files": [
+      "main.cjs",
+      "app/**/*"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "portable"
+    },
+    "portable": {
+      "artifactName": "ManoloBoomerez-${version}-portable.exe"
+    }
+  },
+  "devDependencies": {
+    "electron": "44.7.0",
+    "electron-builder": "26.17.0"
+  }
+}

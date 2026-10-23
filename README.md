@@ -94,8 +94,15 @@ El contrato detallado está en [`AGENTS.md`](AGENTS.md).
 
 - **Web / itch.io / GitHub Pages:** sube la carpeta tal cual (es estática).
 - **Móvil:** desde el navegador, "Añadir a pantalla de inicio" (PWA).
-- **Escritorio (.exe):** se puede empaquetar con [Tauri](https://tauri.app) (MIT/Apache-2.0) o Electron (MIT)
-  apuntando a `index.html`. No hace falta tocar el código del juego.
+- **Escritorio (Windows .exe portable):** la carpeta `desktop/` empaqueta el juego con Electron (MIT). Con
+  Node.js 18+:
+
+  ```bash
+  cd desktop && npm install && npm run dist
+  ```
+
+  El ejecutable sale en `desktop/dist/`. `npm start` abre el juego en una ventana sin empaquetar. Si el
+  agente de arte ha entregado `assets/ui/app_icon_512.png`, se usa como icono del `.exe`.
 
 ## Aviso
 

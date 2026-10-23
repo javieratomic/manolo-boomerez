@@ -5,3 +5,7 @@ __pycache__/
 *.pyc
 .claude/settings.local.json
 /dist/
+desktop/node_modules/
+desktop/app/
+desktop/dist/
+desktop/build/

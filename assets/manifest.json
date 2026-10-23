@@ -293,27 +293,33 @@
       "file": "assets/portraits/portrait_padre_anselmo.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
-      "request": "art/requests/04_retratos.md#portrait_padre_anselmo"
+      "request": "art/requests/04_retratos.md#portrait_padre_anselmo",
+      "version": 1,
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_inspectora_trabajo",
       "file": "assets/portraits/portrait_inspectora_trabajo.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
-      "request": "art/requests/04_retratos.md#portrait_inspectora_trabajo"
+      "request": "art/requests/04_retratos.md#portrait_inspectora_trabajo",
+      "version": 1,
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_inspector_hacienda",
       "file": "assets/portraits/portrait_inspector_hacienda.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
-      "request": "art/requests/04_retratos.md#portrait_inspector_hacienda"
+      "request": "art/requests/04_retratos.md#portrait_inspector_hacienda",
+      "version": 1,
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_inspector_sanidad",
@@ -329,9 +335,11 @@
       "file": "assets/portraits/portrait_empleada_maripili.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
-      "request": "art/requests/04_retratos.md#portrait_empleada_maripili"
+      "request": "art/requests/04_retratos.md#portrait_empleada_maripili",
+      "version": 1,
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_becario",

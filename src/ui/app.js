@@ -71,7 +71,7 @@ function setupTitle() {
     const code = $('#seed-input').value.trim();
     const seed = code ? parseSeed(code) : undefined;
     if (code && seed == null) {
-      toast('Código de semilla no válido: hasta 7 letras o cifras (p. ej. 1ODLXA).', 'bad');
+      toast('Código de semilla no válido: letras y cifras, como mucho 1Z141Z3 (p. ej. 1ODLXA).', 'bad');
       return;
     }
     if (saved && !saved.ending && !(await confirmModal('¿Empezar de cero?', 'Se perderá la partida guardada. Manolo no se arrepiente de nada, pero tú quizá sí.', 'Nueva partida'))) return;
@@ -127,7 +127,8 @@ function startGame(s) {
   game.city = HQ_CITY;
   game.tab = 'ciudad';
   if (!s.quote) s.quote = pickQuote(s);
-  refreshCandidates(s);
+  // Solo en una partida nueva: al cargar no se toca el generador (la misma semilla debe dar la misma partida).
+  if (s.candidatesMonth < 0) refreshCandidates(s);
   $('#title-screen').hidden = true;
   $('#game').hidden = false;
   if (!game.map) {
@@ -244,7 +245,7 @@ function showTip(id, p) {
 function renderGoal(s) {
   const g = currentGoal(s);
   const c = clauseStatus(s);
-  const clause = c && c.state !== 'rota' ? `<span class="goal-clause ${c.state}">📜 ${esc(c.state === 'cumplida' ? `${c.def.title} · ¡cumplida!` : c.short)}</span>` : '';
+  const clause = c && ['vigente', 'cumplida'].includes(c.state) ? `<span class="goal-clause ${c.state}">📜 ${esc(c.state === 'cumplida' ? `${c.def.title} · ¡cumplida!` : c.short)}</span>` : '';
   const el = $('#goal-chip');
   el.hidden = (!g && !clause) || !!s.ending;
   el.innerHTML = `${g ? `<span class="goal-kicker">🎯 Objetivo ${goalNumber(s)}</span>${esc(g.text)}` : ''}${clause}`;
@@ -710,7 +711,7 @@ async function runQueue(s) {
     const result = resolvePending(s, choice.index);
     renderAll();
     // Costumbres de la casa: a partir de la tercera vez seguida que eliges lo mismo, el resultado no para el juego.
-    if (p.event.memory && custom(s, p.pending.id).streak >= 3) {
+    if (p.event.quickRepeat && custom(s, p.pending.id).streak >= 3) {
       log(s, `↺ ${p.title}: ${result}`, 'info');
       toast(`↺ ${p.title}: ${result}`, 'info', Math.max(2600, result.length * 45));
       continue;

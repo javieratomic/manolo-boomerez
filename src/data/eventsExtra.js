@@ -2,6 +2,7 @@
 // Calendario: el suceso se sortea al cerrar el mes m y se juega al empezar el m + 1, así que un modificador
 // de 1 mes afecta al mes siguiente (p. ej., el Black Friday se sortea al cerrar octubre).
 import { chance, int } from '../core/rng.js';
+import { recordSanction } from '../core/inspections.js';
 import {
   addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addMod, addMonthlyCost, log, money, clamp,
 } from '../core/helpers.js';
@@ -353,6 +354,7 @@ export const EXTRA_EVENTS = [
           if (chance(s, 0.35)) {
             const c = employees(s) * 150;
             fine(s, c);
+            recordSanction(s);
             return `Maripili lleva las nóminas a la Inspección. Devuelves los descuentos y pagas una multa: ${money(c)} en total. Moral −10, radar de Inspección +12.`;
           }
           return 'En la nómina aparece una línea nueva: "Contribución al confort térmico". Nadie se ríe. Moral −10, radar de Inspección +12.';

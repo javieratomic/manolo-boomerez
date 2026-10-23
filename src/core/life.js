@@ -2,6 +2,7 @@
 import { LUJO_BY_ID } from '../data/lujo.js';
 import { addCash, addFama, addHeatHacienda, addRep, log, money, clamp } from './helpers.js';
 import { macroFx } from './macro.js';
+import { checkClause } from './clauses.js';
 
 // ------------------------------------------------------------------- Lujos
 export const lujoValue = (s) => (s.lujo || []).reduce((a, x) => a + x.value, 0);
@@ -20,6 +21,7 @@ export function buyLujo(s, id) {
   addHeatHacienda(s, l.hac);
   if (l.credit) s.creditBonus += l.credit;
   log(s, `${l.emoji} Manolo se compra: ${l.name}. Lo sube a las redes en menos de una hora.`, 'info');
+  checkClause(s);
   return { ok: true };
 }
 

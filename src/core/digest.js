@@ -47,26 +47,41 @@ function revenueReason(prev, r, s, cat, delta) {
     if (drop > 0.01 && (!worst || drop > worst.drop)) worst = { l, drop };
   }
   if (worst && delta < 0) {
-    const rival = s.rivals.find((x) => RIVALS[x.id]?.targets.includes(worst.l.type) && (x.presence[worst.l.city] || 0) > 0);
-    return `${rival ? RIVALS[rival.id].name : 'La competencia'} aprieta en ${CITY_BY_ID[worst.l.city]?.name ?? worst.l.city}`;
+    // La cadena cuya presencia ha subido en esa ciudad (no la primera que ya estaba).
+    const p = before.get(worst.l.id);
+    const id = Object.keys(worst.l.rivalBy || {}).find((k) => (worst.l.rivalBy[k] || 0) > (p.rivalBy?.[k] || 0));
+    return `${id ? RIVALS[id].name : 'La competencia'} aprieta en ${CITY_BY_ID[worst.l.city]?.name ?? worst.l.city}`;
   }
-  if (r.phase && prev.phase && r.phase !== prev.phase) return `cambio de ciclo: ${PHASES[r.phase]?.label ?? r.phase}`;
+  const up = delta > 0;
   const opened = r.lines.filter((l) => catOf(l) === cat && !before.has(l.id)).length;
   const closed = prev.lines.filter((l) => catOf(l) === cat && !now.has(l.id)).length;
-  if (opened && delta > 0) return opened === 1 ? '1 apertura' : `${opened} aperturas`;
-  if (closed && delta < 0) return closed === 1 ? '1 cierre' : `${closed} cierres`;
+  if (opened && up) return opened === 1 ? '1 apertura' : `${opened} aperturas`;
+  if (closed && !up) return closed === 1 ? '1 cierre' : `${closed} cierres`;
+  // Los motivos solo valen si empujan en el mismo sentido que la cifra.
+  if (r.phase && prev.phase && r.phase !== prev.phase && cat !== 'formacion') {
+    const k = cat === 'inmobiliario' ? 'tourism' : 'demand';
+    if (((PHASES[r.phase]?.[k] ?? 1) > (PHASES[prev.phase]?.[k] ?? 1)) === up) return `cambio de ciclo: ${PHASES[r.phase]?.label ?? r.phase}`;
+  }
+  if ((r.strike ?? 1) < 1 && !up && ((cat === 'sobaos' && r.fill < prev.fill) || cat === 'hosteleria' || cat === 'servicios')) return 'huelga';
   const sNow = seasonOf(r.lines, cat, r.month % 12);
   const sPrev = seasonOf(r.lines, cat, prev.month % 12);
-  if (Math.abs(sNow / sPrev - 1) > 0.08) return sNow > sPrev ? 'temporada alta' : 'temporada baja';
-  if ((r.strike ?? 1) < 1 && delta < 0) return 'huelga';
-  if (cat === 'sobaos' && prev.fill - r.fill > 0.03) return `el obrador cubre ${Math.round((prev.fill - r.fill) * 100)} puntos menos de la demanda`;
+  if (Math.abs(sNow / sPrev - 1) > 0.08 && (sNow > sPrev) === up) return sNow > sPrev ? 'temporada alta' : 'temporada baja';
+  if (cat === 'sobaos' && !up && prev.fill - r.fill > 0.03) return `el obrador cubre ${Math.round((prev.fill - r.fill) * 100)} puntos menos de la demanda`;
   return null;
 }
 
 function costReason(prev, r, s, key) {
   if (key === 'estructura' && r.costs.estructura > prev.costs.estructura) return 'más negocios que coordinar desde Selaya';
-  if (key === 'impuestos' && r.profit > prev.profit) return 'más beneficio, más impuestos';
-  if (key === 'intereses' && r.costs.intereses > prev.costs.intereses) return 'más deuda';
+  if (key === 'impuestos') {
+    if (r.costs.impuestos > prev.costs.impuestos && r.profit > prev.profit) return 'más beneficio, más impuestos';
+    if (r.costs.impuestos < prev.costs.impuestos && r.profit >= prev.profit) return 'Hacienda se lleva menos (contabilidad, asesores o el Gobierno)';
+    return null;
+  }
+  if (key === 'intereses') {
+    if (r.costs.intereses > prev.costs.intereses) return (r.debt ?? 0) > (prev.debt ?? 0) ? 'más deuda' : 'sube el tipo de interés';
+    if (r.costs.intereses < prev.costs.intereses && (r.debt ?? 0) < (prev.debt ?? 0)) return 'menos deuda';
+    return null;
+  }
   const opened = r.lines.filter((l) => !prev.lines.some((p) => p.id === l.id)).length;
   if (opened && ['salarios', 'alquileres', 'materias'].includes(key)) return opened === 1 ? '1 apertura' : `${opened} aperturas`;
   return null;

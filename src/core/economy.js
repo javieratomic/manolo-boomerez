@@ -5,6 +5,7 @@ import { CITY_BY_ID } from '../data/cities.js';
 import { difficultyOf } from './state.js';
 import { macroFx } from './macro.js';
 import { rivalFactor } from './rivals.js';
+import { RIVALS } from '../data/rivals.js';
 import { productFactor, levelFactor } from './market.js';
 import { execBonus, execSalaries } from './execs.js';
 import { lujoValue, lujoUpkeep } from './life.js';
@@ -323,12 +324,18 @@ export function computeEconomy(s) {
 
   // Contexto para el parte del mes (no cambia ninguna cifra): presión rival de cada línea, fase y huelga.
   const byId = new Map(s.businesses.map((b) => [b.id, b]));
-  for (const l of lines) if (byId.has(l.id)) l.rivalF = rivalFactor(s, byId.get(l.id));
+  for (const l of lines) {
+    const b = byId.get(l.id);
+    if (!b) continue;
+    l.rivalF = rivalFactor(s, b);
+    l.rivalBy = Object.fromEntries(s.rivals.filter((x) => RIVALS[x.id]?.targets.includes(b.type) && x.presence[b.city]).map((x) => [x.id, x.presence[b.city]]));
+  }
 
   return {
     month: s.month,
     phase: s.macro?.phase ?? null,
     strike,
+    debt: s.debt,
     revenue, revenueByCat, costs, totalCost, profit, tax, evaded,
     net: profit - tax,
     employees, housed, beds, control,

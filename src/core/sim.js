@@ -2,9 +2,9 @@
 import { computeEconomy, policyFx, creditLimit, patrimonio, grossPatrimonio, hasCondition } from './economy.js';
 import { chance, weightedPick, pick, range } from './rng.js';
 import { addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, log, money, GAME_MONTHS, clamp, custom, remember } from './helpers.js';
-import { laborFine, haciendaDebt, inspectionChance, auditChance, tickLaborHistory } from './inspections.js';
+import { haciendaDebt, inspectionChance, auditChance, tickLaborHistory, laborVisitParams } from './inspections.js';
 import { checkUnlocks } from './actions.js';
-import { settleClause, clauseMult } from './clauses.js';
+import { settleClause, clauseMult, checkClause } from './clauses.js';
 import { tickMacro, macroFx } from './macro.js';
 import { tickRivals, rivalHit } from './rivals.js';
 import { tickRD } from './market.js';
@@ -53,6 +53,8 @@ export function advanceMonth(s) {
     cat: Object.fromEntries(Object.entries(r.revenueByCat).map(([k, v]) => [k, Math.round(v)])),
   });
   if (s.history.length > GAME_MONTHS + 12) s.history.shift();
+  // La cláusula se juzga con el resultado del mes cerrado, antes de que avance el calendario.
+  checkClause(s);
 
   s.month++;
   s.actionUsed = false;
@@ -159,7 +161,7 @@ function handleOverdraft(s) {
 
 function rollVisits(s, r) {
   if (s.cooldowns.trabajo <= 0 && chance(s, inspectionChance(s.heatTrabajo))) {
-    s.pending.push({ kind: 'event', id: 'inspeccion_trabajo', params: { fine: laborFine(s) } });
+    s.pending.push({ kind: 'event', id: 'inspeccion_trabajo', params: laborVisitParams(s) });
     s.cooldowns.trabajo = 4;
     s.stats.inspecciones++;
   }
@@ -233,7 +235,10 @@ export function currentPending(s) {
   // Etiquetas, pistas e imágenes pueden depender del estado (p. ej. la probabilidad real de un truco).
   const val = (x) => (typeof x === 'function' ? x(s, params) : x);
   const last = ev.memory ? custom(s, ev.id).last : null;
-  const usual = (c) => (last && c.key === last ? `↺ Lo de siempre (la última vez elegiste esto).${c.hint ? ` ${val(c.hint)}` : ''}` : val(c.hint));
+  const usual = (c) => {
+    const h = val(c.hint);
+    return last && c.key === last ? `↺ Lo de siempre (la última vez elegiste esto).${h ? ` ${h}` : ''}` : h;
+  };
   return {
     pending: p,
     event: ev,
@@ -278,6 +283,8 @@ export function checkEnding(s) {
   if (id) s.ending = id;
   // El premio de la cláusula no cambia el final: se decide antes y se paga una sola vez.
   if (['pyme', 'tiburon', 'forbes'].includes(id)) settleClause(s);
+  // Si la partida termina sin cumplirla, queda cerrada: el modo infinito ya no la puede cobrar.
+  if (id && s.clausula && !s.clausula.done && !s.clausula.broken) s.clausula.closed = true;
   return id;
 }
 

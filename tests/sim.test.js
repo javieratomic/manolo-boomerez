@@ -3,13 +3,13 @@ import { newGame, serialize, deserialize } from '../src/core/state.js';
 import { advanceMonth, resolvePending, currentPending, checkEnding, eligibleEvents } from '../src/core/sim.js';
 import { computeEconomy, patrimonio, creditLimit, grossPatrimonio } from '../src/core/economy.js';
 import { openBusiness, canOpen, setPolicy, borrow, repay, buyUpgrade, sellBusiness, doManoloAction, togglePerk, currentGoal, rebrand } from '../src/core/actions.js';
-import { laborFine, trickOdds, recordTrick, recidivism, tickLaborHistory } from '../src/core/inspections.js';
+import { laborFine, trickOdds, recordTrick, recidivism, tickLaborHistory, clearRecord } from '../src/core/inspections.js';
 import { dateLabel } from '../src/core/helpers.js';
 import { EVENTS } from '../src/data/events.js';
 import { BUSINESS_TYPES, OBRADOR_UPGRADES } from '../src/data/businesses.js';
 import { MANOLO_ACTIONS } from '../src/data/manoloActions.js';
 import { ACHIEVEMENTS } from '../src/data/achievements.js';
-import { refreshCandidates, hireExec, execBonus } from '../src/core/execs.js';
+import { refreshCandidates, hireExec, execBonus, fireExec } from '../src/core/execs.js';
 import { buyLujo, doIPO } from '../src/core/life.js';
 import { transportCost } from '../src/core/logistics.js';
 import { advice } from '../src/core/advice.js';
@@ -19,7 +19,7 @@ import { forecast, policyPreview, previewBase, riskInfo, blame, STATS } from '..
 import { GOALS } from '../src/data/goals.js';
 import { CLAUSES, CLAUSE_BY_ID, clauseForSeed, CLAUSE_PRIZE, PRISA_GOAL, PRISA_MONTH } from '../src/data/clauses.js';
 import { CITIES } from '../src/data/cities.js';
-import { checkClause, clauseWarn, clauseMult } from '../src/core/clauses.js';
+import { checkClause, clauseWarn, clauseMult, clauseActive } from '../src/core/clauses.js';
 import { score } from '../src/core/sim.js';
 import { netDrivers, freshEntries, upcoming, monthDigest, MAX_DRIVERS } from '../src/core/digest.js';
 import { seedCode, parseSeed, isoWeekKey, weekSeed } from '../src/core/seed.js';
@@ -1078,4 +1078,132 @@ test('semilla: el mismo código da la misma partida y la misma cláusula', () =>
   const r2 = playGame(parseSeed(seedCode(x)), { choice: 'random', diversify: true });
   assertEq(r1.patrimonio, r2.patrimonio);
   assertEq(r1.ending, r2.ending);
+});
+
+// ------------------------------------------------------------- Regresiones de la revisión de la 0.3
+test('regresión 0.3: la pista de «lo de siempre» nunca dice undefined', () => {
+  const s = started();
+  s.customs.franquiciado_arruinado = { count: 1, streak: 1, last: 'mentalidad', counts: { mentalidad: 1 } };
+  const p = visit(s, 'franquiciado_arruinado', { city: 'madrid' });
+  const h = p.choices.find((c) => c.key === 'mentalidad').hint;
+  assert(h.startsWith('↺') && !h.includes('undefined'), h);
+});
+
+test('regresión 0.3: el tercer agosto sin vacaciones multa aunque todo lo demás sea legal', () => {
+  const s = started();
+  s.cooldowns.trabajo = 0;
+  for (let i = 0; i < 3; i++) yearly(s, 'agosto', 'En agosto');
+  const v = s.pending[0];
+  assertEq(v.id, 'inspeccion_trabajo');
+  assert(v.params.fine > 0 && v.params.motivo === 'vacaciones');
+  const p = currentPending(s);
+  assert(!p.choices.some((c) => c.label.includes('Ofrecerle un sobao')), 'no es una visita limpia');
+  assert(p.text.includes('vacaciones'));
+});
+
+test('regresión 0.3: la visita limpia tacha una sanción vigente, no una caducada', () => {
+  const s = started();
+  s.month = 50;
+  s.dossier.sanciones = [5, 40];
+  assertEq(recidivism(s), 1.25);
+  clearRecord(s, 'trabajo');
+  assertEq(recidivism(s), 1);
+  assertEq(s.dossier.sanciones.length, 0);
+});
+
+test('regresión 0.3: Paco no vuelve en un año', () => {
+  const s = started();
+  s.perks.gestor = true;
+  s.dossier.trucos.gestor = 2;
+  pick(s, visit(s, 'auditoria_hacienda', { debt: 5000 }), 'gestor');
+  assert(!s.perks.gestor);
+  assert(!togglePerk(s, 'gestor').ok, 'no coge el teléfono');
+  s.month += 12;
+  assert(togglePerk(s, 'gestor').ok, 'al año, sí');
+});
+
+test('regresión 0.3: la carpeta enseña el agravante con el que se calculó la multa', () => {
+  const s = started();
+  const p = visit(s, 'inspeccion_trabajo', { fine: 9000, recid: 1.25, sanciones: 1 });
+  assert(p.text.includes('×1,25'), 'agravante de la instantánea');
+});
+
+test('regresión 0.3: la culpa se ve aunque la moral esté en el tope', () => {
+  const s = started();
+  s.moral = 0;
+  s.policies.salario = 'negro';
+  s.policies.horas = 'tiburon';
+  const b = blame(s, 'moral');
+  assert(b.atLimit && b.rows.length === 2, JSON.stringify(b));
+  assert(b.rows.every((x) => x.value < 0));
+});
+
+test('regresión 0.3: una huelga que acaba este mes no tapa el riesgo de la siguiente', () => {
+  const s = started();
+  s.moral = 10;
+  s.mods.push({ kind: 'strike', factor: 0.5, months: 1, label: 'Huelga' });
+  assert(riskInfo(s).moral.strike > 0);
+  s.mods[s.mods.length - 1].months = 2;
+  assertEq(riskInfo(s).moral.strike, 0);
+});
+
+test('regresión 0.3: la OPA y despedir a un enchufado comprueban la cláusula al momento', () => {
+  const s = withClause('boutique');
+  s.cash = 9e6;
+  for (const c of CITIES.filter((c) => !c.hq).slice(0, 12).map((c) => c.id)) openBusiness(s, 'express', c);
+  s.rivals = [{ id: 'masa', presence: { madrid: 2, zaragoza: 1 }, since: 0, calm: 0, actions: {} }];
+  assert(acquireRival(s, 'masa').ok);
+  assert(s.clausula.broken, 'rota al comprar');
+  const m = withClause('merche');
+  m.familia = 58;
+  m.execs.rrhh = { id: 1, name: 'Primo Toño', pos: 'rrhh', trait: 'enchufado', skill: 1, salary: 3000 };
+  fireExec(m, 'rrhh');
+  assert(m.clausula.broken, 'rota al despedir al enchufado');
+});
+
+test('regresión 0.3: la prisa cuenta el resultado del último mes del plazo', () => {
+  const s = withClause('prisa');
+  s.month = PRISA_MONTH - 1;
+  s.cash = PRISA_GOAL - 1000;
+  s.cooldowns.trabajo = s.cooldowns.hacienda = 99;
+  s.extraMonthly = [];
+  s.cash += 2e5; // el cierre lo deja por encima
+  advanceMonth(s);
+  assert(s.clausula.reached && !s.clausula.broken);
+});
+
+test('regresión 0.3: la cláusula se cierra al terminar sin cumplirla', () => {
+  const s = withClause('sin_bancos');
+  s.month = 96;
+  s.cash = 6e6;
+  s.debt = 100;
+  assertEq(checkEnding(s), 'tiburon');
+  assert(s.clausula.closed && !s.clausula.done && !clauseActive(s));
+  s.endless = true;
+  s.ending = null;
+  s.debt = 0;
+  s.month = 130;
+  checkEnding(s);
+  assert(!s.clausula.done, 'el modo infinito no la cobra');
+  assertEq(clauseWarn(s, (c) => borrow(c, 1000)), null);
+});
+
+test('regresión 0.3: los motivos del parte van en el sentido de la cifra', () => {
+  const s = started();
+  const prev = computeEconomy(s);
+  prev.phase = 'expansion';
+  const r = JSON.parse(JSON.stringify(prev));
+  r.month = prev.month + 1;
+  r.phase = 'burbuja';
+  r.revenueByCat.sobaos -= 5000;
+  r.net -= 5000;
+  const d = netDrivers(prev, r, s).find((x) => x.key === 'sobaos');
+  assert(!d.reason || !d.reason.includes('ciclo'), `motivo: ${d.reason}`);
+  const t = JSON.parse(JSON.stringify(prev));
+  t.month = prev.month + 1;
+  t.profit = prev.profit + 10000;
+  t.costs.impuestos = prev.costs.impuestos - 2000;
+  t.net = prev.net + 12000;
+  const tax = netDrivers(prev, t, s).find((x) => x.key === 'impuestos');
+  assert(tax && !tax.reason?.includes('más impuestos'), `impuestos: ${tax?.reason}`);
 });

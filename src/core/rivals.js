@@ -5,6 +5,7 @@ import { BUSINESS_TYPES } from '../data/businesses.js';
 import { chance, random, weightedPick } from './rng.js';
 import { addCash, addRep, addHeatHacienda, addMod, log, money } from './helpers.js';
 import { MAX_PER_CITY, sobaoTypeId } from './actions.js';
+import { checkClause } from './clauses.js';
 
 export const rivalTotal = (r) => Object.values(r.presence).reduce((a, b) => a + b, 0);
 export const rivalById = (s, id) => s.rivals.find((r) => r.id === id) || null;
@@ -183,5 +184,6 @@ export function acquireRival(s, rivalId) {
   s.unlocked[typeId] = true;
   addHeatHacienda(s, 3);
   log(s, `🦈 OPA: compras ${def.name} por ${money(price)}${gained.length ? ` y rebautizas sus locales de ${gained.join(', ')}` : ''}.`, 'good');
+  checkClause(s);
   return { ok: true, price, gained };
 }

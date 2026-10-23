@@ -3,6 +3,7 @@
 // Calendario: como en eventsExtra.js, el suceso se sortea al cerrar el mes m y se juega al empezar el m + 1,
 // así que la ventana de moy() es el mes anterior a la fiesta y un modificador de 1 mes afecta al mes de la fiesta.
 import { chance, int } from '../core/rng.js';
+import { recordSanction } from '../core/inspections.js';
 import {
   addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addMod, addMonthlyCost, money, clamp,
 } from '../core/helpers.js';
@@ -828,6 +829,7 @@ export const CITY_EVENTS = [
           addMoral(s, -6);
           if (chance(s, 0.35)) {
             fine(s, 6000);
+            recordSanction(s);
             addHeatTrabajo(s, 10);
             return 'Un legionario se desmaya en la cola de la montaña rusa y lo atienden los gladiadores, que llevan menos ropa. La Inspección viene a ver las armaduras: multa de 6.000 €. Ingresos en Tarragona +25 % durante 3 meses. Moral −6, radar de Inspección +10.';
           }

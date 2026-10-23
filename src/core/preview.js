@@ -80,7 +80,8 @@ export function riskInfo(s, f = forecast(s)) {
   const waitT = Math.max(0, s.cooldowns.trabajo - 1);
   const waitH = Math.max(0, s.cooldowns.hacienda - 1);
   const debt = haciendaDebt(c);
-  const striking = s.mods.some((m) => m.kind === 'strike');
+  // Como en el cierre: las huelgas que terminan este mes ya no cuentan cuando se tira la de la próxima.
+  const striking = s.mods.some((m) => m.kind === 'strike' && m.months > 1);
   return {
     trabajo: { chance: waitT ? 0 : inspectionChance(c.heatTrabajo), wait: waitT, fine: fineAtClose(c), recidivism: recidivism(c) },
     hacienda: { chance: waitH ? 0 : auditChance(c.heatHacienda), wait: waitH, debt, delito: debt >= DELITO_FISCAL },
@@ -92,16 +93,29 @@ export function riskInfo(s, f = forecast(s)) {
 
 // Quién tiene la culpa de que `stat` se mueva: cada política que no está en su primera opción (la honrada)
 // frente a volver a ella, y un resto con todo lo demás (tamaño, directivos, tendencia natural, enfriamiento).
+// Cerca del tope (0 o 100) el recorte esconde lo que empuja cada política, así que entonces se mide con el
+// indicador puesto a 50 (la tendencia natural se anula en la diferencia) y el recorte queda en el resto.
+const NEAR_LIMIT = 8;
+
 export function blame(s, stat, base = previewBase(s), get = (k, o) => policyPreview(s, k, o, base)) {
+  const after = base.f.after[stat];
+  const atLimit = after <= 0 || after >= 100;
+  const nearLimit = after <= NEAR_LIMIT || after >= 100 - NEAR_LIMIT || s[stat] <= NEAR_LIMIT || s[stat] >= 100 - NEAR_LIMIT;
+  const mid = (c) => {
+    c[stat] = 50;
+  };
+  const midBase = nearLimit ? forecast(s, mid) : null;
   const rows = [];
   for (const [key, def] of Object.entries(POLICIES)) {
     const first = Object.keys(def.options)[0];
     const cur = s.policies[key];
     if (!cur || cur === first) continue;
-    const v = -get(key, first)[stat];
+    const v = nearLimit
+      ? midBase.d[stat] - forecast(s, (c) => { mid(c); c.policies[key] = first; }).d[stat]
+      : -get(key, first)[stat];
     if (Math.abs(v) >= 0.05) rows.push({ key, label: def.label, option: def.options[cur].label, value: v });
   }
   const total = base.f.d[stat];
   const rest = total - rows.reduce((a, x) => a + x.value, 0);
-  return { from: s[stat], to: base.f.after[stat], total, rows, rest };
+  return { from: s[stat], to: after, total, rows, rest, atLimit };
 }

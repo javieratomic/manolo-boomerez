@@ -7,6 +7,7 @@
 // Arcos: prensa (Lucía Ferrer), jonathan (Sobaoverso), comite (convenio de Maripili),
 //        hojaldre (corrupción municipal), merche (crisis de los 55), anselmo (la carta del padre).
 import { chance, int } from '../core/rng.js';
+import { recordSanction } from '../core/inspections.js';
 import {
   addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addExpediente, addMod, addMonthlyCost, log, money, clamp,
 } from '../core/helpers.js';
@@ -857,6 +858,7 @@ const ARC_COMITE = [
           if (chance(s, 0.6)) {
             const c = int(s, 20, 40) * 1000;
             fine(s, c);
+            recordSanction(s);
             return `La inspectora Marisa Ortega se presenta el segundo día, cuenta las cabezas y saca el bolígrafo. Multa por vulnerar el derecho de huelga: ${money(c)}. Radar de Inspección +22, reputación −8, moral −10.`;
           }
           return 'Los de la ETT aguantan tres días; al cuarto se unen al piquete. Radar de Inspección +22, reputación −8, moral −10.';

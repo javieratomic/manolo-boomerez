@@ -3,7 +3,7 @@ import { CLAUSE_BY_ID, CLAUSE_PRIZE } from '../data/clauses.js';
 import { addCash, log, money } from './helpers.js';
 
 export const clauseOf = (s) => (s.clausula ? CLAUSE_BY_ID[s.clausula.id] : null);
-export const clauseActive = (s) => !!s.clausula && !s.clausula.broken && !s.clausula.done;
+export const clauseActive = (s) => !!s.clausula && !s.clausula.broken && !s.clausula.done && !s.clausula.closed;
 
 // Corre tras cada apertura, suceso, acción y cierre de mes (desde checkUnlocks).
 export function checkClause(s) {
@@ -48,5 +48,5 @@ export function clauseStatus(s) {
   const def = clauseOf(s);
   if (!def) return null;
   const c = s.clausula;
-  return { def, state: c.done ? 'cumplida' : c.broken ? 'rota' : 'vigente', short: def.short(s, c) };
+  return { def, state: c.done ? 'cumplida' : c.broken ? 'rota' : c.closed ? 'cerrada' : 'vigente', short: def.short(s, c) };
 }

@@ -62,11 +62,27 @@ export function tickLaborHistory(s) {
   if (h.length > 6) h.shift();
 }
 
-// Una visita sin infracciones limpia algo el expediente de ese inspector.
+// Una visita sin infracciones limpia algo el expediente de ese inspector: la sanción vigente más antigua
+// (las de hace más de 24 meses ya no cuentan y se tiran).
 export function clearRecord(s, who) {
   const d = dossier(s);
-  if (who === 'trabajo') d.sanciones.shift();
+  if (who === 'trabajo') {
+    d.sanciones = d.sanciones.filter((m) => s.month - m <= 24);
+    d.sanciones.shift();
+  }
   for (const id of TRICKS[who]) d.trucos[id] = Math.max(0, (d.trucos[id] || 0) - 1);
+}
+
+// Multa mínima por una denuncia concreta (p. ej. negar las vacaciones), aunque las políticas estén en regla.
+export function complaintFine(s) {
+  const employees = s.lastReport?.employees ?? 10;
+  return Math.round((1500 + employees * 300) * (s.perks.abogado ? 0.7 : 1) * difficultyOf(s).fines * recidivism(s));
+}
+
+// Datos de una visita de Trabajo: la multa y lo que Marisa lleva en la carpeta en ese momento.
+export function laborVisitParams(s, extra = {}) {
+  const fine = Math.max(laborFine(s), extra.minFine ?? 0);
+  return { fine, recid: recidivism(s), sanciones: recentSanctions(s), ...(extra.motivo ? { motivo: extra.motivo } : {}) };
 }
 
 export function laborFine(s) {

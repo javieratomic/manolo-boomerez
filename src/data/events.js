@@ -2,13 +2,14 @@
 //  { id, title, portrait, image, text(s, params), weight(s) -> número (0 = no elegible / solo por guion),
 //    once?, cooldown?, forced?, memory?, choices: [{ key?, label, hint?, available?(s, params), effect(s, params) -> texto }] }
 //  memory: true -> se recuerda qué opción (por su key) se eligió las otras veces: custom(s, id).
+//  quickRepeat: true -> a partir de la tercera vez seguida con la misma opción, el resultado sale como aviso.
 //  forced: true -> si es elegible, sale ese mismo mes sin pasar por el azar (pasos de arcos narrativos).
 import { chance, int } from '../core/rng.js';
 import {
   addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addExpediente, addMod, addMonthlyCost, log, money, custom, clamp,
 } from '../core/helpers.js';
 import { addStress } from '../core/life.js';
-import { laborFine, DELITO_FISCAL, dossier, trickOdds, trickCount, recordTrick, recordSanction, recidivism, recentSanctions, clearRecord } from '../core/inspections.js';
+import { laborVisitParams, complaintFine, DELITO_FISCAL, dossier, trickOdds, trickCount, recordTrick, recordSanction, recidivism, recentSanctions, clearRecord } from '../core/inspections.js';
 import { LEGAL_LABOR } from './policies.js';
 import { BUSINESS_TYPES } from './businesses.js';
 import { CITY_BY_ID } from './cities.js';
@@ -33,13 +34,14 @@ const closeLaborVisit = (s) => {
   dossier(s).historial = [];
 };
 
-// Lo que Marisa lleva en la carpeta.
-function laborFileNote(s) {
-  const n = recentSanctions(s);
+// Lo que Marisa lleva en la carpeta (con los datos de cuando se calculó la multa, si los hay).
+function laborFileNote(s, p = {}) {
+  const n = p.sanciones ?? recentSanctions(s);
+  const k = p.recid ?? recidivism(s);
   const tricks = [['frigorifico', 'cámara frigorífica'], ['orujo', 'orujo']].filter(([id]) => trickCount(s, id)).map(([id, l]) => `${trickCount(s, id)} ${l}`);
   if (!n && !tricks.length) return '';
   const parts = [n ? `${n} ${n === 1 ? 'sanción' : 'sanciones'}` : null, ...tricks].filter(Boolean).join(', ');
-  return `\n\nMarisa abre la carpeta por una pestaña amarilla: BOOMEREZ, M. — ${n ? 'reincidente' : 'en observación'}. ${parts}.${recidivism(s) > 1 ? ` Multa con agravante: ×${recidivism(s).toFixed(2).replace('.', ',')}.` : ''}`;
+  return `\n\nMarisa abre la carpeta por una pestaña amarilla: BOOMEREZ, M. — ${n ? 'reincidente' : 'en observación'}. ${parts}.${k > 1 ? ` Multa con agravante: ×${k.toFixed(2).replace('.', ',')}.` : ''}`;
 }
 
 // La cláusula que el notario lee al final del testamento (reto opcional de la partida).
@@ -95,6 +97,7 @@ const BASE_EVENTS = [
     title: 'La cesta de Navidad',
     portrait: 'portrait_empleada_maripili', image: 'ev_navidad',
     memory: true,
+    quickRepeat: true,
     text: (s) => {
       const c = custom(s, 'navidad');
       const n = employees(s);
@@ -163,6 +166,7 @@ const BASE_EVENTS = [
     title: 'Vacaciones en agosto',
     portrait: 'portrait_empleada_maripili', image: 'ev_agosto',
     memory: true,
+    quickRepeat: true,
     text: (s) => {
       const c = custom(s, 'agosto');
       if (c.last === 'trabajar' && c.streak >= 2) return `${c.streak} agostos seguidos sin vacaciones. Maripili ya no pregunta: te enseña un calendario con agosto tachado en rojo y el teléfono de una abogada laboralista apuntado al margen.`;
@@ -188,7 +192,7 @@ const BASE_EVENTS = [
         hint: (s) => {
           const c = custom(s, 'agosto');
           const n = c.last === 'trabajar' ? c.streak + 1 : 1;
-          if (n >= 3) return 'Tercer agosto seguido: la abogada laboralista ya ha llamado a la Inspección.';
+          if (n >= 3) return `${n === 3 ? 'Tercer' : `${n}.º`} agosto seguido: la abogada laboralista ya ha denunciado. Viene Marisa (o, si no puede venir aún, radar +15).`;
           if (n === 2) return 'Segundo agosto seguido: moral −10 y radar +8.';
           return undefined;
         },
@@ -197,15 +201,17 @@ const BASE_EVENTS = [
           const n = c.last === 'trabajar' ? c.streak + 1 : 1;
           s.flags.agostoLibre = 0;
           if (n >= 3) {
+            const ord = n === 3 ? 'Tercer agosto' : `${n}.º agosto`;
             addMoral(s, -10);
             if (s.cooldowns.trabajo <= 0) {
-              s.pending.push({ kind: 'event', id: 'inspeccion_trabajo', params: { fine: laborFine(s) } });
+              // Negar las vacaciones es una infracción en sí: aunque el resto esté en regla, hay multa.
+              s.pending.push({ kind: 'event', id: 'inspeccion_trabajo', params: laborVisitParams(s, { minFine: complaintFine(s), motivo: 'vacaciones' }) });
               s.cooldowns.trabajo = 4;
               s.stats.inspecciones++;
-              return `Tercer agosto sin vacaciones. La abogada laboralista ya no está apuntada en el calendario: está en la puerta, y viene con Marisa. Moral −10.`;
+              return `${ord} sin vacaciones. La abogada laboralista ya no está apuntada en el calendario: está en la puerta, y viene con Marisa. Moral −10.`;
             }
             addHeatTrabajo(s, 15);
-            return 'Tercer agosto sin vacaciones. La abogada laboralista manda un burofax a la Inspección; Marisa lo grapa a tu carpeta para la próxima visita. Moral −10, radar de Inspección +15.';
+            return `${ord} sin vacaciones. La abogada laboralista manda un burofax a la Inspección; Marisa lo grapa a tu carpeta para la próxima visita. Moral −10, radar de Inspección +15.`;
           }
           if (n === 2) {
             addMoral(s, -10);
@@ -220,14 +226,15 @@ const BASE_EVENTS = [
       {
         key: 'francia',
         label: 'Cerrar agosto entero "como en Francia"',
-        hint: 'Ingresos −20 % este mes. Moral +12, familia +5 y estrés −10.',
+        hint: (s) => (s.flags.divorciado ? 'Ingresos −20 % este mes. Moral +12 y estrés −10.' : 'Ingresos −20 % este mes. Moral +12, familia +5 y estrés −10.'),
         available: (s) => (s.flags.agostoLibre ?? 0) >= 2,
         effect(s) {
           addMod(s, { kind: 'revenue', factor: 0.8, months: 1, label: 'Cerrado por vacaciones' });
           addMoral(s, 12);
-          s.familia = clamp((s.familia ?? 60) + 5);
           addStress(s, -10);
           s.flags.agostoLibre = (s.flags.agostoLibre ?? 0) + 1;
+          if (s.flags.divorciado) return 'Cartel en la puerta: "Cerrado por vacaciones, como en Francia". Manolo se va solo a Noja, con la sombrilla y la máquina de remo en el maletero. Moral +12, estrés −10. Este mes se vende un 20 % menos.';
+          s.familia = clamp((s.familia ?? 60) + 5);
           return 'Cartel en la puerta: "Cerrado por vacaciones, como en Francia". Manolo también se va a Noja, con Merche y la sombrilla. Moral +12, familia +5, estrés −10. Este mes se vende un 20 % menos.';
         },
       },
@@ -241,7 +248,7 @@ const BASE_EVENTS = [
     portrait: 'portrait_inspectora_trabajo', image: 'ev_inspeccion',
     text: (s, p) =>
       p.fine > 0
-        ? `La inspectora Marisa Ortega se presenta en el obrador sin avisar, con una carpeta muy gorda.\n\n"Buenos días, Don Manuel. Venimos por unas denuncias anónimas. Muy anónimas. Firmadas por toda la plantilla."\n\nMulta estimada: ${money(p.fine)}.${laborFileNote(s)}`
+        ? `La inspectora Marisa Ortega se presenta en el obrador sin avisar, con una carpeta muy gorda.\n\n${p.motivo === 'vacaciones' ? '"Buenos días, Don Manuel. Venimos por una denuncia de su plantilla: tres veranos sin vacaciones. Las vacaciones son un derecho, no una sugerencia."' : '"Buenos días, Don Manuel. Venimos por unas denuncias anónimas. Muy anónimas. Firmadas por toda la plantilla."'}\n\nMulta estimada: ${money(p.fine)}.${laborFileNote(s, p)}`
         : 'La inspectora Marisa Ortega revisa contratos, nóminas y registros horarios de los últimos meses.\n\n...Todo está en regla. Se la nota decepcionada.',
     weight: () => 0,
     choices: [
@@ -272,7 +279,7 @@ const BASE_EVENTS = [
       },
       {
         label: 'Esconder a los becarios en la cámara frigorífica',
-        hint: (s) => `${pct(trickOdds(s, 'frigorifico'))}: no pasa nada${trickCount(s, 'frigorifico') ? ` (Marisa ya te lo pilló ${veces(trickCount(s, 'frigorifico'))})` : ''}. Si sale mal: multa ×1,5, escándalo y 6 meses de legalidad forzosa.`,
+        hint: (s) => `${pct(trickOdds(s, 'frigorifico'))}: no pasa nada${trickCount(s, 'frigorifico') ? ` (ya lo intentaste ${veces(trickCount(s, 'frigorifico'))}: Marisa sospecha de la cámara)` : ''}. Si sale mal: multa ×1,5, escándalo y 6 meses de legalidad forzosa.`,
         available: (s, p) => p.fine > 0 && s.policies.becarios !== 'ninguno',
         effect(s, p) {
           const prev = trickCount(s, 'frigorifico');
@@ -289,7 +296,7 @@ const BASE_EVENTS = [
           addRep(s, -12);
           forceLegal(s);
           addHeatTrabajo(s, -30);
-          if (prev) return `La inspectora va directa a la cámara frigorífica. "Por la mantequilla, ya sabe." Los becarios la saludan por su nombre. Multa: ${money(p.fine * 1.5)}. Sale en las noticias. Reputación −12.`;
+          if (prev) return `La inspectora va directa a la cámara frigorífica. "Por la mantequilla, ya sabe." Ya sospechaba de la cámara. Multa: ${money(p.fine * 1.5)}. Sale en las noticias. Reputación −12.`;
           return `La inspectora abre la cámara para "ver la mantequilla". Encuentra a tres becarios con escarcha en las cejas. Multa: ${money(p.fine * 1.5)}. Sale en las noticias. Reputación −12.`;
         },
       },
@@ -360,7 +367,7 @@ const BASE_EVENTS = [
       },
       {
         label: 'Culpar al gestor',
-        hint: (s) => `${pct(trickOdds(s, 'gestor'))}: pagas solo la cuota${trickCount(s, 'gestor') ? ` (ya lo usaste ${veces(trickCount(s, 'gestor'))})` : ''}. Si no, ×1,5 (y expediente si es delito fiscal).${s.perks.gestor && trickCount(s, 'gestor') >= 2 ? ' Paco está harto: a la tercera se va.' : ''}`,
+        hint: (s) => `${pct(trickOdds(s, 'gestor'))}: pagas solo la cuota${trickCount(s, 'gestor') ? ` (ya lo usaste ${veces(trickCount(s, 'gestor'))})` : ''}. Si no, ×1,5 (y expediente si es delito fiscal).${s.perks.gestor && trickCount(s, 'gestor') === 2 ? ' Paco está harto: a la tercera se va.' : s.perks.gestor && trickCount(s, 'gestor') >= 3 ? ' Paco ya se fue una vez por esto: si le culpas, se vuelve a ir.' : ''}`,
         available: (s, p) => p.debt > 0,
         effect(s, p) {
           const odds = trickOdds(s, 'gestor');
@@ -371,7 +378,8 @@ const BASE_EVENTS = [
           let paco = '';
           if (s.perks.gestor && trickCount(s, 'gestor') >= 3) {
             s.perks.gestor = false;
-            paco = '\n\nPaco te deja: "A la tercera, Manolo, te defiendes tú solo."';
+            s.flags.pacoSeFue = s.month;
+            paco = '\n\nPaco te deja: "A la tercera, Manolo, te defiendes tú solo." No te cogerá el teléfono en un año.';
           }
           if (ok) {
             pay(s, p.debt);

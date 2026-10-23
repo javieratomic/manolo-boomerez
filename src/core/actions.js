@@ -134,6 +134,9 @@ function isIllegalChoice(key, value) {
 export function togglePerk(s, id) {
   const p = PERKS[id];
   if (!p) return { ok: false, msg: 'Asesor desconocido.' };
+  if (id === 'gestor' && !s.perks.gestor && s.flags.pacoSeFue != null && s.month - s.flags.pacoSeFue < 12) {
+    return { ok: false, msg: 'Paco no te coge el teléfono: "Búscate otro gestor, Manolo." (Vuelve a probar dentro de un año.)' };
+  }
   if (!s.perks[id] && p.setup && !s.andorraPaid) {
     if (s.cash < p.setup) return { ok: false, msg: `Montarlo cuesta ${money(p.setup)}.` };
     addCash(s, -p.setup);

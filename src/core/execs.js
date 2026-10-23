@@ -2,6 +2,7 @@
 import { POSITIONS, TRAITS, FIRST_NAMES, LAST_NAMES, FAMILY, EXEC_PORTRAITS } from '../data/execs.js';
 import { chance, int, pick } from './rng.js';
 import { addCash, log, money } from './helpers.js';
+import { checkClause } from './clauses.js';
 
 export const CANDIDATE_REFRESH = 6;
 
@@ -72,6 +73,7 @@ export function fireExec(s, pos, reason = null) {
   } else {
     log(s, reason ? `🚪 ${e.name} deja ${POSITIONS[pos].label}: ${reason}.` : `🚪 Despides a ${e.name} (${POSITIONS[pos].label}). Indemnización: ${money(severance(e))}.`, 'info');
   }
+  checkClause(s);
   return { ok: true };
 }
 

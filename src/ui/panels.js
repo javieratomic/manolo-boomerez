@@ -235,10 +235,12 @@ function renderRebrand(s) {
 
 // ------------------------------------------------------------- Previsiones
 // Se recalculan solo cuando cambia algo que las afecta (cada previsión simula unos meses sobre una copia).
+// La clave es el estado entero salvo el registro y el historial (unos 50 KB: menos de 1 ms), para no dejar
+// fuera nada que lea la previsión (gastos fijos, contratos, banderas, estado de los locales...).
 let pvCache = { key: '', base: null, map: {} };
+const pvSkip = new Set(['log', 'history', 'notices', 'quote']);
 function previewCache(s) {
-  const key = [s.month, JSON.stringify(s.policies), s.nextId, Math.round(s.cash), s.debt, s.moral, s.rep, s.fama, s.heatTrabajo, s.heatHacienda,
-    JSON.stringify(s.perks), JSON.stringify(s.execs), s.flags.forcedLegal, s.mods.length].join('|');
+  const key = JSON.stringify(s, (k, v) => (pvSkip.has(k) ? undefined : v));
   if (pvCache.key !== key) pvCache = { key, base: previewBase(s), map: {} };
   return pvCache;
 }
@@ -260,15 +262,18 @@ function policyChips(s, key, id) {
   if (Math.abs(p.rep) >= 0.05) chips.push([cls(p.rep), `Reputación ${fmt1(p.rep)}/mes`]);
   if (Math.abs(p.heatTrabajo) >= 0.05) chips.push([cls(-p.heatTrabajo), `Radar Trabajo ${fmt1(p.heatTrabajo)}/mes`]);
   if (Math.abs(p.heatHacienda) >= 0.05) chips.push([cls(-p.heatHacienda), `Radar Hacienda ${fmt1(p.heatHacienda)}/mes`]);
-  if (LABOR_KEYS.includes(key) && p.fine > 0) chips.push(['neg', `Multa si viene: ${moneyShort(p.fine)}`]);
-  let html = chips.length ? `<span class="pv-chips">${chips.slice(0, 4).map(([c, t]) => `<span class="pv-chip ${c}">${esc(t)}</span>`).join('')}</span>` : '';
-  if (key === 'contabilidad' && id !== 'limpia' && p.evaded <= 0) html += '<span class="pv-note">Este mes no hay beneficio: no te ahorrarías impuestos, solo subiría el radar.</span>';
+  // La multa siempre se ve: es justo lo que más importa en las opciones más tentadoras.
+  const fine = LABOR_KEYS.includes(key) && p.fine > 0 ? ['neg', `Multa si viene: ${moneyShort(p.fine)}`] : null;
+  const shown = fine ? [...chips.slice(0, 3), fine] : chips.slice(0, 4);
+  let html = shown.length ? `<span class="pv-chips">${shown.map(([c, t]) => `<span class="pv-chip ${c}">${esc(t)}</span>`).join('')}</span>` : '';
+  if (key === 'contabilidad' && id !== 'limpia' && previewCache(s).base.f.r.profit <= 0 && p.heatHacienda > 0) html += '<span class="pv-note">Este mes no hay beneficio: no te ahorrarías impuestos, solo subiría el radar.</span>';
   else if (Math.abs(p.net6) >= 100) html += `<span class="pv-note">A ${HORIZON} meses: <b class="${cls(p.net6)}">${signMoney(p.net6)}</b>, ya descontadas la moral y las multas esperadas.</span>`;
   return html;
 }
 
-function pvFootnote(s, r) {
-  return `<p class="small muted pv-foot">Cifras del mes que viene con tu plantilla actual (${r.employees} personas), si no pasa nada más.</p>`;
+function pvFootnote(s) {
+  const n = previewCache(s).base.f.r.employees;
+  return `<p class="small muted pv-foot">Cifras del mes que viene con tu plantilla actual (${n} personas), si no pasa nada más.</p>`;
 }
 
 function policyGroup(s, key, def, locked = false) {
@@ -320,7 +325,8 @@ function riskText(s, stat, risk) {
       const m = risk.moral;
       let t = `La plantilla rinde al <b>${factor(m.factor)}</b>.`;
       if (m.strike > 0) t += ` Por debajo de 25 puede haber huelga: ${pct100(m.strike)} al cerrar el mes.`;
-      if (m.zeroMonths > 0) t += ` Lleva ${meses(m.zeroMonths)} a cero: a los 2, la plantilla se queda la empresa.`;
+      if (m.zeroMonths >= 2) t += ' Si cierras el mes así, serán 2 meses seguidos a cero y la plantilla se queda la empresa.';
+      else if (m.zeroMonths > 0) t += ` Al cerrar el mes llevará ${meses(m.zeroMonths)} a cero: a los 2, la plantilla se queda la empresa.`;
       return t;
     }
     case 'rep':
@@ -344,7 +350,8 @@ export function renderWhy(s, stat) {
   const rest = Math.abs(b.rest) >= 0.05 ? `<li class="rest"><span>Resto (tamaño, directivos, tendencia natural, enfriamiento)</span><b class="${tone(b.rest)}">${fmt1(b.rest)}</b></li>` : '';
   return `<p class="why-head"><b>${dec1(b.from)} → ${dec1(b.to)}</b> <span class="${tone(b.total)}">(${Math.abs(b.total) < 0.05 ? '=' : fmt1(b.total)})</span> el mes que viene, si no pasa nada.</p>
     ${rows || rest ? `<h4>Qué lo mueve</h4><ul class="why">${rows}${rest}</ul>` : ''}
-    ${!b.rows.length ? '<p class="small muted">Ninguna de tus políticas lo está empujando: todo es tendencia natural.</p>' : ''}
+    ${b.atLimit ? `<p class="small muted">Está en el tope: aunque lo empujen, no puede ${b.to <= 0 ? 'bajar de 0' : 'subir de 100'}.</p>` : ''}
+    ${!b.rows.length && !b.atLimit ? '<p class="small muted">Ninguna de tus políticas lo está empujando: todo es tendencia natural.</p>' : ''}
     <h4>Riesgo</h4><p>${riskText(s, stat, riskInfo(s, c.base.f))}</p>
     <p class="small muted">Paco, el gestor: «${esc(w.paco)}»</p>`;
 }
@@ -487,7 +494,7 @@ export function renderStaff(s) {
       ${policyGroup(s, 'becarios', POLICIES.becarios, locked)}
       ${hasHousing ? policyGroup(s, 'alquiler', POLICIES.alquiler) : `<p class="small muted">🔑 Cuando tengas un Residencial Boomerez podrás alojar a la plantilla y fijar su alquiler.</p>`}
       ${hasHousing ? `<p class="small">Alojados: <b>${r.housed}/${r.beds}</b>. Con más control hay menos denuncias y menos huelgas.</p>` : ''}
-      ${pvFootnote(s, r)}
+      ${pvFootnote(s)}
     </div>
     ${renderExecs(s)}`;
 }
@@ -568,7 +575,7 @@ export function renderFinance(s) {
         <button class="btn small ghost" data-act="drop-cost" data-index="${i}">Quitar</button></li>`).join('')}
     </ul></div>`;
   }
-  html += `<div class="card">${policyGroup(s, 'contabilidad', POLICIES.contabilidad)}${pvFootnote(s, s.lastReport || computeEconomy(s))}</div>
+  html += `<div class="card">${policyGroup(s, 'contabilidad', POLICIES.contabilidad)}${pvFootnote(s)}</div>
   <div class="card">${policyGroup(s, 'mantenimiento', POLICIES.mantenimiento)}
     <p class="small muted">Cada local tiene un estado de conservación: los descuidados venden menos (hasta un −25 %) y pueden sufrir averías. Una reforma los deja como nuevos.</p></div>
   <div class="card"><h4>Asesores</h4><ul class="perk-list">
@@ -751,12 +758,13 @@ export function renderManolo(s) {
 function renderClause(s) {
   const c = clauseStatus(s);
   if (!c) return '';
-  const tag = { vigente: '<span class="tag">En vigor</span>', rota: '<span class="tag bad">Rota</span>', cumplida: '<span class="tag good">Cumplida</span>' }[c.state];
+  const tag = { vigente: '<span class="tag">En vigor</span>', rota: '<span class="tag bad">Rota</span>', cerrada: '<span class="tag">No cumplida</span>', cumplida: '<span class="tag good">Cumplida</span>' }[c.state];
   const prize = `puntuación ×${String(c.def.mult).replace('.', ',')} y el prado de Vega de Pas con 40 vacas pasiegas (${moneyShort(CLAUSE_PRIZE)})`;
   const status = {
     vigente: `${esc(c.short)}. Si terminas la partida (pyme, tiburón o revista) cumpliéndola: ${prize}.`,
     rota: `La rompiste en ${dateLabel(s.clausula.brokenMonth ?? s.month).toLowerCase().replace(' ', ' de ')}. Las vacas, para la Cofradía.`,
     cumplida: `Cumplida en ${dateLabel(s.clausula.doneMonth ?? s.month).toLowerCase().replace(' ', ' de ')}: ${prize}.`,
+    cerrada: 'La partida terminó sin cumplirla. El prado y las vacas se quedan en la notaría.',
   }[c.state];
   return `<div class="card clause ${c.state}"><h4>${hasArt('icon_clausula') ? `<img src="${imageUrl('icon_clausula')}" alt="" class="h4-icon">` : '📜'} La cláusula del testamento ${tag}</h4>
     <p class="small"><i>"${esc(c.def.notary)}"</i></p>

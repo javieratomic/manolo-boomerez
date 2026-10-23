@@ -836,54 +836,66 @@
       "file": "assets/events/ev_hilo.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_hilo"
+      "request": "art/requests/05_sucesos.md#ev_hilo",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; identidad, dimensiones y peso verificados."
     },
     {
       "id": "ev_primo",
       "file": "assets/events/ev_primo.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_primo"
+      "request": "art/requests/05_sucesos.md#ev_primo",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; identidad, dimensiones y peso verificados."
     },
     {
       "id": "ev_premio",
       "file": "assets/events/ev_premio.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_premio"
+      "request": "art/requests/05_sucesos.md#ev_premio",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; identidad, dimensiones y peso verificados."
     },
     {
       "id": "ev_sanidad",
       "file": "assets/events/ev_sanidad.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_sanidad"
+      "request": "art/requests/05_sucesos.md#ev_sanidad",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; identidad, dimensiones y peso verificados."
     },
     {
       "id": "ev_rival",
       "file": "assets/events/ev_rival.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_rival"
+      "request": "art/requests/05_sucesos.md#ev_rival",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; identidad, dimensiones y peso verificados."
     },
     {
       "id": "ev_banco",
       "file": "assets/events/ev_banco.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_banco"
+      "request": "art/requests/05_sucesos.md#ev_banco",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; identidad, dimensiones y peso verificados."
     },
     {
       "id": "ev_tv",

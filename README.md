@@ -54,7 +54,7 @@ pellizco para el zoom · `Espacio` cierra el mes · `1`-`6` cambia de pestaña �
 | Finales | Concurso de acreedores, Soto del Real, la Cooperativa, Forbes, Tiburón Pasiego, Pyme con ínfulas, Ruina lenta |
 | Sonido | Efectos y música de fondo (pasodoble lo-fi generativo) sintetizados con WebAudio, sin ficheros de audio; se silencian por separado en el menú |
 
-El diseño completo está en [`docs/GDD.md`](docs/GDD.md).
+El diseño completo está en [`docs/GDD.md`](docs/GDD.md) y los consejos de estrategia en [`docs/GUIA.md`](docs/GUIA.md).
 
 ## Estructura
 

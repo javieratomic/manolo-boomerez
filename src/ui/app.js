@@ -17,6 +17,7 @@ import { launchCampaign, startRD, upgradeBusiness, CAMPAIGN_BY_ID, PRODUCT_BY_ID
 import { hireExec, fireExec, refreshCandidates, execOf, severance } from '../core/execs.js';
 import { RIVALS } from '../data/rivals.js';
 import { clauseStatus, clauseWarn } from '../core/clauses.js';
+import { monthDigest, fmtDelta } from '../core/digest.js';
 import { buyLujo, sellLujo, doIPO, IPO_FLOAT } from '../core/life.js';
 import { LUJO_BY_ID } from '../data/lujo.js';
 import { grossPatrimonio } from '../core/economy.js';
@@ -569,12 +570,14 @@ async function endMonth() {
   if (!s || game.busy || s.ending || s.pending.length || isModalOpen()) return;
   game.busy = true;
   const prev = { rep: s.rep, moral: s.moral, fama: s.fama, ht: s.heatTrabajo, hh: s.heatHacienda };
+  const prevReport = s.lastReport;
+  const head = s.log[0];
   const r = advanceMonth(s);
   renderAll();
   if (r) {
     game.map.showProfits(r);
     play(r.net >= 0 ? 'cash' : 'loss');
-    await showReport(r, prev);
+    await showReport(r, prev, monthDigest(prevReport, r, s, head));
     if (r.month % 12 === 11) await showYearSummary(s, r);
   }
   game.busy = false;
@@ -611,14 +614,34 @@ function showYearSummary(s, r) {
   return showModal({ title: `Balance de ${year}`, kicker: 'Fin de año', portrait: `portrait_manolo_${net >= 0 ? 'happy' : 'thinking'}`, html });
 }
 
-function delta(label, a, b, invert = false) {
+function delta(label, a, b, invert = false, stat = '') {
   const d = Math.round(b - a);
   if (!d) return '';
   const good = invert ? d < 0 : d > 0;
-  return `<span class="delta ${good ? 'pos' : 'neg'}">${label} ${d > 0 ? '+' : ''}${d}</span>`;
+  const text = `${label} ${d > 0 ? '+' : ''}${d}`;
+  // Tocar la variación abre el «¿Por qué?» de ese indicador.
+  if (stat) return `<button type="button" class="delta ${good ? 'pos' : 'neg'}" data-act="explain" data-stat="${stat}" title="¿Por qué?">${text}</button>`;
+  return `<span class="delta ${good ? 'pos' : 'neg'}">${text}</span>`;
 }
 
-function showReport(r, prev) {
+// Parte del mes: qué ha movido el neto, qué ha pasado y qué viene. En móvil, los dos últimos plegados.
+function digestHtml(d) {
+  if (!d) return '';
+  const narrow = window.matchMedia('(max-width: 600px)').matches;
+  const block = (title, body) => (narrow ? `<details class="digest"><summary>${title}</summary>${body}</details>` : `<h4>${title}</h4>${body}`);
+  let html = '';
+  if (d.drivers.length) {
+    html += `<h4>Por qué ${d.prevNet != null ? `(frente a ${fmtDelta(d.prevNet).replace('+', '')} el mes pasado)` : ''}</h4><ul class="why digest-drivers">
+      ${d.drivers.map((x) => `<li><span>${esc(x.label)}${x.reason ? `<small>${esc(x.reason)}</small>` : ''}</span><b class="${x.delta >= 0 ? 'pos' : 'neg'}">${fmtDelta(x.delta)}</b></li>`).join('')}</ul>`;
+  }
+  if (d.fresh.items.length) {
+    html += block('Este mes', `<ul class="digest-list">${d.fresh.items.map((e) => `<li class="${e.tone}">${esc(e.text)}</li>`).join('')}</ul>${d.fresh.more ? `<p class="small muted">…y ${d.fresh.more} más en Noticias.</p>` : ''}`);
+  }
+  if (d.upcoming.length) html += block('Próximamente', `<ul class="digest-list">${d.upcoming.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>`);
+  return html;
+}
+
+function showReport(r, prev, digest) {
   const s = game.s;
   const html = `
     <div class="report">
@@ -632,10 +655,11 @@ function showReport(r, prev) {
       ${r.fill < 0.999 ? `<p class="warn small">⚠️ El obrador solo ha servido el ${Math.round(r.fill * 100)} % de la demanda de sobaos. ¡Mejóralo!</p>` : ''}
       ${r.evaded > 0 ? `<p class="small">🧾 Impuestos "optimizados" este mes: ${money(r.evaded)}.</p>` : ''}
       <div class="deltas">
-        ${delta('Reputación', prev.rep, s.rep)}${delta('Moral', prev.moral, s.moral)}${delta('Fama', prev.fama, s.fama)}
-        ${delta('Radar Inspección', prev.ht, s.heatTrabajo, true)}${delta('Radar Hacienda', prev.hh, s.heatHacienda, true)}
+        ${delta('Reputación', prev.rep, s.rep, false, 'rep')}${delta('Moral', prev.moral, s.moral, false, 'moral')}${delta('Fama', prev.fama, s.fama, false, 'fama')}
+        ${delta('Radar Inspección', prev.ht, s.heatTrabajo, true, 'heatTrabajo')}${delta('Radar Hacienda', prev.hh, s.heatHacienda, true, 'heatHacienda')}
       </div>
       ${s.insolvencyMonths ? `<p class="neg"><b>🚨 Descubierto sin crédito: mes ${s.insolvencyMonths} de 3.</b></p>` : ''}
+      ${digestHtml(digest)}
     </div>`;
   return showModal({ title: `Cierre de ${dateLabel(r.month)}`, kicker: 'Informe mensual', portrait: `portrait_manolo_${manoloMood(s)}`, html });
 }

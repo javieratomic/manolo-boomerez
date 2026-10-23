@@ -6,7 +6,7 @@ import { openBusiness, canOpen, setPolicy, borrow, repay, buyUpgrade, sellBusine
 import { laborFine, trickOdds, recordTrick, recidivism, tickLaborHistory } from '../src/core/inspections.js';
 import { dateLabel } from '../src/core/helpers.js';
 import { EVENTS } from '../src/data/events.js';
-import { BUSINESS_TYPES } from '../src/data/businesses.js';
+import { BUSINESS_TYPES, OBRADOR_UPGRADES } from '../src/data/businesses.js';
 import { MANOLO_ACTIONS } from '../src/data/manoloActions.js';
 import { ACHIEVEMENTS } from '../src/data/achievements.js';
 import { refreshCandidates, hireExec, execBonus } from '../src/core/execs.js';
@@ -21,6 +21,7 @@ import { CLAUSES, CLAUSE_BY_ID, clauseForSeed, CLAUSE_PRIZE, PRISA_GOAL, PRISA_M
 import { CITIES } from '../src/data/cities.js';
 import { checkClause, clauseWarn, clauseMult } from '../src/core/clauses.js';
 import { score } from '../src/core/sim.js';
+import { netDrivers, freshEntries, upcoming, monthDigest, MAX_DRIVERS } from '../src/core/digest.js';
 import { playGame } from './bot.js';
 
 const started = (seed = 42, brand = 0) => {
@@ -955,4 +956,99 @@ test('cláusula: el estado final de partidas del bot es válido', () => {
     const r = playGame(seed, { diversify: true, smart: true });
     assert(r.ending, 'termina');
   }
+});
+
+// ------------------------------------------------------------- Parte del mes
+test('parte: las mayores variaciones primero, con su motivo', () => {
+  const s = started();
+  const prev = computeEconomy(s);
+  const r = JSON.parse(JSON.stringify(prev));
+  r.month = prev.month + 1;
+  r.revenueByCat.sobaos -= 5000;
+  r.costs.estructura += 1000;
+  r.net = prev.net - 6000;
+  const d = netDrivers(prev, r, s);
+  assertEq(d[0].key, 'sobaos');
+  assertEq(d[1].key, 'estructura');
+  assert(d[0].delta < 0 && d[1].delta < 0);
+  assertEq(d[1].reason, 'más negocios que coordinar desde Selaya');
+});
+
+test('parte: detecta a la cadena rival que aprieta', () => {
+  const s = started();
+  s.cash = 1e6;
+  s.obrador.upgrades = OBRADOR_UPGRADES.map((u) => u.id); // con capacidad de sobra, lo que se pierde no se vende en otra parte
+  openBusiness(s, 'express', 'madrid');
+  const prev = computeEconomy(s);
+  s.rivals = [{ id: 'masa', presence: { madrid: 1 }, since: 0, calm: 0, actions: {} }];
+  const r = computeEconomy(s);
+  const d = netDrivers(prev, r, s).find((x) => x.key === 'sobaos');
+  assert(d && d.delta < 0, 'los sobaos bajan');
+  assert(d.reason && d.reason.includes('Madrid'), `motivo: ${d.reason}`);
+});
+
+test('parte: «Este mes» solo trae lo nuevo y sin titulares', () => {
+  const s = started();
+  s.log.unshift({ month: s.month, text: 'viejo', tone: 'info' });
+  const head = s.log[0];
+  s.log.unshift({ month: s.month, text: 'titular', tone: 'news' }, { month: s.month, text: 'bueno', tone: 'good' }, { month: s.month, text: 'malo', tone: 'bad' });
+  const f = freshEntries(s, head);
+  assertEq(f.items.map((e) => e.text).join(), 'malo,bueno');
+});
+
+test('parte: próximamente avisa de Navidad y elecciones, nunca de inspecciones', () => {
+  const s = started();
+  s.month = 10;
+  assert(upcoming(s).some((t) => t.includes('Navidad')));
+  s.month = 14;
+  const u = upcoming(s);
+  assert(u.some((t) => t.includes('Elecciones')));
+  s.heatTrabajo = 100;
+  s.cooldowns.trabajo = 0;
+  assert(!upcoming(s).some((t) => /inspecc|Marisa/i.test(t)));
+});
+
+test('parte: se calcula cada mes de una partida sin errores', () => {
+  const s = started(21);
+  s.cash = 2e6;
+  Object.assign(s.unlocked, { smash: true, vivienda: true, airbnb: true });
+  for (const c of ['madrid', 'bilbao']) openBusiness(s, 'express', c);
+  for (let i = 0; i < 30; i++) {
+    const prev = s.lastReport;
+    const head = s.log[0];
+    if (i === 5) openBusiness(s, 'smash', 'valencia');
+    const r = advanceMonth(s);
+    const d = monthDigest(prev, r, s, head);
+    assert(d.drivers.length <= MAX_DRIVERS);
+    resolveAll(s);
+  }
+});
+
+test('regresión: los campos del parte no cambian las cuentas', () => {
+  const a = newGame(1);
+  resolvePending(a, 0);
+  const b = newGame(2);
+  resolvePending(b, 1);
+  b.cash = 2e6;
+  b.unlocked.smash = true;
+  openBusiness(b, 'maison', 'madrid');
+  openBusiness(b, 'smash', 'bilbao');
+  openBusiness(b, 'maison', 'barcelona', 'franquicia');
+  const c = newGame(3);
+  resolvePending(c, 0);
+  c.cash = 3e6;
+  Object.assign(c.unlocked, { vivienda: true, airbnb: true });
+  for (const city of ['madrid', 'sevilla', 'valencia']) openBusiness(c, 'express', city);
+  openBusiness(c, 'vivienda', 'santander');
+  openBusiness(c, 'airbnb', 'malaga');
+  for (let i = 0; i < 5; i++) {
+    c.cooldowns.trabajo = c.cooldowns.hacienda = 99;
+    advanceMonth(c);
+    resolveAll(c);
+  }
+  const expected = [[24037.83, 20595.49, 2581.75], [106390.18, 76757.12, 22224.8], [58048.44, 46659.82, 8541.47]];
+  [a, b, c].forEach((s, i) => {
+    const r = computeEconomy(s);
+    [r.revenue, r.totalCost, r.net].forEach((v, k) => assert(Math.abs(v - expected[i][k]) < 0.01, `estado ${i} cifra ${k}: ${v}`));
+  });
 });

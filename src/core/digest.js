@@ -1,0 +1,133 @@
+// Parte del mes: por qué ha cambiado el neto respecto al mes anterior, qué ha pasado y qué viene.
+// Solo lee informes y estado; no cambia nada ni usa el generador aleatorio.
+import { SOBAO_SEASON, TOURISM_SEASON } from './economy.js';
+import { BUSINESS_TYPES } from '../data/businesses.js';
+import { CITY_BY_ID } from '../data/cities.js';
+import { RIVALS } from '../data/rivals.js';
+import { PHASES } from '../data/macro.js';
+import { PRODUCTS } from '../data/market.js';
+import { nextElectionMonth } from './politics.js';
+import { CANDIDATE_REFRESH } from './execs.js';
+import { UNLOCKS } from './actions.js';
+import { dateLabel, moneyShort } from './helpers.js';
+
+export const CAT_NAMES = { sobaos: 'Sobaos', inmobiliario: 'Inmobiliario', hosteleria: 'Hostelería', formacion: 'Formación', servicios: 'Servicios', produccion: 'Producción' };
+export const COST_NAMES = {
+  salarios: 'Salarios', directivos: 'Directivos', estructura: 'Estructura central', mantenimiento: 'Mantenimiento', alquileres: 'Alquileres',
+  materias: 'Materias primas', transporte: 'Transporte', otros: 'Otros gastos', intereses: 'Intereses', asesores: 'Asesores', personales: 'Caprichos de Manolo', impuestos: 'Impuestos',
+};
+export const MAX_DRIVERS = 3;
+
+const catOf = (l) => (l.type === 'obrador' ? 'sobaos' : BUSINESS_TYPES[l.type]?.category);
+
+// Estacionalidad media de una categoría (ponderada por ingresos de sus líneas) en un mes del año.
+function seasonOf(lines, cat, m) {
+  let w = 0;
+  let f = 0;
+  for (const l of lines) {
+    if (catOf(l) !== cat || !l.revenue) continue;
+    const t = BUSINESS_TYPES[l.type];
+    const k = cat === 'sobaos' ? SOBAO_SEASON[m] : t?.season ? t.season[m] : l.type === 'airbnb' ? TOURISM_SEASON[m] : 1;
+    w += l.revenue;
+    f += l.revenue * k;
+  }
+  return w ? f / w : 1;
+}
+
+// Motivo de la variación de los ingresos de una categoría, solo si se detecta de forma explícita.
+function revenueReason(prev, r, s, cat, delta) {
+  const before = new Map(prev.lines.map((l) => [l.id, l]));
+  const now = new Map(r.lines.map((l) => [l.id, l]));
+  // Una cadena rival que aprieta en una ciudad.
+  let worst = null;
+  for (const l of r.lines) {
+    const p = before.get(l.id);
+    if (catOf(l) !== cat || !p || l.rivalF == null || p.rivalF == null) continue;
+    const drop = p.rivalF - l.rivalF;
+    if (drop > 0.01 && (!worst || drop > worst.drop)) worst = { l, drop };
+  }
+  if (worst && delta < 0) {
+    const rival = s.rivals.find((x) => RIVALS[x.id]?.targets.includes(worst.l.type) && (x.presence[worst.l.city] || 0) > 0);
+    return `${rival ? RIVALS[rival.id].name : 'La competencia'} aprieta en ${CITY_BY_ID[worst.l.city]?.name ?? worst.l.city}`;
+  }
+  if (r.phase && prev.phase && r.phase !== prev.phase) return `cambio de ciclo: ${PHASES[r.phase]?.label ?? r.phase}`;
+  const opened = r.lines.filter((l) => catOf(l) === cat && !before.has(l.id)).length;
+  const closed = prev.lines.filter((l) => catOf(l) === cat && !now.has(l.id)).length;
+  if (opened && delta > 0) return opened === 1 ? '1 apertura' : `${opened} aperturas`;
+  if (closed && delta < 0) return closed === 1 ? '1 cierre' : `${closed} cierres`;
+  const sNow = seasonOf(r.lines, cat, r.month % 12);
+  const sPrev = seasonOf(r.lines, cat, prev.month % 12);
+  if (Math.abs(sNow / sPrev - 1) > 0.08) return sNow > sPrev ? 'temporada alta' : 'temporada baja';
+  if ((r.strike ?? 1) < 1 && delta < 0) return 'huelga';
+  if (cat === 'sobaos' && prev.fill - r.fill > 0.03) return `el obrador cubre ${Math.round((prev.fill - r.fill) * 100)} puntos menos de la demanda`;
+  return null;
+}
+
+function costReason(prev, r, s, key) {
+  if (key === 'estructura' && r.costs.estructura > prev.costs.estructura) return 'más negocios que coordinar desde Selaya';
+  if (key === 'impuestos' && r.profit > prev.profit) return 'más beneficio, más impuestos';
+  if (key === 'intereses' && r.costs.intereses > prev.costs.intereses) return 'más deuda';
+  const opened = r.lines.filter((l) => !prev.lines.some((p) => p.id === l.id)).length;
+  if (opened && ['salarios', 'alquileres', 'materias'].includes(key)) return opened === 1 ? '1 apertura' : `${opened} aperturas`;
+  return null;
+}
+
+// Las mayores variaciones (en lo que afectan al neto) entre dos informes, con su motivo si se conoce.
+export function netDrivers(prev, r, s) {
+  if (!prev || !r) return [];
+  const items = [];
+  for (const cat of Object.keys(r.revenueByCat)) {
+    const d = (r.revenueByCat[cat] || 0) - (prev.revenueByCat?.[cat] || 0);
+    items.push({ kind: 'ingresos', key: cat, label: `Ingresos · ${CAT_NAMES[cat] ?? cat}`, delta: d });
+  }
+  for (const key of Object.keys(r.costs)) {
+    const d = -((r.costs[key] || 0) - (prev.costs?.[key] || 0));
+    items.push({ kind: 'costes', key, label: COST_NAMES[key] ?? key, delta: d });
+  }
+  const min = Math.max(500, 0.03 * Math.abs(prev.net));
+  return items
+    .filter((x) => Math.abs(x.delta) >= min)
+    .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
+    .slice(0, MAX_DRIVERS)
+    .map((x) => ({ ...x, reason: x.kind === 'ingresos' ? revenueReason(prev, r, s, x.key, x.delta) : costReason(prev, r, s, x.key) }));
+}
+
+// Lo que ha dejado el cierre en el registro (sin titulares), malas primero.
+export function freshEntries(s, head, max = 5) {
+  const idx = head ? s.log.indexOf(head) : -1;
+  const fresh = (idx >= 0 ? s.log.slice(0, idx) : s.log.filter((e) => e.month === s.month - 1)).filter((e) => e.tone !== 'news');
+  const order = { bad: 0, good: 1 };
+  const sorted = [...fresh].sort((a, b) => (order[a.tone] ?? 2) - (order[b.tone] ?? 2));
+  return { items: sorted.slice(0, max), more: Math.max(0, sorted.length - max) };
+}
+
+// Lo que va a pasar al cerrar este mes o el siguiente. Nunca anuncia inspecciones ni cuánto dura el ciclo.
+export function upcoming(s) {
+  const out = [];
+  const closes = [s.month, s.month + 1];
+  const when = (m) => (m === s.month ? 'al cerrar este mes' : `al cerrar ${dateLabel(m).toLowerCase().replace(' ', ' de ')}`);
+  for (const m of closes) {
+    if (m % 12 === 11) out.push(`🎄 Navidad: Maripili preguntará por la cesta ${when(m)}.`);
+    if (m % 12 === 6) out.push(`🏖️ Vacaciones de agosto: la plantilla preguntará ${when(m)}.`);
+  }
+  const el = nextElectionMonth(s.month);
+  if (el - s.month <= 2) out.push(`🗳️ Elecciones generales ${when(el)}.`);
+  for (const mod of s.mods) if (mod.campaign && mod.months <= 1) out.push(`📢 Termina la campaña «${mod.label}»${mod.city ? ` en ${CITY_BY_ID[mod.city]?.name ?? mod.city}` : ''}.`);
+  if (s.rd && s.rd.monthsLeft <= 1) out.push(`🧪 I+D: ${PRODUCTS.find((p) => p.id === s.rd.id)?.name ?? 'el producto'} estará listo ${when(s.month)}.`);
+  for (const c of s.contracts) if (c.months <= 2 && c.months <= 120) out.push(`📄 Termina el contrato: ${c.label} (${c.months === 1 ? 'último mes' : '2 meses'}).`);
+  if (s.flags.forcedLegal === 1) out.push('⚖️ Se acaba la legalidad forzosa: el mes que viene vuelves a decidir las condiciones.');
+  if (s.restMonths === 1) out.push('🛋️ Manolo vuelve del reposo el mes que viene.');
+  if (CANDIDATE_REFRESH - (s.month - (s.candidatesMonth ?? 0)) <= 1) out.push('👔 Llegan currículums nuevos de directivos.');
+  for (const u of UNLOCKS) {
+    if (u.month == null || s.unlocked[u.id]) continue;
+    if (u.month > s.month && u.month <= s.month + 2) out.push(`🔓 ${BUSINESS_TYPES[u.id]?.name ?? u.id} se desbloquea en ${dateLabel(u.month).toLowerCase().replace(' ', ' de ')}.`);
+  }
+  if (!s.ipo && s.month + 1 >= 36 && s.month < 36) out.push('🔔 Desde el mes que viene se puede salir a Bolsa (con al menos 4 M€ de patrimonio).');
+  return out;
+}
+
+export function monthDigest(prev, r, s, head) {
+  return { drivers: netDrivers(prev, r, s), fresh: freshEntries(s, head), upcoming: upcoming(s), prevNet: prev?.net ?? null };
+}
+
+export const fmtDelta = (v) => `${v >= 0 ? '+' : '−'}${moneyShort(Math.abs(v))}`;

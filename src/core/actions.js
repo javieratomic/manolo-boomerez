@@ -215,17 +215,18 @@ export function doManoloAction(s, id) {
   return { ok: true, text };
 }
 
-const UNLOCKS = [
+// month: mes en que se desbloquea por calendario (lo usa el parte del mes para avisar).
+export const UNLOCKS = [
   { id: 'vivienda', test: (s) => sobaoOutlets(s) >= 3, text: '🔓 Desbloqueado: Residencial Boomerez. "¿Y si mis empleados me pagan el alquiler a mí?"' },
-  { id: 'airbnb', test: (s) => s.month >= 12 || s.cash >= 250000, text: '🔓 Desbloqueado: Apartamentos turísticos "Casa Manolo".' },
-  { id: 'smash', test: (s) => sobaoOutlets(s) >= 4 || s.month >= 18, text: '🔓 Desbloqueado: Manolo Smash Club. Hay que diversificar.' },
-  { id: 'empanadas', test: (s) => sobaoOutlets(s) >= 4 || s.month >= 18 || s.flags.primoSocio, text: '🔓 Desbloqueado: Empanadas El Gaucho Pasiego.' },
+  { id: 'airbnb', month: 12, test: (s) => s.month >= 12 || s.cash >= 250000, text: '🔓 Desbloqueado: Apartamentos turísticos "Casa Manolo".' },
+  { id: 'smash', month: 18, test: (s) => sobaoOutlets(s) >= 4 || s.month >= 18, text: '🔓 Desbloqueado: Manolo Smash Club. Hay que diversificar.' },
+  { id: 'empanadas', month: 18, test: (s) => sobaoOutlets(s) >= 4 || s.month >= 18 || s.flags.primoSocio, text: '🔓 Desbloqueado: Empanadas El Gaucho Pasiego.' },
   { id: 'academy', test: (s) => s.fama >= 25, text: '🔓 Desbloqueado: Boomerez Business Academy. Tu fama ya da para vender cursos.' },
-  { id: 'obrador_regional', test: (s) => sobaoOutlets(s) >= 6 || s.month >= 24, text: '🔓 Desbloqueado: obradores regionales. Fabricar cerca de las tiendas ahorra transporte.' },
-  { id: 'taberna', test: (s) => sobaoOutlets(s) >= 2 || s.month >= 6, text: '🔓 Desbloqueado: La Taberna del Emprendedor. Donde se cierran los negocios de verdad.' },
-  { id: 'gimnasio', test: (s) => s.month >= 12 || sobaoOutlets(s) >= 5, text: '🔓 Desbloqueado: Boomer Fit 24h. "Mens sana in corpore sobao."' },
+  { id: 'obrador_regional', month: 24, test: (s) => sobaoOutlets(s) >= 6 || s.month >= 24, text: '🔓 Desbloqueado: obradores regionales. Fabricar cerca de las tiendas ahorra transporte.' },
+  { id: 'taberna', month: 6, test: (s) => sobaoOutlets(s) >= 2 || s.month >= 6, text: '🔓 Desbloqueado: La Taberna del Emprendedor. Donde se cierran los negocios de verdad.' },
+  { id: 'gimnasio', month: 12, test: (s) => s.month >= 12 || sobaoOutlets(s) >= 5, text: '🔓 Desbloqueado: Boomer Fit 24h. "Mens sana in corpore sobao."' },
   { id: 'coworking', test: (s) => s.fama >= 35 || s.businesses.some((b) => b.type === 'academy'), text: '🔓 Desbloqueado: Hustle Hub Coworking. Las startups pagan por sentarse cerca de ti.' },
-  { id: 'residencia', test: (s) => s.month >= 24 || s.stats.maxPatrimonio >= 2e6, text: '🔓 Desbloqueado: Residencia Golden Age. "La plata está en las canas", te dice un fondo.' },
+  { id: 'residencia', month: 24, test: (s) => s.month >= 24 || s.stats.maxPatrimonio >= 2e6, text: '🔓 Desbloqueado: Residencia Golden Age. "La plata está en las canas", te dice un fondo.' },
 ];
 
 export function checkUnlocks(s) {

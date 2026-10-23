@@ -321,8 +321,14 @@ export function computeEconomy(s) {
   }
   costs.impuestos = tax;
 
+  // Contexto para el parte del mes (no cambia ninguna cifra): presión rival de cada línea, fase y huelga.
+  const byId = new Map(s.businesses.map((b) => [b.id, b]));
+  for (const l of lines) if (byId.has(l.id)) l.rivalF = rivalFactor(s, byId.get(l.id));
+
   return {
     month: s.month,
+    phase: s.macro?.phase ?? null,
+    strike,
     revenue, revenueByCat, costs, totalCost, profit, tax, evaded,
     net: profit - tax,
     employees, housed, beds, control,

@@ -33,7 +33,10 @@ export const SYSTEM_EVENTS = [
         effect(s, p) {
           addCash(s, -160000);
           const b = s.businesses.find((x) => x.id === p.businessId);
-          if (b) b.ilegal = false;
+          if (b) {
+            b.ilegal = false;
+            b.value += 120000 * 0.85;
+          }
           return 'Pagas 40.000 € de multa y 120.000 € de licencia. Ahora tus pisos son legales y la vecina está desolada.';
         },
       },

@@ -16,7 +16,7 @@ import { RIVALS, RIVAL_MAX_LEVEL } from '../data/rivals.js';
 import { CAMPAIGNS, PRODUCTS, MAX_LEVEL } from '../data/market.js';
 import { POSITIONS, TRAITS } from '../data/execs.js';
 import { RIVAL_ACTIONS, canActOnRival, acquisitionPrice, rivalTotal } from '../core/rivals.js';
-import { canLaunchCampaign, campaignRunning, canStartRD, upgradeCost, PRODUCT_BY_ID } from '../core/market.js';
+import { canLaunchCampaign, campaignRunning, canStartRD, upgradeCost, upgradeEffect, PRODUCT_BY_ID } from '../core/market.js';
 import { execOf, signingFee, severance, CANDIDATE_REFRESH } from '../core/execs.js';
 import { LUJOS } from '../data/lujo.js';
 import { ownsLujo, canIPO, companyValuation, ipoPremium, annualProfit, IPO_FLOAT } from '../core/life.js';
@@ -99,14 +99,14 @@ export function renderCity(s, cityId) {
       html += `<li class="biz">
         <img src="${imageUrl(t.sprite)}" alt="" class="biz-icon">
         <div class="grow">
-          <div><b>${esc(t.name)}</b>${b.mode === 'franquicia' ? ' <span class="tag">Franquicia</span>' : ` <span class="stars" title="Nivel de reforma">${'★'.repeat(b.level || 1)}${'☆'.repeat(MAX_LEVEL - (b.level || 1))}</span>`}</div>
+          <div><b>${esc(t.name)}</b>${b.mode === 'franquicia' ? ' <span class="tag">Franquicia</span>' : ` <span class="stars" title="Nivel de reforma">${BUSINESS_TYPES[b.type].model === 'production' ? '' : `${'★'.repeat(b.level || 1)}${'☆'.repeat(MAX_LEVEL - (b.level || 1))}`}</span>`}</div>
           <div class="muted small">${profit == null ? 'Recién abierto' : `Último mes: <span class="${cls(profit)}">${signed(profit)}</span>`}
           ${l?.franchise ? ` · Franquiciado: <span class="${cls(l.franchiseeProfit)}">${signed(l.franchiseeProfit)}</span>${b.lossMonths ? ` (${b.lossMonths} meses en pérdidas)` : ''}` : ''}
           ${l?.occupied != null ? ` · ${l.occupied}/${t.beds + 5 * ((b.level || 1) - 1)} plazas ocupadas` : ''}</div>
         </div>
         <div class="biz-actions">
-          ${upgradeCost(b) != null ? `<button class="btn small" data-act="upgrade-biz" data-id="${b.id}" ${s.cash >= upgradeCost(b) ? '' : 'disabled'} title="Reforma: +15 % de clientela${b.type === 'vivienda' ? ' y 5 plazas más' : b.type === 'airbnb' ? ' y 2 pisos más' : ''}">Reformar ${moneyShort(upgradeCost(b))}</button>` : ''}
-          <button class="btn small ghost" data-act="sell" data-id="${b.id}">${b.mode === 'franquicia' ? 'Rescindir' : `Vender ${moneyShort(saleValue(b))}`}</button>
+          ${upgradeCost(b) != null ? `<button class="btn small" data-act="upgrade-biz" data-id="${b.id}" ${s.cash >= upgradeCost(b) ? '' : 'disabled'} title="Reforma: ${upgradeEffect(b)}">Reformar ${moneyShort(upgradeCost(b))}</button>` : ''}
+          <button class="btn small ghost" data-act="sell" data-id="${b.id}">${b.mode === 'franquicia' ? `Rescindir (−${moneyShort(-saleValue(b))})` : `Vender ${moneyShort(saleValue(b))}`}</button>
         </div>
       </li>`;
     }

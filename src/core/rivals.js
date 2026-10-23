@@ -103,6 +103,9 @@ export function canActOnRival(s, rivalId, city, action) {
   const r = rivalById(s, rivalId);
   if (!r || !r.presence[city]) return { ok: false, msg: 'Ese rival no está en esa ciudad.' };
   if (acted(r, city, s)) return { ok: false, msg: 'Ya has movido ficha aquí este mes.' };
+  if (!s.businesses.some((b) => b.city === city && b.mode !== 'franquicia' && RIVALS[rivalId].targets.includes(b.type))) {
+    return { ok: false, msg: 'No compites con ellos en esta ciudad.' };
+  }
   if (action === 'guerra' && s.mods.some((m) => m.onEnd?.rival === rivalId && m.city === city)) return { ok: false, msg: 'Ya hay una guerra de precios en marcha.' };
   const a = RIVAL_ACTIONS[action];
   if (!a) return { ok: false, msg: 'Acción desconocida.' };
@@ -149,8 +152,10 @@ export function acquisitionPrice(s, rivalId) {
   const r = rivalById(s, rivalId);
   if (!r) return Infinity;
   const phase = s.macro?.phase;
-  const mult = phase === 'burbuja' ? 1.4 : phase === 'crisis' ? 0.6 : 1;
-  return Math.round(rivalTotal(r) * 120000 * mult);
+  const mult = phase === 'burbuja' ? 1.4 : phase === 'crisis' ? 0.7 : 1;
+  const t = BUSINESS_TYPES[RIVALS[rivalId].targets[0]];
+  const perLevel = Math.max(120000, (t?.cost ?? 0) * 0.8 + (t?.license ?? 0));
+  return Math.round(rivalTotal(r) * perLevel * mult);
 }
 
 // Compra la cadena: desaparece y te quedas con hasta 4 de sus locales.
@@ -165,11 +170,12 @@ export function acquireRival(s, rivalId) {
   if (BUSINESS_TYPES[typeId].category === 'sobaos') typeId = sobaoTypeId(s);
   const cities = Object.entries(r.presence).sort((a, b) => b[1] - a[1]).map(([c]) => c);
   const gained = [];
-  for (const city of cities) {
-    if (gained.length >= 4) break;
-    if (s.businesses.filter((b) => b.city === city).length >= MAX_PER_CITY) continue;
-    const t = BUSINESS_TYPES[typeId];
-    s.businesses.push({ id: s.nextId++, type: typeId, city, mode: 'propia', openedMonth: s.month, value: t.cost * 0.7, lossMonths: 0, level: 1, acquired: rivalId });
+  const slots = cities.filter((city) => s.businesses.filter((b) => b.city === city).length < MAX_PER_CITY).slice(0, 4);
+  const t = BUSINESS_TYPES[typeId];
+  // Cada local vale lo que se pagó por él (como mucho, el 70 % de abrirlo nuevo).
+  const each = slots.length ? Math.min(t.cost * 0.7, price / rivalTotal(r)) : 0;
+  for (const city of slots) {
+    s.businesses.push({ id: s.nextId++, type: typeId, city, mode: 'propia', openedMonth: s.month, value: each, lossMonths: 0, level: 1, acquired: rivalId });
     gained.push(CITY_BY_ID[city].name);
   }
   s.rivals = s.rivals.filter((x) => x !== r);

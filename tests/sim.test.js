@@ -456,6 +456,48 @@ test('el informe del gestor detecta problemas', () => {
   assert(tips.some((t) => /Merche/.test(t.text)));
 });
 
+test('exploit: abrir y rescindir franquicias no da dinero', () => {
+  const s = started(81, 1);
+  const cash = s.cash;
+  for (let i = 0; i < 5; i++) {
+    assert(openBusiness(s, 'maison', 'bilbao', 'franquicia').ok);
+    assert(sellBusiness(s, s.businesses[s.businesses.length - 1].id).ok);
+  }
+  assert(s.cash <= cash, `la caja no crece (${cash} → ${s.cash})`);
+});
+
+test('exploit: comprar una cadena y revender sus locales no es rentable', () => {
+  for (const phase of ['expansion', 'crisis']) {
+    const s = started(82);
+    s.cash = 5e6;
+    s.unlocked.residencia = true;
+    s.macro.phase = phase;
+    s.rivals = [{ id: 'silver', presence: { madrid: 1, bilbao: 1 }, since: 0, calm: 0, actions: {} }];
+    const before = s.cash;
+    assert(acquireRival(s, 'silver').ok);
+    for (const b of [...s.businesses]) sellBusiness(s, b.id);
+    assert(s.cash < before, `${phase}: revender no compensa (${before} → ${s.cash})`);
+  }
+});
+
+test('los obradores regionales no se reforman y la guerra exige competir en la ciudad', () => {
+  const s = started(83);
+  s.cash = 2e6;
+  s.unlocked.obrador_regional = true;
+  openBusiness(s, 'obrador_regional', 'sevilla');
+  assertEq(upgradeCost(s.businesses[0]), null);
+  s.rivals = [{ id: 'dona_rosa', presence: { murcia: 2 }, since: 0, calm: 0, actions: {} }];
+  assert(!actOnRival(s, 'dona_rosa', 'murcia', 'guerra').ok, 'sin tienda en Murcia no hay guerra');
+});
+
+test('los objetivos se guardan por id y las partidas viejas se convierten', () => {
+  const s = started(84);
+  delete s.goalsDone;
+  s.goalIndex = 4; // partida antigua: ya había cumplido hasta "diversificar"
+  assertEq(currentGoal(s).id, 'directivo', 'los objetivos nuevos quedan pendientes');
+  assert(s.goalsDone.includes('diversificar') && s.goalsDone.includes('mejora_obrador'));
+});
+
 test('fechas en español', () => {
   assertEq(dateLabel(0), 'Enero 2026');
   assertEq(dateLabel(13), 'Febrero 2027');

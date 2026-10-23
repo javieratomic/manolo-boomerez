@@ -21,7 +21,7 @@ function makeCandidate(s, pos) {
   let salary = family ? 1800 : 3200 + 1500 * skill;
   if (trait === 'tiburon') salary *= 1.5;
   if (trait === 'mba') salary *= 1.25;
-  const fam = family ? pick(s, FAMILY) : null;
+  const fam = family ? pick(s, FAMILY.filter((f) => !(s.flags.divorciado && f.note === 'tu mujer'))) : null;
   return {
     id: `c${s.month}_${pos}_${int(s, 100, 999)}`,
     name: fam ? fam.name : `${pick(s, FIRST_NAMES)} ${pick(s, LAST_NAMES)}`,

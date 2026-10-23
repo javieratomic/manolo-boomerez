@@ -28,6 +28,6 @@ export const LAST_NAMES = ['Ruiz de la Prada', 'Etxeberria', 'Gutiérrez', 'Sain
 export const FAMILY = [
   { name: 'Kevin Boomerez', note: 'tu sobrino' },
   { name: 'Jonathan Fernández', note: 'tu cuñado' },
-  { name: 'Merche (tu mujer)', note: 'tu mujer' },
+  { name: 'Merche Gutiérrez', note: 'tu mujer' },
 ];
 export const EXEC_PORTRAITS = ['portrait_exec_1', 'portrait_exec_2', 'portrait_exec_3', 'portrait_exec_4', 'portrait_exec_5', 'portrait_exec_6'];

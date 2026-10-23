@@ -58,6 +58,7 @@ export function openBusiness(s, typeId, cityId, mode = 'propia') {
   const b = { id: s.nextId++, type: typeId, city: cityId, mode, openedMonth: s.month, value: 0, lossMonths: 0, level: 1 };
   if (mode === 'franquicia') {
     const fee = franchiseFee(s, typeId);
+    b.fee = fee;
     addCash(s, fee);
     log(s, `🤝 Un incauto de ${c.name} compra una franquicia de ${t.name} por ${money(fee)}.`, 'good');
   } else {
@@ -80,6 +81,7 @@ export function openBusiness(s, typeId, cityId, mode = 'propia') {
 
 export function saleValue(b) {
   const t = BUSINESS_TYPES[b.type];
+  if (b.mode === 'franquicia') return -Math.round(b.fee ?? t.franchiseFee ?? 0); // indemnización al franquiciado
   return Math.round((b.value || 0) * (t.realEstate ? 0.9 : 0.6));
 }
 
@@ -89,11 +91,12 @@ export function sellBusiness(s, businessId) {
   const b = s.businesses[i];
   const t = BUSINESS_TYPES[b.type];
   const value = saleValue(b);
+  if (value < 0 && s.cash < -value) return { ok: false, msg: `Rescindir cuesta ${money(-value)} de indemnización.` };
   addCash(s, value);
   s.businesses.splice(i, 1);
   const c = CITY_BY_ID[b.city];
   log(s, b.mode === 'franquicia'
-    ? `✂️ Rescindes la franquicia de ${c.name}. El franquiciado llora; tú no.`
+    ? `✂️ Rescindes la franquicia de ${c.name} y le devuelves el canon (${money(-value)}). El franquiciado llora; tú también, un poco.`
     : `💸 Vendes ${t.name} de ${c.name} por ${money(value)}.`, 'info');
   return { ok: true, value };
 }
@@ -231,13 +234,25 @@ export function checkUnlocks(s) {
   return found;
 }
 
+// Orden de los objetivos en las partidas guardadas antes de pasar a guardarlos por id.
+const LEGACY_GOAL_ORDER = ['primera_tienda', 'tres_tiendas', 'mejora_obrador', 'diversificar', 'millon', 'cincuenta', 'tres_millones', 'tiburon', 'forbes'];
+
+function goalsDone(s) {
+  if (!s.goalsDone) s.goalsDone = LEGACY_GOAL_ORDER.slice(0, s.goalIndex ?? 0);
+  return s.goalsDone;
+}
+
 export function currentGoal(s) {
-  return GOALS[s.goalIndex ?? 0] || null;
+  const done = goalsDone(s);
+  return GOALS.find((g) => !done.includes(g.id)) || null;
+}
+
+export function goalNumber(s) {
+  return goalsDone(s).length + 1;
 }
 
 // Completa objetivos en cadena y deja el aviso en s.notices para la interfaz.
 export function checkGoals(s) {
-  s.goalIndex ??= 0;
   s.notices ??= [];
   let g = currentGoal(s);
   while (g && g.test(s)) {
@@ -245,7 +260,7 @@ export function checkGoals(s) {
     log(s, `🎯 Objetivo cumplido: ${g.text} ${text}`, 'good');
     s.notices.push({ title: 'Objetivo cumplido', text: [g.text, text].join('\n\n') });
     if (s.notices.length > 4) s.notices.splice(0, s.notices.length - 4);
-    s.goalIndex++;
+    goalsDone(s).push(g.id);
     g = currentGoal(s);
   }
 }

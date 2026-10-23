@@ -71,7 +71,7 @@ export function tickRD(s) {
   if (p.contract) s.contracts.push({ id: p.id, label: p.name, units: p.contract.units, price: p.contract.price, months: 999 });
   log(s, `🧁 Nuevo producto en el catálogo: ${p.name}.`, 'good');
   s.notices ||= [];
-  s.notices.push({ title: 'I+D terminado', text: `${p.name}\n\n${p.desc}` });
+  s.notices.push({ kicker: '🧪 I+D', title: 'I+D terminado', text: `${p.name}\n\n${p.desc}` });
   return p.id;
 }
 
@@ -96,9 +96,13 @@ export function productFactor(s, type, category, city, month) {
 // ---------------------------------------------------------------- Reformas
 export const levelFactor = (b) => 1 + LEVEL_BONUS * ((b.level || 1) - 1);
 
+export function upgradeEffect(b) {
+  return { vivienda: '+5 plazas', airbnb: '+2 pisos turísticos', residencia: '+10 plazas' }[b.type] || `+${Math.round(LEVEL_BONUS * 100)} % de clientela`;
+}
+
 export function upgradeCost(b) {
   const lvl = b.level || 1;
-  if (lvl >= MAX_LEVEL || b.mode === 'franquicia') return null;
+  if (lvl >= MAX_LEVEL || b.mode === 'franquicia' || BUSINESS_TYPES[b.type].model === 'production') return null;
   return Math.round(BUSINESS_TYPES[b.type].cost * UPGRADE_COST[lvl - 1]);
 }
 

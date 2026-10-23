@@ -7,7 +7,7 @@ import { initAssets, imageUrl, hasArt } from '../render/assets.js';
 import { newGame, saveToStorage, loadFromStorage, clearStorage, serialize, deserialize, DIFFICULTIES } from '../core/state.js';
 import { advanceMonth, currentPending, resolvePending, checkEnding, score, pickQuote } from '../core/sim.js';
 import { patrimonio } from '../core/economy.js';
-import { openBusiness, sellBusiness, buyUpgrade, setPolicy, togglePerk, borrow, repay, doManoloAction, dropMonthlyCost, currentGoal, checkGoals, rebrand, canRebrand, franchiseFee, LOAN_STEP } from '../core/actions.js';
+import { openBusiness, sellBusiness, buyUpgrade, setPolicy, togglePerk, borrow, repay, doManoloAction, dropMonthlyCost, currentGoal, goalNumber, checkGoals, rebrand, canRebrand, franchiseFee, LOAN_STEP } from '../core/actions.js';
 import { play, isMuted, setMuted } from './sound.js';
 import { startMusic, isMusicOn, setMusic } from './music.js';
 import { checkAchievements } from './achievements.js';
@@ -16,7 +16,7 @@ import { actOnRival, acquireRival, acquisitionPrice } from '../core/rivals.js';
 import { launchCampaign, startRD, upgradeBusiness, CAMPAIGN_BY_ID, PRODUCT_BY_ID } from '../core/market.js';
 import { hireExec, fireExec, refreshCandidates, execOf, severance } from '../core/execs.js';
 import { RIVALS } from '../data/rivals.js';
-import { buyLujo, sellLujo, doIPO } from '../core/life.js';
+import { buyLujo, sellLujo, doIPO, IPO_FLOAT } from '../core/life.js';
 import { LUJO_BY_ID } from '../data/lujo.js';
 import { grossPatrimonio } from '../core/economy.js';
 import { money, moneyShort, dateLabel, GAME_MONTHS, START_YEAR, log } from '../core/helpers.js';
@@ -202,7 +202,7 @@ function renderGoal(s) {
   const g = currentGoal(s);
   const el = $('#goal-chip');
   el.hidden = !g || !!s.ending;
-  if (g) el.innerHTML = `<span class="goal-kicker">🎯 Objetivo ${Math.min((s.goalIndex ?? 0) + 1, 99)}</span>${esc(g.text)}`;
+  if (g) el.innerHTML = `<span class="goal-kicker">🎯 Objetivo ${goalNumber(s)}</span>${esc(g.text)}`;
 }
 
 async function showNotices() {
@@ -210,7 +210,7 @@ async function showNotices() {
   while (s?.notices?.length) {
     const n = s.notices.shift();
     play('goal');
-    await showModal({ title: n.title, kicker: '🎯 Objetivo', portrait: 'portrait_manolo_happy', text: n.text });
+    await showModal({ title: n.title, kicker: n.kicker || '🎯 Objetivo', portrait: 'portrait_manolo_happy', text: n.text });
   }
   renderAll();
 }
@@ -364,7 +364,7 @@ async function onClick(e) {
       break;
     }
     case 'ipo': {
-      if (!(await confirmModal('Salir a Bolsa', 'Vas a vender el 30 % de la empresa a inversores. Te llevarás mucho dinero, pero a partir de ahora tu patrimonio será solo el 70 % y tendrás que rendir cuentas a los accionistas. No hay vuelta atrás.', 'Tocar la campana'))) return;
+      if (!(await confirmModal('Salir a Bolsa', `Vas a vender el ${Math.round(IPO_FLOAT * 100)} % de la empresa a inversores. Te llevarás mucho dinero, pero a partir de ahora tu patrimonio será solo el ${Math.round((1 - IPO_FLOAT) * 100)} % y tendrás que rendir cuentas a los accionistas. No hay vuelta atrás.`, 'Tocar la campana'))) return;
       res = doIPO(s, grossPatrimonio(s));
       if (res.ok) {
         play('ending');

@@ -52,6 +52,7 @@ export function tickLife(s) {
     log(s, '💔 Merche ya no te espera para cenar. Quizá deberías dedicarle una acción del mes.', 'bad');
     s.notices ||= [];
     s.notices.push({
+      kicker: '💔 Familia',
       title: 'Merche está rara',
       text: [
         'Llegas a casa a las once y la cena está en el microondas con una nota: "Estoy en pádel". La relación con Merche ha bajado de 30.',
@@ -78,6 +79,8 @@ export function divorce(s, share) {
   s.lujo = kept;
   s.flags.divorciado = true;
   s.familia = 0;
+  // Si Merche trabajaba en la empresa, se va con el divorcio.
+  for (const [pos, e] of Object.entries(s.execs || {})) if (e.note === 'tu mujer') delete s.execs[pos];
   return { cashPart, lost };
 }
 

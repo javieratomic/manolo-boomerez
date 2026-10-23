@@ -17,7 +17,7 @@ export const MACRO_EVENTS = [
         effect(s) {
           addMod(s, { kind: 'revenue', factor: 1.05, months: 12, label: 'Subida de precios' });
           addRep(s, -3);
-          return 'Subes los precios un 10 % y lo llamas "ajuste por calidad". Los clientes refunfuñan, pero pagan.';
+          return 'Subes los precios un 5 % y lo llamas "ajuste por calidad". Los clientes refunfuñan, pero pagan.';
         },
       },
       {
@@ -74,8 +74,9 @@ export const MACRO_EVENTS = [
     choices: [
       {
         label: 'ERE: recortar plantilla y sueldos',
-        hint: 'Costes laborales −15 % durante 8 meses; moral −12, reputación −4.',
+        hint: 'Indemnizaciones de 600 € por persona; costes laborales −15 % durante 8 meses; moral −12, reputación −4.',
         effect(s) {
+          addCash(s, -employees(s) * 600);
           addMod(s, { kind: 'labor', factor: 0.85, months: 8, label: 'ERE' });
           addMoral(s, -12);
           addRep(s, -4);

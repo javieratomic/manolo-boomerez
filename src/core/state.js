@@ -52,7 +52,7 @@ export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal
     mods: [],
     flags: {},
     seen: {},
-    goalIndex: 0,
+    goalsDone: [],
     notices: [],
     wageIndex: 1,
     unlocked: { sobaos: true },

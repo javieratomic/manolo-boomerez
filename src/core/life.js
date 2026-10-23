@@ -39,7 +39,10 @@ export function sellLujo(s, id) {
 
 // ------------------------------------------------------------------ Estrés
 // Efecto de cada acción de Manolo sobre su estrés.
-export const ACTION_STRESS = { linkedin: 3, bar: 2, alcalde: 2, charla: 1, cuentas: 1, padel: -5, marbella: -25, cena: -8, escapada: -15 };
+export const ACTION_STRESS = {
+  linkedin: 3, bar: 2, alcalde: 2, charla: 1, cuentas: 1, padel: -5, marbella: -25, cena: -8, escapada: -15,
+  visita_sorpresa: 3, congreso: 4, golf: -4, portada: 2, mentor: -2,
+};
 
 export function addStress(s, d) {
   s.estres = clamp((s.estres ?? 20) + d);

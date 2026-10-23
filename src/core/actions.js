@@ -182,7 +182,7 @@ export function rebrand(s) {
   s.flags.lastRebrand = s.month;
   if (check.to === 'express') {
     s.rep = Math.max(0, s.rep - 6);
-    log(s, '🔁 Rebranding: la Maison pasa a ser "Sobaos Manolo Express". El mármol, a Wallapop. Reputación −6.', 'info');
+    log(s, '🔁 Rebranding: la Maison pasa a ser "Sobaos Manolo Express". El mármol, a una web de segunda mano. Reputación −6.', 'info');
   } else {
     s.fama = Math.min(100, s.fama + 5);
     log(s, '🔁 Rebranding: nace "Maison Boomerez". Los neones, al contenedor. Fama +5.', 'info');

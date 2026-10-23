@@ -19,7 +19,7 @@ export function buyLujo(s, id) {
   s.familia = clamp((s.familia ?? 60) + l.familia);
   addHeatHacienda(s, l.hac);
   if (l.credit) s.creditBonus += l.credit;
-  log(s, `${l.emoji} Manolo se compra: ${l.name}. Lo sube a Instagram en menos de una hora.`, 'info');
+  log(s, `${l.emoji} Manolo se compra: ${l.name}. Lo sube a las redes en menos de una hora.`, 'info');
   return { ok: true };
 }
 

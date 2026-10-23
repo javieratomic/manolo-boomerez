@@ -252,7 +252,8 @@ function bindGlobal() {
   document.addEventListener('keydown', (e) => {
     if (!game.s || $('#game').hidden || isModalOpen()) return;
     if (e.target.matches('input, textarea, select')) return;
-    if (e.code === 'Space' || e.key === 'Enter') {
+    // Con un botón o enlace enfocado, Espacio/Intro lo pulsan a él, no cierran el mes.
+    if ((e.code === 'Space' || e.key === 'Enter') && !e.target.closest('button, a, summary')) {
       e.preventDefault();
       endMonth();
     }

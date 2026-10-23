@@ -376,7 +376,7 @@ const ARC_JONATHAN = [
     text: () =>
       'Jonathan aparece con unas gafas de realidad virtual en la frente y una tarjeta que dice "Visionario".\n\n' +
       '"Cuñao, el futuro es el SOBAOVERSO: un metaverso donde la gente compra parcelas virtuales en un Valle del Pas digital y hornea sobaos NFT. ' +
-      'Ya tengo 200 inversores. Bueno, 200 apuntados. Bueno, mi madre y un grupo de Telegram."',
+      'Ya tengo 200 inversores. Bueno, 200 apuntados. Bueno, mi madre y un grupo de mensajería."',
     weight: (s) => (canStart(s, 8) && s.cash > 30000 ? 1.1 : 0),
     once: true,
     choices: [

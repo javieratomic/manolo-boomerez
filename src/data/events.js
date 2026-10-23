@@ -84,7 +84,7 @@ const BASE_EVENTS = [
           addCash(s, -employees(s) * 5);
           addMoral(s, -4);
           addFama(s, 2);
-          return 'La tarjeta dice "Gracias por formar parte de mi sueño". Alguien la sube a Twitter. Moral −4, fama +2.';
+          return 'La tarjeta dice "Gracias por formar parte de mi sueño". Alguien la sube a las redes. Moral −4, fama +2.';
         },
       },
       {
@@ -209,7 +209,7 @@ const BASE_EVENTS = [
     portrait: 'portrait_inspector_hacienda', image: 'ev_hacienda',
     text: (s, p) =>
       p.debt > 0
-        ? `Don Fermín Rubalcaba, inspector de la Agencia Tributaria, te cita en Santander. Lleva manguitos. Nadie lleva manguitos desde 1970.\n\n"Hemos detectado discrepancias entre su nivel de vida y lo que declara. Su Instagram nos ha ayudado mucho."\n\nCuota defraudada estimada: ${money(p.debt)}${p.debt >= DELITO_FISCAL ? ' (supera los 120.000 €: hay riesgo de delito fiscal)' : ''}.`
+        ? `Don Fermín Rubalcaba, inspector de la Agencia Tributaria, te cita en Santander. Lleva manguitos. Nadie lleva manguitos desde 1970.\n\n"Hemos detectado discrepancias entre su nivel de vida y lo que declara. Sus redes sociales nos han ayudado mucho."\n\nCuota defraudada estimada: ${money(p.debt)}${p.debt >= DELITO_FISCAL ? ' (supera los 120.000 €: hay riesgo de delito fiscal)' : ''}.`
         : 'Don Fermín Rubalcaba revisa tus cuentas durante tres horas. Todo cuadra. Se quita los manguitos, derrotado.',
     weight: () => 0,
     choices: [
@@ -470,7 +470,7 @@ const BASE_EVENTS = [
     id: 'rata_tiktok',
     title: 'Vídeo viral en el obrador',
     portrait: 'portrait_becario', image: 'ev_rata',
-    text: () => 'Un vídeo de TikTok con 2 millones de visitas: una rata enorme paseando por el obrador entre bandejas de sobaos. El audio de fondo es "Despacito".',
+    text: () => 'Un vídeo viral con 2 millones de visitas: una rata enorme paseando por el obrador entre bandejas de sobaos. De fondo suena la canción del verano.',
     weight: (s) => ({ mantequilla: 0.3, margarina: 0.8, misteriosa: 2 }[s.policies.ingredientes]), cooldown: 18,
     choices: [
       {
@@ -607,7 +607,7 @@ const BASE_EVENTS = [
         effect(s) {
           addMonthlyCost(s, 'Sueldo de Vanessa (Dir. Marketing)', 2000);
           addFama(s, 5);
-          return 'Vanessa, Chief Marketing Officer a los 19. Te abre una cuenta de TikTok. Fama +5. Coste: 2.000 €/mes.';
+          return 'Vanessa, Chief Marketing Officer a los 19. Te abre una cuenta en la red social de vídeos de moda. Fama +5. Coste: 2.000 €/mes.';
         },
       },
     ],
@@ -640,7 +640,7 @@ const BASE_EVENTS = [
     id: 'smash_trend',
     title: 'Tendencia: smash con sobao',
     portrait: 'portrait_influencer', image: 'ev_smash',
-    text: () => 'Un foodie de TikTok descubre que en tu Smash Club puedes pedir la hamburguesa con un sobao en lugar de pan. #SobaoSmash es trending.',
+    text: () => 'Un foodie de las redes descubre que en tu Smash Club puedes pedir la hamburguesa con un sobao en lugar de pan. #SobaoSmash es trending.',
     weight: (s) => (has(s, 'smash') ? 1.5 : 0), cooldown: 18,
     choices: [
       {

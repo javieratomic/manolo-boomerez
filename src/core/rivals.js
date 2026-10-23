@@ -132,7 +132,7 @@ export function actOnRival(s, rivalId, city, action) {
       text = `Tus 120 cuentas falsas dejan a ${def.short} de ${cityName} con 1,8 estrellas. Retroceden.`;
     } else if (roll < 0.8) {
       addRep(s, -8);
-      text = `Google detecta que todas las reseñas salen del wifi del obrador. Sale en la prensa. Reputación −8.`;
+      text = `El buscador detecta que todas las reseñas salen del wifi del obrador. Sale en la prensa. Reputación −8.`;
     } else {
       text = 'Las reseñas no surten efecto: a la gente le da igual. Dinero tirado.';
     }

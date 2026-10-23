@@ -86,52 +86,60 @@
       "file": "assets/buildings/bld_vivienda.png",
       "w": 256,
       "h": 256,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
       "request": "art/requests/03_edificios.md#bld_vivienda",
       "anchor": [
         128,
         240
-      ]
+      ],
+      "version": 1,
+      "notes": "Diorama transparente; huella de unos 150 px y ancla frontal (128, 240)."
     },
     {
       "id": "bld_airbnb",
       "file": "assets/buildings/bld_airbnb.png",
       "w": 256,
       "h": 256,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
       "request": "art/requests/03_edificios.md#bld_airbnb",
       "anchor": [
         128,
         240
-      ]
+      ],
+      "version": 1,
+      "notes": "Diorama transparente; huella de unos 150 px y ancla frontal (128, 240)."
     },
     {
       "id": "bld_smash",
       "file": "assets/buildings/bld_smash.png",
       "w": 256,
       "h": 256,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
       "request": "art/requests/03_edificios.md#bld_smash",
       "anchor": [
         128,
         240
-      ]
+      ],
+      "version": 1,
+      "notes": "Diorama transparente; huella de unos 150 px y ancla frontal (128, 240)."
     },
     {
       "id": "bld_empanadas",
       "file": "assets/buildings/bld_empanadas.png",
       "w": 256,
       "h": 256,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
       "request": "art/requests/03_edificios.md#bld_empanadas",
       "anchor": [
         128,
         240
-      ]
+      ],
+      "version": 1,
+      "notes": "Diorama transparente; huella de unos 150 px y ancla frontal (128, 240)."
     },
     {
       "id": "bld_academy",

@@ -9,6 +9,7 @@ import { addStress, ACTION_STRESS } from './life.js';
 import { LEGACY_GOAL_ORDER } from './state.js';
 import { creditLimit } from './economy.js';
 import { addCash, log, money } from './helpers.js';
+import { checkClause } from './clauses.js';
 
 export const LOAN_STEP = 25000;
 export const MAX_PER_CITY = 6;
@@ -150,6 +151,8 @@ export function borrow(s, amount = LOAN_STEP) {
   const a = Math.min(amount, room);
   s.debt += a;
   addCash(s, a);
+  s.flags.prestamoPedido = true;
+  checkClause(s);
   return { ok: true, amount: a };
 }
 
@@ -235,6 +238,7 @@ export function checkUnlocks(s) {
     }
   }
   checkGoals(s);
+  checkClause(s);
   return found;
 }
 

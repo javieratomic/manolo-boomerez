@@ -2338,6 +2338,15 @@
       "status": "requested",
       "priority": 3,
       "request": "art/requests/07_interfaz.md#icon_action_mentor"
+    },
+    {
+      "id": "icon_clausula",
+      "file": "assets/ui/icon_clausula.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_clausula"
     }
   ]
 }

@@ -108,4 +108,9 @@ ART = [
     icon("golf", "una bandera de hoyo de golf en un green con una pelota blanca al lado."),
     icon("portada", "una revista con una silueta de hombre con los brazos cruzados en la portada y un destello de flash."),
     icon("mentor", "un birrete de graduación sobre una libreta abierta con un bolígrafo."),
+
+    # ------------------------------------------------------------------ Cláusula del testamento (0.3)
+    # Se usa en la tarjeta de la cláusula (pestaña Manolo) y en el chip del objetivo; mientras no exista, emoji 📜.
+    dict(id="icon_clausula", file="assets/ui/icon_clausula.png", w=64, h=64, priority=3,
+         prompt=ICON + "un sobre de papel antiguo cerrado con un sello de lacre rojo con una vaca pasiega grabada."),
 ]

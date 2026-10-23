@@ -17,6 +17,10 @@ import { tickRivals, rivalFactor, actOnRival, acquireRival, acquisitionPrice } f
 import { launchCampaign, startRD, upgradeBusiness, upgradeCost } from '../src/core/market.js';
 import { forecast, policyPreview, previewBase, riskInfo, blame, STATS } from '../src/core/preview.js';
 import { GOALS } from '../src/data/goals.js';
+import { CLAUSES, CLAUSE_BY_ID, clauseForSeed, CLAUSE_PRIZE, PRISA_GOAL, PRISA_MONTH } from '../src/data/clauses.js';
+import { CITIES } from '../src/data/cities.js';
+import { checkClause, clauseWarn, clauseMult } from '../src/core/clauses.js';
+import { score } from '../src/core/sim.js';
 import { playGame } from './bot.js';
 
 const started = (seed = 42, brand = 0) => {
@@ -849,4 +853,106 @@ test('costumbres: las partidas sin costumbres se cargan y resuelven Navidad', ()
   const back = deserialize(JSON.stringify(old));
   yearly(back, 'navidad', 'lotería');
   assertEq(back.customs.navidad.count, 1);
+});
+
+// ------------------------------------------------------------- Cláusula del testamento
+const withClause = (id, seed = 42) => {
+  const s = started(seed);
+  s.clausula = { id, broken: false, done: false };
+  return s;
+};
+
+test('cláusula: la semilla la elige y las siete salen', () => {
+  assertEq(newGame(77).clausula.id, newGame(77).clausula.id);
+  const seen = new Set();
+  for (let seed = 1; seed <= 200; seed++) seen.add(clauseForSeed(seed));
+  assertEq(seen.size, CLAUSES.length);
+  for (const c of CLAUSES) {
+    const s = withClause(c.id);
+    assertEq(typeof c.short(s, s.clausula), 'string');
+    assert(c.short(s, s.clausula).length <= 40, `${c.id}: texto corto`);
+    assertEq(typeof c.broken(s, s.clausula), 'boolean');
+    assertEq(typeof c.met(s, s.clausula), 'boolean');
+  }
+});
+
+test('cláusula: abrir en Madrid rompe la del norte y el negocio 13 la de boutique', () => {
+  const s = withClause('cornisa');
+  s.cash = 5e6;
+  assert(openBusiness(s, 'express', 'bilbao').ok);
+  assert(!s.clausula.broken, 'Bilbao es del norte');
+  assert(clauseWarn(s, (c) => openBusiness(c, 'express', 'madrid')), 'avisa antes');
+  assert(!s.clausula.broken, 'avisar no rompe');
+  openBusiness(s, 'express', 'madrid');
+  assert(s.clausula.broken);
+  const b = withClause('boutique');
+  b.cash = 9e6;
+  const cities = CITIES.filter((c) => !c.hq).slice(0, 13).map((c) => c.id);
+  for (const c of cities.slice(0, 12)) openBusiness(b, 'express', c);
+  assertEq(b.businesses.length, 12);
+  assert(!b.clausula.broken);
+  openBusiness(b, 'express', cities[12]);
+  assert(b.clausula.broken);
+});
+
+test('cláusula: pedir prestado la rompe; la póliza automática no', () => {
+  const s = withClause('sin_bancos');
+  s.cash = -20000;
+  s.cooldowns.trabajo = s.cooldowns.hacienda = 99;
+  advanceMonth(s);
+  resolveAll(s);
+  assert(s.debt > 0 && !s.clausula.broken, 'descubierto cubierto por la póliza');
+  borrow(s, 10000);
+  assert(s.clausula.broken);
+});
+
+test('cláusula: prisa por llegar a 5 millones antes de cumplir los sesenta', () => {
+  const s = withClause('prisa');
+  s.month = PRISA_MONTH - 10;
+  s.cash = PRISA_GOAL + 1e5;
+  checkClause(s);
+  assert(s.clausula.reached && !s.clausula.broken);
+  const t = withClause('prisa');
+  t.month = PRISA_MONTH;
+  checkClause(t);
+  assert(t.clausula.broken);
+});
+
+test('cláusula: cumplida al final da premio una vez y multiplica la puntuación', () => {
+  const s = withClause('boutique');
+  s.month = 96;
+  s.cash = 6e6;
+  const before = score(s);
+  assertEq(checkEnding(s), 'tiburon');
+  assert(s.clausula.done);
+  assertEq(s.cash, 6e6 + CLAUSE_PRIZE);
+  assertEq(clauseMult(s), CLAUSE_BY_ID.boutique.mult);
+  assert(score(s) > before * (CLAUSE_BY_ID.boutique.mult - 0.1), 'puntuación multiplicada');
+  s.endless = true;
+  s.ending = null;
+  s.month = 120;
+  checkEnding(s);
+  assertEq(s.cash, 6e6 + CLAUSE_PRIZE, 'el modo infinito no paga dos veces');
+  const r = withClause('boutique');
+  r.month = 96;
+  r.cash = 100000;
+  assertEq(checkEnding(r), 'ruina_lenta');
+  assert(!r.clausula.done, 'la ruina lenta no tiene premio');
+});
+
+test('cláusula: las partidas viejas quedan sin cláusula', () => {
+  const s = started();
+  const old = JSON.parse(serialize(s));
+  delete old.clausula;
+  const back = deserialize(JSON.stringify(old));
+  assertEq(back.clausula, null);
+  assertEq(clauseMult(back), 1);
+  advanceMonth(back);
+});
+
+test('cláusula: el estado final de partidas del bot es válido', () => {
+  for (let seed = 1; seed <= 3; seed++) {
+    const r = playGame(seed, { diversify: true, smart: true });
+    assert(r.ending, 'termina');
+  }
 });

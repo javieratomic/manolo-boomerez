@@ -1,4 +1,5 @@
 import { DEFAULT_POLICIES } from '../data/policies.js';
+import { clauseForSeed } from '../data/clauses.js';
 
 export const SAVE_KEY = 'manolo-boomerez-save-v1';
 export const SAVE_VERSION = 2;
@@ -87,6 +88,7 @@ export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal
     gov: null,
     dossier: { trucos: {}, sanciones: [], historial: [] },
     customs: {},
+    clausula: { id: clauseForSeed(seed), broken: false, done: false },
   };
 }
 
@@ -97,6 +99,8 @@ export const LEGACY_GOAL_ORDER = ['primera_tienda', 'tres_tiendas', 'mejora_obra
 export function migrate(s) {
   if (!Array.isArray(s.goalsDone)) s.goalsDone = LEGACY_GOAL_ORDER.slice(0, s.goalIndex ?? 0);
   delete s.goalIndex;
+  // Las partidas empezadas sin cláusula no heredan una a mitad.
+  if (!('clausula' in s)) s.clausula = null;
   const d = newGame(s.seed, s.difficulty || 'normal');
   for (const [k, v] of Object.entries(d)) if (!(k in s)) s[k] = v;
   s.policies = { ...DEFAULT_POLICIES, ...s.policies };

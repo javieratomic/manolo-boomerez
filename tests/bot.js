@@ -1,6 +1,6 @@
 // Bot de juego automático para equilibrar la economía y para los tests de humo.
 import { newGame } from '../src/core/state.js';
-import { advanceMonth, currentPending, resolvePending, checkEnding } from '../src/core/sim.js';
+import { advanceMonth, currentPending, resolvePending, checkEnding, score } from '../src/core/sim.js';
 import { openBusiness, canOpen, buyUpgrade, sobaoTypeId, doManoloAction, borrow, setPolicy } from '../src/core/actions.js';
 import { estimateOpening, patrimonio, creditLimit, grossPatrimonio } from '../src/core/economy.js';
 import { refreshCandidates, hireExec, execOf } from '../src/core/execs.js';
@@ -23,6 +23,8 @@ const DIVERSIFY = ['smash', 'empanadas', 'airbnb', 'vivienda', 'academy', 'taber
  *  franchise: vende franquicias cuando la tienda propia no sale rentable
  *  smart: usa los sistemas de gestión (directivos, I+D, reformas, campañas, OPA, Bolsa, familia)
  *  reapply: vuelve a aplicar las políticas cada mes (tras la legalidad forzosa)
+ *  maxBiz: no abre más allá de ese número de negocios · cities: solo abre en esas ciudades
+ *  clause: id de cláusula del testamento a forzar
  *  choice: 'first' | 'random' para resolver sucesos
  *  difficulty: 'cunado' | 'normal' | 'hacienda'
  */
@@ -30,6 +32,7 @@ export function playGame(seed, strategy = {}) {
   const s = newGame(seed, strategy.difficulty || 'normal');
   resolvePending(s, strategy.brand === 'maison' ? 1 : 0);
   Object.assign(s.policies, strategy.policies || {});
+  if (strategy.clause) s.clausula = { id: strategy.clause, broken: false, done: false };
   const trace = [];
   while (!s.ending && s.month < 96) {
     if (strategy.reapply) for (const [k, v] of Object.entries(strategy.policies || {})) setPolicy(s, k, v);
@@ -40,7 +43,7 @@ export function playGame(seed, strategy = {}) {
     if (strategy.diversify) types.push(...DIVERSIFY);
     let best = null;
     for (const t of types) {
-      for (const c of CITY_IDS) {
+      for (const c of strategy.cities || CITY_IDS) {
         for (const mode of strategy.franchise && t === sobaoTypeId(s) ? ['propia', 'franquicia'] : ['propia']) {
           const ok = canOpen(s, t, c, mode);
           if (!ok.ok) continue;
@@ -51,7 +54,7 @@ export function playGame(seed, strategy = {}) {
         }
       }
     }
-    if (best && s.cash > 40000) openBusiness(s, best.t, best.c, best.mode);
+    if (best && s.cash > 40000 && s.businesses.length < (strategy.maxBiz ?? Infinity)) openBusiness(s, best.t, best.c, best.mode);
     let action = strategy.action || 'linkedin';
     if (strategy.smart && (s.estres ?? 0) > 65) action = s.cash > 20000 ? 'escapada' : 'padel';
     else if (strategy.smart && !s.flags.divorciado && s.familia < 35) action = 'cena';
@@ -71,6 +74,8 @@ export function playGame(seed, strategy = {}) {
     ending: s.ending,
     month: s.month,
     patrimonio: Math.round(patrimonio(s)),
+    score: score(s),
+    clausula: s.clausula ? `${s.clausula.id}:${s.clausula.done ? 'ok' : s.clausula.broken ? 'rota' : 'no'}` : null,
     businesses: s.businesses.length,
     expedientes: s.expedientes,
     inspecciones: s.stats.inspecciones,

@@ -371,3 +371,11 @@ Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplifi
 - **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
 
 Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre la barra marrón (#3b2a1a). Sin texto. Motivo: un birrete de graduación sobre una libreta abierta con un bolígrafo.
+
+## icon_clausula
+
+- **Archivo:** `assets/ui/icon_clausula.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre la barra marrón (#3b2a1a). Sin texto. Motivo: un sobre de papel antiguo cerrado con un sello de lacre rojo con una vaca pasiega grabada.

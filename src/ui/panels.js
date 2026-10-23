@@ -25,6 +25,8 @@ import { ownsLujo, canIPO, companyValuation, ipoPremium, annualProfit, IPO_FLOAT
 import { grossPatrimonio } from '../core/economy.js';
 import { money, moneyShort, dateLabel } from '../core/helpers.js';
 import { haciendaDebt } from '../core/inspections.js';
+import { clauseStatus } from '../core/clauses.js';
+import { CLAUSE_PRIZE } from '../data/clauses.js';
 import { policyPreview, previewBase, riskInfo, blame, HORIZON } from '../core/preview.js';
 import { difficultyOf } from '../core/state.js';
 import { ACHIEVEMENTS } from '../data/achievements.js';
@@ -733,6 +735,7 @@ export function renderManolo(s) {
           ${artOr(a.icon, a.emoji)}<span><b>${esc(a.name)}</b><small>${esc(a.desc)}</small></span></button>`).join('')}
       </div>
     </div>
+    ${renderClause(s)}
     ${renderFamily(s)}
     ${renderLujos(s)}
     <div class="card"><h4>Logros (${unlockedCount()}/${ACHIEVEMENTS.length})</h4>
@@ -741,6 +744,23 @@ export function renderManolo(s) {
         ${ACHIEVEMENTS.map((a) => `<div class="ach ${isUnlocked(a.id) ? 'on' : ''}" title="${esc(a.desc)}"><span class="emoji">${isUnlocked(a.id) ? a.emoji : '🔒'}</span><span><b>${esc(a.name)}</b><small>${esc(a.desc)}</small></span></div>`).join('')}
       </div>
     </div>`;
+}
+
+function renderClause(s) {
+  const c = clauseStatus(s);
+  if (!c) return '';
+  const tag = { vigente: '<span class="tag">En vigor</span>', rota: '<span class="tag bad">Rota</span>', cumplida: '<span class="tag good">Cumplida</span>' }[c.state];
+  const prize = `puntuación ×${String(c.def.mult).replace('.', ',')} y el prado de Vega de Pas con 40 vacas pasiegas (${moneyShort(CLAUSE_PRIZE)})`;
+  const status = {
+    vigente: `${esc(c.short)}. Si terminas la partida (pyme, tiburón o revista) cumpliéndola: ${prize}.`,
+    rota: `La rompiste en ${dateLabel(s.clausula.brokenMonth ?? s.month).toLowerCase().replace(' ', ' de ')}. Las vacas, para la Cofradía.`,
+    cumplida: `Cumplida en ${dateLabel(s.clausula.doneMonth ?? s.month).toLowerCase().replace(' ', ' de ')}: ${prize}.`,
+  }[c.state];
+  return `<div class="card clause ${c.state}"><h4>${hasArt('icon_clausula') ? `<img src="${imageUrl('icon_clausula')}" alt="" class="h4-icon">` : '📜'} La cláusula del testamento ${tag}</h4>
+    <p class="small"><i>"${esc(c.def.notary)}"</i></p>
+    <p class="small"><b>${esc(c.def.title)}:</b> ${esc(c.def.rule)}</p>
+    <p class="small muted">${status}</p>
+  </div>`;
 }
 
 function renderFamily(s) {

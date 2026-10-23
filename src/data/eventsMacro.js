@@ -85,7 +85,9 @@ export const MACRO_EVENTS = [
       },
       {
         label: 'Pedir un préstamo ICO de 100.000 €',
+        hint: (s) => (s.clausula?.id === 'sin_bancos' && !s.clausula.broken && !s.clausula.done ? 'Rompe la cláusula del testamento «Ni un duro de los bancos».' : undefined),
         effect(s) {
+          s.flags.prestamoPedido = true;
           s.debt += 100000;
           addCash(s, 100000);
           addHeatHacienda(s, 2);

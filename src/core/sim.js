@@ -4,6 +4,7 @@ import { chance, weightedPick, pick, range } from './rng.js';
 import { addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, log, money, GAME_MONTHS, clamp, custom, remember } from './helpers.js';
 import { laborFine, haciendaDebt, inspectionChance, auditChance, tickLaborHistory } from './inspections.js';
 import { checkUnlocks } from './actions.js';
+import { settleClause, clauseMult } from './clauses.js';
 import { tickMacro, macroFx } from './macro.js';
 import { tickRivals, rivalHit } from './rivals.js';
 import { tickRD } from './market.js';
@@ -275,6 +276,8 @@ export function checkEnding(s) {
   else if (pat >= 15e6 && !s.endless) id = 'forbes';
   else if (s.month >= GAME_MONTHS && !s.endless) id = pat >= 5e6 ? 'tiburon' : pat >= 800000 ? 'pyme' : 'ruina_lenta';
   if (id) s.ending = id;
+  // El premio de la cláusula no cambia el final: se decide antes y se paga una sola vez.
+  if (['pyme', 'tiburon', 'forbes'].includes(id)) settleClause(s);
   return id;
 }
 
@@ -285,5 +288,6 @@ export function pickQuote(s) {
 }
 
 export function score(s) {
-  return Math.round(clamp(patrimonio(s) / 1000, -1e9, 1e9) + s.fama * 50 + s.rep * 30 - s.expedientes * 2000);
+  const base = clamp(patrimonio(s) / 1000, -1e9, 1e9) + s.fama * 50 + s.rep * 30 - s.expedientes * 2000;
+  return Math.round(base > 0 ? base * clauseMult(s) : base);
 }

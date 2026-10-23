@@ -133,6 +133,11 @@ button.hud-item:focus-visible { outline: 2px solid #ffd36b; outline-offset: 1px;
 #map-tip .muted { color: #cbb89c; }
 #map-tip .pos { color: #9be08a; }
 #map-tip .neg { color: #ff9a8a; }
+.h4-icon { width: 22px; height: 22px; vertical-align: -5px; }
+.goal-clause { display: block; margin-top: 3px; font-size: 11px; color: var(--muted); }
+.goal-clause.cumplida { color: var(--good); font-weight: 700; }
+.tag.bad { background: #f7d5cf; color: var(--bad); }
+.tag.good { background: #d5eeda; color: var(--good); }
 .goal-kicker { display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-dark); }
 .map-zoom { position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; gap: 6px; }
 .map-zoom .btn { width: 36px; height: 36px; padding: 0; font-size: 18px; line-height: 1; box-shadow: var(--shadow); }

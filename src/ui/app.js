@@ -16,6 +16,7 @@ import { actOnRival, acquireRival, acquisitionPrice } from '../core/rivals.js';
 import { launchCampaign, startRD, upgradeBusiness, CAMPAIGN_BY_ID, PRODUCT_BY_ID } from '../core/market.js';
 import { hireExec, fireExec, refreshCandidates, execOf, severance } from '../core/execs.js';
 import { RIVALS } from '../data/rivals.js';
+import { clauseStatus, clauseWarn } from '../core/clauses.js';
 import { buyLujo, sellLujo, doIPO, IPO_FLOAT } from '../core/life.js';
 import { LUJO_BY_ID } from '../data/lujo.js';
 import { grossPatrimonio } from '../core/economy.js';
@@ -88,7 +89,7 @@ function showRecords() {
   const diff = (d) => DIFFICULTIES[d]?.label.split(' (')[0] || d;
   const html = list.length
     ? `<table class="tbl pl records"><thead><tr><th>#</th><th>Final</th><th>Patrimonio</th><th>Puntos</th></tr></thead><tbody>
-        ${list.map((r, i) => `<tr><td>${i + 1}</td><td><b>${esc(r.title)}</b><div class="small muted">${esc(r.brand === 'maison' ? 'Maison' : 'Express')} · ${esc(diff(r.difficulty))} · ${r.months} meses · ${esc(r.date)}</div></td><td>${moneyShort(r.patrimonio)}</td><td>${r.score.toLocaleString('es-ES')}</td></tr>`).join('')}
+        ${list.map((r, i) => `<tr><td>${i + 1}</td><td><b>${esc(r.title)}</b>${r.clausulaOk ? ' <span title="Cláusula del testamento cumplida">📜</span>' : ''}<div class="small muted">${esc(r.brand === 'maison' ? 'Maison' : 'Express')} · ${esc(diff(r.difficulty))} · ${r.months} meses · ${esc(r.date)}</div></td><td>${moneyShort(r.patrimonio)}</td><td>${r.score.toLocaleString('es-ES')}</td></tr>`).join('')}
       </tbody></table>`
     : '<p>Todavía no has terminado ninguna partida. El salón está vacío, como la agenda de Manolo un lunes por la mañana.</p>';
   return showModal({ title: 'Salón de la fama', kicker: '🏆 Tus mejores imperios', html, wide: true, dismissable: true });
@@ -221,9 +222,17 @@ function showTip(id, p) {
 
 function renderGoal(s) {
   const g = currentGoal(s);
+  const c = clauseStatus(s);
+  const clause = c && c.state !== 'rota' ? `<span class="goal-clause ${c.state}">📜 ${esc(c.state === 'cumplida' ? `${c.def.title} · ¡cumplida!` : c.short)}</span>` : '';
   const el = $('#goal-chip');
-  el.hidden = !g || !!s.ending;
-  if (g) el.innerHTML = `<span class="goal-kicker">🎯 Objetivo ${goalNumber(s)}</span>${esc(g.text)}`;
+  el.hidden = (!g && !clause) || !!s.ending;
+  el.innerHTML = `${g ? `<span class="goal-kicker">🎯 Objetivo ${goalNumber(s)}</span>${esc(g.text)}` : ''}${clause}`;
+}
+
+// Si una acción rompería la cláusula del testamento, se pregunta antes.
+async function clauseOk(s, mutate) {
+  const warn = clauseWarn(s, mutate);
+  return !warn || confirmModal('📜 La cláusula del testamento', warn, 'Me da igual');
 }
 
 async function showNotices() {
@@ -296,6 +305,7 @@ async function onClick(e) {
         if (!ok) return;
       }
       if (el.dataset.mode === 'ilegal' && !(await confirmModal('Pisos sin licencia', 'Abres los pisos turísticos sin licencia. Te ahorras 120.000 €, pero cada mes hay una probabilidad de que el ayuntamiento te pille (multa de 40.000 € o más) y el radar de Hacienda sube.', 'Arriesgarse'))) return;
+      if (!(await clauseOk(s, (c) => openBusiness(c, el.dataset.type, game.city, el.dataset.mode)))) return;
       res = openBusiness(s, el.dataset.type, game.city, el.dataset.mode);
       if (res.ok) play(el.dataset.mode === 'franquicia' ? 'cash' : 'build');
       if (res.ok && el.dataset.mode === 'ilegal') toast(`🙈 Pisos "de temporada" abiertos en ${CITY_BY_ID[game.city].name}`, 'bad');
@@ -323,6 +333,7 @@ async function onClick(e) {
       res = togglePerk(s, el.dataset.id);
       break;
     case 'borrow':
+      if (!(await clauseOk(s, (c) => borrow(c, Number(el.dataset.amount) || LOAN_STEP)))) return;
       res = borrow(s, Number(el.dataset.amount) || LOAN_STEP);
       if (res.ok) toast(`🏦 +${money(res.amount)} de la póliza`, 'info');
       break;
@@ -365,6 +376,7 @@ async function onClick(e) {
     case 'rival-buy': {
       const d = RIVALS[el.dataset.rival];
       if (!(await confirmModal(`OPA sobre ${d.name}`, `Vas a comprar la cadena entera por ${money(acquisitionPrice(s, el.dataset.rival))}. Desaparecerá del mercado y te quedarás con hasta 4 de sus mejores locales.`, 'Comprar'))) return;
+      if (!(await clauseOk(s, (c) => acquireRival(c, el.dataset.rival)))) return;
       res = acquireRival(s, el.dataset.rival);
       if (res.ok) {
         play('goal');
@@ -673,6 +685,7 @@ async function showEnding(id) {
   const s = game.s;
   const e = ENDINGS[id];
   play('ending');
+  const cl = clauseStatus(s);
   const html = `${e.text.split('\n').map((t) => `<p>${esc(t)}</p>`).join('')}
     <table class="tbl pl">
       <tr><td>Meses al frente</td><td>${s.month}</td></tr>
@@ -682,6 +695,7 @@ async function showEnding(id) {
       <tr><td>Inspecciones de Trabajo</td><td>${s.stats.inspecciones}</td></tr>
       <tr><td>Auditorías de Hacienda</td><td>${s.stats.auditorias}</td></tr>
       <tr><td>Multas pagadas</td><td>${money(s.stats.multas)}</td></tr>
+      ${cl ? `<tr><td>📜 Cláusula: ${esc(cl.def.title)}</td><td class="${cl.state === 'cumplida' ? 'pos' : cl.state === 'rota' ? 'neg' : ''}">${cl.state === 'cumplida' ? `Cumplida (×${String(cl.def.mult).replace('.', ',')})` : cl.state === 'rota' ? 'Rota' : 'No cumplida'}</td></tr>` : ''}
       <tr class="total"><td>Puntuación Boomerez</td><td>${score(s).toLocaleString('es-ES')}</td></tr>
     </table>
     <h4>Evolución del patrimonio</h4>
@@ -689,6 +703,7 @@ async function showEnding(id) {
   const rank = s.recorded ? -1 : addRecord({
     title: e.title, ending: id, patrimonio: Math.round(patrimonio(s)), score: score(s), months: s.month,
     brand: s.brand, difficulty: s.difficulty || 'normal', date: new Date().toLocaleDateString('es-ES'),
+    clausula: cl?.def.id ?? null, clausulaOk: cl?.state === 'cumplida',
   });
   // Si el final es por tiempo o por la revista de millonarios, se puede seguir jugando sin límite.
   const canContinue = ['tiburon', 'pyme', 'ruina_lenta', 'forbes'].includes(id);

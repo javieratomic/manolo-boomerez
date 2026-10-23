@@ -13,6 +13,7 @@ import { LEGAL_LABOR } from './policies.js';
 import { BUSINESS_TYPES } from './businesses.js';
 import { CITY_BY_ID } from './cities.js';
 import { sobaoOutlets } from '../core/actions.js';
+import { CLAUSE_BY_ID } from './clauses.js';
 import { MACRO_EVENTS } from './eventsMacro.js';
 import { ARC_EVENTS } from './eventsArcs.js';
 import { EXTRA_EVENTS } from './eventsExtra.js';
@@ -41,6 +42,14 @@ function laborFileNote(s) {
   return `\n\nMarisa abre la carpeta por una pestaña amarilla: BOOMEREZ, M. — ${n ? 'reincidente' : 'en observación'}. ${parts}.${recidivism(s) > 1 ? ` Multa con agravante: ×${recidivism(s).toFixed(2).replace('.', ',')}.` : ''}`;
 }
 
+// La cláusula que el notario lee al final del testamento (reto opcional de la partida).
+function clauseText(s) {
+  const def = s.clausula && CLAUSE_BY_ID[s.clausula.id];
+  if (!def) return '';
+  return `Y una cláusula escrita a mano en el margen: "${def.notary}"\n\n` +
+    `📜 Reto opcional: ${def.rule} Si acabas la partida cumpliéndolo, tu puntuación se multiplica por ${String(def.mult).replace('.', ',')} y heredas el prado de Vega de Pas con 40 vacas pasiegas.\n\n`;
+}
+
 const forceLegal = (s, months = 6) => {
   Object.assign(s.policies, LEGAL_LABOR);
   s.flags.forcedLegal = months;
@@ -56,6 +65,7 @@ const BASE_EVENTS = [
       'Notaría de Villacarriedo. El notario lee el testamento de Don Anselmo Boomerez (q.e.p.d.):\n\n' +
       `"A mi hijo Manolo le dejo el obrador, la receta de la abuela y ${money(s.cash)} de ahorros. ` +
       'Que no haga tonterías."\n\n' +
+      clauseText(s) +
       'Manolo, 55 años, joven emprendedor, se ajusta las gafas de sol sobre la cabeza. ' +
       'Va a hacer tonterías. Pero tonterías ESCALABLES.\n\n¿Qué modelo de negocio va a conquistar España?',
     weight: () => 0,

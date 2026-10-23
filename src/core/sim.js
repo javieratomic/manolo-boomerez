@@ -1,6 +1,6 @@
 // Avance mensual de la simulación y resolución de sucesos.
-import { computeEconomy, policyFx, creditLimit, patrimonio } from './economy.js';
-import { chance, weightedPick, pick } from './rng.js';
+import { computeEconomy, policyFx, creditLimit, patrimonio, grossPatrimonio } from './economy.js';
+import { chance, weightedPick, pick, range } from './rng.js';
 import { addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, log, money, GAME_MONTHS, clamp } from './helpers.js';
 import { laborFine, haciendaDebt, inspectionChance, auditChance } from './inspections.js';
 import { checkUnlocks } from './actions.js';
@@ -9,6 +9,7 @@ import { tickRivals, rivalHit } from './rivals.js';
 import { tickRD } from './market.js';
 import { tickExecs, execBonus, execSkill, execHeat } from './execs.js';
 import { laborSeverity } from './inspections.js';
+import { tickLife, tickIPO } from './life.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
 import { CITY_BY_ID } from '../data/cities.js';
 import { EVENTS, EVENT_BY_ID } from '../data/events.js';
@@ -32,7 +33,9 @@ export function advanceMonth(s) {
   tickRivals(s, r);
   tickRD(s);
   tickExecs(s, laborSeverity(s));
+  tickLife(s);
   ageAssets(s);
+  tickIPO(s, grossPatrimonio(s), range(s, -8, 8));
   handleOverdraft(s);
   rollVisits(s, r);
   rollScheduled(s);
@@ -83,7 +86,7 @@ function driftStats(s, r) {
   addHeatTrabajo(s, inspGain * (1 - execBonus(s, 'rrhh')) + execHeat(s) - 1.5);
 
   const hacGain = fx.sal.hac + fx.con.hac * Math.min(3, 0.5 + r.revenue / 150000) +
-    (s.businesses.some((b) => b.type === 'academy') ? 0.6 : 0) + (s.perks.andorra ? 0.8 : 0);
+    (s.businesses.some((b) => b.type === 'academy') ? 0.6 : 0) + (s.perks.andorra ? 0.8 : 0) + 0.3 * (s.lujo?.length || 0);
   addHeatHacienda(s, hacGain * (1 - execBonus(s, 'finanzas')) + execHeat(s));
   addHeatHacienda(s, -1.2);
 

@@ -8,6 +8,7 @@ import { POSITIONS } from './execs.js';
 import { LEGAL_LABOR } from './policies.js';
 import { rivalHit, rivalTotal } from '../core/rivals.js';
 import { execOf, fireExec } from '../core/execs.js';
+import { divorce } from '../core/life.js';
 
 const biggestRival = (s) => [...(s.rivals || [])].sort((a, b) => rivalTotal(b) - rivalTotal(a))[0] || null;
 const biggestCity = (r) => Object.entries(r.presence).sort((a, b) => b[1] - a[1])[0]?.[0];
@@ -19,6 +20,86 @@ function coveted(s) {
 }
 
 export const SYSTEM_EVENTS = [
+  {
+    id: 'divorcio',
+    title: 'Merche quiere el divorcio',
+    portrait: 'portrait_esposa_merche', image: 'ev_divorcio',
+    text: () => 'Merche te espera en la cocina con una carpeta y una abogada. "Manolo, llevas años casado con la empresa. Ahora vas a estar casado SOLO con la empresa." Estáis en régimen de gananciales.',
+    weight: () => 0,
+    choices: [
+      {
+        label: 'Acuerdo amistoso',
+        hint: 'Se queda con un 30 % de la caja y los caprichos caros.',
+        effect(s) {
+          const r = divorce(s, 0.3);
+          addFama(s, 3);
+          return `Firmáis en una notaría sin gritos. Merche se queda con ${money(r.cashPart)} y los caprichos más caros (valorados en ${money(r.lost)}). Te mudas a un ático "de soltero de oro".`;
+        },
+      },
+      {
+        label: 'Pelear en los tribunales (40.000 €)',
+        hint: '50 %: solo un 15 %. Si no: un 45 % y la prensa rosa.',
+        effect(s) {
+          addCash(s, -40000);
+          if (chance(s, 0.5)) {
+            const r = divorce(s, 0.15);
+            return `Don Cosme saca un recibo de 1998 que lo cambia todo. Merche se queda con ${money(r.cashPart)} y los caprichos caros.`;
+          }
+          const r = divorce(s, 0.45);
+          addRep(s, -6);
+          addFama(s, 8);
+          return `Salís en un programa del corazón durante tres semanas. Merche se queda con ${money(r.cashPart)} y lo mejor de tus caprichos. Reputación −6, fama +8.`;
+        },
+      },
+      {
+        label: 'Pedir perdón de verdad y bajar el ritmo',
+        hint: '40 %: te da otra oportunidad.',
+        effect(s) {
+          if (chance(s, 0.4)) {
+            s.familia = 45;
+            addCash(s, -15000);
+            return 'Le pides perdón sin LinkedIn de por medio. Os vais un mes a Comillas (15.000 €). Te da otra oportunidad. La última.';
+          }
+          const r = divorce(s, 0.3);
+          return `"Demasiado tarde, Manolo." Acuerdo de divorcio: ${money(r.cashPart)} y los caprichos caros para Merche.`;
+        },
+      },
+    ],
+  },
+  {
+    id: 'junta_accionistas',
+    title: 'Junta de accionistas furiosa',
+    portrait: 'portrait_banquero', image: 'ev_junta',
+    text: (s) => `La acción de Boomerez S.A. ha caído a ${Math.round(s.ipo?.price ?? 0)} € (salió a 100 €). En la junta, un fondo inglés pide tu cabeza y un jubilado de Torrelavega te tira un sobao.`,
+    weight: () => 0,
+    choices: [
+      {
+        label: 'Repartir un dividendo extraordinario',
+        effect(s) {
+          const d = Math.max(50000, Math.round(Math.max(0, s.cash) * 0.15));
+          addCash(s, -d);
+          if (s.ipo) s.ipo.price *= 1.12;
+          return `Repartes ${money(d)} entre los accionistas. La acción rebota un 12 %. El jubilado te pide perdón por lo del sobao.`;
+        },
+      },
+      {
+        label: 'Prometer un "plan estratégico 2030"',
+        effect(s) {
+          addFama(s, 2);
+          if (s.ipo) s.ipo.price *= chance(s, 0.5) ? 1.06 : 0.94;
+          return 'Presentas 84 diapositivas con la palabra "sinergias". Nadie entiende nada; la acción se mueve al azar.';
+        },
+      },
+      {
+        label: 'Culpar al Gobierno',
+        effect(s) {
+          addRep(s, -3);
+          if (s.ipo) s.ipo.price *= 0.95;
+          return 'Los accionistas no votan en España. La acción cae otro 5 %. Reputación −3.';
+        },
+      },
+    ],
+  },
   {
     id: 'rival_aparece',
     title: 'Llega la competencia',

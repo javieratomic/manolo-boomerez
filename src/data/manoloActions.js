@@ -104,15 +104,45 @@ export const MANOLO_ACTIONS = [
   {
     id: 'marbella',
     name: 'Desconectar en Marbella (6.000 €)',
-    desc: 'Manolo descansa. La plantilla también (de él).',
+    desc: 'Manolo descansa. La plantilla también (de él). Merche no va invitada: familia −8.',
     icon: 'icon_action_marbella', emoji: '🏖️', cost: 6000,
     run(s) {
       addCash(s, -6000);
       addMoral(s, 4);
+      s.familia = Math.max(0, (s.familia ?? 60) - 8);
       log(s, '🏖️ Manolo sube 14 stories desde un beach club de Marbella.', 'info');
       return 'Una semana en un beach club, subiendo stories con el hashtag #NeverStopGrinding. Sin ti en la oficina, la plantilla trabaja más tranquila. Moral +4.';
     },
   },
 ];
+
+MANOLO_ACTIONS.push(
+  {
+    id: 'cena',
+    name: 'Cena familiar sin el móvil',
+    desc: 'Familia +12. Manolo aguanta sin mirar LinkedIn (casi).',
+    icon: 'icon_action_cena', emoji: '🍲',
+    run(s) {
+      s.familia = Math.min(100, (s.familia ?? 60) + 12);
+      return s.flags.divorciado
+        ? 'Cenas con tu madre, que te pregunta si comes bien. Te sienta de maravilla.'
+        : 'Cocido montañés en casa de tu suegra. Mantienes el móvil boca abajo 47 minutos, tu récord personal. Familia +12.';
+    },
+  },
+  {
+    id: 'escapada',
+    name: 'Escapada romántica con Merche (8.000 €)',
+    desc: 'Familia +22 y moral +2 (sin el jefe todo va mejor).',
+    icon: 'icon_action_escapada', emoji: '💐', cost: 8000,
+    run(s) {
+      addCash(s, -8000);
+      addMoral(s, 2);
+      s.familia = Math.min(100, (s.familia ?? 60) + 22);
+      return s.flags.divorciado
+        ? 'Te vas solo a un balneario de Cantabria. Sale caro, pero duermes como un bebé. Moral +2.'
+        : 'Un fin de semana en un parador. Merche recuerda por qué se casó contigo (el chiste de los sobaos, que sigue haciéndole gracia). Familia +22.';
+    },
+  },
+);
 
 export const ACTION_BY_ID = Object.fromEntries(MANOLO_ACTIONS.map((a) => [a.id, a]));

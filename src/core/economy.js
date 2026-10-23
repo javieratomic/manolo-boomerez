@@ -7,6 +7,7 @@ import { macroFx } from './macro.js';
 import { rivalFactor } from './rivals.js';
 import { productFactor, levelFactor } from './market.js';
 import { execBonus, execSalaries } from './execs.js';
+import { lujoValue, lujoUpkeep } from './life.js';
 
 export const SOBAO_SEASON = [1.05, 0.95, 0.95, 1, 1, 0.9, 0.85, 0.9, 1, 1.05, 1.1, 1.35];
 export const TOURISM_SEASON = [0.6, 0.65, 0.8, 0.95, 1, 1.2, 1.5, 1.55, 1.15, 0.9, 0.7, 0.85];
@@ -62,9 +63,15 @@ function bizMult(s, b, category, city, month) {
   return modFactor(s, 'revenue', category, b.city, b.type) * rivalFactor(s, b) * levelFactor(b) * productFactor(s, b.type, category, city, month);
 }
 
-export function patrimonio(s) {
+// Todo lo que vale la empresa (y los caprichos de Manolo), antes de descontar a los accionistas.
+export function grossPatrimonio(s) {
   const assets = s.businesses.reduce((a, b) => a + (b.value || 0), 0);
-  return s.cash - s.debt + obradorValue(s) + assets;
+  return s.cash - s.debt + obradorValue(s) + assets + lujoValue(s);
+}
+
+// Lo que es de Manolo: si cotiza en Bolsa, descuenta la parte de los accionistas.
+export function patrimonio(s) {
+  return grossPatrimonio(s) * (1 - (s.ipo?.float || 0));
 }
 
 export function creditLimit(s) {
@@ -93,7 +100,7 @@ export function computeEconomy(s) {
   const sat = (b) => 1 / (1 + 0.45 * ((counts[`${b.city}:${b.type}`] || 1) - 1));
 
   const lines = [];
-  const costs = { salarios: 0, directivos: 0, alquileres: 0, materias: 0, otros: 0, intereses: 0, asesores: 0, impuestos: 0 };
+  const costs = { salarios: 0, directivos: 0, alquileres: 0, materias: 0, otros: 0, intereses: 0, asesores: 0, personales: 0, impuestos: 0 };
   const revenueByCat = { sobaos: 0, inmobiliario: 0, hosteleria: 0, formacion: 0, servicios: 0 };
   let employees = 0;
 
@@ -241,9 +248,10 @@ export function computeEconomy(s) {
   costs.otros += s.extraMonthly.reduce((a, x) => a + x.amount, 0);
   costs.intereses = s.debt * (difficultyOf(s).interest + macro.interest) * (1 - execBonus(s, 'finanzas') * 0.5);
   costs.directivos = execSalaries(s);
+  costs.personales = lujoUpkeep(s);
 
   const revenue = Object.values(revenueByCat).reduce((a, b) => a + b, 0);
-  const totalCost = costs.salarios + costs.directivos + costs.alquileres + costs.materias + costs.otros + costs.intereses + costs.asesores;
+  const totalCost = costs.salarios + costs.directivos + costs.alquileres + costs.materias + costs.otros + costs.intereses + costs.asesores + costs.personales;
   const profit = revenue - totalCost;
 
   let tax = 0;

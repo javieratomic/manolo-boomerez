@@ -1,7 +1,7 @@
 import { test, assert, assertEq } from './runner.js';
 import { newGame, serialize, deserialize } from '../src/core/state.js';
 import { advanceMonth, resolvePending, currentPending, checkEnding, eligibleEvents } from '../src/core/sim.js';
-import { computeEconomy, patrimonio, creditLimit } from '../src/core/economy.js';
+import { computeEconomy, patrimonio, creditLimit, grossPatrimonio } from '../src/core/economy.js';
 import { openBusiness, canOpen, setPolicy, borrow, repay, buyUpgrade, sellBusiness, doManoloAction, togglePerk, currentGoal, rebrand } from '../src/core/actions.js';
 import { laborFine } from '../src/core/inspections.js';
 import { dateLabel } from '../src/core/helpers.js';
@@ -10,6 +10,7 @@ import { BUSINESS_TYPES } from '../src/data/businesses.js';
 import { MANOLO_ACTIONS } from '../src/data/manoloActions.js';
 import { ACHIEVEMENTS } from '../src/data/achievements.js';
 import { refreshCandidates, hireExec, execBonus } from '../src/core/execs.js';
+import { buyLujo, doIPO } from '../src/core/life.js';
 import { tickRivals, rivalFactor, actOnRival, acquireRival, acquisitionPrice } from '../src/core/rivals.js';
 import { launchCampaign, startRD, upgradeBusiness, upgradeCost } from '../src/core/market.js';
 import { playGame } from './bot.js';
@@ -360,6 +361,44 @@ test('los directivos cuestan dinero y aportan su bonus', () => {
   assert(execBonus(s, 'operaciones') > 0);
   assert(computeEconomy(s).capacity > cap);
   assertEq(computeEconomy(s).costs.directivos, c.salary);
+});
+
+test('caprichos, familia y divorcio', () => {
+  const s = started(41);
+  s.cash = 2e6;
+  const pat = patrimonio(s);
+  assert(buyLujo(s, 'yate').ok);
+  assert(patrimonio(s) < pat, 'el capricho pierde valor al comprarlo');
+  assert(computeEconomy(s).costs.personales > 0, 'tiene mantenimiento');
+  s.familia = 10;
+  s.cooldowns.trabajo = s.cooldowns.hacienda = 99;
+  advanceMonth(s);
+  const i = s.pending.findIndex((p) => p.id === 'divorcio');
+  assert(i >= 0, 'Merche pide el divorcio');
+  s.pending = [s.pending[i]];
+  const cash = s.cash;
+  resolvePending(s, 0);
+  assert(s.flags.divorciado && s.cash < cash, 'se reparte la caja');
+  assert(!s.lujo.some((x) => x.id === 'yate'), 'el yate se lo queda ella');
+});
+
+test('salir a Bolsa da dinero y diluye el patrimonio', () => {
+  const s = started(42);
+  s.cash = 5e6;
+  s.month = 30;
+  s.macro.phase = 'burbuja';
+  const gross = grossPatrimonio(s);
+  const r = doIPO(s, gross);
+  assert(r.ok, r.msg);
+  assert(r.valuation > gross, 'en burbuja se vende con prima');
+  assert(patrimonio(s) > gross * 0.7, 'con prima, Manolo sale ganando');
+  assert(!doIPO(s, grossPatrimonio(s)).ok, 'solo una vez');
+  for (let k = 0; k < 6; k++) {
+    s.cooldowns.trabajo = s.cooldowns.hacienda = 99;
+    advanceMonth(s);
+    resolveAll(s);
+  }
+  assert(s.ipo.price > 0);
 });
 
 test('fechas en español', () => {

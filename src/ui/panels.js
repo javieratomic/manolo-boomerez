@@ -13,6 +13,9 @@ import { POSITIONS, TRAITS } from '../data/execs.js';
 import { RIVAL_ACTIONS, canActOnRival, acquisitionPrice, rivalTotal } from '../core/rivals.js';
 import { canLaunchCampaign, campaignRunning, canStartRD, upgradeCost, PRODUCT_BY_ID } from '../core/market.js';
 import { execOf, signingFee, severance, CANDIDATE_REFRESH } from '../core/execs.js';
+import { LUJOS } from '../data/lujo.js';
+import { ownsLujo, canIPO, companyValuation, ipoPremium, annualProfit, IPO_FLOAT } from '../core/life.js';
+import { grossPatrimonio } from '../core/economy.js';
 import { money, moneyShort, dateLabel } from '../core/helpers.js';
 import { haciendaDebt } from '../core/inspections.js';
 import { difficultyOf } from '../core/state.js';
@@ -390,6 +393,7 @@ export function renderFinance(s) {
       <tr><td>Alquileres</td><td class="neg">−${money(c.alquileres)}</td></tr>
       <tr><td>Otros gastos</td><td class="neg">−${money(c.otros)}</td></tr>
       ${c.asesores ? `<tr><td>Asesores</td><td class="neg">−${money(c.asesores)}</td></tr>` : ''}
+      ${c.personales ? `<tr><td>Gastos personales de Manolo</td><td class="neg">−${money(c.personales)}</td></tr>` : ''}
       ${c.intereses ? `<tr><td>Intereses</td><td class="neg">−${money(c.intereses)}</td></tr>` : ''}
       <tr><td>Impuesto de Sociedades</td><td class="neg">−${money(r.tax)}</td></tr>
       <tr class="total"><td>Resultado neto</td><td class="${cls(r.net)}">${signed(r.net)}</td></tr>
@@ -408,8 +412,29 @@ export function renderFinance(s) {
       <button class="btn small ${s.perks[id] ? 'ghost' : 'primary'}" data-act="perk" data-id="${id}">${s.perks[id] ? 'Despedir' : 'Contratar'}</button>
     </li>`).join('')}
   </ul></div>
+  ${renderIPO(s)}
   <div class="card"><h4>Evolución del patrimonio</h4><canvas id="chart" height="140"></canvas></div>`;
   return html;
+}
+
+function renderIPO(s) {
+  const equity = grossPatrimonio(s);
+  if (s.ipo) {
+    const p = s.ipo.price;
+    return `<div class="card"><h4>🔔 Boomerez S.A. en Bolsa</h4>
+      <div class="kpis"><div><span class="muted small">Cotización</span><b class="${p >= 100 ? 'pos' : 'neg'}">${p.toFixed(1).replace('.', ',')} €</b></div>
+      <div><span class="muted small">Máximo</span><b>${s.ipo.peak.toFixed(1).replace('.', ',')} €</b></div></div>
+      <p class="small muted">Salió a 100 €. Los accionistas tienen el ${Math.round(s.ipo.float * 100)} % de la empresa, así que tu patrimonio es el ${Math.round((1 - s.ipo.float) * 100)} % del total. Si la acción cae un 30 % desde su máximo, habrá junta de accionistas furiosa.</p>
+    </div>`;
+  }
+  const ok = canIPO(s, equity);
+  const val = companyValuation(s, equity);
+  return `<div class="card"><h4>🔔 Salir a Bolsa</h4>
+    <p class="small">Vendes el ${Math.round(IPO_FLOAT * 100)} % de la empresa a inversores. Valoración estimada hoy: <b>${moneyShort(val)}</b> (prima de mercado ×${ipoPremium(s).toFixed(2).replace('.', ',')}; beneficio de los últimos 12 meses: ${moneyShort(annualProfit(s))}). Recibirías unos <b>${moneyShort(val * IPO_FLOAT * 0.96)}</b> tras comisiones.</p>
+    <p class="small muted">Truco de tiburón: en plena burbuja, con mucha fama, los inversores pagan más de lo que vale. Después tendrás que dar explicaciones cada vez que caiga la acción.</p>
+    <button class="btn small primary" data-act="ipo" ${ok.ok ? '' : 'disabled'}>Salir a Bolsa</button>
+    ${ok.ok ? '' : `<div class="small muted">${esc(ok.msg)}</div>`}
+  </div>`;
 }
 
 export function drawChart(canvas, s) {
@@ -481,12 +506,42 @@ export function renderManolo(s) {
           <span class="emoji">${a.emoji}</span><span><b>${esc(a.name)}</b><small>${esc(a.desc)}</small></span></button>`).join('')}
       </div>
     </div>
+    ${renderFamily(s)}
+    ${renderLujos(s)}
     <div class="card"><h4>Logros (${unlockedCount()}/${ACHIEVEMENTS.length})</h4>
       <p class="small muted">Se guardan en este navegador entre partidas.</p>
       <div class="achievements">
         ${ACHIEVEMENTS.map((a) => `<div class="ach ${isUnlocked(a.id) ? 'on' : ''}" title="${esc(a.desc)}"><span class="emoji">${isUnlocked(a.id) ? a.emoji : '🔒'}</span><span><b>${esc(a.name)}</b><small>${esc(a.desc)}</small></span></div>`).join('')}
       </div>
     </div>`;
+}
+
+function renderFamily(s) {
+  if (s.flags.divorciado) {
+    return '<div class="card"><h4>💔 Vida personal</h4><p class="small">Divorciado. Merche está feliz en el chalet. Manolo vive en un ático con una máquina de remo que no usa y dice que "está en su mejor momento".</p></div>';
+  }
+  const f = Math.round(s.familia ?? 60);
+  const mood = f >= 70 ? 'Merche te sonríe en el desayuno.' : f >= 40 ? 'Merche te habla con frases cortas.' : f >= 20 ? 'Merche ha empezado a ir a clases de pádel con un monitor de 30 años.' : '⚠️ Merche ha pedido cita con una abogada.';
+  return `<div class="card"><h4>❤️ Familia</h4>
+    <div class="small">Relación con Merche: <b>${f}/100</b></div>
+    ${bar(f, 100, f < 25 ? 'danger' : 'ok')}
+    <p class="small muted">${mood} Cuanto más grande el imperio, menos tiempo pasas en casa. Por debajo de 15 te pide el divorcio (y estáis en gananciales).</p>
+  </div>`;
+}
+
+function renderLujos(s) {
+  return `<div class="card"><h4>Caprichos de Manolo</h4>
+    <p class="small muted">Se pagan con la tarjeta de la empresa: dan fama, alegran (o no) a la familia y cuentan en tu patrimonio, pero Hacienda vigila los "signos externos de riqueza".</p>
+    <div class="products">${LUJOS.map((l) => {
+      const owned = (s.lujo || []).find((x) => x.id === l.id);
+      return `<div class="product ${owned ? 'on' : ''}">
+        <span class="emoji big">${l.emoji}</span>
+        <div class="grow"><b>${esc(l.name)}</b> <span class="small muted">${owned ? `vale ${moneyShort(owned.value)}` : moneyShort(l.cost)}${l.upkeep ? ` · ${moneyShort(l.upkeep)}/mes` : ''}</span>
+          <div class="small muted">${esc(l.desc)} Fama +${l.fama}${l.familia ? `, familia ${l.familia > 0 ? '+' : '−'}${Math.abs(l.familia)}` : ''}.</div></div>
+        ${owned ? `<button class="btn small ghost" data-act="lujo-sell" data-id="${l.id}">Vender</button>`
+          : `<button class="btn small" data-act="lujo-buy" data-id="${l.id}" ${s.cash >= l.cost ? '' : 'disabled'}>Comprar</button>`}
+      </div>`;
+    }).join('')}</div></div>`;
 }
 
 export function manoloMood(s) {

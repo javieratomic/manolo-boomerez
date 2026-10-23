@@ -14,6 +14,9 @@ import { actOnRival, acquireRival, acquisitionPrice } from '../core/rivals.js';
 import { launchCampaign, startRD, upgradeBusiness, CAMPAIGN_BY_ID, PRODUCT_BY_ID } from '../core/market.js';
 import { hireExec, fireExec, refreshCandidates, execOf, severance } from '../core/execs.js';
 import { RIVALS } from '../data/rivals.js';
+import { buyLujo, sellLujo, doIPO } from '../core/life.js';
+import { LUJO_BY_ID } from '../data/lujo.js';
+import { grossPatrimonio } from '../core/economy.js';
 import { money, moneyShort, dateLabel, GAME_MONTHS } from '../core/helpers.js';
 import { HQ_CITY, CITY_BY_ID } from '../data/cities.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
@@ -327,6 +330,28 @@ async function onClick(e) {
         play('goal');
         renderAll();
         await showModal({ title: 'OPA completada', kicker: '🦈 Tiburón', portrait: 'portrait_manolo_happy', text: `${d.name} ya es tuya.${res.gained.length ? ` Rebautizas sus locales de ${res.gained.join(', ')}.` : ''}\n\nManolo se hace una foto estrechando la mano de los antiguos dueños. Ellos sonríen: acaban de venderte una cadena por bastante más de lo que valía.` });
+      }
+      break;
+    }
+    case 'lujo-buy':
+      res = buyLujo(s, el.dataset.id);
+      if (res.ok) {
+        play('cash');
+        toast(`${LUJO_BY_ID[el.dataset.id].emoji} ¡Nuevo capricho!`, 'good');
+      }
+      break;
+    case 'lujo-sell': {
+      if (!(await confirmModal('Vender capricho', `¿Vendes ${LUJO_BY_ID[el.dataset.id].name}? Te darán menos de lo que vale. Mucho menos de lo que pagaste.`, 'Vender'))) return;
+      res = sellLujo(s, el.dataset.id);
+      break;
+    }
+    case 'ipo': {
+      if (!(await confirmModal('Salir a Bolsa', 'Vas a vender el 30 % de la empresa a inversores. Te llevarás mucho dinero, pero a partir de ahora tu patrimonio será solo el 70 % y tendrás que rendir cuentas a los accionistas. No hay vuelta atrás.', 'Tocar la campana'))) return;
+      res = doIPO(s, grossPatrimonio(s));
+      if (res.ok) {
+        play('ending');
+        renderAll();
+        await showModal({ title: '¡Campanazo!', kicker: '🔔 Bolsa', portrait: 'portrait_manolo_happy', text: `Boomerez S.A. cotiza en Bolsa. Valoración: ${money(res.valuation)}. Ingresas ${money(res.raised - res.fee)} (los bancos se quedan ${money(res.fee)} por organizar el sarao).\n\nManolo toca la campana tan fuerte que se le caen las gafas de sol de la calva.` });
       }
       break;
     }

@@ -19,6 +19,10 @@ export const ACHIEVEMENTS = [
   { id: 'burbuja', emoji: '🍔', name: 'Burbuja aplastada', desc: 'Ten 5 Manolo Smash Club a la vez.', test: (s) => count(s, 'smash') >= 5 },
   { id: 'gaucho', emoji: '🥟', name: 'Gaucho de adopción', desc: 'Ten 6 empanaderías a la vez.', test: (s) => count(s, 'empanadas') >= 6 },
   { id: 'ladrillo', emoji: '🧱', name: 'Ladrillo, que nunca baja', desc: 'Ten 10 inmuebles (residenciales o pisos turísticos).', test: (s) => count(s, 'vivienda') + count(s, 'airbnb') >= 10 },
+  { id: 'campanazo', emoji: '🔔', name: 'Campanazo', desc: 'Saca la empresa a Bolsa.', test: (s) => !!s.ipo },
+  { id: 'soltero', emoji: '💔', name: 'Soltero de oro', desc: 'Consigue que Merche te pida el divorcio.', test: (s) => !!s.flags.divorciado },
+  { id: 'nuevo_rico', emoji: '🛥️', name: 'Nuevo rico', desc: 'Ten a la vez el yate y el chalet en Marbella.', test: (s) => ['yate', 'chalet'].every((id) => (s.lujo || []).some((x) => x.id === id)) },
+  { id: 'opa', emoji: '🦈', name: 'Depredador', desc: 'Compra una cadena rival con una OPA.', test: (s) => s.businesses.some((b) => b.acquired) },
   { id: 'millonario', emoji: '💰', name: 'Millonario (de patrimonio)', desc: 'Alcanza 1 millón de patrimonio.', test: (s) => patrimonio(s) >= 1e6 },
   ...Object.entries(ENDINGS).map(([id, e]) => ({
     id: `final_${id}`, emoji: e.tone === 'good' ? '🏆' : e.tone === 'bad' ? '💀' : '🎬', name: `Final: ${e.title}`, desc: 'Consigue este final.',

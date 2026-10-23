@@ -411,7 +411,8 @@ export class MapView {
           }
         }
       }
-      // Etiqueta
+      // Etiqueta: con el zoom alejado solo se rotulan las ciudades con negocios (o la señalada).
+      if (z < this.fitZ * 1.35 && !list.length && !c.hq && !sel && !hov) continue;
       const fs = Math.max(12, 13 / Math.sqrt(z));
       ctx.font = `${c.hq ? 'bold ' : ''}${fs}px system-ui, sans-serif`;
       ctx.textAlign = 'center';

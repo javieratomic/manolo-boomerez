@@ -1,5 +1,5 @@
 // Avance mensual de la simulación y resolución de sucesos.
-import { computeEconomy, policyFx, creditLimit, patrimonio, grossPatrimonio } from './economy.js';
+import { computeEconomy, policyFx, creditLimit, patrimonio, grossPatrimonio, hasCondition } from './economy.js';
 import { chance, weightedPick, pick, range } from './rng.js';
 import { addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, log, money, GAME_MONTHS, clamp } from './helpers.js';
 import { laborFine, haciendaDebt, inspectionChance, auditChance } from './inspections.js';
@@ -93,7 +93,7 @@ function driftStats(s, r) {
 
   const hacGain = fx.sal.hac + fx.con.hac * Math.min(3, 0.5 + r.revenue / 150000) +
     (s.businesses.some((b) => b.type === 'academy') ? 0.6 : 0) + (s.perks.andorra ? 0.8 : 0) + 0.3 * (s.lujo?.length || 0) +
-    0.5 * s.businesses.filter((b) => b.ilegal).length;
+    0.5 * s.businesses.filter((b) => b.ilegal && b.type === 'airbnb').length;
   addHeatHacienda(s, hacGain * (1 - execBonus(s, 'finanzas')) + execHeat(s));
   addHeatHacienda(s, -1.2);
 
@@ -127,7 +127,7 @@ function ageAssets(s) {
   for (const b of s.businesses) {
     const t = BUSINESS_TYPES[b.type];
     if (b.mode === 'franquicia') continue;
-    b.cond = clamp((b.cond ?? 100) + man.drift);
+    if (hasCondition(b)) b.cond = clamp((b.cond ?? 100) + man.drift);
     if (b.cond < 30 && !b.brokenMonth && chance(s, 0.06)) {
       b.brokenMonth = s.month;
       s.pending.push({ kind: 'event', id: 'averia', params: { businessId: b.id, city: b.city } });
@@ -172,12 +172,14 @@ function rollVisits(s, r) {
   }
   for (const b of s.businesses) {
     const strict = { estricto: 1.5, laxo: 0.5 }[govFx(s).tourism] ?? 1;
+    if (b.ilegal && b.type !== 'airbnb') b.ilegal = false; // reconvertido en vivienda: ya no es un piso turístico
     if (b.ilegal && chance(s, 0.04 * strict)) s.pending.push({ kind: 'event', id: 'piso_ilegal', params: { businessId: b.id, city: b.city } });
   }
   for (const b of s.businesses) {
     if (b.type !== 'airbnb' || b.banned) continue;
     const c = CITY_BY_ID[b.city];
     if (c.tourism < 0.75) continue;
+    if (c.touristLicense && !b.ilegal) continue; // con licencia pagada, la moratoria no les afecta
     const strictBan = { estricto: 1.5, laxo: 0.5 }[govFx(s).tourism] ?? 1;
     if (chance(s, (s.flags.alcaldeShield > 0 ? 0.005 : 0.02) * strictBan)) {
       b.banned = true;

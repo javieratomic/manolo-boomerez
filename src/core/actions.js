@@ -6,6 +6,7 @@ import { ACTION_BY_ID } from '../data/manoloActions.js';
 import { GOALS } from '../data/goals.js';
 import { execBonus, execSkill } from './execs.js';
 import { addStress, ACTION_STRESS } from './life.js';
+import { LEGACY_GOAL_ORDER } from './state.js';
 import { creditLimit } from './economy.js';
 import { addCash, log, money } from './helpers.js';
 
@@ -200,7 +201,7 @@ export function dropMonthlyCost(s, index) {
 
 export function doManoloAction(s, id) {
   if (s.actionUsed) return { ok: false, msg: 'Manolo ya ha hecho bastante este mes. Necesita su siesta.' };
-  if (s.restMonths > 0) return { ok: false, msg: `Reposo médico: ${s.restMonths} ${s.restMonths === 1 ? 'mes' : 'meses'} más sin hacer nada. Órdenes de Merche (y del cardiólogo).` };
+  if (s.restMonths > 0) return { ok: false, msg: `Reposo médico: ${s.restMonths} ${s.restMonths === 1 ? 'mes' : 'meses'} más sin hacer nada. Órdenes de la cardióloga (y de Merche).` };
   const a = ACTION_BY_ID[id];
   if (!a) return { ok: false, msg: 'Acción desconocida.' };
   if (a.cost && s.cash < a.cost) return { ok: false, msg: `Necesitas ${money(a.cost)}.` };
@@ -238,7 +239,6 @@ export function checkUnlocks(s) {
 }
 
 // Orden de los objetivos en las partidas guardadas antes de pasar a guardarlos por id.
-const LEGACY_GOAL_ORDER = ['primera_tienda', 'tres_tiendas', 'mejora_obrador', 'diversificar', 'millon', 'cincuenta', 'tres_millones', 'tiburon', 'forbes'];
 
 function goalsDone(s) {
   if (!s.goalsDone) s.goalsDone = LEGACY_GOAL_ORDER.slice(0, s.goalIndex ?? 0);

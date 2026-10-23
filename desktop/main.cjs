@@ -23,9 +23,14 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 async function serve(request) {
-  const { pathname } = new URL(request.url);
-  const file = path.normalize(path.join(ROOT, decodeURIComponent(pathname)));
-  if (!file.startsWith(ROOT)) return new Response('Prohibido', { status: 403 });
+  let file;
+  try {
+    file = path.normalize(path.join(ROOT, decodeURIComponent(new URL(request.url).pathname)));
+  } catch {
+    return new Response('Petición mal formada', { status: 400 });
+  }
+  const rel = path.relative(ROOT, file);
+  if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) return new Response('Prohibido', { status: 403 });
   try {
     const body = await fs.readFile(file);
     return new Response(body, { headers: { 'content-type': MIME[path.extname(file).toLowerCase()] || 'application/octet-stream' } });
@@ -90,7 +95,13 @@ function createWindow() {
   });
   if (SMOKE) smokeTest(win);
   win.loadURL('app://game/index.html');
-  // Los enlaces externos se abren en el navegador del sistema.
+  // La ventana nunca sale del juego; los enlaces externos se abren en el navegador del sistema.
+  win.webContents.on('will-navigate', (event, url) => {
+    if (!url.startsWith('app://game/')) {
+      event.preventDefault();
+      if (/^https?:/.test(url)) shell.openExternal(url);
+    }
+  });
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (/^https?:/.test(url)) shell.openExternal(url);
     return { action: 'deny' };

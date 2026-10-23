@@ -9,9 +9,12 @@ export function govFx(s) {
   return PARTIES[s.gov?.party]?.effects || NEUTRAL;
 }
 
-// En los meses de elecciones se encola la carta de campaña electoral.
+// Mayo de 2027 y después cada cuatro años (también en modo infinito).
+export const isElectionMonth = (m) => m >= ELECTION_MONTHS[0] && (m - ELECTION_MONTHS[0]) % 48 === 0;
+export const nextElectionMonth = (m) => (m <= ELECTION_MONTHS[0] ? ELECTION_MONTHS[0] : ELECTION_MONTHS[0] + Math.ceil((m - ELECTION_MONTHS[0]) / 48) * 48);
+
 export function tickPolitics(s) {
-  if (ELECTION_MONTHS.includes(s.month)) s.pending.push({ kind: 'event', id: 'elecciones' });
+  if (isElectionMonth(s.month)) s.pending.push({ kind: 'event', id: 'elecciones' });
 }
 
 // Resuelve las elecciones; `lean` (−1..1) es el empujoncito de las "donaciones" de Manolo hacia la ALE.

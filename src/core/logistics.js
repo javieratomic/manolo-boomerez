@@ -39,7 +39,8 @@ export function nearestSite(s, cityId) {
 // Coste de transporte por sobao hasta una ciudad.
 export function transportCost(s, cityId) {
   const n = nearestSite(s, cityId);
-  const sea = ISLAND[cityId] && n.city !== cityId ? ISLAND[cityId] : 1;
+  // Cruzar el mar encarece el transporte, salga de una isla o vaya a ella.
+  const sea = n.city !== cityId ? Math.max(ISLAND[cityId] || 1, ISLAND[n.city] || 1) : 1;
   return (TRANSPORT_PER_100KM * n.km) / 100 * sea;
 }
 

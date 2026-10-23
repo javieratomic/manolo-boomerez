@@ -72,9 +72,11 @@ function bizMult(s, b, category, city, month) {
     (b.mode === 'franquicia' ? 1 : conditionFactor(b));
 }
 
+export const hasCondition = (b) => b.mode !== 'franquicia' && BUSINESS_TYPES[b.type].model !== 'production';
+
 export function maintenanceCost(s) {
   const pct = policyFx(s).man.costPct;
-  return s.businesses.reduce((a, b) => a + (b.mode === 'franquicia' ? 0 : (b.value || 0) * pct), 0);
+  return s.businesses.reduce((a, b) => a + (hasCondition(b) ? (b.value || 0) * pct : 0), 0);
 }
 
 // Todo lo que vale la empresa (y los caprichos de Manolo), antes de descontar a los accionistas.
@@ -154,7 +156,9 @@ export function computeEconomy(s) {
 
   // --- Obrador ---------------------------------------------------------------
   const robot = s.obrador.upgrades.includes('robot') ? 0.85 : 1;
-  const obradorStaff = 3 + Math.ceil((produced / 3000) * robot);
+  // Lo que no cabe en Selaya lo fabrican los obradores regionales con su propia plantilla.
+  const selayaCap = capacity - REGIONAL_CAPACITY * regionalCount(s) * (1 + execBonus(s, 'operaciones')) * strike;
+  const obradorStaff = 3 + Math.ceil((Math.min(produced, Math.max(0, selayaCap)) / 3000) * robot);
   employees += obradorStaff;
   const localUnitCost = 1.05 * fx.ing.cost;
   const obRevenue =
@@ -286,7 +290,7 @@ export function computeEconomy(s) {
   for (const b of viviendas) {
     const occ = Math.min(bedsOf(b), remaining);
     remaining -= occ;
-    const revenue = occ * fx.alq.rent;
+    const revenue = occ * fx.alq.rent * conditionFactor(b);
     const cost = BUSINESS_TYPES.vivienda.upkeep;
     costs.otros += cost;
     revenueByCat.inmobiliario += revenue;

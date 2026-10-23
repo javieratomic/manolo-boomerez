@@ -557,6 +557,37 @@ test('mantenimiento: los locales se deterioran y venden menos', () => {
   assert(fresh > 0);
 });
 
+test('regresión: las partidas antiguas conservan los objetivos cumplidos al cargarse', () => {
+  const s = started(101);
+  delete s.goalsDone;
+  s.goalIndex = 5; // partida antigua: cumplido hasta "millon"
+  const loaded = deserialize(serialize(s));
+  assert(loaded.goalsDone.includes('millon') && loaded.goalsDone.includes('diversificar'), 'convierte el progreso');
+  assertEq(currentGoal(loaded).id, 'directivo', 'solo quedan pendientes los objetivos nuevos');
+});
+
+test('regresión: la plantilla de Selaya no cuenta lo que fabrican los obradores regionales', () => {
+  const s = started(102);
+  s.cash = 2e6;
+  const before = computeEconomy(s).lines.find((l) => l.id === 'obrador').staff;
+  s.unlocked.obrador_regional = true;
+  openBusiness(s, 'obrador_regional', 'sevilla');
+  const after = computeEconomy(s).lines.find((l) => l.id === 'obrador').staff;
+  assertEq(after, before, 'Selaya mantiene su plantilla');
+});
+
+test('regresión: los pisos reconvertidos en vivienda dejan de ser ilegales', () => {
+  const s = started(103);
+  s.cash = 2e6;
+  s.unlocked.airbnb = true;
+  openBusiness(s, 'airbnb', 'barcelona', 'ilegal');
+  const b = s.businesses[0];
+  b.type = 'vivienda';
+  s.cooldowns.trabajo = s.cooldowns.hacienda = 99;
+  advanceMonth(s);
+  assert(!b.ilegal, 'se limpia la marca');
+});
+
 test('fechas en español', () => {
   assertEq(dateLabel(0), 'Enero 2026');
   assertEq(dateLabel(13), 'Febrero 2027');

@@ -89,7 +89,12 @@ export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal
 }
 
 // Rellena con valores por defecto lo que falte en partidas de versiones anteriores.
+// Orden de los objetivos en las partidas que aún los guardaban por posición (goalIndex).
+export const LEGACY_GOAL_ORDER = ['primera_tienda', 'tres_tiendas', 'mejora_obrador', 'diversificar', 'millon', 'cincuenta', 'tres_millones', 'tiburon', 'forbes'];
+
 export function migrate(s) {
+  if (!Array.isArray(s.goalsDone)) s.goalsDone = LEGACY_GOAL_ORDER.slice(0, s.goalIndex ?? 0);
+  delete s.goalIndex;
   const d = newGame(s.seed, s.difficulty || 'normal');
   for (const [k, v] of Object.entries(d)) if (!(k in s)) s[k] = v;
   s.policies = { ...DEFAULT_POLICIES, ...s.policies };

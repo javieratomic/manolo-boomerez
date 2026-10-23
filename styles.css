@@ -234,6 +234,7 @@ blockquote { margin: 8px 0 0; font-family: var(--display); font-style: italic; b
 .rival-details { width: 100%; }
 .rival-details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--accent-dark); padding: 4px 0; }
 .emoji.big { font-size: 26px; }
+.art-icon { width: 28px; height: 28px; object-fit: contain; vertical-align: middle; flex: none; }
 .exec-pos { padding: 8px 0; border-bottom: 1px dashed var(--line); }
 .exec-pos:last-child { border-bottom: 0; }
 .exec-title { margin-bottom: 4px; }

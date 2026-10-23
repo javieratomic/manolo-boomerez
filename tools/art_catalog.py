@@ -9,6 +9,8 @@ Para pedir arte nuevo: añade entradas a ASSETS y vuelve a ejecutar el script.
 """
 import json
 import os
+import re
+import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MANIFEST = os.path.join(ROOT, "assets", "manifest.json")
@@ -16,13 +18,23 @@ REQUESTS = os.path.join(ROOT, "art", "requests")
 
 # Debe coincidir con src/render/projection.js
 WORLD = dict(width=2048, height=1088, minLon=-9.5, maxLat=44.0, pxPerLonDeg=145.5, pxPerLatDeg=117.8, offsetX=6, offsetY=40, extrude=14)
-CITIES = [
-    ("Selaya (sede, obrador)", -4.25, 43.0), ("Santander", -3.8, 43.46), ("Bilbao", -2.93, 43.26), ("Donostia", -1.98, 43.32),
-    ("Oviedo", -5.85, 43.36), ("A Coruña", -8.41, 43.36), ("Valladolid", -4.72, 41.65), ("Salamanca", -5.66, 40.97),
-    ("Zaragoza", -0.88, 41.65), ("Madrid", -3.7, 40.42), ("Barcelona", 2.17, 41.39), ("València", -0.38, 39.47),
-    ("Alicante", -0.48, 38.35), ("Murcia", -1.13, 37.99), ("Sevilla", -5.98, 37.39), ("Málaga", -4.42, 36.72),
-    ("Granada", -3.6, 37.18), ("Palma", 2.65, 39.57), ("Las Palmas (recuadro de Canarias)", -7.55, 35.72),
-]
+
+
+def load_cities():
+    """Lee las ciudades de src/data/cities.js para no duplicar coordenadas."""
+    src = open(os.path.join(ROOT, "src", "data", "cities.js"), encoding="utf-8").read()
+    out = []
+    for m in re.finditer(r"name: '([^']+)'.*?lon: (-?[\d.]+), lat: (-?[\d.]+)(.*?)\n", src):
+        name, lon, lat, rest = m.group(1), float(m.group(2)), float(m.group(3)), m.group(4)
+        if "hq: true" in rest:
+            name += " (sede, obrador)"
+        if "inset: true" in rest:
+            name += " (recuadro de Canarias)"
+        out.append((name, lon, lat))
+    return out
+
+
+CITIES = load_cities()
 
 
 def project(lon, lat):
@@ -139,6 +151,18 @@ GROUPS = [
                 "'Boomerez Business Academy': oficina en un bajo con cristaleras, un enorme vinilo de Manolo con los "
                 "brazos cruzados y el lema 'MENTALIDAD DE TIBURÓN', un tiburón hinchable en el escaparate y sillas de "
                 "coworking vacías.")),
+            dict(id="bld_taberna", file="assets/buildings/bld_taberna.png", w=256, h=256, anchor=[128, 240], priority=2, prompt=(
+                "'La Taberna del Emprendedor': bar de tapas castizo con fachada de madera verde, toldo granate, barriles en "
+                "la puerta usados como mesas, una pizarra con frases de Manolo y jamones colgados visibles tras la cristalera.")),
+            dict(id="bld_gimnasio", file="assets/buildings/bld_gimnasio.png", w=256, h=256, anchor=[128, 240], priority=2, prompt=(
+                "'Boomer Fit 24h': nave de gimnasio low-cost con fachada naranja chillón, cristalera con cintas de correr en fila, "
+                "un rótulo luminoso '24H' y una mancuerna gigante de fibra de vidrio en la acera.")),
+            dict(id="bld_coworking", file="assets/buildings/bld_coworking.png", w=256, h=256, anchor=[128, 240], priority=2, prompt=(
+                "'Hustle Hub Coworking': antiguo almacén de ladrillo reconvertido, ventanales industriales, plantas colgantes, "
+                "un neón verde con un cohete y jóvenes con portátiles y patinetes eléctricos en la puerta.")),
+            dict(id="bld_residencia", file="assets/buildings/bld_residencia.png", w=256, h=256, anchor=[128, 240], priority=2, prompt=(
+                "'Residencia Golden Age Boomerez': edificio de tres plantas color crema con barandillas, un jardincito con "
+                "bancos, una furgoneta adaptada y un cartel dorado excesivamente lujoso para lo que es. Algo melancólico.")),
             dict(id="bld_city_base", file="assets/buildings/bld_city_base.png", w=256, h=128, priority=3, prompt=(
                 "Base genérica de ciudad para el mapa: plaza elíptica isométrica de adoquín con farolas y bancos "
                 "diminutos, vista en el mismo ángulo que los edificios, fondo transparente. Se dibuja a 112×56 px "
@@ -184,6 +208,18 @@ GROUPS = [
             dict(id="portrait_banquero", file="assets/portraits/portrait_banquero.png", w=512, h=512, priority=3, prompt="Director de la Caja Cantábrica: 55 años, traje azul, corbata azul celeste, sonrisa de dentífrico y un bolígrafo listo para que firmes. Fondo azul oscuro (#2c3e50)."),
             dict(id="portrait_presentadora", file="assets/portraits/portrait_presentadora.png", w=512, h=512, priority=3, prompt="Presentadora de un magacín matinal: melena morena impecable, blazer blanco, micrófono de solapa y sonrisa televisiva. Fondo rojo plató (#e74c3c)."),
             dict(id="portrait_coach", file="assets/portraits/portrait_coach.png", w=512, h=512, priority=3, prompt="Iker 'Mindset' Lasa, coach: 35 años, barba cuidada, camiseta blanca de lino, collar de cuentas, descalzo (se intuye) y mirada intensa. Fondo naranja (#f39c12)."),
+            dict(id="portrait_esposa_merche", file="assets/portraits/portrait_esposa_merche.png", w=512, h=512, priority=1, prompt="Merche, la mujer de Manolo: 53 años, melena rubia de peluquería, pendientes de perla, chaqueta de tweed y una mirada que mezcla cariño y hartazgo infinito. Elegante y con mucho carácter. Fondo burdeos (#8e3b46)."),
+        ] + [
+            dict(id=f"portrait_exec_{i}", file=f"assets/portraits/portrait_exec_{i}.png", w=512, h=512, priority=2, prompt=f"Directivo/a genérico/a para el equipo de Manolo (se reutiliza para distintos nombres): {desc}")
+            for i, desc in enumerate([
+                "mujer de unos 40 años, traje gris marengo, melena corta, gafas finas, mirada analítica. Fondo azul petróleo (#1f5f7a).",
+                "hombre de unos 35 años, chaleco acolchado sin mangas sobre camisa azul (uniforme de escuela de negocios), sonrisa de LinkedIn. Fondo gris (#7f8c8d).",
+                "hombre de unos 50 años, americana de pana, barba canosa y bolígrafo detrás de la oreja; aire de veterano que lo ha visto todo. Fondo verde oliva (#6b7a3a).",
+                "mujer de unos 30 años, coleta alta, sudadera de startup y auriculares inalámbricos; energía de 'growth hacker'. Fondo morado (#6c3483).",
+                "mujer de unos 55 años, pañuelo al cuello, gafas colgadas de una cadenita y una carpeta de recursos humanos; firme y amable. Fondo terracota (#b9663f).",
+                "hombre de unos 45 años, traje azul brillante, gemelos dorados, pelo engominado hacia atrás; puro tiburón. Fondo negro azulado (#1c2833).",
+            ], start=1)
+        ] + [
         ],
     ),
     (
@@ -229,6 +265,16 @@ GROUPS = [
             dict(id="ev_mantequilla", file="assets/events/ev_mantequilla.png", w=768, h=432, priority=3, prompt="Un bloque de mantequilla en un pedestal con una flecha de precio disparada hacia arriba; Manolo se agarra la cartera."),
             dict(id="ev_vanessa", file="assets/events/ev_vanessa.png", w=768, h=432, priority=3, prompt="Vanessa con birrete de graduación y una carpeta enorme, explicando un gráfico en una pizarra a un Manolo empequeñecido."),
             dict(id="ev_cena", file="assets/events/ev_cena.png", w=768, h=432, priority=3, prompt="Cena familiar en casa de la suegra: el cuñado Jonathan explica algo en el móvil con mucha energía y Manolo pone los ojos en blanco; cocido en la mesa."),
+            dict(id="ev_macro_expansion", file="assets/events/ev_macro_expansion.png", w=768, h=432, priority=2, prompt="Calle comercial española llena de gente con bolsas, grúas al fondo levantando edificios y un banquero sonriente repartiendo tarjetas de crédito como si fueran caramelos."),
+            dict(id="ev_macro_burbuja", file="assets/events/ev_macro_burbuja.png", w=768, h=432, priority=2, prompt="Una pompa de jabón gigante y brillante que contiene una ciudad entera de pisos; Manolo y el cuñado Jonathan, encima de la pompa, brindan con champán sin mirar abajo."),
+            dict(id="ev_macro_crisis", file="assets/events/ev_macro_crisis.png", w=768, h=432, priority=2, prompt="La pompa ha estallado: grúas paradas, carteles de 'SE VENDE' en todos los balcones, persianas bajadas y Manolo mirando un gráfico que cae en picado en la pantalla de un televisor."),
+            dict(id="ev_macro_recuperacion", file="assets/events/ev_macro_recuperacion.png", w=768, h=432, priority=2, prompt="Un brote verde diminuto saliendo de una grieta en el asfalto frente al obrador; un ministro genérico lo señala con orgullo en una rueda de prensa."),
+            dict(id="ev_rival_copia", file="assets/events/ev_rival_copia.png", w=768, h=432, priority=3, prompt="Dos tiendas casi idénticas una frente a otra: la de Manolo y una copia con el mismo diseño en otro color; Manolo señala la copia indignado desde la acera."),
+            dict(id="ev_rival_oferta", file="assets/events/ev_rival_oferta.png", w=768, h=432, priority=3, prompt="Reunión en un rascacielos acristalado: un ejecutivo con traje caro desliza un cheque enorme por una mesa de cristal hacia Manolo, que se ajusta las gafas de sol."),
+            dict(id="ev_fichaje", file="assets/events/ev_fichaje.png", w=768, h=432, priority=3, prompt="Un directivo de Manolo sale por la puerta del obrador con una caja de cartón mientras, en la acera de enfrente, un coche negro de la competencia le espera con la puerta abierta."),
+            dict(id="ev_chivato", file="assets/events/ev_chivato.png", w=768, h=432, priority=3, prompt="Despacho de Manolo: un directivo de pie, muy serio, deja una memoria USB sobre la mesa; detrás, por la ventana, se ve la cola de becarios trabajando de noche."),
+            dict(id="ev_divorcio", file="assets/events/ev_divorcio.png", w=768, h=432, priority=2, prompt="Cocina de casa adosada: Merche, con una carpeta y una abogada a su lado, frente a un Manolo que todavía lleva el móvil en la mano; la nevera llena de imanes de viajes que hizo ella sola."),
+            dict(id="ev_junta", file="assets/events/ev_junta.png", w=768, h=432, priority=2, prompt="Junta de accionistas en un salón de hotel: un gráfico de cotización cayendo en una pantalla enorme, accionistas indignados de pie y un jubilado lanzando un sobao hacia el estrado donde está Manolo."),
         ],
     ),
     (
@@ -262,13 +308,50 @@ GROUPS = [
                 ("action_linkedin", "un maletín con un bocadillo de chat"), ("action_bar", "una caña de cerveza con una tapa"),
                 ("action_alcalde", "un chuletón con un puro"), ("action_charla", "un atril con un micrófono"), ("action_cuentas", "una pila de tickets y una grapadora"),
                 ("action_padel", "una pala de pádel y una pelota"), ("action_marbella", "una tumbona con sombrilla"),
+                ("macro", "un termómetro económico con una flecha que sube y baja"), ("action_cena", "una cazuela de cocido humeante"),
+                ("action_escapada", "un ramo de flores con un billete de tren"),
+                ("lujo_reloj", "un reloj de pulsera dorado enorme"), ("lujo_coche", "un todoterreno negro de alta gama visto de frente"),
+                ("lujo_palco", "un palco de estadio con una bufanda"), ("lujo_cuadro", "un cuadro moderno con una raya roja"),
+                ("lujo_caballo", "un caballo de carreras con dorsal"), ("lujo_yate", "un yate blanco"), ("lujo_chalet", "un chalet blanco con piscina"),
+            ]
+        ] + [
+            dict(id=f"logo_rival_{k}", file=f"assets/ui/logo_rival_{k}.png", w=128, h=128, priority=3,
+                 prompt=f"Logotipo circular inventado para una cadena rival, fondo transparente, legible a 24 px, sin texto salvo una inicial: {v}")
+            for k, v in [
+                ("dona_rosa", "'La Tahona de Doña Rosa': una abuela sonriente con moño dentro de un óvalo rojo, estilo bollería industrial."),
+                ("masa", "'MASA': una hogaza de masa madre minimalista en línea fina, verde salvia sobre crema, estética hipster."),
+                ("burger_bros", "'Burger Bros': dos hamburguesas con gorra plana chocando los puños, azul marino y mostaza."),
+                ("la_portena", "'La Porteña': una empanada con sombrero de gaucho, celeste y blanco."),
+                ("vulture", "'Vulture Capital': un buitre geométrico sobre un edificio, morado y plata, estilo fondo de inversión."),
+                ("gym_bros", "'IronBros 24h': una mancuerna con brazos musculosos, naranja quemado."),
+                ("canas", "'Cañas & Tapas': una caña de cerveza con una tapa encima, marrón y dorado."),
+                ("silver", "'Silver Care': una hoja plateada con forma de corazón, gris azulado, aséptico."),
+                ("hub", "'WeHustle': un cohete saliendo de un portátil, verde esmeralda."),
             ]
         ],
     ),
 ]
 
 
+def merge_extra():
+    """Añade el arte pedido por otros módulos de contenido (si existe)."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    try:
+        from art_events_extra import ART as extra  # noqa: E402
+    except ImportError:
+        return
+    groups = {g[0]: g[3] for g in GROUPS}
+    known = {a["id"] for g in GROUPS for a in g[3]}
+    for a in extra:
+        if a["id"] in known:
+            continue
+        target = "04_retratos.md" if a["id"].startswith("portrait_") else "05_sucesos.md"
+        groups[target].append(a)
+        known.add(a["id"])
+
+
 def main():
+    merge_extra()
     existing = {}
     if os.path.exists(MANIFEST):
         with open(MANIFEST, encoding="utf-8") as f:

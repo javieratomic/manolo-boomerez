@@ -219,3 +219,59 @@ Presentadora de un magacín matinal: melena morena impecable, blazer blanco, mic
 - **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
 
 Iker 'Mindset' Lasa, coach: 35 años, barba cuidada, camiseta blanca de lino, collar de cuentas, descalzo (se intuye) y mirada intensa. Fondo naranja (#f39c12).
+
+## portrait_esposa_merche
+
+- **Archivo:** `assets/portraits/portrait_esposa_merche.png`
+- **Tamaño:** 512×512 px
+- **Prioridad:** 1 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Merche, la mujer de Manolo: 53 años, melena rubia de peluquería, pendientes de perla, chaqueta de tweed y una mirada que mezcla cariño y hartazgo infinito. Elegante y con mucho carácter. Fondo burdeos (#8e3b46).
+
+## portrait_exec_1
+
+- **Archivo:** `assets/portraits/portrait_exec_1.png`
+- **Tamaño:** 512×512 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Directivo/a genérico/a para el equipo de Manolo (se reutiliza para distintos nombres): mujer de unos 40 años, traje gris marengo, melena corta, gafas finas, mirada analítica. Fondo azul petróleo (#1f5f7a).
+
+## portrait_exec_2
+
+- **Archivo:** `assets/portraits/portrait_exec_2.png`
+- **Tamaño:** 512×512 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Directivo/a genérico/a para el equipo de Manolo (se reutiliza para distintos nombres): hombre de unos 35 años, chaleco acolchado sin mangas sobre camisa azul (uniforme de escuela de negocios), sonrisa de LinkedIn. Fondo gris (#7f8c8d).
+
+## portrait_exec_3
+
+- **Archivo:** `assets/portraits/portrait_exec_3.png`
+- **Tamaño:** 512×512 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Directivo/a genérico/a para el equipo de Manolo (se reutiliza para distintos nombres): hombre de unos 50 años, americana de pana, barba canosa y bolígrafo detrás de la oreja; aire de veterano que lo ha visto todo. Fondo verde oliva (#6b7a3a).
+
+## portrait_exec_4
+
+- **Archivo:** `assets/portraits/portrait_exec_4.png`
+- **Tamaño:** 512×512 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Directivo/a genérico/a para el equipo de Manolo (se reutiliza para distintos nombres): mujer de unos 30 años, coleta alta, sudadera de startup y auriculares inalámbricos; energía de 'growth hacker'. Fondo morado (#6c3483).
+
+## portrait_exec_5
+
+- **Archivo:** `assets/portraits/portrait_exec_5.png`
+- **Tamaño:** 512×512 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Directivo/a genérico/a para el equipo de Manolo (se reutiliza para distintos nombres): mujer de unos 55 años, pañuelo al cuello, gafas colgadas de una cadenita y una carpeta de recursos humanos; firme y amable. Fondo terracota (#b9663f).
+
+## portrait_exec_6
+
+- **Archivo:** `assets/portraits/portrait_exec_6.png`
+- **Tamaño:** 512×512 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Directivo/a genérico/a para el equipo de Manolo (se reutiliza para distintos nombres): hombre de unos 45 años, traje azul brillante, gemelos dorados, pelo engominado hacia atrás; puro tiburón. Fondo negro azulado (#1c2833).

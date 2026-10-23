@@ -179,3 +179,155 @@ Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplifi
 - **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
 
 Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre la barra marrón (#3b2a1a). Sin texto. Motivo: una tumbona con sombrilla
+
+## icon_macro
+
+- **Archivo:** `assets/ui/icon_macro.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre la barra marrón (#3b2a1a). Sin texto. Motivo: un termómetro económico con una flecha que sube y baja
+
+## icon_action_cena
+
+- **Archivo:** `assets/ui/icon_action_cena.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre la barra marrón (#3b2a1a). Sin texto. Motivo: una cazuela de cocido humeante
+
+## icon_action_escapada
+
+- **Archivo:** `assets/ui/icon_action_escapada.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre la barra marrón (#3b2a1a). Sin texto. Motivo: un ramo de flores con un billete de tren
+
+## icon_lujo_reloj
+
+- **Archivo:** `assets/ui/icon_lujo_reloj.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre la barra marrón (#3b2a1a). Sin texto. Motivo: un reloj de pulsera dorado enorme
+
+## icon_lujo_coche
+
+- **Archivo:** `assets/ui/icon_lujo_coche.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre la barra marrón (#3b2a1a). Sin texto. Motivo: un todoterreno negro de alta gama visto de frente
+
+## icon_lujo_palco
+
+- **Archivo:** `assets/ui/icon_lujo_palco.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre la barra marrón (#3b2a1a). Sin texto. Motivo: un palco de estadio con una bufanda
+
+## icon_lujo_cuadro
+
+- **Archivo:** `assets/ui/icon_lujo_cuadro.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre la barra marrón (#3b2a1a). Sin texto. Motivo: un cuadro moderno con una raya roja
+
+## icon_lujo_caballo
+
+- **Archivo:** `assets/ui/icon_lujo_caballo.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre la barra marrón (#3b2a1a). Sin texto. Motivo: un caballo de carreras con dorsal
+
+## icon_lujo_yate
+
+- **Archivo:** `assets/ui/icon_lujo_yate.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre la barra marrón (#3b2a1a). Sin texto. Motivo: un yate blanco
+
+## icon_lujo_chalet
+
+- **Archivo:** `assets/ui/icon_lujo_chalet.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre la barra marrón (#3b2a1a). Sin texto. Motivo: un chalet blanco con piscina
+
+## logo_rival_dona_rosa
+
+- **Archivo:** `assets/ui/logo_rival_dona_rosa.png`
+- **Tamaño:** 128×128 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Logotipo circular inventado para una cadena rival, fondo transparente, legible a 24 px, sin texto salvo una inicial: 'La Tahona de Doña Rosa': una abuela sonriente con moño dentro de un óvalo rojo, estilo bollería industrial.
+
+## logo_rival_masa
+
+- **Archivo:** `assets/ui/logo_rival_masa.png`
+- **Tamaño:** 128×128 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Logotipo circular inventado para una cadena rival, fondo transparente, legible a 24 px, sin texto salvo una inicial: 'MASA': una hogaza de masa madre minimalista en línea fina, verde salvia sobre crema, estética hipster.
+
+## logo_rival_burger_bros
+
+- **Archivo:** `assets/ui/logo_rival_burger_bros.png`
+- **Tamaño:** 128×128 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Logotipo circular inventado para una cadena rival, fondo transparente, legible a 24 px, sin texto salvo una inicial: 'Burger Bros': dos hamburguesas con gorra plana chocando los puños, azul marino y mostaza.
+
+## logo_rival_la_portena
+
+- **Archivo:** `assets/ui/logo_rival_la_portena.png`
+- **Tamaño:** 128×128 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Logotipo circular inventado para una cadena rival, fondo transparente, legible a 24 px, sin texto salvo una inicial: 'La Porteña': una empanada con sombrero de gaucho, celeste y blanco.
+
+## logo_rival_vulture
+
+- **Archivo:** `assets/ui/logo_rival_vulture.png`
+- **Tamaño:** 128×128 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Logotipo circular inventado para una cadena rival, fondo transparente, legible a 24 px, sin texto salvo una inicial: 'Vulture Capital': un buitre geométrico sobre un edificio, morado y plata, estilo fondo de inversión.
+
+## logo_rival_gym_bros
+
+- **Archivo:** `assets/ui/logo_rival_gym_bros.png`
+- **Tamaño:** 128×128 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Logotipo circular inventado para una cadena rival, fondo transparente, legible a 24 px, sin texto salvo una inicial: 'IronBros 24h': una mancuerna con brazos musculosos, naranja quemado.
+
+## logo_rival_canas
+
+- **Archivo:** `assets/ui/logo_rival_canas.png`
+- **Tamaño:** 128×128 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Logotipo circular inventado para una cadena rival, fondo transparente, legible a 24 px, sin texto salvo una inicial: 'Cañas & Tapas': una caña de cerveza con una tapa encima, marrón y dorado.
+
+## logo_rival_silver
+
+- **Archivo:** `assets/ui/logo_rival_silver.png`
+- **Tamaño:** 128×128 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Logotipo circular inventado para una cadena rival, fondo transparente, legible a 24 px, sin texto salvo una inicial: 'Silver Care': una hoja plateada con forma de corazón, gris azulado, aséptico.
+
+## logo_rival_hub
+
+- **Archivo:** `assets/ui/logo_rival_hub.png`
+- **Tamaño:** 128×128 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Logotipo circular inventado para una cadena rival, fondo transparente, legible a 24 px, sin texto salvo una inicial: 'WeHustle': un cohete saliendo de un portátil, verde esmeralda.

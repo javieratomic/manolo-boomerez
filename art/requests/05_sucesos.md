@@ -315,3 +315,83 @@ Vanessa con birrete de graduación y una carpeta enorme, explicando un gráfico 
 - **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
 
 Cena familiar en casa de la suegra: el cuñado Jonathan explica algo en el móvil con mucha energía y Manolo pone los ojos en blanco; cocido en la mesa.
+
+## ev_macro_expansion
+
+- **Archivo:** `assets/events/ev_macro_expansion.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Calle comercial española llena de gente con bolsas, grúas al fondo levantando edificios y un banquero sonriente repartiendo tarjetas de crédito como si fueran caramelos.
+
+## ev_macro_burbuja
+
+- **Archivo:** `assets/events/ev_macro_burbuja.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Una pompa de jabón gigante y brillante que contiene una ciudad entera de pisos; Manolo y el cuñado Jonathan, encima de la pompa, brindan con champán sin mirar abajo.
+
+## ev_macro_crisis
+
+- **Archivo:** `assets/events/ev_macro_crisis.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+La pompa ha estallado: grúas paradas, carteles de 'SE VENDE' en todos los balcones, persianas bajadas y Manolo mirando un gráfico que cae en picado en la pantalla de un televisor.
+
+## ev_macro_recuperacion
+
+- **Archivo:** `assets/events/ev_macro_recuperacion.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Un brote verde diminuto saliendo de una grieta en el asfalto frente al obrador; un ministro genérico lo señala con orgullo en una rueda de prensa.
+
+## ev_rival_copia
+
+- **Archivo:** `assets/events/ev_rival_copia.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Dos tiendas casi idénticas una frente a otra: la de Manolo y una copia con el mismo diseño en otro color; Manolo señala la copia indignado desde la acera.
+
+## ev_rival_oferta
+
+- **Archivo:** `assets/events/ev_rival_oferta.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Reunión en un rascacielos acristalado: un ejecutivo con traje caro desliza un cheque enorme por una mesa de cristal hacia Manolo, que se ajusta las gafas de sol.
+
+## ev_fichaje
+
+- **Archivo:** `assets/events/ev_fichaje.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Un directivo de Manolo sale por la puerta del obrador con una caja de cartón mientras, en la acera de enfrente, un coche negro de la competencia le espera con la puerta abierta.
+
+## ev_chivato
+
+- **Archivo:** `assets/events/ev_chivato.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Despacho de Manolo: un directivo de pie, muy serio, deja una memoria USB sobre la mesa; detrás, por la ventana, se ve la cola de becarios trabajando de noche.
+
+## ev_divorcio
+
+- **Archivo:** `assets/events/ev_divorcio.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Cocina de casa adosada: Merche, con una carpeta y una abogada a su lado, frente a un Manolo que todavía lleva el móvil en la mano; la nevera llena de imanes de viajes que hizo ella sola.
+
+## ev_junta
+
+- **Archivo:** `assets/events/ev_junta.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Junta de accionistas en un salón de hotel: un gráfico de cotización cayendo en una pantalla enorme, accionistas indignados de pie y un jubilado lanzando un sobao hacia el estrado donde está Manolo.

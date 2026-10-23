@@ -1,6 +1,9 @@
 // Paneles laterales. Cada render devuelve HTML; las acciones van por atributos data-act.
 import { esc } from './dom.js';
-import { imageUrl } from '../render/assets.js';
+import { imageUrl, hasArt } from '../render/assets.js';
+
+// Usa el arte si ya está entregado; si no, el emoji.
+const artOr = (id, emoji, cls = 'emoji') => (hasArt(id) ? `<img src="${imageUrl(id)}" alt="" class="art-icon">` : `<span class="${cls}">${emoji}</span>`);
 import { CITY_BY_ID, CITIES, HQ_CITY } from '../data/cities.js';
 import { BUSINESS_TYPES, PERKS } from '../data/businesses.js';
 import { POLICIES } from '../data/policies.js';
@@ -275,7 +278,7 @@ function renderRivals(s) {
       const cities = all.filter(([c]) => mine.has(c));
       const others = all.filter(([c]) => !mine.has(c));
       return `<div class="rival-card" style="--rc:${d.color}">
-        <div class="row between"><b>${d.emoji} ${esc(d.name)}</b><span class="small muted">${rivalTotal(r)} locales${r.calm ? ' · en pausa' : ''}</span></div>
+        <div class="row between"><b>${artOr(`logo_rival_${r.id}`, d.emoji)} ${esc(d.name)}</b><span class="small muted">${rivalTotal(r)} locales${r.calm ? ' · en pausa' : ''}</span></div>
         <div class="small muted">${esc(d.desc)}</div>
         <div class="small">Compite con: ${esc(d.targets.map((t) => BUSINESS_TYPES[t]?.name || t).join(', '))}</div>
         ${cities.length ? `<details class="rival-details"><summary>Plantarles cara (${cities.length} ${cities.length === 1 ? 'ciudad' : 'ciudades'} donde coincidís)</summary>` : ''}
@@ -506,7 +509,7 @@ export function renderManolo(s) {
       <p class="small muted">Manolo puede hacer una cosa al mes. Las demás las hace la plantilla.</p>
       <div class="actions">
         ${MANOLO_ACTIONS.map((a) => `<button class="action" data-act="manolo" data-id="${a.id}" ${s.actionUsed || (a.cost && s.cash < a.cost) ? 'disabled' : ''}>
-          <span class="emoji">${a.emoji}</span><span><b>${esc(a.name)}</b><small>${esc(a.desc)}</small></span></button>`).join('')}
+          ${artOr(a.icon, a.emoji)}<span><b>${esc(a.name)}</b><small>${esc(a.desc)}</small></span></button>`).join('')}
       </div>
     </div>
     ${renderFamily(s)}
@@ -538,7 +541,7 @@ function renderLujos(s) {
     <div class="products">${LUJOS.map((l) => {
       const owned = (s.lujo || []).find((x) => x.id === l.id);
       return `<div class="product ${owned ? 'on' : ''}">
-        <span class="emoji big">${l.emoji}</span>
+        ${artOr(`icon_lujo_${l.id}`, l.emoji, 'emoji big')}
         <div class="grow"><b>${esc(l.name)}</b> <span class="small muted">${owned ? `vale ${moneyShort(owned.value)}` : moneyShort(l.cost)}${l.upkeep ? ` · ${moneyShort(l.upkeep)}/mes` : ''}</span>
           <div class="small muted">${esc(l.desc)} Fama +${l.fama}${l.familia ? `, familia ${l.familia > 0 ? '+' : '−'}${Math.abs(l.familia)}` : ''}.</div></div>
         ${owned ? `<button class="btn small ghost" data-act="lujo-sell" data-id="${l.id}">Vender</button>`

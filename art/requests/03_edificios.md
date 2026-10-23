@@ -84,6 +84,38 @@ Hamburguesería 'Manolo Smash Club': local con neón rosa y azul, rótulo de ham
 
 'Boomerez Business Academy': oficina en un bajo con cristaleras, un enorme vinilo de Manolo con los brazos cruzados y el lema 'MENTALIDAD DE TIBURÓN', un tiburón hinchable en el escaparate y sillas de coworking vacías.
 
+## bld_taberna
+
+- **Archivo:** `assets/buildings/bld_taberna.png`
+- **Tamaño:** 256×256 px · **ancla:** (128, 240)
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+'La Taberna del Emprendedor': bar de tapas castizo con fachada de madera verde, toldo granate, barriles en la puerta usados como mesas, una pizarra con frases de Manolo y jamones colgados visibles tras la cristalera.
+
+## bld_gimnasio
+
+- **Archivo:** `assets/buildings/bld_gimnasio.png`
+- **Tamaño:** 256×256 px · **ancla:** (128, 240)
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+'Boomer Fit 24h': nave de gimnasio low-cost con fachada naranja chillón, cristalera con cintas de correr en fila, un rótulo luminoso '24H' y una mancuerna gigante de fibra de vidrio en la acera.
+
+## bld_coworking
+
+- **Archivo:** `assets/buildings/bld_coworking.png`
+- **Tamaño:** 256×256 px · **ancla:** (128, 240)
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+'Hustle Hub Coworking': antiguo almacén de ladrillo reconvertido, ventanales industriales, plantas colgantes, un neón verde con un cohete y jóvenes con portátiles y patinetes eléctricos en la puerta.
+
+## bld_residencia
+
+- **Archivo:** `assets/buildings/bld_residencia.png`
+- **Tamaño:** 256×256 px · **ancla:** (128, 240)
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+'Residencia Golden Age Boomerez': edificio de tres plantas color crema con barandillas, un jardincito con bancos, una furgoneta adaptada y un cartel dorado excesivamente lujoso para lo que es. Algo melancólico.
+
 ## bld_city_base
 
 - **Archivo:** `assets/buildings/bld_city_base.png`

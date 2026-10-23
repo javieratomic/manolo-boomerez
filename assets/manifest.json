@@ -22,8 +22,8 @@
         128,
         240
       ],
-      "version": 1,
-      "notes": "Diorama transparente; base alineada a (128, 240)."
+      "notes": "Diorama transparente; base alineada a (128, 240).",
+      "version": 1
     },
     {
       "id": "bld_obrador_2",
@@ -63,8 +63,8 @@
         128,
         240
       ],
-      "version": 1,
-      "notes": "Diorama transparente; base alineada a (128, 240)."
+      "notes": "Diorama transparente; base alineada a (128, 240).",
+      "version": 1
     },
     {
       "id": "bld_sobaos_maison",
@@ -78,8 +78,8 @@
         128,
         240
       ],
-      "version": 1,
-      "notes": "Diorama transparente; base alineada a (128, 240)."
+      "notes": "Diorama transparente; base alineada a (128, 240).",
+      "version": 1
     },
     {
       "id": "bld_vivienda",
@@ -93,8 +93,8 @@
         128,
         240
       ],
-      "version": 1,
-      "notes": "Diorama transparente; huella de unos 150 px y ancla frontal (128, 240)."
+      "notes": "Diorama transparente; huella de unos 150 px y ancla frontal (128, 240).",
+      "version": 1
     },
     {
       "id": "bld_airbnb",
@@ -108,8 +108,8 @@
         128,
         240
       ],
-      "version": 1,
-      "notes": "Diorama transparente; huella de unos 150 px y ancla frontal (128, 240)."
+      "notes": "Diorama transparente; huella de unos 150 px y ancla frontal (128, 240).",
+      "version": 1
     },
     {
       "id": "bld_smash",
@@ -123,8 +123,8 @@
         128,
         240
       ],
-      "version": 1,
-      "notes": "Diorama transparente; huella de unos 150 px y ancla frontal (128, 240)."
+      "notes": "Diorama transparente; huella de unos 150 px y ancla frontal (128, 240).",
+      "version": 1
     },
     {
       "id": "bld_empanadas",
@@ -138,8 +138,8 @@
         128,
         240
       ],
-      "version": 1,
-      "notes": "Diorama transparente; huella de unos 150 px y ancla frontal (128, 240)."
+      "notes": "Diorama transparente; huella de unos 150 px y ancla frontal (128, 240).",
+      "version": 1
     },
     {
       "id": "bld_academy",
@@ -149,6 +149,58 @@
       "status": "requested",
       "priority": 2,
       "request": "art/requests/03_edificios.md#bld_academy",
+      "anchor": [
+        128,
+        240
+      ]
+    },
+    {
+      "id": "bld_taberna",
+      "file": "assets/buildings/bld_taberna.png",
+      "w": 256,
+      "h": 256,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/03_edificios.md#bld_taberna",
+      "anchor": [
+        128,
+        240
+      ]
+    },
+    {
+      "id": "bld_gimnasio",
+      "file": "assets/buildings/bld_gimnasio.png",
+      "w": 256,
+      "h": 256,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/03_edificios.md#bld_gimnasio",
+      "anchor": [
+        128,
+        240
+      ]
+    },
+    {
+      "id": "bld_coworking",
+      "file": "assets/buildings/bld_coworking.png",
+      "w": 256,
+      "h": 256,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/03_edificios.md#bld_coworking",
+      "anchor": [
+        128,
+        240
+      ]
+    },
+    {
+      "id": "bld_residencia",
+      "file": "assets/buildings/bld_residencia.png",
+      "w": 256,
+      "h": 256,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/03_edificios.md#bld_residencia",
       "anchor": [
         128,
         240
@@ -414,6 +466,69 @@
       "status": "requested",
       "priority": 3,
       "request": "art/requests/04_retratos.md#portrait_coach"
+    },
+    {
+      "id": "portrait_esposa_merche",
+      "file": "assets/portraits/portrait_esposa_merche.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 1,
+      "request": "art/requests/04_retratos.md#portrait_esposa_merche"
+    },
+    {
+      "id": "portrait_exec_1",
+      "file": "assets/portraits/portrait_exec_1.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/04_retratos.md#portrait_exec_1"
+    },
+    {
+      "id": "portrait_exec_2",
+      "file": "assets/portraits/portrait_exec_2.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/04_retratos.md#portrait_exec_2"
+    },
+    {
+      "id": "portrait_exec_3",
+      "file": "assets/portraits/portrait_exec_3.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/04_retratos.md#portrait_exec_3"
+    },
+    {
+      "id": "portrait_exec_4",
+      "file": "assets/portraits/portrait_exec_4.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/04_retratos.md#portrait_exec_4"
+    },
+    {
+      "id": "portrait_exec_5",
+      "file": "assets/portraits/portrait_exec_5.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/04_retratos.md#portrait_exec_5"
+    },
+    {
+      "id": "portrait_exec_6",
+      "file": "assets/portraits/portrait_exec_6.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/04_retratos.md#portrait_exec_6"
     },
     {
       "id": "ev_intro_herencia",
@@ -767,6 +882,96 @@
       "request": "art/requests/05_sucesos.md#ev_cena"
     },
     {
+      "id": "ev_macro_expansion",
+      "file": "assets/events/ev_macro_expansion.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_macro_expansion"
+    },
+    {
+      "id": "ev_macro_burbuja",
+      "file": "assets/events/ev_macro_burbuja.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_macro_burbuja"
+    },
+    {
+      "id": "ev_macro_crisis",
+      "file": "assets/events/ev_macro_crisis.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_macro_crisis"
+    },
+    {
+      "id": "ev_macro_recuperacion",
+      "file": "assets/events/ev_macro_recuperacion.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_macro_recuperacion"
+    },
+    {
+      "id": "ev_rival_copia",
+      "file": "assets/events/ev_rival_copia.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_rival_copia"
+    },
+    {
+      "id": "ev_rival_oferta",
+      "file": "assets/events/ev_rival_oferta.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_rival_oferta"
+    },
+    {
+      "id": "ev_fichaje",
+      "file": "assets/events/ev_fichaje.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_fichaje"
+    },
+    {
+      "id": "ev_chivato",
+      "file": "assets/events/ev_chivato.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_chivato"
+    },
+    {
+      "id": "ev_divorcio",
+      "file": "assets/events/ev_divorcio.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_divorcio"
+    },
+    {
+      "id": "ev_junta",
+      "file": "assets/events/ev_junta.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_junta"
+    },
+    {
       "id": "end_bancarrota",
       "file": "assets/endings/end_bancarrota.png",
       "w": 1280,
@@ -1026,6 +1231,177 @@
       "status": "requested",
       "priority": 3,
       "request": "art/requests/07_interfaz.md#icon_action_marbella"
+    },
+    {
+      "id": "icon_macro",
+      "file": "assets/ui/icon_macro.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_macro"
+    },
+    {
+      "id": "icon_action_cena",
+      "file": "assets/ui/icon_action_cena.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_action_cena"
+    },
+    {
+      "id": "icon_action_escapada",
+      "file": "assets/ui/icon_action_escapada.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_action_escapada"
+    },
+    {
+      "id": "icon_lujo_reloj",
+      "file": "assets/ui/icon_lujo_reloj.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_lujo_reloj"
+    },
+    {
+      "id": "icon_lujo_coche",
+      "file": "assets/ui/icon_lujo_coche.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_lujo_coche"
+    },
+    {
+      "id": "icon_lujo_palco",
+      "file": "assets/ui/icon_lujo_palco.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_lujo_palco"
+    },
+    {
+      "id": "icon_lujo_cuadro",
+      "file": "assets/ui/icon_lujo_cuadro.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_lujo_cuadro"
+    },
+    {
+      "id": "icon_lujo_caballo",
+      "file": "assets/ui/icon_lujo_caballo.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_lujo_caballo"
+    },
+    {
+      "id": "icon_lujo_yate",
+      "file": "assets/ui/icon_lujo_yate.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_lujo_yate"
+    },
+    {
+      "id": "icon_lujo_chalet",
+      "file": "assets/ui/icon_lujo_chalet.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_lujo_chalet"
+    },
+    {
+      "id": "logo_rival_dona_rosa",
+      "file": "assets/ui/logo_rival_dona_rosa.png",
+      "w": 128,
+      "h": 128,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#logo_rival_dona_rosa"
+    },
+    {
+      "id": "logo_rival_masa",
+      "file": "assets/ui/logo_rival_masa.png",
+      "w": 128,
+      "h": 128,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#logo_rival_masa"
+    },
+    {
+      "id": "logo_rival_burger_bros",
+      "file": "assets/ui/logo_rival_burger_bros.png",
+      "w": 128,
+      "h": 128,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#logo_rival_burger_bros"
+    },
+    {
+      "id": "logo_rival_la_portena",
+      "file": "assets/ui/logo_rival_la_portena.png",
+      "w": 128,
+      "h": 128,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#logo_rival_la_portena"
+    },
+    {
+      "id": "logo_rival_vulture",
+      "file": "assets/ui/logo_rival_vulture.png",
+      "w": 128,
+      "h": 128,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#logo_rival_vulture"
+    },
+    {
+      "id": "logo_rival_gym_bros",
+      "file": "assets/ui/logo_rival_gym_bros.png",
+      "w": 128,
+      "h": 128,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#logo_rival_gym_bros"
+    },
+    {
+      "id": "logo_rival_canas",
+      "file": "assets/ui/logo_rival_canas.png",
+      "w": 128,
+      "h": 128,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#logo_rival_canas"
+    },
+    {
+      "id": "logo_rival_silver",
+      "file": "assets/ui/logo_rival_silver.png",
+      "w": 128,
+      "h": 128,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#logo_rival_silver"
+    },
+    {
+      "id": "logo_rival_hub",
+      "file": "assets/ui/logo_rival_hub.png",
+      "w": 128,
+      "h": 128,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#logo_rival_hub"
     }
   ]
 }

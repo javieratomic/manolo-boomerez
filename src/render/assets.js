@@ -162,6 +162,13 @@ const CHARACTERS = {
   banquero: { bg: '#2c3e50', skin: '#e2b391', hair: '#6a6a6a', shirt: '#1d2733', tie: '#2a7ab0' },
   presentadora: { bg: '#e74c3c', skin: '#eebd9a', hair: '#1f1f1f', shirt: '#f5f5f5', longHair: true },
   coach: { bg: '#f39c12', skin: '#d79a6f', hair: '#2a1a10', shirt: '#ffffff', beard: '#2a1a10', young: true },
+  esposa_merche: { bg: '#8e3b46', skin: '#efc3a0', hair: '#e3c77d', shirt: '#9c8f7a', longHair: true },
+  exec_1: { bg: '#1f5f7a', skin: '#e9bf9c', hair: '#3b2a1d', shirt: '#4d5656', glasses: true, longHair: true },
+  exec_2: { bg: '#7f8c8d', skin: '#efc6a6', hair: '#6b4f2a', shirt: '#2e86c1', young: true },
+  exec_3: { bg: '#6b7a3a', skin: '#d9a47f', hair: '#9e9e9e', shirt: '#7e5109', beard: '#9e9e9e' },
+  exec_4: { bg: '#6c3483', skin: '#f0c9a8', hair: '#1c1c1c', shirt: '#212f3d', young: true, longHair: true },
+  exec_5: { bg: '#b9663f', skin: '#e4b48f', hair: '#b0b0b0', shirt: '#f4ecf7', glasses: true, longHair: true },
+  exec_6: { bg: '#1c2833', skin: '#e3b08a', hair: '#111111', shirt: '#1a5276', tie: '#d4ac0d' },
 };
 
 const MANOLO_MOODS = { neutral: 'neutral', smug: 'smug', angry: 'angry', scared: 'scared', happy: 'happy', thinking: 'thinking' };
@@ -350,6 +357,8 @@ const SCENE_EMOJI = {
   ev_hija: '🎨', ev_supermercado: '🛒', ev_smash: '🍔', ev_vecinos: '🪧', ev_hilo: '🧵', ev_primo: '🧉', ev_premio: '🏆',
   ev_sanidad: '🧪', ev_rival: '☕', ev_banco: '🏦', ev_tv: '📺', ev_maletin: '💼', ev_sindicato: '🗳️', ev_robot: '🤖',
   ev_empanadas: '🥟', ev_calor: '🥵', ev_coach: '🧘', ev_erte: '📋',
+  ev_macro_expansion: '📈', ev_macro_burbuja: '🫧', ev_macro_crisis: '📉', ev_macro_recuperacion: '🌱', ev_rival_copia: '🪞', ev_rival_oferta: '💰',
+  ev_fichaje: '📦', ev_chivato: '💾', ev_divorcio: '💔', ev_junta: '📊',
   ev_jefe_infiltrado: '🥸', ev_okupas: '🔒', ev_igp: '🏅', ev_riders: '🛵', ev_fondos: '🇪🇺', ev_peor_jefe: '👎', ev_mantequilla: '🧈', ev_vanessa: '🎓', ev_cena: '🍽️',
   end_bancarrota: '📉', end_carcel: '⛓️', end_cooperativa: '🤝', end_forbes: '💎', end_tiburon: '🦈', end_pyme: '🏪', end_ruina: '🥀',
 };
@@ -388,6 +397,7 @@ const ICON_EMOJI = {
   icon_inspeccion: '🔎', icon_hacienda: '🏛️', icon_calendar: '📅', icon_staff: '👷', icon_control: '🔑',
   icon_action_linkedin: '💼', icon_action_bar: '🍺', icon_action_alcalde: '🥩', icon_action_charla: '📣',
   icon_action_cuentas: '🧾', icon_action_padel: '🎾', icon_action_marbella: '🏖️',
+  icon_macro: '📈', icon_action_cena: '🍲', icon_action_escapada: '💐',
 };
 
 function iconPlaceholder(id) {

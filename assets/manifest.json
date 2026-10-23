@@ -622,18 +622,22 @@
       "file": "assets/portraits/portrait_periodista.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/04_retratos.md#portrait_periodista"
+      "request": "art/requests/04_retratos.md#portrait_periodista",
+      "version": 1,
+      "notes": "Ilustracion 2.5D opaca; dimensiones y peso verificados."
     },
     {
       "id": "portrait_madre",
       "file": "assets/portraits/portrait_madre.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/04_retratos.md#portrait_madre"
+      "request": "art/requests/04_retratos.md#portrait_madre",
+      "version": 1,
+      "notes": "Ilustracion 2.5D opaca; dimensiones y peso verificados."
     },
     {
       "id": "ev_intro_herencia",
@@ -1829,27 +1833,33 @@
       "file": "assets/ui/bg_title.png",
       "w": 1920,
       "h": 1080,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/07_interfaz.md#bg_title"
+      "request": "art/requests/07_interfaz.md#bg_title",
+      "version": 1,
+      "notes": "Ilustracion 2.5D opaca; dimensiones y peso verificados."
     },
     {
       "id": "app_icon_512",
       "file": "assets/ui/app_icon_512.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/07_interfaz.md#app_icon_512"
+      "request": "art/requests/07_interfaz.md#app_icon_512",
+      "version": 1,
+      "notes": "Icono opaco sobre naranja; misma imagen en tamaños 512 y 192."
     },
     {
       "id": "app_icon_192",
       "file": "assets/ui/app_icon_192.png",
       "w": 192,
       "h": 192,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/07_interfaz.md#app_icon_192"
+      "request": "art/requests/07_interfaz.md#app_icon_192",
+      "version": 1,
+      "notes": "Icono opaco sobre naranja; misma imagen en tamaños 512 y 192."
     },
     {
       "id": "icon_cash",

@@ -431,6 +431,18 @@ test('pisos turísticos con licencia o sin ella', () => {
   assert(!canOpen(s, 'airbnb', 'zaragoza', 'ilegal').ok, 'en Zaragoza no hace falta licencia');
 });
 
+test('modo infinito: tras el final por tiempo se puede seguir', () => {
+  const s = started(61);
+  s.month = 96;
+  assertEq(checkEnding(s), 'ruina_lenta');
+  s.ending = null;
+  s.endless = true;
+  assertEq(checkEnding(s), null);
+  s.cooldowns.trabajo = s.cooldowns.hacienda = 99;
+  advanceMonth(s);
+  assertEq(s.month, 97);
+});
+
 test('fechas en español', () => {
   assertEq(dateLabel(0), 'Enero 2026');
   assertEq(dateLabel(13), 'Febrero 2027');

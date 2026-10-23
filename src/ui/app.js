@@ -19,7 +19,7 @@ import { RIVALS } from '../data/rivals.js';
 import { buyLujo, sellLujo, doIPO } from '../core/life.js';
 import { LUJO_BY_ID } from '../data/lujo.js';
 import { grossPatrimonio } from '../core/economy.js';
-import { money, moneyShort, dateLabel, GAME_MONTHS, START_YEAR } from '../core/helpers.js';
+import { money, moneyShort, dateLabel, GAME_MONTHS, START_YEAR, log } from '../core/helpers.js';
 import { HQ_CITY, CITY_BY_ID } from '../data/cities.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
 import { ENDINGS } from '../data/endings.js';
@@ -139,7 +139,7 @@ function renderHUD(s) {
   const pat = patrimonio(s);
   $('#hud').innerHTML = `
     <div class="hud-brand">${esc(s.brand === 'maison' ? 'Maison Boomerez' : 'Boomerez S.L.')}</div>
-    ${hudItem('icon_calendar', '📅', 'Fecha', `<span class="long">${dateLabel(s.month)}</span><span class="short">${dateLabel(s.month).slice(0, 3)} ${String(dateLabel(s.month)).slice(-2)}</span>`, `<span class="hud-sub">Mes ${Math.min(s.month + 1, GAME_MONTHS)}/${GAME_MONTHS}</span>`)}
+    ${hudItem('icon_calendar', '📅', 'Fecha', `<span class="long">${dateLabel(s.month)}</span><span class="short">${dateLabel(s.month).slice(0, 3)} ${String(dateLabel(s.month)).slice(-2)}</span>`, `<span class="hud-sub">${s.endless ? `Mes ${s.month + 1} · ♾️` : `Mes ${Math.min(s.month + 1, GAME_MONTHS)}/${GAME_MONTHS}`}</span>`)}
     ${hudItem('icon_cash', '💶', 'Caja', `<span class="${s.cash < 0 ? 'neg' : ''}">${moneyShort(s.cash)}</span>`, '', 'Dinero disponible. Si baja de cero, el banco tira de la póliza.')}
     ${hudItem('icon_debt', '🏦', 'Deuda', moneyShort(s.debt), '', 'Lo que debes a la Caja Cantábrica. Genera intereses cada mes.')}
     ${hudItem('icon_patrimonio', '🏰', 'Patrimonio', moneyShort(pat), '', 'Caja − deuda + valor de obrador, negocios e inmuebles. Es lo que cuenta para los finales.')}
@@ -655,7 +655,18 @@ async function showEnding(id) {
     title: e.title, ending: id, patrimonio: Math.round(patrimonio(s)), score: score(s), months: s.month,
     brand: s.brand, difficulty: s.difficulty || 'normal', date: new Date().toLocaleDateString('es-ES'),
   });
-  const i = await showModal({ title: e.title, kicker: rank >= 0 ? `FIN · Puesto ${rank + 1} del Salón de la fama` : 'FIN', image: e.image, html, wide: true, className: `ending ${e.tone}`, choices: [{ label: 'Nueva partida', primary: true }, { label: 'Volver al título' }] });
+  // Si el final es por tiempo o por Forbes, se puede seguir jugando sin límite.
+  const canContinue = ['tiburon', 'pyme', 'ruina_lenta', 'forbes'].includes(id);
+  const choices = [{ label: 'Nueva partida', primary: true }, { label: 'Volver al título' }];
+  if (canContinue) choices.push({ label: 'Seguir jugando (modo infinito)', hint: 'Sin límite de tiempo. El récord ya está guardado.' });
+  const i = await showModal({ title: e.title, kicker: rank >= 0 ? `FIN · Puesto ${rank + 1} del Salón de la fama` : 'FIN', image: e.image, html, wide: true, className: `ending ${e.tone}`, choices });
+  if (i === 2) {
+    s.ending = null;
+    s.endless = true;
+    log(s, '♾️ Manolo decide que jubilarse es de pobres. Modo infinito activado.', 'info');
+    renderAll();
+    return;
+  }
   clearStorage();
   // Se difiere para que la cola de sucesos actual termine antes de empezar otra partida.
   setTimeout(() => (i === 0 ? startGame(newGame()) : showTitle()));

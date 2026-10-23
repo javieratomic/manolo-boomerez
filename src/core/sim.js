@@ -254,8 +254,8 @@ export function checkEnding(s) {
   if (s.expedientes >= 3) id = 'carcel';
   else if (s.insolvencyMonths >= 3) id = 'bancarrota';
   else if (s.zeroMoralMonths >= 2) id = 'cooperativa';
-  else if (pat >= 15e6) id = 'forbes';
-  else if (s.month >= GAME_MONTHS) id = pat >= 5e6 ? 'tiburon' : pat >= 800000 ? 'pyme' : 'ruina_lenta';
+  else if (pat >= 15e6 && !s.endless) id = 'forbes';
+  else if (s.month >= GAME_MONTHS && !s.endless) id = pat >= 5e6 ? 'tiburon' : pat >= 800000 ? 'pyme' : 'ruina_lenta';
   if (id) s.ending = id;
   return id;
 }

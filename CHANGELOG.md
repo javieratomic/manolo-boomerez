@@ -39,8 +39,9 @@
 
 ### Calidad
 - Dos revisiones de sistemas con agentes y una auditoría completa del contenido (354 agentes: detección,
-  verificación doble y corrección). Los textos ya dicen exactamente lo que hace el código y no hay marcas
-  ni personas reales (el final de Forbes pasa a ser la revista de millonarios).
+  verificación doble y corrección). Los textos ya dicen exactamente lo que hace el código y se han
+  sustituido las marcas y personas reales por equivalentes inventados (el final de Forbes pasa a ser la
+  revista de millonarios); solo quedan las referencias culturales deliberadas a LinkedIn y al Audi.
 - Exploits de dinero infinito con franquicias y de reventa tras una OPA, corregidos.
 - Las partidas guardadas de la 0.1 se migran automáticamente (objetivos incluidos).
 - Pruebas: 44 tests, partidas automáticas con varias estrategias, fuzzing de 40 partidas caóticas y prueba de

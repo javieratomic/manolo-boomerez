@@ -21,6 +21,45 @@ function coveted(s) {
 
 export const SYSTEM_EVENTS = [
   {
+    id: 'piso_ilegal',
+    title: 'Inspección de pisos turísticos',
+    portrait: 'portrait_vecina', image: 'ev_piso_ilegal',
+    text: (s, p) => `Los inspectores municipales de ${CITY_BY_ID[p.city]?.name ?? 'la ciudad'} han detectado tus pisos turísticos sin licencia gracias a una vecina con prismáticos y mucho tiempo libre.`,
+    weight: () => 0,
+    choices: [
+      {
+        label: 'Regularizar: multa y licencia (160.000 €)',
+        available: (s, p) => s.businesses.some((b) => b.id === p.businessId),
+        effect(s, p) {
+          addCash(s, -160000);
+          const b = s.businesses.find((x) => x.id === p.businessId);
+          if (b) b.ilegal = false;
+          return 'Pagas 40.000 € de multa y 120.000 € de licencia. Ahora tus pisos son legales y la vecina está desolada.';
+        },
+      },
+      {
+        label: 'Pagar la multa (40.000 €) y seguir igual',
+        hint: 'La próxima vez puede ser peor.',
+        effect(s) {
+          addCash(s, -40000);
+          addRep(s, -3);
+          return 'Pagas y sigues. La vecina compra unos prismáticos mejores. Reputación −3.';
+        },
+      },
+      {
+        label: 'Cerrarlos y venderlos',
+        available: (s, p) => s.businesses.some((b) => b.id === p.businessId),
+        effect(s, p) {
+          const b = s.businesses.find((x) => x.id === p.businessId);
+          const price = Math.round((b?.value || 0) * 0.8);
+          addCash(s, price - 20000);
+          s.businesses = s.businesses.filter((x) => x !== b);
+          return `Vendes el edificio por ${money(price)} a un fondo que sí tiene licencias (y abogados). Multa reducida: 20.000 €.`;
+        },
+      },
+    ],
+  },
+  {
     id: 'divorcio',
     title: 'Merche quiere el divorcio',
     portrait: 'portrait_esposa_merche', image: 'ev_divorcio',

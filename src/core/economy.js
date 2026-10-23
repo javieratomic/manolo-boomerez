@@ -8,6 +8,7 @@ import { rivalFactor } from './rivals.js';
 import { productFactor, levelFactor } from './market.js';
 import { execBonus, execSalaries } from './execs.js';
 import { lujoValue, lujoUpkeep } from './life.js';
+import { transportCost, regionalCount, REGIONAL_CAPACITY } from './logistics.js';
 
 export const SOBAO_SEASON = [1.05, 0.95, 0.95, 1, 1, 0.9, 0.85, 0.9, 1, 1.05, 1.1, 1.35];
 export const TOURISM_SEASON = [0.6, 0.65, 0.8, 0.95, 1, 1.2, 1.5, 1.55, 1.15, 0.9, 0.7, 0.85];
@@ -34,7 +35,7 @@ export const repFactor = (rep) => 0.55 + (0.9 * rep) / 100;
 
 export function obradorCapacity(s) {
   const base = OBRADOR_BASE.capacity + s.obrador.upgrades.reduce((a, id) => a + (OBRADOR_UPGRADES.find((u) => u.id === id)?.capacity || 0), 0);
-  return base * (1 + execBonus(s, 'operaciones'));
+  return (base + REGIONAL_CAPACITY * regionalCount(s)) * (1 + execBonus(s, 'operaciones'));
 }
 
 export function obradorValue(s) {
@@ -108,8 +109,8 @@ export function computeEconomy(s) {
   const sat = (b) => 1 / (1 + 0.45 * ((counts[`${b.city}:${b.type}`] || 1) - 1));
 
   const lines = [];
-  const costs = { salarios: 0, directivos: 0, estructura: 0, alquileres: 0, materias: 0, otros: 0, intereses: 0, asesores: 0, personales: 0, impuestos: 0 };
-  const revenueByCat = { sobaos: 0, inmobiliario: 0, hosteleria: 0, formacion: 0, servicios: 0 };
+  const costs = { salarios: 0, directivos: 0, estructura: 0, alquileres: 0, materias: 0, transporte: 0, otros: 0, intereses: 0, asesores: 0, personales: 0, impuestos: 0 };
+  const revenueByCat = { sobaos: 0, inmobiliario: 0, hosteleria: 0, formacion: 0, servicios: 0, produccion: 0 };
   let employees = 0;
 
   // --- Demanda de sobaos ---------------------------------------------------
@@ -160,8 +161,10 @@ export function computeEconomy(s) {
   for (const e of sobaoEntries) {
     const { b, t, c } = e;
     const units = e.demand * fill;
-    const materials = units * t.unitCost * fx.ing.cost;
-    costs.materias += materials;
+    const shipping = units * transportCost(s, b.city);
+    const materials = units * t.unitCost * fx.ing.cost + shipping;
+    costs.materias += materials - shipping;
+    costs.transporte += shipping;
     if (b.mode === 'franquicia') {
       const fRevenue = units * t.price;
       const income = units * t.wholesale + fRevenue * FRANCHISE_ROYALTY;
@@ -211,6 +214,13 @@ export function computeEconomy(s) {
         cost += revenue * 0.1;
       }
       employees += lineStaff;
+    } else if (t.model === 'production') {
+      // Obrador regional: no vende, fabrica (su capacidad se suma en obradorCapacity).
+      const wages = t.staff * wage;
+      costs.salarios += wages;
+      costs.otros += t.upkeep;
+      cost = wages + t.upkeep;
+      employees += t.staff;
     } else if (t.model === 'care') {
       // Residencia: plazas limitadas; el precio depende de la renta y la ocupación de la población y la reputación.
       const beds = t.beds + 10 * ((b.level || 1) - 1);
@@ -280,7 +290,7 @@ export function computeEconomy(s) {
   costs.personales = lujoUpkeep(s);
 
   const revenue = Object.values(revenueByCat).reduce((a, b) => a + b, 0);
-  const totalCost = costs.salarios + costs.directivos + costs.alquileres + costs.materias + costs.otros + costs.intereses + costs.asesores + costs.personales + costs.estructura;
+  const totalCost = costs.salarios + costs.directivos + costs.alquileres + costs.materias + costs.otros + costs.intereses + costs.asesores + costs.personales + costs.estructura + costs.transporte;
   const profit = revenue - totalCost;
 
   let tax = 0;

@@ -260,9 +260,11 @@ async function onClick(e) {
           `Un emprendedor local te paga ${money(franchiseFee(s, el.dataset.type))} de canon y monta la tienda con su dinero. Tú le vendes los sobaos a precio mayorista y cobras un 5 % de royalties.\n\nSi pierde dinero 4 meses seguidos, quebrará... y vendrá a pedirte explicaciones.`, 'Firmar');
         if (!ok) return;
       }
+      if (el.dataset.mode === 'ilegal' && !(await confirmModal('Pisos sin licencia', 'Abres los pisos turísticos sin licencia. Te ahorras 120.000 €, pero cada mes hay una probabilidad de que el ayuntamiento te pille (multa de 40.000 € o más) y el radar de Hacienda sube.', 'Arriesgarse'))) return;
       res = openBusiness(s, el.dataset.type, game.city, el.dataset.mode);
       if (res.ok) play(el.dataset.mode === 'franquicia' ? 'cash' : 'build');
-      if (res.ok) toast(el.dataset.mode === 'franquicia' ? `🤝 Franquicia vendida en ${CITY_BY_ID[game.city].name}` : `🏗️ ${t.name} abierto en ${CITY_BY_ID[game.city].name}`, 'good');
+      if (res.ok && el.dataset.mode === 'ilegal') toast(`🙈 Pisos "de temporada" abiertos en ${CITY_BY_ID[game.city].name}`, 'bad');
+      else if (res.ok) toast(el.dataset.mode === 'franquicia' ? `🤝 Franquicia vendida en ${CITY_BY_ID[game.city].name}` : `🏗️ ${t.name} abierto en ${CITY_BY_ID[game.city].name}`, 'good');
       break;
     }
     case 'sell': {

@@ -116,6 +116,14 @@ Hamburguesería 'Manolo Smash Club': local con neón rosa y azul, rótulo de ham
 
 'Residencia Golden Age Boomerez': edificio de tres plantas color crema con barandillas, un jardincito con bancos, una furgoneta adaptada y un cartel dorado excesivamente lujoso para lo que es. Algo melancólico.
 
+## bld_obrador_regional
+
+- **Archivo:** `assets/buildings/bld_obrador_regional.png`
+- **Tamaño:** 256×256 px · **ancla:** (128, 240)
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Obrador regional Boomerez: nave industrial mediana de chapa crema con un tejadillo de teja falsa para parecer 'tradicional', chimenea con humo, una furgoneta de reparto con el logo y un cartel que dice 'Obrador artesano' sobre una puerta de muelle de carga.
+
 ## bld_city_base
 
 - **Archivo:** `assets/buildings/bld_city_base.png`

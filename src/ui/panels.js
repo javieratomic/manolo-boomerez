@@ -9,7 +9,8 @@ import { BUSINESS_TYPES, PERKS } from '../data/businesses.js';
 import { POLICIES } from '../data/policies.js';
 import { MANOLO_ACTIONS } from '../data/manoloActions.js';
 import { computeEconomy, estimateOpening, obradorCapacity, patrimonio, creditLimit, averageWage } from '../core/economy.js';
-import { canOpen, openingCost, sobaoTypeId, nextUpgrade, saleValue, canRebrand, franchiseFee, LOAN_STEP } from '../core/actions.js';
+import { canOpen, openingCost, sobaoTypeId, nextUpgrade, saleValue, canRebrand, franchiseFee, needsLicense, LOAN_STEP } from '../core/actions.js';
+import { nearestSite, transportCost } from '../core/logistics.js';
 import { RIVALS, RIVAL_MAX_LEVEL } from '../data/rivals.js';
 import { CAMPAIGNS, PRODUCTS, MAX_LEVEL } from '../data/market.js';
 import { POSITIONS, TRAITS } from '../data/execs.js';
@@ -43,6 +44,7 @@ const LOCK_HINTS = {
   smash: 'Se desbloquea con 4 tiendas de sobaos o en el mes 18.',
   empanadas: 'Se desbloquea con 4 tiendas de sobaos o en el mes 18.',
   academy: 'Se desbloquea con fama 25.',
+  obrador_regional: 'Se desbloquea con 6 tiendas de sobaos o en el mes 24.',
   taberna: 'Se desbloquea con 2 tiendas de sobaos o en el mes 6.',
   gimnasio: 'Se desbloquea en el mes 12 o con 5 tiendas de sobaos.',
   coworking: 'Se desbloquea con fama 35 o con la Academy abierta.',
@@ -79,6 +81,8 @@ export function renderCity(s, cityId) {
         <span class="chip">💰 Poder adquisitivo: <b>${level(c.wealth)}</b></span>
         <span class="chip">📸 Turismo: <b>${level(c.tourism * 1.4)}</b></span>
         <span class="chip">🏷️ Alquileres: <b>${level(c.rent)}</b></span>
+        ${transportChip(s, c.id)}
+        ${c.touristLicense ? '<span class="chip" title="Para abrir pisos turísticos hace falta comprar una licencia (o arriesgarse sin ella).">🧳 Licencias turísticas restringidas</span>' : ''}
       </div>`}
       ${rivalChips(s, c.id)}
     </div>`;
@@ -111,7 +115,7 @@ export function renderCity(s, cityId) {
   if (here.some((b) => b.mode !== 'franquicia') || c.hq) html += renderLocalMarketing(s, c);
 
   html += `<div class="card"><h4>Abrir en ${esc(c.name)}</h4><div class="open-list">`;
-  const types = [sobaoTypeId(s), 'vivienda', 'airbnb', 'taberna', 'smash', 'empanadas', 'gimnasio', 'coworking', 'residencia', 'academy'];
+  const types = [sobaoTypeId(s), 'vivienda', 'airbnb', 'taberna', 'smash', 'empanadas', 'gimnasio', 'coworking', 'residencia', 'academy', 'obrador_regional'];
   for (const id of types) {
     const t = BUSINESS_TYPES[id];
     if (c.hq && t.category !== 'sobaos' && !['vivienda', 'taberna', 'residencia'].includes(id)) continue;
@@ -125,7 +129,8 @@ export function renderCity(s, cityId) {
         <div class="small muted">${esc(t.desc)}</div>
         ${locked ? `<div class="small lock">🔒 ${esc(LOCK_HINTS[id])}</div>` : `<div class="small">Estimación: <b class="${cls(est.delta)}">${signed(est.delta)}/mes</b> antes de impuestos${est.fillAfter < 0.999 ? ` · <span class="warn">el obrador solo cubrirá el ${Math.round(est.fillAfter * 100)} % de la demanda</span>` : ''}</div>`}
         ${!locked ? `<div class="row gap wrap">
-          <button class="btn small primary" data-act="open" data-type="${id}" data-mode="propia" ${own.ok ? '' : 'disabled'} title="${esc(own.msg || '')}">Abrir (${moneyShort(openingCost(s, id))})</button>
+          <button class="btn small primary" data-act="open" data-type="${id}" data-mode="propia" ${own.ok ? '' : 'disabled'} title="${esc(own.msg || '')}">${needsLicense(id, c.id) ? 'Abrir con licencia' : 'Abrir'} (${moneyShort(openingCost(s, id, 'propia', c.id))})</button>
+          ${needsLicense(id, c.id) ? `<button class="btn small ghost" data-act="open" data-type="${id}" data-mode="ilegal" ${canOpen(s, id, c.id, 'ilegal').ok ? '' : 'disabled'} title="Sin licencia: más barato, pero el ayuntamiento puede multarte y Hacienda se fija.">Sin licencia (${moneyShort(openingCost(s, id, 'ilegal', c.id))})</button>` : ''}
           ${t.category === 'sobaos' ? renderFranchiseButton(s, id, c.id) : ''}
         </div>${!own.ok && own.msg ? `<div class="small muted">${esc(own.msg)}</div>` : ''}` : ''}
       </div>
@@ -133,6 +138,13 @@ export function renderCity(s, cityId) {
   }
   html += `</div></div>`;
   return html;
+}
+
+function transportChip(s, cityId) {
+  const n = nearestSite(s, cityId);
+  if (!n || n.km === 0) return '<span class="chip">🚚 Obrador en la ciudad</span>';
+  const cost = transportCost(s, cityId);
+  return `<span class="chip" title="Cada sobao viaja desde el obrador más cercano (${esc(CITY_BY_ID[n.city].name)}). Un obrador regional cerca lo abarata.">🚚 ${Math.round(n.km)} km · +${cost.toFixed(2).replace('.', ',')} €/sobao</span>`;
 }
 
 function rivalChips(s, cityId) {
@@ -401,6 +413,7 @@ export function renderFinance(s) {
       ${c.directivos ? `<tr><td>Directivos</td><td class="neg">−${money(c.directivos)}</td></tr>` : ''}
       ${c.estructura ? `<tr><td title="Oficinas, gestorías y abogados: crece más deprisa que el número de negocios. Operaciones lo reduce.">Estructura central</td><td class="neg">−${money(c.estructura)}</td></tr>` : ''}
       <tr><td>Materias primas</td><td class="neg">−${money(c.materias)}</td></tr>
+      ${c.transporte ? `<tr><td>Transporte</td><td class="neg">−${money(c.transporte)}</td></tr>` : ''}
       <tr><td>Alquileres</td><td class="neg">−${money(c.alquileres)}</td></tr>
       <tr><td>Otros gastos</td><td class="neg">−${money(c.otros)}</td></tr>
       ${c.asesores ? `<tr><td>Asesores</td><td class="neg">−${money(c.asesores)}</td></tr>` : ''}

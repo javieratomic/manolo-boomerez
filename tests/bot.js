@@ -12,7 +12,7 @@ import { CITIES } from '../src/data/cities.js';
 import { random } from '../src/core/rng.js';
 
 const CITY_IDS = CITIES.filter((c) => !c.hq).map((c) => c.id);
-const DIVERSIFY = ['smash', 'empanadas', 'airbnb', 'vivienda', 'academy', 'taberna', 'gimnasio', 'coworking', 'residencia'];
+const DIVERSIFY = ['smash', 'empanadas', 'airbnb', 'vivienda', 'academy', 'taberna', 'gimnasio', 'coworking', 'residencia', 'obrador_regional'];
 
 /**
  * Estrategias:

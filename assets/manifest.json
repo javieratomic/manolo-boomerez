@@ -207,6 +207,19 @@
       ]
     },
     {
+      "id": "bld_obrador_regional",
+      "file": "assets/buildings/bld_obrador_regional.png",
+      "w": 256,
+      "h": 256,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/03_edificios.md#bld_obrador_regional",
+      "anchor": [
+        128,
+        240
+      ]
+    },
+    {
       "id": "bld_city_base",
       "file": "assets/buildings/bld_city_base.png",
       "w": 256,
@@ -232,8 +245,8 @@
       "status": "done",
       "priority": 1,
       "request": "art/requests/04_retratos.md#portrait_manolo_neutral",
-      "version": 1,
-      "notes": "Serie coherente de Manolo; fondo mostaza opaco, busto a tres cuartos hacia la izquierda."
+      "notes": "Serie coherente de Manolo; fondo mostaza opaco, busto a tres cuartos hacia la izquierda.",
+      "version": 1
     },
     {
       "id": "portrait_manolo_smug",
@@ -243,8 +256,8 @@
       "status": "done",
       "priority": 1,
       "request": "art/requests/04_retratos.md#portrait_manolo_smug",
-      "version": 1,
-      "notes": "Serie coherente de Manolo; fondo mostaza opaco, busto a tres cuartos hacia la izquierda."
+      "notes": "Serie coherente de Manolo; fondo mostaza opaco, busto a tres cuartos hacia la izquierda.",
+      "version": 1
     },
     {
       "id": "portrait_manolo_happy",
@@ -254,8 +267,8 @@
       "status": "done",
       "priority": 1,
       "request": "art/requests/04_retratos.md#portrait_manolo_happy",
-      "version": 1,
-      "notes": "Serie coherente de Manolo; fondo mostaza opaco, busto a tres cuartos hacia la izquierda."
+      "notes": "Serie coherente de Manolo; fondo mostaza opaco, busto a tres cuartos hacia la izquierda.",
+      "version": 1
     },
     {
       "id": "portrait_manolo_angry",
@@ -265,8 +278,8 @@
       "status": "done",
       "priority": 1,
       "request": "art/requests/04_retratos.md#portrait_manolo_angry",
-      "version": 1,
-      "notes": "Serie coherente de Manolo; fondo mostaza opaco, busto a tres cuartos hacia la izquierda."
+      "notes": "Serie coherente de Manolo; fondo mostaza opaco, busto a tres cuartos hacia la izquierda.",
+      "version": 1
     },
     {
       "id": "portrait_manolo_scared",
@@ -276,8 +289,8 @@
       "status": "done",
       "priority": 1,
       "request": "art/requests/04_retratos.md#portrait_manolo_scared",
-      "version": 1,
-      "notes": "Serie coherente de Manolo; fondo mostaza opaco, busto a tres cuartos hacia la izquierda."
+      "notes": "Serie coherente de Manolo; fondo mostaza opaco, busto a tres cuartos hacia la izquierda.",
+      "version": 1
     },
     {
       "id": "portrait_manolo_thinking",
@@ -296,8 +309,8 @@
       "status": "done",
       "priority": 1,
       "request": "art/requests/04_retratos.md#portrait_padre_anselmo",
-      "version": 1,
-      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado.",
+      "version": 1
     },
     {
       "id": "portrait_inspectora_trabajo",
@@ -307,8 +320,8 @@
       "status": "done",
       "priority": 1,
       "request": "art/requests/04_retratos.md#portrait_inspectora_trabajo",
-      "version": 1,
-      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado.",
+      "version": 1
     },
     {
       "id": "portrait_inspector_hacienda",
@@ -318,8 +331,8 @@
       "status": "done",
       "priority": 1,
       "request": "art/requests/04_retratos.md#portrait_inspector_hacienda",
-      "version": 1,
-      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado.",
+      "version": 1
     },
     {
       "id": "portrait_inspector_sanidad",
@@ -338,8 +351,8 @@
       "status": "done",
       "priority": 1,
       "request": "art/requests/04_retratos.md#portrait_empleada_maripili",
-      "version": 1,
-      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado.",
+      "version": 1
     },
     {
       "id": "portrait_becario",
@@ -547,6 +560,24 @@
       "status": "requested",
       "priority": 2,
       "request": "art/requests/04_retratos.md#portrait_exec_6"
+    },
+    {
+      "id": "portrait_periodista",
+      "file": "assets/portraits/portrait_periodista.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/04_retratos.md#portrait_periodista"
+    },
+    {
+      "id": "portrait_madre",
+      "file": "assets/portraits/portrait_madre.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/04_retratos.md#portrait_madre"
     },
     {
       "id": "ev_intro_herencia",
@@ -981,6 +1012,15 @@
       "request": "art/requests/05_sucesos.md#ev_divorcio"
     },
     {
+      "id": "ev_piso_ilegal",
+      "file": "assets/events/ev_piso_ilegal.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_piso_ilegal"
+    },
+    {
       "id": "ev_junta",
       "file": "assets/events/ev_junta.png",
       "w": 768,
@@ -988,6 +1028,420 @@
       "status": "requested",
       "priority": 2,
       "request": "art/requests/05_sucesos.md#ev_junta"
+    },
+    {
+      "id": "ev_arc_prensa_llamada",
+      "file": "assets/events/ev_arc_prensa_llamada.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_arc_prensa_llamada"
+    },
+    {
+      "id": "ev_arc_prensa_plantilla",
+      "file": "assets/events/ev_arc_prensa_plantilla.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_arc_prensa_plantilla"
+    },
+    {
+      "id": "ev_arc_prensa_portada",
+      "file": "assets/events/ev_arc_prensa_portada.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_arc_prensa_portada"
+    },
+    {
+      "id": "ev_arc_prensa_juicio",
+      "file": "assets/events/ev_arc_prensa_juicio.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_arc_prensa_juicio"
+    },
+    {
+      "id": "ev_arc_jonathan_sobaoverso",
+      "file": "assets/events/ev_arc_jonathan_sobaoverso.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_arc_jonathan_sobaoverso"
+    },
+    {
+      "id": "ev_arc_jonathan_gala",
+      "file": "assets/events/ev_arc_jonathan_gala.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_arc_jonathan_gala"
+    },
+    {
+      "id": "ev_arc_jonathan_redada",
+      "file": "assets/events/ev_arc_jonathan_redada.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_arc_jonathan_redada"
+    },
+    {
+      "id": "ev_arc_jonathan_obrador",
+      "file": "assets/events/ev_arc_jonathan_obrador.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_arc_jonathan_obrador"
+    },
+    {
+      "id": "ev_arc_comite_sobre",
+      "file": "assets/events/ev_arc_comite_sobre.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_arc_comite_sobre"
+    },
+    {
+      "id": "ev_arc_comite_plataforma",
+      "file": "assets/events/ev_arc_comite_plataforma.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_arc_comite_plataforma"
+    },
+    {
+      "id": "ev_arc_comite_firma",
+      "file": "assets/events/ev_arc_comite_firma.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_arc_comite_firma"
+    },
+    {
+      "id": "ev_arc_comite_huelga",
+      "file": "assets/events/ev_arc_comite_huelga.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_arc_comite_huelga"
+    },
+    {
+      "id": "ev_arc_hojaldre_registro",
+      "file": "assets/events/ev_arc_hojaldre_registro.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_arc_hojaldre_registro"
+    },
+    {
+      "id": "ev_arc_hojaldre_juzgado",
+      "file": "assets/events/ev_arc_hojaldre_juzgado.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_arc_hojaldre_juzgado"
+    },
+    {
+      "id": "ev_arc_hojaldre_juicio",
+      "file": "assets/events/ev_arc_hojaldre_juicio.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_arc_hojaldre_juicio"
+    },
+    {
+      "id": "ev_arc_merche_crisis",
+      "file": "assets/events/ev_arc_merche_crisis.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_arc_merche_crisis"
+    },
+    {
+      "id": "ev_arc_merche_carpeta",
+      "file": "assets/events/ev_arc_merche_carpeta.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_arc_merche_carpeta"
+    },
+    {
+      "id": "ev_arc_merche_aniversario",
+      "file": "assets/events/ev_arc_merche_aniversario.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_arc_merche_aniversario"
+    },
+    {
+      "id": "ev_arc_anselmo_lata",
+      "file": "assets/events/ev_arc_anselmo_lata.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_arc_anselmo_lata"
+    },
+    {
+      "id": "ev_arc_anselmo_carta",
+      "file": "assets/events/ev_arc_anselmo_carta.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_arc_anselmo_carta"
+    },
+    {
+      "id": "ev_arc_anselmo_receta",
+      "file": "assets/events/ev_arc_anselmo_receta.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_arc_anselmo_receta"
+    },
+    {
+      "id": "ev_residencia_motin",
+      "file": "assets/events/ev_residencia_motin.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_residencia_motin"
+    },
+    {
+      "id": "ev_gimnasio_bajas",
+      "file": "assets/events/ev_gimnasio_bajas.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_gimnasio_bajas"
+    },
+    {
+      "id": "ev_coworking_cabina",
+      "file": "assets/events/ev_coworking_cabina.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_coworking_cabina"
+    },
+    {
+      "id": "ev_taberna_pinchos",
+      "file": "assets/events/ev_taberna_pinchos.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_taberna_pinchos"
+    },
+    {
+      "id": "ev_express_dependiente",
+      "file": "assets/events/ev_express_dependiente.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_express_dependiente"
+    },
+    {
+      "id": "ev_maison_critico",
+      "file": "assets/events/ev_maison_critico.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_maison_critico"
+    },
+    {
+      "id": "ev_vivienda_caldera",
+      "file": "assets/events/ev_vivienda_caldera.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_vivienda_caldera"
+    },
+    {
+      "id": "ev_airbnb_despedida",
+      "file": "assets/events/ev_airbnb_despedida.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_airbnb_despedida"
+    },
+    {
+      "id": "ev_smash_desinfla",
+      "file": "assets/events/ev_smash_desinfla.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_smash_desinfla"
+    },
+    {
+      "id": "ev_empanadas_final",
+      "file": "assets/events/ev_empanadas_final.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_empanadas_final"
+    },
+    {
+      "id": "ev_academy_reembolso",
+      "file": "assets/events/ev_academy_reembolso.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_academy_reembolso"
+    },
+    {
+      "id": "ev_becario_genio",
+      "file": "assets/events/ev_becario_genio.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_becario_genio"
+    },
+    {
+      "id": "ev_jubilacion_conchi",
+      "file": "assets/events/ev_jubilacion_conchi.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_jubilacion_conchi"
+    },
+    {
+      "id": "ev_madre_visita",
+      "file": "assets/events/ev_madre_visita.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_madre_visita"
+    },
+    {
+      "id": "ev_fiestas_patronales",
+      "file": "assets/events/ev_fiestas_patronales.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_fiestas_patronales"
+    },
+    {
+      "id": "ev_black_friday",
+      "file": "assets/events/ev_black_friday.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_black_friday"
+    },
+    {
+      "id": "ev_cuesta_enero",
+      "file": "assets/events/ev_cuesta_enero.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_cuesta_enero"
+    },
+    {
+      "id": "ev_puente_mayo",
+      "file": "assets/events/ev_puente_mayo.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_puente_mayo"
+    },
+    {
+      "id": "ev_san_fermin",
+      "file": "assets/events/ev_san_fermin.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_san_fermin"
+    },
+    {
+      "id": "ev_semana_santa",
+      "file": "assets/events/ev_semana_santa.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_semana_santa"
+    },
+    {
+      "id": "ev_ola_frio",
+      "file": "assets/events/ev_ola_frio.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_ola_frio"
+    },
+    {
+      "id": "ev_fondo_buitre",
+      "file": "assets/events/ev_fondo_buitre.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_fondo_buitre"
+    },
+    {
+      "id": "ev_crisis_sueldos",
+      "file": "assets/events/ev_crisis_sueldos.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_crisis_sueldos"
+    },
+    {
+      "id": "ev_headhunter",
+      "file": "assets/events/ev_headhunter.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_headhunter"
+    },
+    {
+      "id": "ev_recalificacion_prado",
+      "file": "assets/events/ev_recalificacion_prado.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_recalificacion_prado"
     },
     {
       "id": "end_bancarrota",

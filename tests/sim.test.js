@@ -11,6 +11,7 @@ import { MANOLO_ACTIONS } from '../src/data/manoloActions.js';
 import { ACHIEVEMENTS } from '../src/data/achievements.js';
 import { refreshCandidates, hireExec, execBonus } from '../src/core/execs.js';
 import { buyLujo, doIPO } from '../src/core/life.js';
+import { transportCost } from '../src/core/logistics.js';
 import { tickRivals, rivalFactor, actOnRival, acquireRival, acquisitionPrice } from '../src/core/rivals.js';
 import { launchCampaign, startRD, upgradeBusiness, upgradeCost } from '../src/core/market.js';
 import { playGame } from './bot.js';
@@ -400,6 +401,34 @@ test('salir a Bolsa da dinero y diluye el patrimonio', () => {
     resolveAll(s);
   }
   assert(s.ipo.price > 0);
+});
+
+test('logística: el transporte cuesta y un obrador regional lo abarata', () => {
+  const s = started(51);
+  s.cash = 2e6;
+  s.unlocked.obrador_regional = true;
+  const far = transportCost(s, 'sevilla');
+  assert(far > 0.15, `Sevilla queda lejos de Selaya (${far})`);
+  assert(transportCost(s, 'laspalmas') > far * 1.5, 'Canarias paga barco');
+  const cap = computeEconomy(s).capacity;
+  assert(openBusiness(s, 'obrador_regional', 'sevilla').ok);
+  assert(!openBusiness(s, 'obrador_regional', 'sevilla').ok, 'uno por ciudad');
+  assert(transportCost(s, 'sevilla') === 0 && transportCost(s, 'malaga') < far, 'fabricar cerca abarata');
+  assert(computeEconomy(s).capacity > cap, 'más capacidad');
+});
+
+test('pisos turísticos con licencia o sin ella', () => {
+  const s = started(52);
+  s.cash = 2e6;
+  s.unlocked.airbnb = true;
+  const legal = s.cash;
+  assert(openBusiness(s, 'airbnb', 'barcelona').ok);
+  const paid = legal - s.cash;
+  const before = s.cash;
+  assert(openBusiness(s, 'airbnb', 'barcelona', 'ilegal').ok);
+  assert(before - s.cash < paid, 'sin licencia es más barato');
+  assert(s.businesses[1].ilegal, 'queda marcado');
+  assert(!canOpen(s, 'airbnb', 'zaragoza', 'ilegal').ok, 'en Zaragoza no hace falta licencia');
 });
 
 test('fechas en español', () => {

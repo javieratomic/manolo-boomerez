@@ -19,10 +19,14 @@ export function sobaoTypeId(s) {
   return SOBAO_TYPE_BY_BRAND[s.brand] || 'express';
 }
 
-export function openingCost(s, typeId, mode = 'propia') {
+// Pisos turísticos: en las ciudades saturadas hay que comprar licencia (o arriesgarse sin ella).
+export const needsLicense = (typeId, cityId) => !!(BUSINESS_TYPES[typeId]?.license && CITY_BY_ID[cityId]?.touristLicense);
+
+export function openingCost(s, typeId, mode = 'propia', cityId = null) {
   const t = BUSINESS_TYPES[typeId];
   if (mode === 'franquicia') return 0;
-  return Math.round(t.cost * (1 - (s.discountNext || 0)) * (1 - execBonus(s, 'expansion')));
+  const license = mode === 'propia' && needsLicense(typeId, cityId) ? t.license : 0;
+  return Math.round(t.cost * (1 - (s.discountNext || 0)) * (1 - execBonus(s, 'expansion')) + license);
 }
 
 export function franchiseFee(s, typeId) {
@@ -36,10 +40,12 @@ export function canOpen(s, typeId, cityId, mode = 'propia') {
   if (t.category === 'sobaos' && typeId !== sobaoTypeId(s)) return { ok: false, msg: 'Esa no es tu marca.' };
   if (t.category !== 'sobaos' && !s.unlocked[typeId]) return { ok: false, msg: 'Aún no está desbloqueado.' };
   if (mode === 'franquicia' && t.category !== 'sobaos') return { ok: false, msg: 'Solo las tiendas de sobaos se franquician.' };
+  if (mode === 'ilegal' && !needsLicense(typeId, cityId)) return { ok: false, msg: 'Aquí no hace falta licencia.' };
+  if (t.onePerCity && s.businesses.some((b) => b.type === typeId && b.city === cityId)) return { ok: false, msg: 'Ya tienes uno en esta ciudad.' };
   if (t.unique && s.businesses.some((b) => b.type === typeId)) return { ok: false, msg: 'Solo puede haber una.' };
-  if (c.hq && t.category !== 'sobaos' && !['vivienda', 'taberna', 'residencia'].includes(typeId)) return { ok: false, msg: 'En Selaya no hay mercado para eso.' };
+  if (c.hq && t.category !== 'sobaos' && !['vivienda', 'taberna', 'residencia'].includes(typeId)) return { ok: false, msg: typeId === 'obrador_regional' ? 'En Selaya ya está el obrador principal.' : 'En Selaya no hay mercado para eso.' };
   if (s.businesses.filter((b) => b.city === cityId).length >= MAX_PER_CITY) return { ok: false, msg: 'Ya no caben más negocios en esta ciudad.' };
-  const cost = openingCost(s, typeId, mode);
+  const cost = openingCost(s, typeId, mode, cityId);
   if (cost > s.cash) return { ok: false, msg: `Necesitas ${money(cost)} en caja.` };
   return { ok: true, cost };
 }
@@ -58,6 +64,11 @@ export function openBusiness(s, typeId, cityId, mode = 'propia') {
     addCash(s, -check.cost);
     // Los inmuebles pierden un 15 % al comprarlos (notaría, ITP, comisión del primo agente inmobiliario).
     b.value = t.realEstate ? check.cost * 0.85 : check.cost;
+    if (mode === 'ilegal') {
+      b.mode = 'propia';
+      b.ilegal = true;
+      log(s, `🙈 Los pisos de ${c.name} funcionan sin licencia turística. "Son de alquiler de temporada", dices.`, 'bad');
+    }
     s.discountNext = 0;
     log(s, `🏗️ Abres ${t.name} en ${c.name}.`, 'good');
   }
@@ -200,6 +211,7 @@ const UNLOCKS = [
   { id: 'smash', test: (s) => sobaoOutlets(s) >= 4 || s.month >= 18, text: '🔓 Desbloqueado: Manolo Smash Club. Hay que diversificar.' },
   { id: 'empanadas', test: (s) => sobaoOutlets(s) >= 4 || s.month >= 18 || s.flags.primoSocio, text: '🔓 Desbloqueado: Empanadas El Gaucho Pasiego.' },
   { id: 'academy', test: (s) => s.fama >= 25, text: '🔓 Desbloqueado: Boomerez Business Academy. Tu fama ya da para vender cursos.' },
+  { id: 'obrador_regional', test: (s) => sobaoOutlets(s) >= 6 || s.month >= 24, text: '🔓 Desbloqueado: obradores regionales. Fabricar cerca de las tiendas ahorra transporte.' },
   { id: 'taberna', test: (s) => sobaoOutlets(s) >= 2 || s.month >= 6, text: '🔓 Desbloqueado: La Taberna del Emprendedor. Donde se cierran los negocios de verdad.' },
   { id: 'gimnasio', test: (s) => s.month >= 12 || sobaoOutlets(s) >= 5, text: '🔓 Desbloqueado: Boomer Fit 24h. "Mens sana in corpore sobao."' },
   { id: 'coworking', test: (s) => s.fama >= 35 || s.businesses.some((b) => b.type === 'academy'), text: '🔓 Desbloqueado: Hustle Hub Coworking. Las startups pagan por sentarse cerca de ti.' },

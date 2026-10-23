@@ -25,7 +25,7 @@ export const BUSINESS_TYPES = {
     desc: 'Pisos para tu plantilla. El alquiler sale directamente de la nómina. Así nadie se va... ni se queja.',
   },
   airbnb: {
-    id: 'airbnb', category: 'inmobiliario',
+    id: 'airbnb', category: 'inmobiliario', license: 120000,
     name: 'Apartamentos Turísticos "Casa Manolo"', short: 'Casa Manolo',
     cost: 260000, staff: 1, upkeep: 1500, flats: 6, realEstate: true,
     sprite: 'bld_airbnb', color: '#2f8fc4', letter: 'A',
@@ -77,6 +77,14 @@ export const BUSINESS_TYPES = {
     model: 'service', popExp: 0.6, wealthExp: 0.8, famaW: true,
     sprite: 'bld_coworking', color: '#16a085', letter: 'C',
     desc: 'Mesas compartidas, kombucha de barril y una sala llamada "Mindset". Cuanto más famoso es Manolo, más startups vienen.',
+  },
+  obrador_regional: {
+    id: 'obrador_regional', category: 'produccion',
+    name: 'Obrador regional Boomerez', short: 'Obrador regional',
+    cost: 380000, staff: 8, upkeep: 3000, onePerCity: true,
+    model: 'production',
+    sprite: 'bld_obrador_regional', color: '#a0522d', letter: 'O',
+    desc: '15.000 sobaos más al mes, fabricados cerca de tus tiendas: se ahorra transporte. "Artesanos" con casco y chaleco reflectante.',
   },
   residencia: {
     id: 'residencia', category: 'servicios',

@@ -275,3 +275,19 @@ Directivo/a genérico/a para el equipo de Manolo (se reutiliza para distintos no
 - **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
 
 Directivo/a genérico/a para el equipo de Manolo (se reutiliza para distintos nombres): hombre de unos 45 años, traje azul brillante, gemelos dorados, pelo engominado hacia atrás; puro tiburón. Fondo negro azulado (#1c2833).
+
+## portrait_periodista
+
+- **Archivo:** `assets/portraits/portrait_periodista.png`
+- **Tamaño:** 512×512 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Lucía Ferrer, periodista de 'El Confidencial Pasiego': unos 35 años, melena corta castaña, gafas redondas finas, gabardina beige sobre un jersey de cuello alto, libreta de espiral en una mano y bolígrafo mordisqueado en la otra. Mirada curiosa, serena y tenaz; media sonrisa de quien ya sabe la respuesta. Fondo de color #2e8b7a.
+
+## portrait_madre
+
+- **Archivo:** `assets/portraits/portrait_madre.png`
+- **Tamaño:** 512×512 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Doña Remedios, la madre de Manolo: 81 años, pelo blanco cardado, rebeca gris, collar de perlas pequeño, bastón de aluminio y un táper de croquetas en la mano. Pequeñita pero temible; mirada de 'a mí no me engañas, que te he parido'. Fondo de color #6b8e9e.

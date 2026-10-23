@@ -89,7 +89,8 @@ function driftStats(s, r) {
   addHeatTrabajo(s, inspGain * (1 - execBonus(s, 'rrhh')) + execHeat(s) - 1.5);
 
   const hacGain = fx.sal.hac + fx.con.hac * Math.min(3, 0.5 + r.revenue / 150000) +
-    (s.businesses.some((b) => b.type === 'academy') ? 0.6 : 0) + (s.perks.andorra ? 0.8 : 0) + 0.3 * (s.lujo?.length || 0);
+    (s.businesses.some((b) => b.type === 'academy') ? 0.6 : 0) + (s.perks.andorra ? 0.8 : 0) + 0.3 * (s.lujo?.length || 0) +
+    0.5 * s.businesses.filter((b) => b.ilegal).length;
   addHeatHacienda(s, hacGain * (1 - execBonus(s, 'finanzas')) + execHeat(s));
   addHeatHacienda(s, -1.2);
 
@@ -159,6 +160,9 @@ function rollVisits(s, r) {
   const striking = s.mods.some((m) => m.kind === 'strike');
   if (!striking && s.moral < 25 && chance(s, 0.15 * (1 - 0.7 * r.control))) {
     s.pending.push({ kind: 'event', id: 'huelga' });
+  }
+  for (const b of s.businesses) {
+    if (b.ilegal && chance(s, 0.04)) s.pending.push({ kind: 'event', id: 'piso_ilegal', params: { businessId: b.id, city: b.city } });
   }
   for (const b of s.businesses) {
     if (b.type !== 'airbnb' || b.banned) continue;

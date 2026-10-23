@@ -163,6 +163,10 @@ GROUPS = [
             dict(id="bld_residencia", file="assets/buildings/bld_residencia.png", w=256, h=256, anchor=[128, 240], priority=2, prompt=(
                 "'Residencia Golden Age Boomerez': edificio de tres plantas color crema con barandillas, un jardincito con "
                 "bancos, una furgoneta adaptada y un cartel dorado excesivamente lujoso para lo que es. Algo melancólico.")),
+            dict(id="bld_obrador_regional", file="assets/buildings/bld_obrador_regional.png", w=256, h=256, anchor=[128, 240], priority=2, prompt=(
+                "Obrador regional Boomerez: nave industrial mediana de chapa crema con un tejadillo de teja falsa para "
+                "parecer 'tradicional', chimenea con humo, una furgoneta de reparto con el logo y un cartel que dice "
+                "'Obrador artesano' sobre una puerta de muelle de carga.")),
             dict(id="bld_city_base", file="assets/buildings/bld_city_base.png", w=256, h=128, priority=3, prompt=(
                 "Base genérica de ciudad para el mapa: plaza elíptica isométrica de adoquín con farolas y bancos "
                 "diminutos, vista en el mismo ángulo que los edificios, fondo transparente. Se dibuja a 112×56 px "
@@ -274,6 +278,7 @@ GROUPS = [
             dict(id="ev_fichaje", file="assets/events/ev_fichaje.png", w=768, h=432, priority=3, prompt="Un directivo de Manolo sale por la puerta del obrador con una caja de cartón mientras, en la acera de enfrente, un coche negro de la competencia le espera con la puerta abierta."),
             dict(id="ev_chivato", file="assets/events/ev_chivato.png", w=768, h=432, priority=3, prompt="Despacho de Manolo: un directivo de pie, muy serio, deja una memoria USB sobre la mesa; detrás, por la ventana, se ve la cola de becarios trabajando de noche."),
             dict(id="ev_divorcio", file="assets/events/ev_divorcio.png", w=768, h=432, priority=2, prompt="Cocina de casa adosada: Merche, con una carpeta y una abogada a su lado, frente a un Manolo que todavía lleva el móvil en la mano; la nevera llena de imanes de viajes que hizo ella sola."),
+            dict(id="ev_piso_ilegal", file="assets/events/ev_piso_ilegal.png", w=768, h=432, priority=3, prompt="Una vecina mayor con prismáticos en su balcón vigila el portal de enfrente, donde entran turistas con maletas; abajo, dos inspectores municipales con carpetas llaman al telefonillo."),
             dict(id="ev_junta", file="assets/events/ev_junta.png", w=768, h=432, priority=2, prompt="Junta de accionistas en un salón de hotel: un gráfico de cotización cayendo en una pantalla enorme, accionistas indignados de pie y un jubilado lanzando un sobao hacia el estrado donde está Manolo."),
         ],
     ),

@@ -7,6 +7,13 @@ const images = new Map(); // id -> HTMLImageElement cargada
 const placeholders = new Map(); // id -> canvas
 let manifest = { assets: [] };
 const byId = new Map();
+const doneIds = new Set(); // status "done" en el manifiesto
+const failed = new Set(); // terminados que no se pudieron cargar
+
+// Lo que se pinta en el lienzo del mapa o se ve nada más arrancar se espera antes de enseñar el título.
+// El resto (escenas, retratos, finales: decenas de megas) se carga en segundo plano, y en HTML la <img>
+// apunta al archivo desde el principio, así que se ve en cuanto llega.
+const critical = (a) => /^(map_|bld_|icon_|bg_|logo_|portrait_manolo)/.test(a.id);
 
 export async function initAssets(manifestUrl = 'assets/manifest.json') {
   try {
@@ -17,23 +24,38 @@ export async function initAssets(manifestUrl = 'assets/manifest.json') {
   }
   for (const a of manifest.assets || []) byId.set(a.id, a);
   const done = (manifest.assets || []).filter((a) => a.status === 'done');
-  await Promise.all(done.map((a) => loadImage(a)));
+  for (const a of done) doneIds.add(a.id);
+  await Promise.all(done.filter(critical).map((a) => loadImage(a)));
+  preload(done.filter((a) => !critical(a)));
 }
 
 function loadImage(a) {
   return new Promise((resolve) => {
     const img = new Image();
+    img.decoding = 'async';
     img.onload = () => {
       images.set(a.id, img);
       resolve();
     };
-    img.onerror = () => resolve();
+    img.onerror = () => {
+      failed.add(a.id);
+      resolve();
+    };
     img.src = a.file;
   });
 }
 
+// Precarga sin prisa, de pocas en pocas, para que las cartas de suceso no esperen a la red.
+function preload(list, concurrency = 3) {
+  let i = 0;
+  const next = () => {
+    if (i < list.length) loadImage(list[i++]).then(next);
+  };
+  for (let k = 0; k < concurrency; k++) next();
+}
+
 export const assetInfo = (id) => byId.get(id) || null;
-export const hasArt = (id) => images.has(id);
+export const hasArt = (id) => images.has(id) || (doneIds.has(id) && !failed.has(id));
 
 export function getImage(id) {
   return images.get(id) || placeholder(id);
@@ -41,7 +63,7 @@ export function getImage(id) {
 
 export function imageUrl(id) {
   const a = byId.get(id);
-  if (images.has(id) && a) return a.file;
+  if (a && hasArt(id)) return a.file;
   const p = placeholder(id);
   if (!p.dataUrl) p.dataUrl = p.toDataURL('image/png');
   return p.dataUrl;

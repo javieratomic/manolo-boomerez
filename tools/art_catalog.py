@@ -377,9 +377,10 @@ def main():
             }
             if "anchor" in a:
                 entry["anchor"] = a["anchor"]
-            for k in ("version", "notes"):
-                if k in prev:
-                    entry[k] = prev[k]
+            # Conserva cualquier otra clave del agente de arte (notes, version...) en su orden.
+            for k, v in prev.items():
+                if k not in entry:
+                    entry[k] = v
             assets.append(entry)
             lines += [f"## {a['id']}", "",
                       f"- **Archivo:** `{a['file']}`",

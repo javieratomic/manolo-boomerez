@@ -342,16 +342,19 @@ GROUPS = [
 def merge_extra():
     """Añade el arte pedido por otros módulos de contenido (si existe)."""
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    try:
-        from art_events_extra import ART as extra  # noqa: E402
-    except ImportError:
-        return
+    import importlib
+    extra = []
+    for name in ("art_events_extra", "art_content_extra2"):
+        try:
+            extra += importlib.import_module(name).ART
+        except ImportError:
+            pass
     groups = {g[0]: g[3] for g in GROUPS}
     known = {a["id"] for g in GROUPS for a in g[3]}
     for a in extra:
         if a["id"] in known:
             continue
-        target = "04_retratos.md" if a["id"].startswith("portrait_") else "05_sucesos.md"
+        target = "04_retratos.md" if a["id"].startswith("portrait_") else "07_interfaz.md" if a["id"].startswith("icon_") else "05_sucesos.md"
         groups[target].append(a)
         known.add(a["id"])
 

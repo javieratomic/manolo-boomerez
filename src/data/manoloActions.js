@@ -1,6 +1,7 @@
 // Acciones personales de Manolo: una por mes.
 import { chance, int, pick } from '../core/rng.js';
 import { addCash, addFama, addRep, addMoral, addHeatHacienda, addHeatTrabajo, log } from '../core/helpers.js';
+import { EXTRA_ACTIONS } from './manoloActionsExtra.js';
 
 export const MANOLO_ACTIONS = [
   {
@@ -144,5 +145,7 @@ MANOLO_ACTIONS.push(
     },
   },
 );
+
+MANOLO_ACTIONS.push(...EXTRA_ACTIONS);
 
 export const ACTION_BY_ID = Object.fromEntries(MANOLO_ACTIONS.map((a) => [a.id, a]));

@@ -1,5 +1,7 @@
+import { EXTRA_HEADLINES } from './flavorExtra.js';
+
 // Titulares de "El Sobao Digital" para darle ambiente a la hemeroteca.
-export const HEADLINES = [
+const BASE_HEADLINES = [
   'El precio del alquiler en Madrid supera por primera vez al del caviar por metro cuadrado.',
   'Un estudio revela que el 80 % de los "CEO & Founder" de LinkedIn tiene 0 empleados.',
   'Cantabria bate su récord de turistas: 3 de cada 4 preguntan dónde está "la playa de los sobaos".',
@@ -27,3 +29,5 @@ export const HEADLINES = [
   'Boom de los fondos de inversión en vivienda: "Solo queremos que los españoles tengan donde alquilar".',
   'Una tertulia matinal alcanza las 4 horas sin datos verificables. Nuevo récord europeo.',
 ];
+
+export const HEADLINES = [...BASE_HEADLINES, ...EXTRA_HEADLINES];

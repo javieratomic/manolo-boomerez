@@ -15,6 +15,7 @@ import { MACRO_EVENTS } from './eventsMacro.js';
 import { ARC_EVENTS } from './eventsArcs.js';
 import { EXTRA_EVENTS } from './eventsExtra.js';
 import { SYSTEM_EVENTS } from './eventsSystems.js';
+import { CITY_EVENTS } from './eventsCities.js';
 
 const employees = (s) => s.lastReport?.employees ?? 10;
 const has = (s, type) => s.businesses.some((b) => b.type === type);
@@ -1362,6 +1363,6 @@ const BASE_EVENTS = [
   },
 ];
 
-export const EVENTS = [...BASE_EVENTS, ...MACRO_EVENTS, ...SYSTEM_EVENTS, ...ARC_EVENTS, ...EXTRA_EVENTS];
+export const EVENTS = [...BASE_EVENTS, ...MACRO_EVENTS, ...SYSTEM_EVENTS, ...ARC_EVENTS, ...EXTRA_EVENTS, ...CITY_EVENTS];
 
 export const EVENT_BY_ID = Object.fromEntries(EVENTS.map((e) => [e.id, e]));

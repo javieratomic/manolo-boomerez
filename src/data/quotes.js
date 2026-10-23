@@ -1,5 +1,7 @@
+import { EXTRA_QUOTES } from './flavorExtra.js';
+
 // Frases de Manolo para el bocadillo. Las condicionales tienen prioridad.
-export const QUOTES = [
+const BASE_QUOTES = [
   'Yo a vuestra edad ya tenía un Audi.',
   'Esto lo he levantado yo solo. Bueno, con el obrador de mi padre. Y su dinero. Pero solo.',
   'El que quiere trabajar, trabaja. El que no, pide un sueldo.',
@@ -23,6 +25,8 @@ export const QUOTES = [
   'En Andorra me entienden.',
   '¿Huelga? En mis tiempos la gente estaba agradecida de tener trabajo.',
 ];
+
+export const QUOTES = [...BASE_QUOTES, ...EXTRA_QUOTES];
 
 export const CONDITIONAL_QUOTES = [
   { test: (s) => s.heatHacienda > 60, text: 'Si viene alguien de Hacienda, yo no estoy. Estoy en una reunión. En Andorra.' },

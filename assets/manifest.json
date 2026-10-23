@@ -1793,45 +1793,55 @@
       "file": "assets/endings/end_bancarrota.png",
       "w": 1280,
       "h": 720,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/06_finales.md#end_bancarrota"
+      "request": "art/requests/06_finales.md#end_bancarrota",
+      "version": 1,
+      "notes": "Final 2.5D opaco 1280x720; personajes coherentes y PNG optimizado."
     },
     {
       "id": "end_carcel",
       "file": "assets/endings/end_carcel.png",
       "w": 1280,
       "h": 720,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/06_finales.md#end_carcel"
+      "request": "art/requests/06_finales.md#end_carcel",
+      "version": 1,
+      "notes": "Final 2.5D opaco 1280x720; personajes coherentes y PNG optimizado."
     },
     {
       "id": "end_cooperativa",
       "file": "assets/endings/end_cooperativa.png",
       "w": 1280,
       "h": 720,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/06_finales.md#end_cooperativa"
+      "request": "art/requests/06_finales.md#end_cooperativa",
+      "version": 1,
+      "notes": "Final 2.5D opaco 1280x720; personajes coherentes y PNG optimizado."
     },
     {
       "id": "end_forbes",
       "file": "assets/endings/end_forbes.png",
       "w": 1280,
       "h": 720,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/06_finales.md#end_forbes"
+      "request": "art/requests/06_finales.md#end_forbes",
+      "version": 1,
+      "notes": "Final 2.5D opaco 1280x720; personajes coherentes y PNG optimizado."
     },
     {
       "id": "end_tiburon",
       "file": "assets/endings/end_tiburon.png",
       "w": 1280,
       "h": 720,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/06_finales.md#end_tiburon"
+      "request": "art/requests/06_finales.md#end_tiburon",
+      "version": 1,
+      "notes": "Final 2.5D opaco 1280x720; personajes coherentes y PNG optimizado."
     },
     {
       "id": "end_pyme",

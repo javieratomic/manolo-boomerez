@@ -11,6 +11,7 @@ import { openBusiness, sellBusiness, buyUpgrade, setPolicy, togglePerk, borrow, 
 import { play, isMuted, setMuted } from './sound.js';
 import { startMusic, isMusicOn, setMusic } from './music.js';
 import { checkAchievements } from './achievements.js';
+import { loadRecords, addRecord } from './records.js';
 import { actOnRival, acquireRival, acquisitionPrice } from '../core/rivals.js';
 import { launchCampaign, startRD, upgradeBusiness, CAMPAIGN_BY_ID, PRODUCT_BY_ID } from '../core/market.js';
 import { hireExec, fireExec, refreshCandidates, execOf, severance } from '../core/execs.js';
@@ -62,6 +63,18 @@ function setupTitle() {
   };
   cont.onclick = () => startGame(loadFromStorage());
   $('#btn-help').onclick = showHelp;
+  $('#btn-records').onclick = showRecords;
+}
+
+function showRecords() {
+  const list = loadRecords();
+  const diff = (d) => DIFFICULTIES[d]?.label.split(' (')[0] || d;
+  const html = list.length
+    ? `<table class="tbl pl records"><thead><tr><th>#</th><th>Final</th><th>Patrimonio</th><th>Puntos</th></tr></thead><tbody>
+        ${list.map((r, i) => `<tr><td>${i + 1}</td><td><b>${esc(r.title)}</b><div class="small muted">${esc(r.brand === 'maison' ? 'Maison' : 'Express')} · ${esc(diff(r.difficulty))} · ${r.months} meses · ${esc(r.date)}</div></td><td>${moneyShort(r.patrimonio)}</td><td>${r.score.toLocaleString('es-ES')}</td></tr>`).join('')}
+      </tbody></table>`
+    : '<p>Todavía no has terminado ninguna partida. El salón está vacío, como la agenda de Manolo un lunes por la mañana.</p>';
+  return showModal({ title: 'Salón de la fama', kicker: '🏆 Tus mejores imperios', html, wide: true, dismissable: true });
 }
 
 function showTitle() {
@@ -638,7 +651,11 @@ async function showEnding(id) {
       <tr><td>Multas pagadas</td><td>${money(s.stats.multas)}</td></tr>
       <tr class="total"><td>Puntuación Boomerez</td><td>${score(s).toLocaleString('es-ES')}</td></tr>
     </table>`;
-  const i = await showModal({ title: e.title, kicker: 'FIN', image: e.image, html, wide: true, className: `ending ${e.tone}`, choices: [{ label: 'Nueva partida', primary: true }, { label: 'Volver al título' }] });
+  const rank = addRecord({
+    title: e.title, ending: id, patrimonio: Math.round(patrimonio(s)), score: score(s), months: s.month,
+    brand: s.brand, difficulty: s.difficulty || 'normal', date: new Date().toLocaleDateString('es-ES'),
+  });
+  const i = await showModal({ title: e.title, kicker: rank >= 0 ? `FIN · Puesto ${rank + 1} del Salón de la fama` : 'FIN', image: e.image, html, wide: true, className: `ending ${e.tone}`, choices: [{ label: 'Nueva partida', primary: true }, { label: 'Volver al título' }] });
   clearStorage();
   // Se difiere para que la cola de sucesos actual termine antes de empezar otra partida.
   setTimeout(() => (i === 0 ? startGame(newGame()) : showTitle()));

@@ -292,6 +292,7 @@ blockquote { margin: 8px 0 0; font-family: var(--display); font-style: italic; b
 .report { text-align: center; }
 .report .tbl { margin: 10px 0; text-align: left; }
 .report-big { font-family: var(--display); font-size: 40px; font-weight: 700; }
+.records td:nth-child(2), .records th:nth-child(2) { text-align: left; white-space: normal; }
 .linkedin { text-align: left; margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: #eef3f8; border: 1px solid #d5e2ef; font-size: 13px; }
 .linkedin p { margin: 4px 0 0; }
 .deltas { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }

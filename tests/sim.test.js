@@ -22,6 +22,7 @@ import { CITIES } from '../src/data/cities.js';
 import { checkClause, clauseWarn, clauseMult } from '../src/core/clauses.js';
 import { score } from '../src/core/sim.js';
 import { netDrivers, freshEntries, upcoming, monthDigest, MAX_DRIVERS } from '../src/core/digest.js';
+import { seedCode, parseSeed, isoWeekKey, weekSeed } from '../src/core/seed.js';
 import { playGame } from './bot.js';
 
 const started = (seed = 42, brand = 0) => {
@@ -1051,4 +1052,30 @@ test('regresión: los campos del parte no cambian las cuentas', () => {
     const r = computeEconomy(s);
     [r.revenue, r.totalCost, r.net].forEach((v, k) => assert(Math.abs(v - expected[i][k]) < 0.01, `estado ${i} cifra ${k}: ${v}`));
   });
+});
+
+// ------------------------------------------------------------- Semillas
+test('semilla: el código va y vuelve', () => {
+  for (const x of [0, 1, 2 ** 32 - 1, 101411902]) assertEq(parseSeed(seedCode(x)), x);
+  assertEq(seedCode(2 ** 32 - 1), '1Z141Z3');
+  for (const bad of ['', 'ZZZZZZZ', 'AB-1', '12345678']) assertEq(parseSeed(bad), null, `rechaza «${bad}»`);
+  assertEq(parseSeed(' 1odlxa '), 101411902, 'acepta minúsculas y espacios');
+});
+
+test('semilla: semana ISO y reto de la semana', () => {
+  assertEq(isoWeekKey(new Date(2026, 9, 23)), '2026-W43');
+  assertEq(isoWeekKey(new Date(2027, 0, 1)), '2026-W53');
+  assertEq(weekSeed('2026-W43'), 101411902);
+  assertEq(seedCode(weekSeed('2026-W43')), '1ODLXA');
+});
+
+test('semilla: el mismo código da la misma partida y la misma cláusula', () => {
+  const x = weekSeed('2026-W43');
+  const a = newGame(parseSeed(seedCode(x)));
+  assertEq(a.seed, x);
+  assertEq(a.clausula.id, newGame(x).clausula.id);
+  const r1 = playGame(x, { choice: 'random', diversify: true });
+  const r2 = playGame(parseSeed(seedCode(x)), { choice: 'random', diversify: true });
+  assertEq(r1.patrimonio, r2.patrimonio);
+  assertEq(r1.ending, r2.ending);
 });

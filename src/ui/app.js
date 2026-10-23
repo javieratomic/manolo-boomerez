@@ -4,7 +4,8 @@ import { TABS, renderCity, renderEmpire, renderMarket, renderStaff, renderFinanc
 import { macroFx } from '../core/macro.js';
 import { MapView } from '../render/mapView.js';
 import { initAssets, imageUrl, hasArt } from '../render/assets.js';
-import { newGame, saveToStorage, loadFromStorage, clearStorage, serialize, deserialize, DIFFICULTIES } from '../core/state.js';
+import { newGame, saveToStorage, loadFromStorage, clearStorage, serialize, deserialize, DIFFICULTIES, GAME_VERSION } from '../core/state.js';
+import { seedCode, parseSeed, isoWeekKey, weekSeed } from '../core/seed.js';
 import { advanceMonth, currentPending, resolvePending, checkEnding, score, pickQuote } from '../core/sim.js';
 import { patrimonio } from '../core/economy.js';
 import { openBusiness, sellBusiness, buyUpgrade, setPolicy, togglePerk, borrow, repay, doManoloAction, dropMonthlyCost, currentGoal, goalNumber, checkGoals, rebrand, canRebrand, franchiseFee, LOAN_STEP } from '../core/actions.js';
@@ -66,6 +67,13 @@ function setupTitle() {
   cont.hidden = !saved || !!saved.ending;
   if (saved && !saved.ending) cont.querySelector('small').textContent = `${dateLabel(saved.month)} · ${moneyShort(patrimonio(saved))}`;
   $('#btn-new').onclick = async () => {
+    // Semilla opcional: el mismo código da la misma partida (para compartir retos).
+    const code = $('#seed-input').value.trim();
+    const seed = code ? parseSeed(code) : undefined;
+    if (code && seed == null) {
+      toast('Código de semilla no válido: hasta 7 letras o cifras (p. ej. 1ODLXA).', 'bad');
+      return;
+    }
     if (saved && !saved.ending && !(await confirmModal('¿Empezar de cero?', 'Se perderá la partida guardada. Manolo no se arrepiente de nada, pero tú quizá sí.', 'Nueva partida'))) return;
     const diffs = Object.entries(DIFFICULTIES);
     const i = await showModal({
@@ -78,7 +86,19 @@ function setupTitle() {
     });
     if (i < 0) return;
     clearStorage();
-    startGame(newGame(undefined, diffs[i][0]));
+    startGame(newGame(seed, diffs[i][0]));
+  };
+  $('#btn-week').onclick = async () => {
+    const key = isoWeekKey(new Date());
+    const seed = weekSeed(key);
+    const preview = newGame(seed, 'normal');
+    const clause = clauseStatus(preview);
+    const text = `Esta semana (${key}) todo el mundo juega la misma partida: misma semilla, mismos sucesos si eliges lo mismo y la misma cláusula del testamento. Dificultad normal.\n\nCódigo: ${seedCode(seed)}${clause ? `\nCláusula: «${clause.def.title}» (${clause.def.rule})` : ''}\n\nCompara tu puntuación del Salón de la fama con la de tus amigos.`;
+    if (!(await confirmModal('🗓️ Reto de la semana', text, 'Empezar'))) return;
+    if (saved && !saved.ending && !(await confirmModal('¿Empezar de cero?', 'Se perderá la partida guardada.', 'Empezar el reto'))) return;
+    clearStorage();
+    preview.flags.reto = key;
+    startGame(preview);
   };
   cont.onclick = () => startGame(loadFromStorage());
   $('#btn-help').onclick = showHelp;
@@ -90,7 +110,7 @@ function showRecords() {
   const diff = (d) => DIFFICULTIES[d]?.label.split(' (')[0] || d;
   const html = list.length
     ? `<table class="tbl pl records"><thead><tr><th>#</th><th>Final</th><th>Patrimonio</th><th>Puntos</th></tr></thead><tbody>
-        ${list.map((r, i) => `<tr><td>${i + 1}</td><td><b>${esc(r.title)}</b>${r.clausulaOk ? ' <span title="Cláusula del testamento cumplida">📜</span>' : ''}<div class="small muted">${esc(r.brand === 'maison' ? 'Maison' : 'Express')} · ${esc(diff(r.difficulty))} · ${r.months} meses · ${esc(r.date)}</div></td><td>${moneyShort(r.patrimonio)}</td><td>${r.score.toLocaleString('es-ES')}</td></tr>`).join('')}
+        ${list.map((r, i) => `<tr><td>${i + 1}</td><td><b>${esc(r.title)}</b>${r.clausulaOk ? ' <span title="Cláusula del testamento cumplida">📜</span>' : ''}<div class="small muted">${esc(r.brand === 'maison' ? 'Maison' : 'Express')} · ${esc(diff(r.difficulty))} · ${r.months} meses · ${esc(r.date)}${r.seed ? ` · 🎲 ${esc(r.seed)}` : ''}${r.reto ? ` · reto ${esc(r.reto)}` : ''}</div></td><td>${moneyShort(r.patrimonio)}</td><td>${r.score.toLocaleString('es-ES')}</td></tr>`).join('')}
       </tbody></table>`
     : '<p>Todavía no has terminado ninguna partida. El salón está vacío, como la agenda de Manolo un lunes por la mañana.</p>';
   return showModal({ title: 'Salón de la fama', kicker: '🏆 Tus mejores imperios', html, wide: true, dismissable: true });
@@ -467,7 +487,7 @@ function onChange(e) {
 async function showMenu() {
   const i = await showModal({
     title: 'Menú',
-    text: 'La partida se guarda automáticamente en este navegador.',
+    text: `La partida se guarda automáticamente en este navegador.\n\n🎲 Semilla: ${seedCode(game.s?.seed ?? 0)}${game.s?.flags?.reto ? ` · reto de la semana ${game.s.flags.reto}` : ''}. Con el mismo código, otra persona juega la misma partida.`,
     choices: [
       { label: 'Seguir jugando', primary: true },
       { label: 'Cómo se juega' },
@@ -719,6 +739,7 @@ async function showEnding(id) {
       <tr><td>Inspecciones de Trabajo</td><td>${s.stats.inspecciones}</td></tr>
       <tr><td>Auditorías de Hacienda</td><td>${s.stats.auditorias}</td></tr>
       <tr><td>Multas pagadas</td><td>${money(s.stats.multas)}</td></tr>
+      <tr><td>🎲 Semilla</td><td>${seedCode(s.seed)}${s.flags.reto ? ` · reto ${esc(s.flags.reto)}` : ''}</td></tr>
       ${cl ? `<tr><td>📜 Cláusula: ${esc(cl.def.title)}</td><td class="${cl.state === 'cumplida' ? 'pos' : cl.state === 'rota' ? 'neg' : ''}">${cl.state === 'cumplida' ? `Cumplida (×${String(cl.def.mult).replace('.', ',')})` : cl.state === 'rota' ? 'Rota' : 'No cumplida'}</td></tr>` : ''}
       <tr class="total"><td>Puntuación Boomerez</td><td>${score(s).toLocaleString('es-ES')}</td></tr>
     </table>
@@ -728,6 +749,7 @@ async function showEnding(id) {
     title: e.title, ending: id, patrimonio: Math.round(patrimonio(s)), score: score(s), months: s.month,
     brand: s.brand, difficulty: s.difficulty || 'normal', date: new Date().toLocaleDateString('es-ES'),
     clausula: cl?.def.id ?? null, clausulaOk: cl?.state === 'cumplida',
+    seed: seedCode(s.seed), reto: s.flags.reto || null, version: s.gameVersion || GAME_VERSION,
   });
   // Si el final es por tiempo o por la revista de millonarios, se puede seguir jugando sin límite.
   const canContinue = ['tiburon', 'pyme', 'ruina_lenta', 'forbes'].includes(id);

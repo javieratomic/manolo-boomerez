@@ -26,6 +26,7 @@ import { grossPatrimonio } from '../core/economy.js';
 import { money, moneyShort, dateLabel } from '../core/helpers.js';
 import { haciendaDebt } from '../core/inspections.js';
 import { clauseStatus } from '../core/clauses.js';
+import { seedCode } from '../core/seed.js';
 import { CLAUSE_PRIZE } from '../data/clauses.js';
 import { policyPreview, previewBase, riskInfo, blame, HORIZON } from '../core/preview.js';
 import { difficultyOf } from '../core/state.js';
@@ -723,6 +724,7 @@ export function renderManolo(s) {
         <div class="chips">
           <span class="chip">📣 Fama: <b>${Math.round(s.fama)}</b></span>
           <span class="chip">⚖️ Expedientes: <b>${s.expedientes}/3</b></span>
+          <span class="chip" title="Con este código, otra persona puede jugar la misma partida (menú → semilla).">🎲 <b>${seedCode(s.seed)}</b>${s.flags.reto ? ` · reto ${esc(s.flags.reto)}` : ''}</span>
           <span class="chip" title="Sube con el tamaño del imperio, LinkedIn y el bar; baja con Marbella, la familia, el pádel y un buen equipo directivo. Por encima de 80, susto.">🫀 Estrés: <b class="${(s.estres ?? 20) > 70 ? 'neg' : ''}">${Math.round(s.estres ?? 20)}</b></span>
         </div>
         <blockquote>"${esc(s.quote || 'Yo a vuestra edad ya tenía un Audi.')}"</blockquote>

@@ -6,9 +6,11 @@
       "file": "assets/map/map_spain.png",
       "w": 2048,
       "h": 1088,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
-      "request": "art/requests/02_mapa.md#map_spain"
+      "request": "art/requests/02_mapa.md#map_spain",
+      "version": 1,
+      "notes": "Diorama norte arriba; comprobados los 30 puntos de ciudad sobre tierra, Canarias separadas."
     },
     {
       "id": "bld_obrador_1",
@@ -1543,9 +1545,11 @@
       "file": "assets/ui/logo_game.png",
       "w": 1024,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 1,
-      "request": "art/requests/07_interfaz.md#logo_game"
+      "request": "art/requests/07_interfaz.md#logo_game",
+      "version": 1,
+      "notes": "Logotipo transparente crema y dorado, mascota de sobao y subtítulo completo."
     },
     {
       "id": "bg_title",

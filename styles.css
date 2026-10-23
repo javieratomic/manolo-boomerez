@@ -203,8 +203,8 @@ button.hud-item:focus-visible { outline: 2px solid #ffd36b; outline-offset: 1px;
 .opt input { margin-top: 3px; accent-color: var(--accent-dark); }
 .opt small { display: block; color: var(--muted); }
 .opt:has(input:disabled) { opacity: 0.5; cursor: not-allowed; }
-.chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
-.chip { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #f6efe2; border: 1px solid var(--line); white-space: nowrap; }
+.pv-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.pv-chip { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #f6efe2; border: 1px solid var(--line); white-space: nowrap; }
 .pv-note { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; }
 .pv-foot { margin-top: 8px; }
 .why-head { font-size: 16px; }

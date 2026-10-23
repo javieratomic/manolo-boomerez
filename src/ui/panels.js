@@ -258,7 +258,7 @@ function policyChips(s, key, id) {
   if (Math.abs(p.heatTrabajo) >= 0.05) chips.push([cls(-p.heatTrabajo), `Radar Trabajo ${fmt1(p.heatTrabajo)}/mes`]);
   if (Math.abs(p.heatHacienda) >= 0.05) chips.push([cls(-p.heatHacienda), `Radar Hacienda ${fmt1(p.heatHacienda)}/mes`]);
   if (LABOR_KEYS.includes(key) && p.fine > 0) chips.push(['neg', `Multa si viene: ${moneyShort(p.fine)}`]);
-  let html = chips.length ? `<span class="chips">${chips.slice(0, 4).map(([c, t]) => `<span class="chip ${c}">${esc(t)}</span>`).join('')}</span>` : '';
+  let html = chips.length ? `<span class="pv-chips">${chips.slice(0, 4).map(([c, t]) => `<span class="pv-chip ${c}">${esc(t)}</span>`).join('')}</span>` : '';
   if (key === 'contabilidad' && id !== 'limpia' && p.evaded <= 0) html += '<span class="pv-note">Este mes no hay beneficio: no te ahorrarías impuestos, solo subiría el radar.</span>';
   else if (Math.abs(p.net6) >= 100) html += `<span class="pv-note">A ${HORIZON} meses: <b class="${cls(p.net6)}">${signMoney(p.net6)}</b>, ya descontadas la moral y las multas esperadas.</span>`;
   return html;

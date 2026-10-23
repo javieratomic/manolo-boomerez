@@ -1386,45 +1386,55 @@
       "file": "assets/events/ev_arc_hojaldre_juzgado.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_arc_hojaldre_juzgado"
+      "request": "art/requests/05_sucesos.md#ev_arc_hojaldre_juzgado",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_arc_hojaldre_juicio",
       "file": "assets/events/ev_arc_hojaldre_juicio.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_arc_hojaldre_juicio"
+      "request": "art/requests/05_sucesos.md#ev_arc_hojaldre_juicio",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_arc_merche_crisis",
       "file": "assets/events/ev_arc_merche_crisis.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_arc_merche_crisis"
+      "request": "art/requests/05_sucesos.md#ev_arc_merche_crisis",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_arc_merche_carpeta",
       "file": "assets/events/ev_arc_merche_carpeta.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_arc_merche_carpeta"
+      "request": "art/requests/05_sucesos.md#ev_arc_merche_carpeta",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_arc_merche_aniversario",
       "file": "assets/events/ev_arc_merche_aniversario.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_arc_merche_aniversario"
+      "request": "art/requests/05_sucesos.md#ev_arc_merche_aniversario",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_arc_anselmo_lata",
@@ -1453,9 +1463,11 @@
       "file": "assets/events/ev_arc_anselmo_receta.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_arc_anselmo_receta"
+      "request": "art/requests/05_sucesos.md#ev_arc_anselmo_receta",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, optimizada a menos de 300 KB."
     },
     {
       "id": "ev_residencia_motin",

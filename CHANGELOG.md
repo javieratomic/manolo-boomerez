@@ -27,7 +27,9 @@
   resto se precarga en segundo plano.
 - Espacio o Intro sobre un botón ya no cierran el mes.
 - Se quitan las últimas marcas reales de los textos.
-- 78 tests (34 nuevos).
+- Dos rondas de revisión con agentes (detección y verificación adversaria): 37 fallos confirmados y
+  corregidos, entre ellos que recargar una partida cambiaba lo que daba la misma semilla.
+- 94 tests (50 nuevos).
 
 
 ### Sistemas nuevos

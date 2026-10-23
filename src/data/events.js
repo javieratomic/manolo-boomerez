@@ -1,12 +1,14 @@
 // Cartas de sucesos. Cada evento:
 //  { id, title, portrait, image, text(s, params), weight(s) -> número (0 = no elegible / solo por guion),
-//    once?, cooldown?, forced?, choices: [{ label, hint?, available?(s, params), effect(s, params) -> texto }] }
+//    once?, cooldown?, forced?, memory?, choices: [{ key?, label, hint?, available?(s, params), effect(s, params) -> texto }] }
+//  memory: true -> se recuerda qué opción (por su key) se eligió las otras veces: custom(s, id).
 //  forced: true -> si es elegible, sale ese mismo mes sin pasar por el azar (pasos de arcos narrativos).
 import { chance, int } from '../core/rng.js';
 import {
-  addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addExpediente, addMod, addMonthlyCost, log, money,
+  addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addExpediente, addMod, addMonthlyCost, log, money, custom, clamp,
 } from '../core/helpers.js';
-import { DELITO_FISCAL, dossier, trickOdds, trickCount, recordTrick, recordSanction, recidivism, recentSanctions, clearRecord } from '../core/inspections.js';
+import { addStress } from '../core/life.js';
+import { laborFine, DELITO_FISCAL, dossier, trickOdds, trickCount, recordTrick, recordSanction, recidivism, recentSanctions, clearRecord } from '../core/inspections.js';
 import { LEGAL_LABOR } from './policies.js';
 import { BUSINESS_TYPES } from './businesses.js';
 import { CITY_BY_ID } from './cities.js';
@@ -82,34 +84,63 @@ const BASE_EVENTS = [
     id: 'navidad',
     title: 'La cesta de Navidad',
     portrait: 'portrait_empleada_maripili', image: 'ev_navidad',
-    text: (s) => `Maripili, la portavoz de la plantilla, pregunta por la cesta de Navidad. Sois ${employees(s)} personas.`,
+    memory: true,
+    text: (s) => {
+      const c = custom(s, 'navidad');
+      const n = employees(s);
+      const gordo = s.flags.gordoNavidad ? ' Desde lo del Gordo, en la plantilla hay muchas caras nuevas.' : '';
+      if (!c.count) return `Maripili, la portavoz de la plantilla, pregunta por la cesta de Navidad. Sois ${n} personas.`;
+      if (c.last === 'cesta' && c.streak >= 2) return `La cesta Boomerez ya es tradición: ${c.streak} años seguidos. Maripili ya ni pregunta; trae la lista de la plantilla (${n} personas) y un boli.${gordo}`;
+      if (c.last === 'cesta') return `Maripili vuelve a preguntar por la cesta de Navidad. El año pasado hubo turrón y Rioja, y se nota que se acuerdan. Sois ${n} personas.${gordo}`;
+      if (c.last === 'tarjeta') return `Maripili pregunta por la cesta de Navidad. Detrás de ella, en el tablón, siguen las tarjetas del año pasado con tu foto. Alguien te ha pintado bigote. Sois ${n} personas.${gordo}`;
+      return `Maripili pregunta por la cesta de Navidad, "y nada de lotería, que el décimo del año pasado sigue pegado en la barra del bar de Chema". Sois ${n} personas.${gordo}`;
+    },
     weight: () => 0,
     choices: [
       {
+        key: 'cesta',
         label: 'Cesta en condiciones (80 € por persona)',
         effect(s) {
           const c = employees(s) * 80;
+          const prev = custom(s, 'navidad');
           addCash(s, -c);
           addMoral(s, 6);
+          if (prev.last === 'cesta') return `Turrón, embutido y el Rioja de siempre. ${money(c)}. Ya nadie se imagina una Navidad sin cesta Boomerez. Moral +6.`;
           return `Turrón, embutido y un Rioja decente. ${money(c)}. La plantilla se acuerda de tu padre con cariño, y un poco de ti. Moral +6.`;
         },
       },
       {
+        key: 'tarjeta',
         label: 'Un sobao caducado y una tarjeta con tu foto',
         effect(s) {
+          const prev = custom(s, 'navidad');
           addCash(s, -employees(s) * 5);
+          if (prev.last === 'cesta' && prev.streak >= 2) {
+            addMoral(s, -10);
+            addFama(s, 1);
+            return `Rompes una tradición de ${prev.streak} años. Donde iba el turrón hay una tarjeta con tu foto que dice "Gracias por formar parte de mi sueño". Maripili la clava en el tablón con una chincheta en la frente. Moral −10, fama +1.`;
+          }
           addMoral(s, -4);
+          if (prev.last === 'tarjeta') return 'Otra tarjeta con tu foto. Esta vez nadie la sube a las redes: la usan de posavasos. Moral −4.';
           addFama(s, 2);
           return 'La tarjeta dice "Gracias por formar parte de mi sueño". Alguien la sube a las redes. Moral −4, fama +2.';
         },
       },
       {
+        key: 'loteria',
         label: 'Venderles participaciones de lotería con recargo',
         effect(s) {
+          const prev = custom(s, 'navidad');
+          if (prev.last === 'loteria') {
+            addCash(s, employees(s) * 5);
+            addMoral(s, -8);
+            return `Este año solo te compran por compromiso: ${money(employees(s) * 5)} de recargo. En la sala de descanso se ríen de ti con el décimo del año pasado. Moral −8.`;
+          }
           addCash(s, employees(s) * 15);
           addMoral(s, -6);
           if (chance(s, 0.05)) {
             addMoral(s, -30);
+            s.flags.gordoNavidad = true;
             return 'Toca el Gordo. A ellos. La mitad de la plantilla se despide el 23 de diciembre. Moral −36 (los que quedan te odian).';
           }
           return `Ganas ${money(employees(s) * 15)} con el recargo "de gestión". No toca nada. Moral −6.`;
@@ -121,23 +152,73 @@ const BASE_EVENTS = [
     id: 'agosto',
     title: 'Vacaciones en agosto',
     portrait: 'portrait_empleada_maripili', image: 'ev_agosto',
-    text: () => 'La plantilla quiere coger vacaciones en agosto, como el resto de España. Tú tienes una visión distinta.',
+    memory: true,
+    text: (s) => {
+      const c = custom(s, 'agosto');
+      if (c.last === 'trabajar' && c.streak >= 2) return `${c.streak} agostos seguidos sin vacaciones. Maripili ya no pregunta: te enseña un calendario con agosto tachado en rojo y el teléfono de una abogada laboralista apuntado al margen.`;
+      if (c.last === 'trabajar') return 'La plantilla quiere coger vacaciones en agosto. "Este año sí, ¿verdad, Don Manuel?" El año pasado no las hubo, y se nota en las caras.';
+      if ((s.flags.agostoLibre ?? 0) >= 2) return `La plantilla pregunta por los turnos de agosto, como cada año. Llevas ${s.flags.agostoLibre} veranos dejándoles descansar y, sorprendentemente, la empresa sigue en pie.`;
+      return 'La plantilla quiere coger vacaciones en agosto, como el resto de España. Tú tienes una visión distinta.';
+    },
     weight: () => 0,
     choices: [
       {
+        key: 'vacaciones',
         label: 'Que las disfruten',
         effect(s) {
           addMoral(s, 5);
           addMod(s, { kind: 'revenue', factor: 0.93, months: 1, label: 'Vacaciones' });
+          s.flags.agostoLibre = (s.flags.agostoLibre ?? 0) + 1;
           return 'Rotáis turnos y nadie se muere. Moral +5. Algo menos de producción este mes.';
         },
       },
       {
+        key: 'trabajar',
         label: '"En agosto es cuando más se vende"',
+        hint: (s) => {
+          const c = custom(s, 'agosto');
+          const n = c.last === 'trabajar' ? c.streak + 1 : 1;
+          if (n >= 3) return 'Tercer agosto seguido: la abogada laboralista ya ha llamado a la Inspección.';
+          if (n === 2) return 'Segundo agosto seguido: moral −10 y radar +8.';
+          return undefined;
+        },
         effect(s) {
+          const c = custom(s, 'agosto');
+          const n = c.last === 'trabajar' ? c.streak + 1 : 1;
+          s.flags.agostoLibre = 0;
+          if (n >= 3) {
+            addMoral(s, -10);
+            if (s.cooldowns.trabajo <= 0) {
+              s.pending.push({ kind: 'event', id: 'inspeccion_trabajo', params: { fine: laborFine(s) } });
+              s.cooldowns.trabajo = 4;
+              s.stats.inspecciones++;
+              return `Tercer agosto sin vacaciones. La abogada laboralista ya no está apuntada en el calendario: está en la puerta, y viene con Marisa. Moral −10.`;
+            }
+            addHeatTrabajo(s, 15);
+            return 'Tercer agosto sin vacaciones. La abogada laboralista manda un burofax a la Inspección; Marisa lo grapa a tu carpeta para la próxima visita. Moral −10, radar de Inspección +15.';
+          }
+          if (n === 2) {
+            addMoral(s, -10);
+            addHeatTrabajo(s, 8);
+            return 'Segundo agosto sin vacaciones. Maripili ha encontrado una abogada laboralista en el buscador y la tiene en favoritos. Moral −10, radar de Inspección +8.';
+          }
           addMoral(s, -6);
           addHeatTrabajo(s, 4);
           return 'Les explicas que las vacaciones son "un concepto del siglo XX". Moral −6, radar de Inspección +4.';
+        },
+      },
+      {
+        key: 'francia',
+        label: 'Cerrar agosto entero "como en Francia"',
+        hint: 'Ingresos −20 % este mes. Moral +12, familia +5 y estrés −10.',
+        available: (s) => (s.flags.agostoLibre ?? 0) >= 2,
+        effect(s) {
+          addMod(s, { kind: 'revenue', factor: 0.8, months: 1, label: 'Cerrado por vacaciones' });
+          addMoral(s, 12);
+          s.familia = clamp((s.familia ?? 60) + 5);
+          addStress(s, -10);
+          s.flags.agostoLibre = (s.flags.agostoLibre ?? 0) + 1;
+          return 'Cartel en la puerta: "Cerrado por vacaciones, como en Francia". Manolo también se va a Noja, con Merche y la sombrilla. Moral +12, familia +5, estrés −10. Este mes se vende un 20 % menos.';
         },
       },
     ],
@@ -377,11 +458,15 @@ const BASE_EVENTS = [
     portrait: 'portrait_franquiciado', image: 'ev_franquiciado',
     text: (s, p) => {
       const c = CITY_BY_ID[p.city];
-      return `El franquiciado de ${c?.name ?? 'una ciudad'} lleva meses perdiendo dinero. Ha metido su indemnización de despido y la herencia de su madre en tu franquicia.\n\n"Me dijiste que esto era un negocio seguro, Manolo. Que el sobao no tenía techo."`;
+      const n = custom(s, 'franquiciado_arruinado').count;
+      const club = n >= 2 ? `\n\nEs el ${n + 1}.º franquiciado Boomerez que se arruina. Ya tienen un grupo de mensajería y quedan los jueves.` : '';
+      return `El franquiciado de ${c?.name ?? 'una ciudad'} lleva meses perdiendo dinero. Ha metido su indemnización de despido y la herencia de su madre en tu franquicia.\n\n"Me dijiste que esto era un negocio seguro, Manolo. Que el sobao no tenía techo."${club}`;
     },
     weight: () => 0,
+    memory: true,
     choices: [
       {
+        key: 'recompra',
         label: 'Recomprarle el local (15.000 €)',
         effect(s, p) {
           addCash(s, -15000);
@@ -396,14 +481,18 @@ const BASE_EVENTS = [
         },
       },
       {
+        key: 'mentalidad',
         label: '"Te ha faltado mentalidad"',
+        hint: (s) => (custom(s, 'franquiciado_arruinado').count >= 2 ? 'Con tantos arruinados, la frase ya es famosa: reputación −7.' : undefined),
         effect(s, p) {
           s.businesses = s.businesses.filter((x) => x.id !== p.businessId);
-          addRep(s, -5);
+          const rep = custom(s, 'franquiciado_arruinado').count >= 2 ? 7 : 5;
+          addRep(s, -rep);
           if (chance(s, 0.4)) {
             pay(s, 30000);
-            return 'Te demanda por publicidad engañosa y gana. Pagas 30.000 € y cierra la tienda. Reputación −5.';
+            return `Te demanda por publicidad engañosa y gana. Pagas 30.000 € y cierra la tienda. Reputación −${rep}.`;
           }
+          if (rep === 7) return `Cierra la tienda y se apunta al grupo de los jueves. La frase "te ha faltado mentalidad" ya circula en camisetas. Reputación −${rep}.`;
           return 'Cierra la tienda y se vuelve al pueblo. Escribe una reseña de una estrella que empieza con "Queridos futuros franquiciados...". Reputación −5.';
         },
       },

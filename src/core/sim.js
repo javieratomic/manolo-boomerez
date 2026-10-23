@@ -1,7 +1,7 @@
 // Avance mensual de la simulación y resolución de sucesos.
 import { computeEconomy, policyFx, creditLimit, patrimonio, grossPatrimonio, hasCondition } from './economy.js';
 import { chance, weightedPick, pick, range } from './rng.js';
-import { addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, log, money, GAME_MONTHS, clamp } from './helpers.js';
+import { addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, log, money, GAME_MONTHS, clamp, custom, remember } from './helpers.js';
 import { laborFine, haciendaDebt, inspectionChance, auditChance, tickLaborHistory } from './inspections.js';
 import { checkUnlocks } from './actions.js';
 import { tickMacro, macroFx } from './macro.js';
@@ -231,6 +231,8 @@ export function currentPending(s) {
   const params = p.params || {};
   // Etiquetas, pistas e imágenes pueden depender del estado (p. ej. la probabilidad real de un truco).
   const val = (x) => (typeof x === 'function' ? x(s, params) : x);
+  const last = ev.memory ? custom(s, ev.id).last : null;
+  const usual = (c) => (last && c.key === last ? `↺ Lo de siempre (la última vez elegiste esto).${c.hint ? ` ${val(c.hint)}` : ''}` : val(c.hint));
   return {
     pending: p,
     event: ev,
@@ -239,7 +241,7 @@ export function currentPending(s) {
     portrait: val(ev.portrait),
     image: val(ev.image),
     choices: ev.choices.map((c, i) => ({
-      index: i, label: val(c.label), hint: val(c.hint),
+      index: i, label: val(c.label), hint: usual(c), key: c.key,
       available: c.available ? !!c.available(s, params) : true,
     })).filter((c) => c.available),
   };
@@ -255,6 +257,7 @@ export function resolvePending(s, choiceIndex) {
   s.seen ||= {};
   s.seen[p.id] = s.month;
   const result = choice.effect(s, params);
+  if (ev.memory && choice.key) remember(s, p.id, choice.key);
   s.pending.shift();
   s.cash = Math.round(s.cash);
   checkUnlocks(s);

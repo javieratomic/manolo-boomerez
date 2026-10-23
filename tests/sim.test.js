@@ -793,3 +793,60 @@ test('previsión: con solo el salario en negro, la culpa es del salario', () => 
   const legal = forecast(s, (c) => { c.policies.salario = 'convenio'; });
   assert(Math.abs(b.rest - legal.d.heatTrabajo) < 1e-9, 'el resto es lo que pasaría siendo legal');
 });
+
+// ------------------------------------------------------------- Costumbres
+const yearly = (s, id, text) => pick(s, visit(s, id, {}), text);
+
+test('costumbres: romper una tradición de cestas duele más', () => {
+  const s = started();
+  yearly(s, 'navidad', 'Cesta');
+  const first = visit(s, 'navidad', {}).text;
+  yearly(s, 'navidad', 'Cesta');
+  const second = visit(s, 'navidad', {}).text;
+  assert(first !== second && second.includes('tradición'), 'el texto cambia con los años');
+  s.moral = 50;
+  yearly(s, 'navidad', 'tarjeta');
+  assertEq(s.moral, 40);
+  assertEq(s.customs.navidad.last, 'tarjeta');
+});
+
+test('costumbres: tres agostos sin vacaciones traen a la Inspección', () => {
+  const s = started();
+  s.cooldowns.trabajo = 0;
+  yearly(s, 'agosto', 'En agosto');
+  yearly(s, 'agosto', 'En agosto');
+  const p = visit(s, 'agosto', {});
+  assert(p.choices.find((c) => c.label.includes('En agosto')).hint.startsWith('↺'), 'la opción repetida avisa');
+  const ins = s.stats.inspecciones;
+  pick(s, p, 'En agosto');
+  assertEq(s.pending[0]?.id, 'inspeccion_trabajo');
+  assertEq(s.cooldowns.trabajo, 4);
+  assertEq(s.stats.inspecciones, ins + 1);
+  const t = started();
+  t.cooldowns.trabajo = 3;
+  for (let i = 0; i < 2; i++) yearly(t, 'agosto', 'En agosto');
+  const heat = t.heatTrabajo;
+  yearly(t, 'agosto', 'En agosto');
+  assertEq(t.pending.length, 0);
+  assert(Math.abs(t.heatTrabajo - heat - 15) < 1e-9 || t.heatTrabajo === 100, 'radar +15');
+});
+
+test('costumbres: cerrar agosto como en Francia solo tras dos veranos de vacaciones', () => {
+  const s = started();
+  assert(!visit(s, 'agosto', {}).choices.some((c) => c.label.includes('Francia')));
+  yearly(s, 'agosto', 'disfruten');
+  yearly(s, 'agosto', 'disfruten');
+  const p = visit(s, 'agosto', {});
+  assert(p.choices[p.choices.length - 1].label.includes('Francia'), 'es la última opción');
+  pick(s, p, 'Francia');
+  assert(s.mods.some((m) => m.kind === 'revenue' && m.factor === 0.8));
+});
+
+test('costumbres: las partidas sin costumbres se cargan y resuelven Navidad', () => {
+  const s = started();
+  const old = JSON.parse(serialize(s));
+  delete old.customs;
+  const back = deserialize(JSON.stringify(old));
+  yearly(back, 'navidad', 'lotería');
+  assertEq(back.customs.navidad.count, 1);
+});

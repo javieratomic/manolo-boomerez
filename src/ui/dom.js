@@ -89,14 +89,14 @@ export function showModal(opts) {
   });
 }
 
-export function toast(text, tone = 'info') {
+export function toast(text, tone = 'info', ms = 2600) {
   const root = $('#toast-root');
   const el = document.createElement('div');
   el.className = `toast ${tone}`;
   el.textContent = text;
   root.appendChild(el);
-  setTimeout(() => el.classList.add('out'), 2600);
-  setTimeout(() => el.remove(), 3000);
+  setTimeout(() => el.classList.add('out'), ms);
+  setTimeout(() => el.remove(), ms + 400);
 }
 
 export async function confirmModal(title, text, yes = 'Sí', no = 'Cancelar') {

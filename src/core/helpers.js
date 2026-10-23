@@ -43,6 +43,20 @@ export function log(s, text, tone = 'info') {
   if (s.log.length > 80) s.log.length = 80;
 }
 
+// Costumbres: lo que Manolo eligió las otras veces en los sucesos con memoria (Navidad, agosto...).
+export const custom = (s, id) => s.customs?.[id] || { count: 0, streak: 0, last: null, counts: {} };
+
+export function remember(s, id, key) {
+  s.customs ||= {};
+  const c = { counts: {}, ...custom(s, id) };
+  c.streak = c.last === key ? c.streak + 1 : 1;
+  c.last = key;
+  c.count++;
+  c.counts = { ...c.counts, [key]: (c.counts[key] || 0) + 1 };
+  c.month = s.month;
+  s.customs[id] = c;
+}
+
 export function addMod(s, mod) {
   // mod: { kind, months, factor, category?, label }
   s.mods.push({ ...mod });

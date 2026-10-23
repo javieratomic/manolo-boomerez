@@ -19,7 +19,7 @@ import { RIVALS } from '../data/rivals.js';
 import { buyLujo, sellLujo, doIPO, IPO_FLOAT } from '../core/life.js';
 import { LUJO_BY_ID } from '../data/lujo.js';
 import { grossPatrimonio } from '../core/economy.js';
-import { money, moneyShort, dateLabel, GAME_MONTHS, START_YEAR, log } from '../core/helpers.js';
+import { money, moneyShort, dateLabel, GAME_MONTHS, START_YEAR, log, custom } from '../core/helpers.js';
 import { HQ_CITY, CITY_BY_ID } from '../data/cities.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
 import { ENDINGS } from '../data/endings.js';
@@ -653,6 +653,12 @@ async function runQueue(s) {
     const choice = p.choices[Math.max(0, i)];
     const result = resolvePending(s, choice.index);
     renderAll();
+    // Costumbres de la casa: a partir de la tercera vez seguida que eliges lo mismo, el resultado no para el juego.
+    if (p.event.memory && custom(s, p.pending.id).streak >= 3) {
+      log(s, `↺ ${p.title}: ${result}`, 'info');
+      toast(`↺ ${p.title}: ${result}`, 'info', Math.max(2600, result.length * 45));
+      continue;
+    }
     await showModal({ title: p.title, kicker: 'Resultado', portrait: p.portrait, text: result });
   }
   if (game.s !== s) return;

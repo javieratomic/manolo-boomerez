@@ -86,6 +86,7 @@ export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal
     ipo: null,
     gov: null,
     dossier: { trucos: {}, sanciones: [], historial: [] },
+    customs: {},
   };
 }
 

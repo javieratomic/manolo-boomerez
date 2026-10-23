@@ -539,18 +539,22 @@
       "file": "assets/portraits/portrait_presentadora.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/04_retratos.md#portrait_presentadora"
+      "request": "art/requests/04_retratos.md#portrait_presentadora",
+      "version": 1,
+      "notes": "Ilustracion 2.5D opaca; dimensiones, identidad y peso verificados."
     },
     {
       "id": "portrait_coach",
       "file": "assets/portraits/portrait_coach.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/04_retratos.md#portrait_coach"
+      "request": "art/requests/04_retratos.md#portrait_coach",
+      "version": 1,
+      "notes": "Ilustracion 2.5D opaca; dimensiones, identidad y peso verificados."
     },
     {
       "id": "portrait_esposa_merche",
@@ -1860,18 +1864,22 @@
       "file": "assets/endings/end_pyme.png",
       "w": 1280,
       "h": 720,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/06_finales.md#end_pyme"
+      "request": "art/requests/06_finales.md#end_pyme",
+      "version": 1,
+      "notes": "Ilustracion 2.5D opaca; dimensiones, identidad y peso verificados."
     },
     {
       "id": "end_ruina",
       "file": "assets/endings/end_ruina.png",
       "w": 1280,
       "h": 720,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/06_finales.md#end_ruina"
+      "request": "art/requests/06_finales.md#end_ruina",
+      "version": 1,
+      "notes": "Ilustracion 2.5D opaca; dimensiones, identidad y peso verificados."
     },
     {
       "id": "logo_game",

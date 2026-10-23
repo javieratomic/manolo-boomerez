@@ -100,12 +100,12 @@ export function annualProfit(s) {
 export function ipoPremium(s) {
   const phase = s.macro?.phase;
   const mood = { burbuja: 0.3, expansion: 0.1, recuperacion: 0, crisis: -0.3 }[phase] ?? 0;
-  return Math.max(0.6, 1 + s.fama / 400 + (s.rep - 50) / 300 + mood);
+  return Math.min(1.4, Math.max(0.6, 1 + s.fama / 500 + (s.rep - 50) / 300 + mood));
 }
 
 export function companyValuation(s, equity) {
-  // Una pyme cotizada vale unas 8 veces su beneficio anual (o lo que tenga en activos, si es más).
-  return Math.max(equity, annualProfit(s) * 8) * ipoPremium(s);
+  // Una pyme cotizada vale unas 6 veces su beneficio anual (o lo que tenga en activos, si es más).
+  return Math.max(equity, annualProfit(s) * 6) * ipoPremium(s);
 }
 
 export function canIPO(s, equity) {

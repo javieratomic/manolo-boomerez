@@ -154,7 +154,7 @@ explotas), al borde del burnout, tiburón (rinde más, cobra más, sube los rada
 Siete caprichos (reloj, todoterreno, palco, cuadro, caballo, yate, chalet en Marbella) con fama,
 mantenimiento y radar de Hacienda. La relación con Merche baja con el tamaño del imperio; por debajo de 30
 avisa y por debajo de 15 pide el divorcio (gananciales). Salida a Bolsa a partir del mes 36 con 4 M€:
-se vende el 25 % a 8 veces el beneficio con una prima según fama, reputación y ciclo; después la cotización
+se vende el 25 % a 6 veces el beneficio con una prima (máximo ×1,4) según fama, reputación y ciclo; después la cotización
 fluctúa y las caídas del 30 % provocan juntas de accionistas furiosas.
 
 ## 11. Progresión y rejugabilidad

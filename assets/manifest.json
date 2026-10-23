@@ -436,45 +436,55 @@
       "file": "assets/portraits/portrait_alcalde.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/04_retratos.md#portrait_alcalde"
+      "request": "art/requests/04_retratos.md#portrait_alcalde",
+      "version": 1,
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_influencer",
       "file": "assets/portraits/portrait_influencer.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/04_retratos.md#portrait_influencer"
+      "request": "art/requests/04_retratos.md#portrait_influencer",
+      "version": 1,
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_primo_argentino",
       "file": "assets/portraits/portrait_primo_argentino.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/04_retratos.md#portrait_primo_argentino"
+      "request": "art/requests/04_retratos.md#portrait_primo_argentino",
+      "version": 1,
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_inversor_misterioso",
       "file": "assets/portraits/portrait_inversor_misterioso.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/04_retratos.md#portrait_inversor_misterioso"
+      "request": "art/requests/04_retratos.md#portrait_inversor_misterioso",
+      "version": 1,
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_franquiciado",
       "file": "assets/portraits/portrait_franquiciado.png",
       "w": 512,
       "h": 512,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
-      "request": "art/requests/04_retratos.md#portrait_franquiciado"
+      "request": "art/requests/04_retratos.md#portrait_franquiciado",
+      "version": 1,
+      "notes": "Busto 2.5D a tres cuartos hacia la izquierda; fondo opaco del color solicitado."
     },
     {
       "id": "portrait_vecina",

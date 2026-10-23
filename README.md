@@ -43,6 +43,8 @@ pellizco para el zoom · `Espacio` cierra el mes · `1`-`6` cambia de pestaña �
 | Mercado | Campañas de marketing locales y nacionales, I+D con 12 productos |
 | Equipo | 5 puestos directivos con candidatos que tienen nivel y manías |
 | Vida | Caprichos de nuevo rico, relación con Merche (y divorcio), salida a Bolsa |
+| Logística | Transporte por kilómetro desde el obrador más cercano, obradores regionales, licencias de pisos turísticos |
+| Rejugabilidad | Balance anual, salón de la fama, logros entre partidas y modo infinito |
 | Políticas | Salarios, horas extra, becarios, alquiler de los pisos de la plantilla, contabilidad e ingredientes |
 | Riesgo | Radares de Inspección de Trabajo y de Hacienda → inspecciones, auditorías, multas y expedientes penales |
 | Sucesos | 39 cartas satíricas con decisiones (el cuñado y su SobaoCoin, la rata viral, la huelga, el jefe infiltrado...) |

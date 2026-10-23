@@ -133,6 +133,13 @@ donde ganas dinero. Cada nivel de presencia (máx. 3) quita un 15 % de clientela
 Acciones: guerra de precios (−15 % tres meses; 75 % de que retrocedan), reseñas falsas, fichar a su
 encargado y OPA (120.000 € por nivel; más barata en crisis; te quedas con hasta 4 locales).
 
+### Logística y licencias
+Cada sobao viaja desde el obrador más cercano: 0,025 € por cada 100 km por carretera (×1,5 a Baleares y
+×2,2 a Canarias). Los **obradores regionales** (380.000 €, uno por ciudad) añaden 15.000 sobaos/mes de
+capacidad y abaratan el transporte de su zona. En Barcelona, Madrid, Palma, Ibiza, Donostia y Málaga los
+pisos turísticos necesitan una licencia de 120.000 €; sin ella son más baratos, pero suben el radar de
+Hacienda y cada mes hay un 4 % de probabilidades de inspección municipal.
+
 ### Marketing e I+D
 Campañas locales (buzoneo, vallas, fútbol) y nacionales (radio, influencers, tele autonómica). Doce
 productos de I+D con efectos por sector, tipo de negocio, renta, tamaño de ciudad o temporada; la línea
@@ -161,6 +168,10 @@ fluctúa y las caídas del 30 % provocan juntas de accionistas furiosas.
 - **Logros** persistentes entre partidas (21), entre ellos uno por cada final.
 - **Prensa:** titulares satíricos de *El Sobao Digital* en la hemeroteca.
 - **Exportar/importar partida** desde el menú (archivo JSON) para pasarla del PC al móvil.
+- **Balance de fin de año** cada diciembre, con el post de LinkedIn de Manolo.
+- **Salón de la fama** local con las 10 mejores partidas.
+- **Modo infinito** al terminar los 8 años (o al llegar a Forbes).
+- **Fundación Boomerez**: asesor que da reputación y fama y desgrava un 10 % del impuesto.
 
 ## 12. Arte (2.5D)
 

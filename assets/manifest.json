@@ -32,26 +32,30 @@
       "file": "assets/buildings/bld_obrador_2.png",
       "w": 256,
       "h": 256,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
       "request": "art/requests/03_edificios.md#bld_obrador_2",
       "anchor": [
         128,
         240
-      ]
+      ],
+      "version": 1,
+      "notes": "Diorama transparente; ancla frontal alineada a (128, 240)."
     },
     {
       "id": "bld_obrador_3",
       "file": "assets/buildings/bld_obrador_3.png",
       "w": 256,
       "h": 256,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
       "request": "art/requests/03_edificios.md#bld_obrador_3",
       "anchor": [
         128,
         240
-      ]
+      ],
+      "version": 1,
+      "notes": "Diorama transparente; ancla frontal alineada a (128, 240)."
     },
     {
       "id": "bld_sobaos_express",
@@ -148,13 +152,15 @@
       "file": "assets/buildings/bld_academy.png",
       "w": 256,
       "h": 256,
-      "status": "requested",
+      "status": "done",
       "priority": 2,
       "request": "art/requests/03_edificios.md#bld_academy",
       "anchor": [
         128,
         240
-      ]
+      ],
+      "version": 1,
+      "notes": "Diorama transparente; ancla frontal alineada a (128, 240)."
     },
     {
       "id": "bld_taberna",

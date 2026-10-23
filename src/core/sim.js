@@ -81,7 +81,8 @@ function driftStats(s, r) {
 
   addMoral(s, fx.sal.moral + fx.hor.moral + fx.bec.moral + (hasHousing ? fx.alq.moral * control : 0) + (50 - s.moral) * 0.03 + 0.4 * execSkill(s, 'rrhh'));
   addRep(s, fx.ing.rep * (s.brand === 'maison' ? 1.5 : 1) + (s.moral < 30 ? -0.5 : 0) + (50 - s.rep) * 0.01 + 0.15 * execSkill(s, 'marketing'));
-  addFama(s, -(0.5 + s.fama * 0.03));
+  addFama(s, -(0.5 + s.fama * 0.03) + (s.perks.fundacion ? 0.3 : 0));
+  if (s.perks.fundacion) addRep(s, 0.5);
 
   const size = Math.min(3, 0.5 + r.employees / 40);
   const inspGain = (fx.sal.insp + fx.hor.insp + fx.bec.insp + (hasHousing ? fx.alq.insp * control : 0)) *

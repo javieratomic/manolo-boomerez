@@ -298,8 +298,9 @@ export function computeEconomy(s) {
   if (profit > 0) {
     const due = profit * CORPORATE_TAX;
     const declared = fx.con.declared * (s.perks.andorra ? 0.7 : 1);
-    tax = due * declared;
-    evaded = due - tax;
+    evaded = due * (1 - declared);
+    // La fundación desgrava (legalmente) un 10 % de lo declarado.
+    tax = due * declared * (s.perks.fundacion ? 0.9 : 1);
   }
   costs.impuestos = tax;
 

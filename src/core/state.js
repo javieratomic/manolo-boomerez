@@ -43,7 +43,7 @@ export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal
     expedientes: 0,
     evaded: 0,
     policies: { ...DEFAULT_POLICIES },
-    perks: { gestor: false, abogado: false, comunicacion: false, andorra: false },
+    perks: { gestor: false, abogado: false, comunicacion: false, fundacion: false, andorra: false },
     andorraPaid: false,
     obrador: { upgrades: [] },
     businesses: [],

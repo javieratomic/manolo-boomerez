@@ -131,6 +131,10 @@ export const PERKS = {
     name: 'Agencia "Relato & Humo"', monthly: 1800,
     desc: 'Los escándalos te quitan un 40 % menos de reputación. Expertos en "poner en valor".',
   },
+  fundacion: {
+    name: 'Fundación Boomerez', monthly: 4000,
+    desc: 'Torneos de pádel benéficos y becas para hijos de amigos. Reputación +0,5/mes, fama +0,3/mes y desgrava un 10 % del impuesto de sociedades.',
+  },
   andorra: {
     name: 'Sociedad patrimonial en Andorra', monthly: 1000, setup: 40000,
     desc: 'Declaras todavía menos (−30 %). Si Hacienda te pilla, la auditoría es un 50 % más dura.',

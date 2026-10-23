@@ -223,6 +223,7 @@ export class MapView {
     ctx.setTransform(this.dpr * this.cam.z, 0, 0, this.dpr * this.cam.z, this.dpr * this.cam.x, this.dpr * this.cam.y);
     if (hasArt('map_spain')) {
       ctx.drawImage(getImage('map_spain'), 0, 0, WORLD.width, WORLD.height);
+      this.featherMapEdges(ctx);
     } else {
       this.drawProceduralMap(ctx);
     }
@@ -230,10 +231,57 @@ export class MapView {
     this.drawFloaters(ctx);
   }
 
+  // Color medio del borde del mapa dibujado, para que el mar de fondo empalme con él.
+  artSeaColor() {
+    if (this.seaColor !== undefined) return this.seaColor;
+    this.seaColor = null;
+    try {
+      const img = getImage('map_spain');
+      const c = document.createElement('canvas');
+      c.width = 64;
+      c.height = 34;
+      const x = c.getContext('2d');
+      x.drawImage(img, 0, 0, 64, 34);
+      const d = x.getImageData(0, 0, 64, 34).data;
+      let r = 0, g = 0, b = 0, n = 0;
+      for (let i = 0; i < 64 * 34; i++) {
+        const px = i % 64, py = Math.floor(i / 64);
+        if (px > 2 && px < 61 && py > 2 && py < 31) continue; // solo el marco exterior
+        r += d[i * 4]; g += d[i * 4 + 1]; b += d[i * 4 + 2]; n++;
+      }
+      this.seaColor = `rgb(${Math.round(r / n)},${Math.round(g / n)},${Math.round(b / n)})`;
+    } catch {
+      /* sin acceso a los píxeles: se queda el mar por defecto */
+    }
+    return this.seaColor;
+  }
+
+  // Funde los bordes de la imagen del mapa con el mar de fondo.
+  featherMapEdges(ctx) {
+    const sea = this.artSeaColor();
+    if (!sea) return;
+    const f = 40; // sin tapar el recuadro de Canarias, que llega casi al borde inferior
+    const rgba = (a) => sea.replace('rgb(', 'rgba(').replace(')', `,${a})`);
+    const edges = [
+      [0, 0, WORLD.width, f, 0, 0, 0, f],
+      [0, WORLD.height - f, WORLD.width, f, 0, WORLD.height, 0, WORLD.height - f],
+      [0, 0, f, WORLD.height, 0, 0, f, 0],
+      [WORLD.width - f, 0, f, WORLD.height, WORLD.width, 0, WORLD.width - f, 0],
+    ];
+    for (const [x, y, w, h, x0, y0, x1, y1] of edges) {
+      const g = ctx.createLinearGradient(x0, y0, x1, y1);
+      g.addColorStop(0, rgba(1));
+      g.addColorStop(1, rgba(0));
+      ctx.fillStyle = g;
+      ctx.fillRect(x, y, w, h);
+    }
+  }
+
   drawSea(ctx) {
+    const art = hasArt('map_spain') ? this.artSeaColor() : null;
     const g = ctx.createLinearGradient(0, 0, 0, this.h);
-    g.addColorStop(0, '#5aa9d6');
-    g.addColorStop(1, '#2f6f9f');
+    g.addColorStop(0, art || '#5aa9d6');
+    g.addColorStop(1, art || '#2f6f9f');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, this.w, this.h);
     ctx.strokeStyle = 'rgba(255,255,255,0.08)';

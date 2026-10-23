@@ -34,12 +34,40 @@ export const GOALS = [
     },
   },
   {
+    id: 'directivo',
+    text: 'Ficha a tu primer directivo (pestaña Plantilla → Equipo directivo).',
+    test: (s) => Object.keys(s.execs || {}).length >= 1,
+    reward(s) {
+      addFama(s, 2);
+      return 'Ya puedes decir "mi equipo" en las reuniones. Fama +2.';
+    },
+  },
+  {
     id: 'diversificar',
     text: 'Diversifica: abre un negocio que no sea de sobaos.',
     test: (s) => s.businesses.some((b) => BUSINESS_TYPES[b.type].category !== 'sobaos'),
     reward(s) {
       addFama(s, 5);
       return 'Ya puedes poner "Holding" en tu tarjeta de visita. Fama +5.';
+    },
+  },
+  {
+    id: 'campana',
+    text: 'Lanza una campaña de marketing (en una ciudad o en la pestaña Mercado).',
+    test: (s) => s.mods.some((m) => m.campaign) || s.flags.campaignDone,
+    reward(s) {
+      s.flags.campaignDone = true;
+      addRep(s, 2);
+      return 'Tu cara en una valla. Tu madre la fotografía cada vez que pasa. Reputación +2.';
+    },
+  },
+  {
+    id: 'producto',
+    text: 'Desarrolla un producto nuevo en I+D (pestaña Mercado).',
+    test: (s) => (s.products || []).length >= 1,
+    reward(s) {
+      addCash(s, 8000);
+      return 'Te dan el premio "Innovación Pasiega" de la Cámara de Comercio: 8.000 € y una placa que pesa más que el premio.';
     },
   },
   {

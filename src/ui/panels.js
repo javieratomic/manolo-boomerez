@@ -223,6 +223,10 @@ export function renderEmpire(s) {
     <div><span class="muted small">Beneficio último mes</span><b class="${r ? cls(r.net) : ''}">${r ? moneyShort(r.net) : '—'}</b></div>
   </div>`;
   if (!r) return html + '<div class="card muted">Cierra el primer mes para ver las cuentas del imperio.</div>';
+  html += `<div class="card"><h4>Ingresos por sector</h4>
+    <canvas id="chart-cat" height="170"></canvas>
+    <div class="legend">${Object.entries(CAT_COLORS).map(([k, c]) => `<span><i style="background:${c}"></i>${CAT_LABELS[k]}</span>`).join('')}<span><i class="line"></i>Beneficio neto</span></div>
+  </div>`;
   const groups = {};
   for (const l of r.lines) (groups[l.city] ||= []).push(l);
   const cities = Object.keys(groups).sort((a, b) => groups[b].reduce((x, l) => x + l.revenue - l.cost, 0) - groups[a].reduce((x, l) => x + l.revenue - l.cost, 0));
@@ -442,6 +446,60 @@ function renderIPO(s) {
     <button class="btn small primary" data-act="ipo" ${ok.ok ? '' : 'disabled'}>Salir a Bolsa</button>
     ${ok.ok ? '' : `<div class="small muted">${esc(ok.msg)}</div>`}
   </div>`;
+}
+
+export const CAT_COLORS = { sobaos: '#e8a33a', hosteleria: '#d4402b', inmobiliario: '#2f8fc4', servicios: '#16a085', formacion: '#7a4fa0' };
+export const CAT_LABELS = { sobaos: 'Sobaos', hosteleria: 'Hostelería', inmobiliario: 'Inmobiliario', servicios: 'Servicios', formacion: 'Formación' };
+
+// Áreas apiladas de ingresos por sector y línea de beneficio neto.
+export function drawCategoryChart(canvas, s) {
+  if (!canvas) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = canvas.clientWidth || 300;
+  const h = 170;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const data = s.history.filter((x) => x.cat);
+  if (data.length < 2) {
+    ctx.fillStyle = '#8a7d6b';
+    ctx.font = '13px system-ui';
+    ctx.fillText('Aún no hay datos suficientes.', 10, 80);
+    return;
+  }
+  const keys = Object.keys(CAT_COLORS);
+  const max = Math.max(1, ...data.map((d) => keys.reduce((a, k) => a + (d.cat[k] || 0), 0)));
+  const min = Math.min(0, ...data.map((d) => d.net));
+  const x = (i) => 6 + (i / (data.length - 1)) * (w - 12);
+  const y = (v) => h - 16 - ((v - min) / (max - min)) * (h - 28);
+  const base = new Array(data.length).fill(0);
+  for (const k of keys) {
+    ctx.beginPath();
+    data.forEach((d, i) => (i ? ctx.lineTo(x(i), y(base[i] + (d.cat[k] || 0))) : ctx.moveTo(x(i), y(base[i] + (d.cat[k] || 0)))));
+    for (let i = data.length - 1; i >= 0; i--) ctx.lineTo(x(i), y(base[i]));
+    ctx.closePath();
+    ctx.fillStyle = CAT_COLORS[k];
+    ctx.globalAlpha = 0.75;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    data.forEach((d, i) => (base[i] += d.cat[k] || 0));
+  }
+  ctx.beginPath();
+  data.forEach((d, i) => (i ? ctx.lineTo(x(i), y(d.net)) : ctx.moveTo(x(i), y(d.net))));
+  ctx.strokeStyle = '#2e2318';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([4, 3]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+  ctx.beginPath();
+  ctx.moveTo(0, y(0));
+  ctx.lineTo(w, y(0));
+  ctx.stroke();
+  ctx.fillStyle = '#5b4a36';
+  ctx.font = '11px system-ui';
+  ctx.fillText(`${moneyShort(max)}/mes`, 8, 12);
 }
 
 export function drawChart(canvas, s) {

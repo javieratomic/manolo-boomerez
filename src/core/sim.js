@@ -44,7 +44,10 @@ export function advanceMonth(s) {
 
   const pat = patrimonio(s);
   s.stats.maxPatrimonio = Math.max(s.stats.maxPatrimonio, pat);
-  s.history.push({ month: s.month, cash: Math.round(s.cash), patrimonio: Math.round(pat), revenue: Math.round(r.revenue), net: Math.round(r.net) });
+  s.history.push({
+    month: s.month, cash: Math.round(s.cash), patrimonio: Math.round(pat), revenue: Math.round(r.revenue), net: Math.round(r.net),
+    cat: Object.fromEntries(Object.entries(r.revenueByCat).map(([k, v]) => [k, Math.round(v)])),
+  });
   if (s.history.length > GAME_MONTHS + 12) s.history.shift();
 
   s.month++;

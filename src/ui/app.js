@@ -1,6 +1,6 @@
 // Controlador principal de la interfaz.
 import { $, esc, showModal, toast, confirmModal, isModalOpen } from './dom.js';
-import { TABS, renderCity, renderEmpire, renderMarket, renderStaff, renderFinance, renderManolo, renderNews, drawChart, manoloMood } from './panels.js';
+import { TABS, renderCity, renderEmpire, renderMarket, renderStaff, renderFinance, renderManolo, renderNews, drawChart, drawCategoryChart, manoloMood } from './panels.js';
 import { macroFx } from '../core/macro.js';
 import { MapView } from '../render/mapView.js';
 import { initAssets, imageUrl, hasArt } from '../render/assets.js';
@@ -159,6 +159,7 @@ function renderPanel(s) {
   body.innerHTML = map[game.tab]();
   body.scrollTop = scroll;
   if (game.tab === 'finanzas') drawChart($('#chart'), s);
+  if (game.tab === 'imperio') drawCategoryChart($('#chart-cat'), s);
   const btn = $('#end-month');
   btn.disabled = game.busy || !!s.ending || s.pending.length > 0;
   btn.innerHTML = `Cerrar ${esc(dateLabel(s.month))} <span>▶</span>`;

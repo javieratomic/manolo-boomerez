@@ -1606,18 +1606,21 @@
       "file": "assets/events/ev_jubilacion_conchi.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "blocked",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_jubilacion_conchi"
+      "request": "art/requests/05_sucesos.md#ev_jubilacion_conchi",
+      "notes": "image_gen rechazó dos intentos de la fiesta de jubilación, incluido un prompt simplificado, con moderation_blocked (output/other). Sin imagen entregada. Detalles en art/entregas/2026-10-24-sucesos-16.md."
     },
     {
       "id": "ev_madre_visita",
       "file": "assets/events/ev_madre_visita.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_madre_visita"
+      "request": "art/requests/05_sucesos.md#ev_madre_visita",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_fiestas_patronales",
@@ -1635,36 +1638,44 @@
       "file": "assets/events/ev_black_friday.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_black_friday"
+      "request": "art/requests/05_sucesos.md#ev_black_friday",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_cuesta_enero",
       "file": "assets/events/ev_cuesta_enero.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_cuesta_enero"
+      "request": "art/requests/05_sucesos.md#ev_cuesta_enero",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_puente_mayo",
       "file": "assets/events/ev_puente_mayo.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_puente_mayo"
+      "request": "art/requests/05_sucesos.md#ev_puente_mayo",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_san_fermin",
       "file": "assets/events/ev_san_fermin.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_san_fermin"
+      "request": "art/requests/05_sucesos.md#ev_san_fermin",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_semana_santa",

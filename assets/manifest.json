@@ -968,54 +968,66 @@
       "file": "assets/events/ev_coach.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_coach"
+      "request": "art/requests/05_sucesos.md#ev_coach",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; identidad, dimensiones y peso verificados."
     },
     {
       "id": "ev_erte",
       "file": "assets/events/ev_erte.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_erte"
+      "request": "art/requests/05_sucesos.md#ev_erte",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; identidad, dimensiones y peso verificados."
     },
     {
       "id": "ev_jefe_infiltrado",
       "file": "assets/events/ev_jefe_infiltrado.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_jefe_infiltrado"
+      "request": "art/requests/05_sucesos.md#ev_jefe_infiltrado",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; identidad, dimensiones y peso verificados."
     },
     {
       "id": "ev_okupas",
       "file": "assets/events/ev_okupas.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_okupas"
+      "request": "art/requests/05_sucesos.md#ev_okupas",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; identidad, dimensiones y peso verificados."
     },
     {
       "id": "ev_igp",
       "file": "assets/events/ev_igp.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_igp"
+      "request": "art/requests/05_sucesos.md#ev_igp",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; identidad, dimensiones y peso verificados."
     },
     {
       "id": "ev_riders",
       "file": "assets/events/ev_riders.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_riders"
+      "request": "art/requests/05_sucesos.md#ev_riders",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9; identidad, dimensiones y peso verificados."
     },
     {
       "id": "ev_fondos",

@@ -54,7 +54,8 @@ export function advice(s) {
 
   if (!Object.keys(s.execs || {}).length && s.month >= 6) out.push({ level: 'baja', text: 'Sigues sin equipo directivo. Un buen fichaje en Operaciones o RR. HH. se paga solo.', tab: 'plantilla' });
   if (!s.rd && s.cash > 150000 && s.month >= 4) out.push({ level: 'baja', text: 'El laboratorio de I+D está parado y tienes caja. Un producto nuevo vende más en todas las tiendas.', tab: 'mercado' });
-  if (!s.actionUsed) out.push({ level: 'baja', text: 'Aún no has hecho la acción de Manolo de este mes.', tab: 'manolo' });
+  if ((s.estres ?? 0) > 70) out.push({ level: 'media', text: `Manolo, tu estrés está en ${Math.round(s.estres)}. Una escapada o unos días en Marbella antes de que te dé algo.`, tab: 'manolo' });
+  if (!s.actionUsed && !(s.restMonths > 0)) out.push({ level: 'baja', text: 'Aún no has hecho la acción de Manolo de este mes.', tab: 'manolo' });
 
   const order = { alta: 0, media: 1, baja: 2 };
   return out.sort((a, b) => order[a.level] - order[b.level]).slice(0, 5);

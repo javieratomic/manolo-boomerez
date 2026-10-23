@@ -5,6 +5,7 @@ import { POLICIES } from '../data/policies.js';
 import { ACTION_BY_ID } from '../data/manoloActions.js';
 import { GOALS } from '../data/goals.js';
 import { execBonus, execSkill } from './execs.js';
+import { addStress, ACTION_STRESS } from './life.js';
 import { creditLimit } from './economy.js';
 import { addCash, log, money } from './helpers.js';
 
@@ -199,11 +200,13 @@ export function dropMonthlyCost(s, index) {
 
 export function doManoloAction(s, id) {
   if (s.actionUsed) return { ok: false, msg: 'Manolo ya ha hecho bastante este mes. Necesita su siesta.' };
+  if (s.restMonths > 0) return { ok: false, msg: `Reposo médico: ${s.restMonths} ${s.restMonths === 1 ? 'mes' : 'meses'} más sin hacer nada. Órdenes de Merche (y del cardiólogo).` };
   const a = ACTION_BY_ID[id];
   if (!a) return { ok: false, msg: 'Acción desconocida.' };
   if (a.cost && s.cash < a.cost) return { ok: false, msg: `Necesitas ${money(a.cost)}.` };
   s.actionUsed = true;
   const text = a.run(s);
+  addStress(s, ACTION_STRESS[id] ?? 0);
   checkUnlocks(s);
   return { ok: true, text };
 }

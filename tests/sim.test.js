@@ -515,6 +515,24 @@ test('las elecciones cambian las reglas', () => {
   assert(computeEconomy(s).tax !== taxBefore || computeEconomy(s).revenue >= 0, 'el gobierno afecta a la economía');
 });
 
+test('el estrés sube con el imperio, baja con el descanso y avisa con un susto', () => {
+  const s = started(95);
+  s.estres = 85;
+  s.cooldowns.trabajo = s.cooldowns.hacienda = 99;
+  advanceMonth(s);
+  const i = s.pending.findIndex((p) => p.id === 'susto_padel');
+  assert(i >= 0, 'susto con estrés alto');
+  s.pending = [s.pending[i]];
+  resolvePending(s, 0);
+  assertEq(s.restMonths, 3);
+  assert(!doManoloAction(s, 'linkedin').ok, 'en reposo no hay acciones');
+  const before = s.estres;
+  s.cooldowns.trabajo = s.cooldowns.hacienda = 99;
+  advanceMonth(s);
+  resolveAll(s);
+  assert(s.estres < before, 'el reposo baja el estrés');
+});
+
 test('fechas en español', () => {
   assertEq(dateLabel(0), 'Enero 2026');
   assertEq(dateLabel(13), 'Febrero 2027');

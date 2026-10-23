@@ -8,7 +8,7 @@ import { POSITIONS } from './execs.js';
 import { LEGAL_LABOR } from './policies.js';
 import { rivalHit, rivalTotal } from '../core/rivals.js';
 import { execOf, fireExec } from '../core/execs.js';
-import { divorce } from '../core/life.js';
+import { divorce, addStress } from '../core/life.js';
 import { holdElection } from '../core/politics.js';
 import { PARTIES } from './politics.js';
 
@@ -28,6 +28,49 @@ const electionResult = (s, lean, extra = '') => {
 };
 
 export const SYSTEM_EVENTS = [
+  {
+    id: 'susto_padel',
+    title: 'Un susto en la pista de pádel',
+    portrait: 'portrait_manolo_scared', image: 'ev_susto_padel',
+    text: () => 'En mitad de un punto decisivo contra el director del banco, a Manolo se le duerme el brazo y acaba sentado en la red. En urgencias, la cardióloga le enseña unos números peores que los de su cuenta de resultados: "Estrés, colesterol y ego. Sobre todo ego."',
+    weight: () => 0,
+    choices: [
+      {
+        label: 'Hacer caso a la médica: tres meses de reposo',
+        hint: 'Sin acciones de Manolo durante 3 meses; el estrés baja mucho.',
+        effect(s) {
+          s.restMonths = 3;
+          addStress(s, -40);
+          s.familia = Math.min(100, (s.familia ?? 60) + 8);
+          return 'Tres meses de paseos por el Pas, caldo y Merche vigilando el móvil. La empresa sobrevive sin ti, lo cual es preocupante. Familia +8.';
+        },
+      },
+      {
+        label: 'Coach de mindfulness a domicilio (12.000 €)',
+        effect(s) {
+          addCash(s, -12000);
+          addStress(s, -30);
+          addFama(s, 2);
+          return 'Iker Lasa te enseña a respirar "desde el EBITDA". Funciona sorprendentemente bien. Fama +2.';
+        },
+      },
+      {
+        label: '"Esto es de los nervios del partido". Volver mañana',
+        hint: 'Arriesgado.',
+        effect(s) {
+          if (chance(s, 0.4)) {
+            s.restMonths = 6;
+            addStress(s, -50);
+            addRep(s, -3);
+            return 'A la semana, segundo susto, esta vez en una reunión con inversores. Seis meses de reposo obligatorio y la noticia en la prensa económica. Reputación −3.';
+          }
+          addStress(s, -5);
+          addFama(s, 3);
+          return 'Vuelves al día siguiente y lo cuentas en LinkedIn: "Ni un infarto para a un tiburón". 2.000 likes. Tu cardióloga no le da like. Fama +3.';
+        },
+      },
+    ],
+  },
   {
     id: 'elecciones',
     title: 'Elecciones',

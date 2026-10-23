@@ -606,14 +606,15 @@ export function renderManolo(s) {
         <div class="chips">
           <span class="chip">📣 Fama: <b>${Math.round(s.fama)}</b></span>
           <span class="chip">⚖️ Expedientes: <b>${s.expedientes}/3</b></span>
+          <span class="chip" title="Sube con el tamaño del imperio, LinkedIn y el bar; baja con Marbella, la familia, el pádel y un buen equipo directivo. Por encima de 80, susto.">🫀 Estrés: <b class="${(s.estres ?? 20) > 70 ? 'neg' : ''}">${Math.round(s.estres ?? 20)}</b></span>
         </div>
         <blockquote>"${esc(s.quote || 'Yo a vuestra edad ya tenía un Audi.')}"</blockquote>
       </div>
     </div>
-    <div class="card"><h4>Acción del mes ${s.actionUsed ? '<span class="tag">Hecha</span>' : ''}</h4>
+    <div class="card"><h4>Acción del mes ${s.actionUsed ? '<span class="tag">Hecha</span>' : ''}${s.restMonths > 0 ? `<span class="tag">Reposo: ${s.restMonths} m</span>` : ''}</h4>
       <p class="small muted">Manolo puede hacer una cosa al mes. Las demás las hace la plantilla.</p>
       <div class="actions">
-        ${MANOLO_ACTIONS.map((a) => `<button class="action" data-act="manolo" data-id="${a.id}" ${s.actionUsed || (a.cost && s.cash < a.cost) ? 'disabled' : ''}>
+        ${MANOLO_ACTIONS.map((a) => `<button class="action" data-act="manolo" data-id="${a.id}" ${s.actionUsed || s.restMonths > 0 || (a.cost && s.cash < a.cost) ? 'disabled' : ''}>
           ${artOr(a.icon, a.emoji)}<span><b>${esc(a.name)}</b><small>${esc(a.desc)}</small></span></button>`).join('')}
       </div>
     </div>

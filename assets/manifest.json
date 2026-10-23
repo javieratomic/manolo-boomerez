@@ -1044,6 +1044,15 @@
       "request": "art/requests/05_sucesos.md#ev_elecciones"
     },
     {
+      "id": "ev_susto_padel",
+      "file": "assets/events/ev_susto_padel.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_susto_padel"
+    },
+    {
       "id": "ev_junta",
       "file": "assets/events/ev_junta.png",
       "w": 768,

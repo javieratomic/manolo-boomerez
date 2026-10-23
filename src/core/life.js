@@ -37,8 +37,32 @@ export function sellLujo(s, id) {
   return { ok: true, price };
 }
 
+// ------------------------------------------------------------------ Estrés
+// Efecto de cada acción de Manolo sobre su estrés.
+export const ACTION_STRESS = { linkedin: 3, bar: 2, alcalde: 2, charla: 1, cuentas: 1, padel: -5, marbella: -25, cena: -8, escapada: -15 };
+
+export function addStress(s, d) {
+  s.estres = clamp((s.estres ?? 20) + d);
+}
+
+function tickStress(s) {
+  if (s.restMonths > 0) {
+    s.restMonths--;
+    addStress(s, -8);
+    return;
+  }
+  // Cuanto más grande el imperio, más agobio; un buen equipo directivo lo reparte.
+  const execs = Object.keys(s.execs || {}).length;
+  addStress(s, 0.4 + Math.min(2.2, s.businesses.length / 25) - 0.35 * execs);
+  if ((s.estres ?? 0) > 80 && !s.pending.some((p) => p.id === 'susto_padel') && s.month - (s.flags.sustoMonth ?? -99) >= 6) {
+    s.flags.sustoMonth = s.month;
+    s.pending.push({ kind: 'event', id: 'susto_padel' });
+  }
+}
+
 // ----------------------------------------------------------------- Familia
 export function tickLife(s) {
+  tickStress(s);
   for (const x of s.lujo || []) {
     const l = LUJO_BY_ID[x.id];
     x.value *= 1 + (l.realEstate ? Math.max(l.drift, macroFx(s).property) : l.drift);

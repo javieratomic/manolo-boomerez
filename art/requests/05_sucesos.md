@@ -404,6 +404,14 @@ Una vecina mayor con prismáticos en su balcón vigila el portal de enfrente, do
 
 Noche electoral en un colegio electoral de pueblo: urnas transparentes, carteles de dos partidos inventados (una rosa roja y un águila azul) y Manolo dándole la mano a la vez a dos tesoreros, uno con cada mano.
 
+## ev_susto_padel
+
+- **Archivo:** `assets/events/ev_susto_padel.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Pista de pádel acristalada: Manolo sentado en el suelo junto a la red, pálido, con la pala en la mano, mientras el director del banco llama por el móvil y un sanitario entra corriendo con un maletín.
+
 ## ev_junta
 
 - **Archivo:** `assets/events/ev_junta.png`

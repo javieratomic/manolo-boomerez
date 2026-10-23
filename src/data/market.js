@@ -55,6 +55,6 @@ export const PRODUCTS = [
     desc: 'Una pulsera que avisa si el abuelo se cae. Y si sale sin pagar. Residencias +10 %.' },
 ];
 
-export const UPGRADE_COST = [0.5, 0.8]; // coste de pasar a nivel 2 y a nivel 3 (fracción del coste del negocio)
+export const UPGRADE_COST = [0.6, 1.0]; // coste de pasar a nivel 2 y a nivel 3 (fracción del coste del negocio)
 export const MAX_LEVEL = 3;
-export const LEVEL_BONUS = 0.18; // demanda extra por nivel
+export const LEVEL_BONUS = 0.15; // demanda extra por nivel

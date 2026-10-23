@@ -14,6 +14,8 @@ export const TOURISM_SEASON = [0.6, 0.65, 0.8, 0.95, 1, 1.2, 1.5, 1.55, 1.15, 0.
 export const CORPORATE_TAX = 0.25;
 export const FRANCHISE_ROYALTY = 0.05;
 export const FRANCHISEE_WAGE = 1500;
+export const STRUCTURE_BASE = 120;
+export const STRUCTURE_EXP = 1.4;
 
 export function policyFx(s) {
   const p = s.policies;
@@ -70,6 +72,12 @@ export function grossPatrimonio(s) {
 }
 
 // Lo que es de Manolo: si cotiza en Bolsa, descuenta la parte de los accionistas.
+// Oficinas centrales, gestorías y abogados: crece más deprisa que el número de negocios.
+export function structureCost(s) {
+  const n = s.businesses.filter((b) => b.mode !== 'franquicia').length + 0.3 * s.businesses.filter((b) => b.mode === 'franquicia').length;
+  return Math.round(STRUCTURE_BASE * Math.pow(n, STRUCTURE_EXP) * (1 - 2 * execBonus(s, 'operaciones')));
+}
+
 export function patrimonio(s) {
   return grossPatrimonio(s) * (1 - (s.ipo?.float || 0));
 }
@@ -100,7 +108,7 @@ export function computeEconomy(s) {
   const sat = (b) => 1 / (1 + 0.45 * ((counts[`${b.city}:${b.type}`] || 1) - 1));
 
   const lines = [];
-  const costs = { salarios: 0, directivos: 0, alquileres: 0, materias: 0, otros: 0, intereses: 0, asesores: 0, personales: 0, impuestos: 0 };
+  const costs = { salarios: 0, directivos: 0, estructura: 0, alquileres: 0, materias: 0, otros: 0, intereses: 0, asesores: 0, personales: 0, impuestos: 0 };
   const revenueByCat = { sobaos: 0, inmobiliario: 0, hosteleria: 0, formacion: 0, servicios: 0 };
   let employees = 0;
 
@@ -207,8 +215,10 @@ export function computeEconomy(s) {
       // Residencia: plazas limitadas; el precio depende de la renta y la ocupación de la población y la reputación.
       const beds = t.beds + 10 * ((b.level || 1) - 1);
       const price = 1250 * Math.pow(c.wealth, 1.2);
-      const occupancy = Math.min(0.98, (0.55 + 0.3 * Math.sqrt(c.pop)) * Math.sqrt(repF) * Math.sqrt(service));
-      revenue = beds * price * occupancy * macro.demand ** 0.3 * bizMult(s, b, 'servicios', c, m);
+      // La reforma ya añade plazas, así que aquí no se aplica su bonus; y la ocupación nunca pasa del 98 %.
+      const pull = (bizMult(s, b, 'servicios', c, m) / levelFactor(b)) * macro.demand ** 0.3;
+      const occupancy = Math.min(0.98, (0.55 + 0.3 * Math.sqrt(c.pop)) * Math.sqrt(repF) * Math.sqrt(service) * pull);
+      revenue = beds * price * occupancy;
       lineStaff = Math.ceil(t.staff * beds / t.beds);
       const materials = revenue * t.cogs * (0.6 + 0.4 * fx.ing.cost);
       const wages = lineStaff * wage;
@@ -229,7 +239,7 @@ export function computeEconomy(s) {
       cost = wages + t.upkeep;
       employees += t.staff;
     } else if (b.type === 'academy') {
-      revenue = (1500 + 5 * s.fama * s.fama) * (0.6 + 0.4 * repF) * bizMult(s, b, 'formacion', c, m);
+      revenue = (1500 + 3.5 * s.fama * s.fama) * (0.6 + 0.4 * repF) * bizMult(s, b, 'formacion', c, m);
       const wages = t.staff * wage;
       const rent = t.rentBase * c.rent;
       costs.salarios += wages;
@@ -266,10 +276,11 @@ export function computeEconomy(s) {
   costs.otros += s.extraMonthly.reduce((a, x) => a + x.amount, 0);
   costs.intereses = s.debt * (difficultyOf(s).interest + macro.interest) * (1 - execBonus(s, 'finanzas') * 0.5);
   costs.directivos = execSalaries(s);
+  costs.estructura = structureCost(s);
   costs.personales = lujoUpkeep(s);
 
   const revenue = Object.values(revenueByCat).reduce((a, b) => a + b, 0);
-  const totalCost = costs.salarios + costs.directivos + costs.alquileres + costs.materias + costs.otros + costs.intereses + costs.asesores + costs.personales;
+  const totalCost = costs.salarios + costs.directivos + costs.alquileres + costs.materias + costs.otros + costs.intereses + costs.asesores + costs.personales + costs.estructura;
   const profit = revenue - totalCost;
 
   let tax = 0;

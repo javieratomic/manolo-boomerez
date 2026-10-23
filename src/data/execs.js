@@ -2,7 +2,7 @@
 
 export const POSITIONS = {
   operaciones: { label: 'Dirección de Operaciones', emoji: '🏭', bonus: 0.08,
-    effect: 'Capacidad del obrador +8 % por nivel y proyectos de I+D más rápidos.' },
+    effect: 'Capacidad del obrador +8 % por nivel, costes de estructura −16 % por nivel y proyectos de I+D más rápidos.' },
   rrhh: { label: 'Recursos Humanos', emoji: '🧑‍🤝‍🧑', bonus: 0.1,
     effect: 'Moral +0,4/mes por nivel y el radar de Trabajo sube un 10 % menos por nivel.' },
   finanzas: { label: 'Dirección Financiera', emoji: '📊', bonus: 0.1,

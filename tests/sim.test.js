@@ -287,7 +287,8 @@ test('el ciclo económico rota de fase y mueve el ladrillo', () => {
     advanceMonth(s);
     resolveAll(s);
     seen.add(s.macro.phase);
-    const v = s.businesses[0].value;
+    const v = s.businesses.find((b) => b.type === 'vivienda')?.value;
+    if (v == null) break; // algún suceso puede haberlo vendido
     minValue = Math.min(minValue, v);
     maxValue = Math.max(maxValue, v);
   }
@@ -385,13 +386,13 @@ test('caprichos, familia y divorcio', () => {
 test('salir a Bolsa da dinero y diluye el patrimonio', () => {
   const s = started(42);
   s.cash = 5e6;
-  s.month = 30;
+  s.month = 40;
   s.macro.phase = 'burbuja';
   const gross = grossPatrimonio(s);
   const r = doIPO(s, gross);
   assert(r.ok, r.msg);
   assert(r.valuation > gross, 'en burbuja se vende con prima');
-  assert(patrimonio(s) > gross * 0.7, 'con prima, Manolo sale ganando');
+  assert(patrimonio(s) > gross * 0.75, 'con prima, Manolo sale ganando');
   assert(!doIPO(s, grossPatrimonio(s)).ok, 'solo una vez');
   for (let k = 0; k < 6; k++) {
     s.cooldowns.trabajo = s.cooldowns.hacienda = 99;

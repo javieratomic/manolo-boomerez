@@ -100,7 +100,7 @@ export function renderCity(s, cityId) {
           ${l?.occupied != null ? ` · ${l.occupied}/${t.beds + 5 * ((b.level || 1) - 1)} plazas ocupadas` : ''}</div>
         </div>
         <div class="biz-actions">
-          ${upgradeCost(b) != null ? `<button class="btn small" data-act="upgrade-biz" data-id="${b.id}" ${s.cash >= upgradeCost(b) ? '' : 'disabled'} title="Reforma: +18 % de clientela${b.type === 'vivienda' ? ' y 5 plazas más' : b.type === 'airbnb' ? ' y 2 pisos más' : ''}">Reformar ${moneyShort(upgradeCost(b))}</button>` : ''}
+          ${upgradeCost(b) != null ? `<button class="btn small" data-act="upgrade-biz" data-id="${b.id}" ${s.cash >= upgradeCost(b) ? '' : 'disabled'} title="Reforma: +15 % de clientela${b.type === 'vivienda' ? ' y 5 plazas más' : b.type === 'airbnb' ? ' y 2 pisos más' : ''}">Reformar ${moneyShort(upgradeCost(b))}</button>` : ''}
           <button class="btn small ghost" data-act="sell" data-id="${b.id}">${b.mode === 'franquicia' ? 'Rescindir' : `Vender ${moneyShort(saleValue(b))}`}</button>
         </div>
       </li>`;
@@ -395,6 +395,7 @@ export function renderFinance(s) {
       ${r.revenueByCat.servicios ? `<tr><td>&nbsp;· Servicios</td><td>${money(r.revenueByCat.servicios)}</td></tr>` : ''}
       <tr><td>Salarios</td><td class="neg">−${money(c.salarios)}</td></tr>
       ${c.directivos ? `<tr><td>Directivos</td><td class="neg">−${money(c.directivos)}</td></tr>` : ''}
+      ${c.estructura ? `<tr><td title="Oficinas, gestorías y abogados: crece más deprisa que el número de negocios. Operaciones lo reduce.">Estructura central</td><td class="neg">−${money(c.estructura)}</td></tr>` : ''}
       <tr><td>Materias primas</td><td class="neg">−${money(c.materias)}</td></tr>
       <tr><td>Alquileres</td><td class="neg">−${money(c.alquileres)}</td></tr>
       <tr><td>Otros gastos</td><td class="neg">−${money(c.otros)}</td></tr>

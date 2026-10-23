@@ -45,8 +45,20 @@ export function tickLife(s) {
   }
   if (s.flags.divorciado) return;
   // Manolo trabaja (o dice que trabaja) demasiado.
-  const empire = Math.min(1.2, s.businesses.length / 25);
-  s.familia = clamp((s.familia ?? 60) - 0.4 - empire + (s.lujo?.length ? 0.3 : 0));
+  const empire = Math.min(1, s.businesses.length / 30);
+  const before = s.familia ?? 60;
+  s.familia = clamp(before - 0.25 - empire + (s.lujo?.length ? 0.3 : 0));
+  if (before >= 30 && s.familia < 30) {
+    log(s, '💔 Merche ya no te espera para cenar. Quizá deberías dedicarle una acción del mes.', 'bad');
+    s.notices ||= [];
+    s.notices.push({
+      title: 'Merche está rara',
+      text: [
+        'Llegas a casa a las once y la cena está en el microondas con una nota: "Estoy en pádel". La relación con Merche ha bajado de 30.',
+        'Si baja de 15, pedirá el divorcio (y estáis en gananciales). Una cena familiar o una escapada desde la pestaña Manolo ayudarían.',
+      ].join('\n\n'),
+    });
+  }
   if (s.familia < 15 && !s.pending.some((p) => p.id === 'divorcio')) {
     s.pending.push({ kind: 'event', id: 'divorcio' });
   }
@@ -70,7 +82,7 @@ export function divorce(s, share) {
 }
 
 // ------------------------------------------------------------------- Bolsa
-export const IPO_FLOAT = 0.3;
+export const IPO_FLOAT = 0.25;
 export const IPO_FEE = 0.04;
 
 // Patrimonio total de la empresa (sin descontar a los accionistas).
@@ -84,18 +96,19 @@ export function annualProfit(s) {
 
 export function ipoPremium(s) {
   const phase = s.macro?.phase;
-  const mood = { burbuja: 0.5, expansion: 0.2, recuperacion: 0, crisis: -0.3 }[phase] ?? 0;
-  return Math.max(0.6, 1 + s.fama / 200 + (s.rep - 50) / 200 + mood);
+  const mood = { burbuja: 0.3, expansion: 0.1, recuperacion: 0, crisis: -0.3 }[phase] ?? 0;
+  return Math.max(0.6, 1 + s.fama / 400 + (s.rep - 50) / 300 + mood);
 }
 
 export function companyValuation(s, equity) {
-  return Math.max(equity, annualProfit(s) * 12) * ipoPremium(s);
+  // Una pyme cotizada vale unas 8 veces su beneficio anual (o lo que tenga en activos, si es más).
+  return Math.max(equity, annualProfit(s) * 8) * ipoPremium(s);
 }
 
 export function canIPO(s, equity) {
   if (s.ipo) return { ok: false, msg: 'Ya cotizas en Bolsa.' };
-  if (s.month < 24) return { ok: false, msg: 'Los bancos de inversión quieren ver al menos dos años de cuentas.' };
-  if (equity < 3e6) return { ok: false, msg: 'Necesitas un patrimonio de al menos 3 millones.' };
+  if (s.month < 36) return { ok: false, msg: 'Los bancos de inversión quieren ver al menos tres años de cuentas.' };
+  if (equity < 4e6) return { ok: false, msg: 'Necesitas un patrimonio de al menos 4 millones.' };
   if (s.rep < 35) return { ok: false, msg: 'Con esa reputación, ningún banco te saca a Bolsa.' };
   return { ok: true };
 }

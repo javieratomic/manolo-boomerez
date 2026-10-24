@@ -1107,3 +1107,27 @@ Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal des
 - **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
 
 Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Comedor de domingo en una casa de pueblo cántabra: una olla de cocido montañés humeante, nóminas extendidas junto al pan y la berza; Doña Remedios las lee con las gafas en la punta de la nariz mientras Manolo suda. Sin texto legible.
+
+## bld_banco
+
+- **Archivo:** `assets/buildings/bld_banco.png`
+- **Tamaño:** 256×256 px · **ancla:** (128, 240)
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Banco Boomerez: pequeña sucursal bancaria de piedra crema, columnas discretas, ventanales azul petróleo, caja fuerte insinuada, sin logotipos reales. Diorama 2.5D isométrico 2:1, luz cálida superior izquierda, PNG transparente, base centrada en (128,240), sin texto.
+
+## bld_telecom
+
+- **Archivo:** `assets/buildings/bld_telecom.png`
+- **Tamaño:** 256×256 px · **ancla:** (128, 240)
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Boomerez Telecom: central compacta moderna con torre de antenas y platos satélite, cristal lavanda, cables y paneles, sin marcas. Diorama 2.5D isométrico 2:1, luz cálida superior izquierda, PNG transparente, base centrada en (128,240), sin texto.
+
+## bld_logistica
+
+- **Archivo:** `assets/buildings/bld_logistica.png`
+- **Tamaño:** 256×256 px · **ancla:** (128, 240)
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Boomerez Logística: almacén verde y crema con dos muelles de carga, cajas y una furgoneta naranja diminuta, sin marcas. Diorama 2.5D isométrico 2:1, luz cálida superior izquierda, PNG transparente, base centrada en (128,240), sin texto.

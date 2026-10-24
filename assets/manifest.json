@@ -1682,54 +1682,66 @@
       "file": "assets/events/ev_semana_santa.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_semana_santa"
+      "request": "art/requests/05_sucesos.md#ev_semana_santa",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ola_frio",
       "file": "assets/events/ev_ola_frio.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ola_frio"
+      "request": "art/requests/05_sucesos.md#ev_ola_frio",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_fondo_buitre",
       "file": "assets/events/ev_fondo_buitre.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_fondo_buitre"
+      "request": "art/requests/05_sucesos.md#ev_fondo_buitre",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_crisis_sueldos",
       "file": "assets/events/ev_crisis_sueldos.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_crisis_sueldos"
+      "request": "art/requests/05_sucesos.md#ev_crisis_sueldos",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_headhunter",
       "file": "assets/events/ev_headhunter.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_headhunter"
+      "request": "art/requests/05_sucesos.md#ev_headhunter",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_recalificacion_prado",
       "file": "assets/events/ev_recalificacion_prado.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_recalificacion_prado"
+      "request": "art/requests/05_sucesos.md#ev_recalificacion_prado",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_pamplona",

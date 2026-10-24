@@ -94,6 +94,7 @@ export function toast(text, tone = 'info', ms = 2600) {
   const el = document.createElement('div');
   el.className = `toast ${tone}`;
   el.textContent = text;
+  el.addEventListener('click', () => el.remove()); // un toque lo cierra
   root.appendChild(el);
   setTimeout(() => el.classList.add('out'), ms);
   setTimeout(() => el.remove(), ms + 400);

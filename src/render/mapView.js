@@ -6,18 +6,29 @@ import { BUSINESS_TYPES } from '../data/businesses.js';
 import { getImage, hasArt } from './assets.js';
 import { moneyShort } from '../core/helpers.js';
 import { RIVALS } from '../data/rivals.js';
+import { cityAlerts, ALERT_EMOJI } from '../core/mapInfo.js';
+import { layoutLabels } from './labels.js';
+
+const reducedMotion = () => !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+const PULSE_MS = 1500;
+const LEVEL_RING = { 3: '#e74c3c', 2: '#f39c12', 1: '#95a5a6' };
 
 const SLOTS = [[0, -8], [-32, 4], [32, 4], [-16, 18], [16, 18], [0, 30]];
 const BUILDING_SIZE = 66;
 const OBRADOR_SIZE = 104;
 
 export class MapView {
-  constructor(canvas, { getState, onCityClick, onHover }) {
+  constructor(canvas, { getState, onCityClick, onHover, onBadgeClick, onEmptyClick }) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.getState = getState;
     this.onCityClick = onCityClick;
     this.onHover = onHover || (() => {});
+    this.onBadgeClick = onBadgeClick || onCityClick;
+    this.onEmptyClick = onEmptyClick || (() => {});
+    this.badges = [];
+    this.pendingFloaters = [];
+    this.selT = 0;
     this.cam = { x: 0, y: 0, z: 1 };
     this.fitZ = 1;
     this.selected = null;
@@ -33,7 +44,9 @@ export class MapView {
       // Comprobación barata por si el ResizeObserver no avisa (p. ej. al mostrar el juego tras el título).
       const parent = this.canvas.parentElement;
       if (parent.clientWidth && (Math.abs(parent.clientWidth - this.w) > 0.5 || Math.abs(parent.clientHeight - this.h) > 0.5)) this.resize();
-      if (this.dirty || this.floaters.length || this.selected) this.draw();
+      // Solo se pinta si algo ha cambiado: el pulso de la selección dura 1,5 s y luego queda un anillo fijo.
+      const pulsing = this.selected && !reducedMotion() && performance.now() - this.selT < PULSE_MS;
+      if (this.dirty || this.floaters.length || pulsing) this.draw();
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
@@ -170,10 +183,13 @@ export class MapView {
       this.pointers.delete(e.pointerId);
       if (this.pointers.size < 2) pinch = null;
       if (drag && !drag.moved && e.type === 'pointerup') {
-        const id = this.cityAt(p.x, p.y);
+        const badge = this.badges.find((b) => Math.hypot(b.x - p.x, b.y - p.y) <= b.r + 6);
+        const id = badge?.city || this.cityAt(p.x, p.y);
         if (id) {
-          this.selected = id;
-          this.onCityClick(id);
+          this.select(id);
+          (badge ? this.onBadgeClick : this.onCityClick)(id);
+        } else {
+          this.onEmptyClick();
         }
         this.dirty = true;
       }
@@ -196,21 +212,27 @@ export class MapView {
   }
 
   select(id) {
+    if (id !== this.selected) this.selT = performance.now();
     this.selected = id;
     this.dirty = true;
   }
 
-  // Textos flotantes de beneficio por ciudad tras cerrar el mes.
+  // Beneficio por ciudad tras cerrar el mes: se guarda y se reproduce al cerrar el informe (las 10 ciudades
+  // que más se mueven), para que no salga por detrás de la ventana.
   showProfits(report) {
     const byCity = {};
     for (const l of report.lines) byCity[l.city] = (byCity[l.city] || 0) + (l.revenue - l.cost);
+    this.pendingFloaters = Object.entries(byCity)
+      .filter(([, v]) => Math.abs(v) >= 1)
+      .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
+      .slice(0, 10)
+      .map(([city, v]) => ({ city, text: `${v >= 0 ? '+' : ''}${moneyShort(v)}`, good: v >= 0 }));
+  }
+
+  playProfits() {
     const now = performance.now();
-    let i = 0;
-    for (const [city, v] of Object.entries(byCity)) {
-      if (Math.abs(v) < 1) continue;
-      this.floaters.push({ city, text: `${v >= 0 ? '+' : ''}${moneyShort(v)}`, good: v >= 0, t0: now + i * 90 });
-      i++;
-    }
+    this.floaters = this.pendingFloaters.map((f, i) => ({ ...f, t0: now + i * 90 }));
+    this.pendingFloaters = [];
   }
 
   // ------------------------------------------------------------------ Dibujo
@@ -228,6 +250,9 @@ export class MapView {
       this.drawProceduralMap(ctx);
     }
     if (s) this.drawCities(ctx, s);
+    // Lo que se lee (rótulos, insignias, cifras) va en coordenadas de pantalla: legible con cualquier zoom.
+    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    if (s) this.drawOverlay(ctx, s);
     this.drawFloaters(ctx);
   }
 
@@ -395,8 +420,8 @@ export class MapView {
   }
 
   drawCities(ctx, s) {
-    const z = this.cam.z;
-    const t = performance.now() / 1000;
+    const now = performance.now();
+    const pulsing = !reducedMotion() && now - this.selT < PULSE_MS;
     const byCity = {};
     for (const b of s.businesses) (byCity[b.city] ||= []).push(b);
     const sorted = [...CITIES].sort((a, b) => this.cityPos[a.id].y - this.cityPos[b.id].y);
@@ -407,7 +432,7 @@ export class MapView {
       const hov = this.hover === c.id;
       // Base
       if (sel) {
-        ctx.strokeStyle = `rgba(255,220,80,${0.6 + 0.4 * Math.sin(t * 4)})`;
+        ctx.strokeStyle = `rgba(255,220,80,${pulsing ? 0.6 + 0.4 * Math.sin(now / 125) : 0.95})`;
         ctx.lineWidth = 4;
         ctx.beginPath();
         ctx.ellipse(p.x, p.y + 8, 52, 26, 0, 0, Math.PI * 2);
@@ -459,34 +484,49 @@ export class MapView {
           }
         }
       }
-      // Etiqueta: con el zoom alejado solo se rotulan las ciudades con negocios (o la señalada).
-      if (z < this.fitZ * 1.35 && !list.length && !c.hq && !sel && !hov) continue;
-      const fs = Math.max(12, 13 / Math.sqrt(z));
-      ctx.font = `${c.hq ? 'bold ' : ''}${fs}px system-ui, sans-serif`;
+    }
+  }
+
+  // Rótulos sin solaparse (por prioridad), chapas de rivales, campañas e insignias de alertas.
+  drawOverlay(ctx, s) {
+    const z = this.cam.z;
+    const big = document.body.classList.contains('big-text');
+    const fs = big ? 14 : 12;
+    const byCity = {};
+    for (const b of s.businesses) byCity[b.city] = (byCity[b.city] || 0) + 1;
+    const alerts = cityAlerts(s);
+    const toScreen = (p, dy = 0) => ({ x: this.cam.x + p.x * z, y: this.cam.y + (p.y + dy) * z });
+    const items = [];
+    for (const c of CITIES) {
+      const p = this.cityPos[c.id];
+      const q = toScreen(p, 30);
+      if (q.x < -80 || q.x > this.w + 80 || q.y < -40 || q.y > this.h + 40) continue;
+      const n = byCity[c.id] || 0;
+      const text = n ? `${c.name} · ${n}` : c.name;
+      ctx.font = `${c.hq || n ? 'bold ' : ''}${fs}px system-ui, sans-serif`;
+      const w = ctx.measureText(text).width + 10;
+      const priority = (this.selected === c.id ? 1e6 : 0) + (this.hover === c.id ? 5e5 : 0) + (n || c.hq ? 1e4 + n * 100 : 0) + (alerts[c.id] ? 5e3 : 0) + c.pop * 100;
+      items.push({ id: c.id, x: q.x, y: q.y, w, h: fs + 6, priority, text, bold: !!(c.hq || n) });
+    }
+    for (const it of layoutLabels(items)) {
+      const sel = this.selected === it.id;
+      ctx.font = `${it.bold ? 'bold ' : ''}${fs}px system-ui, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
-      const label = list.length ? `${c.name} · ${list.length}` : c.name;
-      const w = ctx.measureText(label).width + 10;
-      ctx.fillStyle = sel ? 'rgba(255,214,64,0.95)' : 'rgba(255,255,255,0.88)';
-      roundRect(ctx, p.x - w / 2, p.y + 32, w, fs + 6, 6);
+      ctx.fillStyle = sel ? 'rgba(255,214,64,0.97)' : 'rgba(255,255,255,0.9)';
+      roundRect(ctx, it.x - it.w / 2, it.y, it.w, it.h, 6);
       ctx.fill();
       ctx.fillStyle = '#222';
-      ctx.fillText(label, p.x, p.y + 35);
-      // Campañas activas en la ciudad: un megáfono sobre la etiqueta.
-      if (s.mods.some((m) => m.campaign && m.city === c.id)) {
-        ctx.font = `${Math.max(14, 15 / Math.sqrt(z))}px system-ui, "Segoe UI Emoji", sans-serif`;
+      ctx.fillText(it.text, it.x, it.y + 3);
+      if (s.mods.some((m) => m.campaign && m.city === it.id)) {
+        ctx.font = `${fs + 2}px system-ui, "Segoe UI Emoji", sans-serif`;
         ctx.textAlign = 'right';
-        ctx.fillText('📢', p.x - w / 2 - 4, p.y + 33);
-        ctx.textAlign = 'center';
-        ctx.font = `${c.hq ? 'bold ' : ''}${fs}px system-ui, sans-serif`;
+        ctx.fillText('📢', it.x - it.w / 2 - 3, it.y + 1);
       }
-      // Presencia de cadenas rivales: chapas de colores junto a la etiqueta.
-      const rivals = (s.rivals || []).filter((r) => r.presence[c.id]);
-      rivals.forEach((r, i) => {
-        const d = RIVALS[r.id];
-        const rx = p.x + w / 2 + 8 + i * 15;
-        const ry = p.y + 35 + fs / 2;
-        ctx.fillStyle = d.color;
+      (s.rivals || []).filter((r) => r.presence[it.id]).forEach((r, i) => {
+        const rx = it.x + it.w / 2 + 9 + i * 16;
+        const ry = it.y + it.h / 2;
+        ctx.fillStyle = RIVALS[r.id].color;
         ctx.beginPath();
         ctx.arc(rx, ry, 7, 0, Math.PI * 2);
         ctx.fill();
@@ -494,30 +534,71 @@ export class MapView {
         ctx.font = 'bold 9px system-ui, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(String(r.presence[c.id]), rx, ry + 0.5);
-        ctx.textBaseline = 'top';
-        ctx.font = `${c.hq ? 'bold ' : ''}${fs}px system-ui, sans-serif`;
+        ctx.fillText(String(r.presence[it.id]), rx, ry + 0.5);
       });
+    }
+    // Una insignia por ciudad con el nivel más alto y cuántas alertas hay.
+    this.badges = [];
+    for (const [city, list] of Object.entries(alerts)) {
+      const p = this.cityPos[city];
+      if (!p || !list.length) continue;
+      const q = toScreen(p, 0);
+      const r = 10;
+      const bx = q.x + Math.max(16, 40 * z);
+      const by = q.y - Math.max(18, 60 * z);
+      if (bx < -20 || bx > this.w + 20 || by < -20 || by > this.h + 20) continue;
+      const top = list[0];
+      ctx.fillStyle = '#fff';
+      ctx.strokeStyle = LEVEL_RING[top.level] || LEVEL_RING[1];
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(bx, by, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      const icon = `icon_alert_${top.kind}`;
+      if (hasArt(icon)) ctx.drawImage(getImage(icon), bx - 8, by - 8, 16, 16);
+      else {
+        ctx.font = '11px system-ui, "Segoe UI Emoji", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#222';
+        ctx.fillText(ALERT_EMOJI[top.kind] || '!', bx, by + 1);
+      }
+      if (list.length > 1) {
+        ctx.fillStyle = LEVEL_RING[top.level] || LEVEL_RING[1];
+        ctx.beginPath();
+        ctx.arc(bx + 9, by - 8, 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 9px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(list.length), bx + 9, by - 7.5);
+      }
+      this.badges.push({ city, x: bx, y: by, r });
     }
   }
 
+  // Cifras de beneficio en pantalla (13 px), subiendo y desvaneciéndose.
   drawFloaters(ctx) {
     const now = performance.now();
-    const life = 2200;
+    const life = reducedMotion() ? 1600 : 2200;
     this.floaters = this.floaters.filter((f) => now - f.t0 < life);
     for (const f of this.floaters) {
       const k = (now - f.t0) / life;
       if (k < 0) continue;
       const p = this.cityPos[f.city];
+      const x = this.cam.x + p.x * this.cam.z;
+      const y = this.cam.y + p.y * this.cam.z - Math.max(24, 70 * this.cam.z) - (reducedMotion() ? 0 : k * 30);
       ctx.globalAlpha = 1 - k * k;
-      ctx.font = `bold ${Math.max(15, 16 / Math.sqrt(this.cam.z))}px system-ui, sans-serif`;
+      ctx.font = 'bold 13px system-ui, sans-serif';
       ctx.textAlign = 'center';
+      ctx.textBaseline = 'alphabetic';
       ctx.lineWidth = 4;
       ctx.strokeStyle = 'rgba(0,0,0,0.6)';
       ctx.fillStyle = f.good ? '#8dff8a' : '#ff8a8a';
-      const y = p.y - 70 - k * 40;
-      ctx.strokeText(f.text, p.x, y);
-      ctx.fillText(f.text, p.x, y);
+      ctx.strokeText(f.text, x, y);
+      ctx.fillText(f.text, x, y);
       ctx.globalAlpha = 1;
     }
   }

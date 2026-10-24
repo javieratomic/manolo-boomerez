@@ -87,7 +87,15 @@ export function renderCity(s, cityId) {
   const c = CITY_BY_ID[cityId] || CITY_BY_ID[HQ_CITY];
   const here = s.businesses.filter((b) => b.city === c.id);
   const urgent = advice(s).find((t) => t.level === 'alta');
-  let html = urgent ? `<div class="card advice-line small"><a href="#" data-act="tab" data-tab="${urgent.tab || 'imperio'}">📋 Paco: ${esc(urgent.text)}</a></div>` : '';
+  const own = CITIES.filter((x) => s.businesses.some((b) => b.city === x.id) || x.hq);
+  const others = CITIES.filter((x) => !own.includes(x));
+  const goTo = `<label class="goto small"><span>Ir a…</span><select data-act="goto-select" aria-label="Ir a una ciudad">
+      <option value="">${esc(c.name)}</option>
+      <optgroup label="Tus ciudades (${own.length})">${own.map((x) => `<option value="${x.id}">${esc(x.name)}</option>`).join('')}</optgroup>
+      <optgroup label="Sin negocios">${others.map((x) => `<option value="${x.id}">${esc(x.name)}</option>`).join('')}</optgroup>
+    </select></label>`;
+  let html = goTo;
+  html += urgent ? `<div class="card advice-line small"><a href="#" data-act="tab" data-tab="${urgent.tab || 'imperio'}">📋 Paco: ${esc(urgent.text)}</a></div>` : '';
   html += `
     <div class="card city-head">
       <div class="row between"><h3>${esc(c.name)}</h3><span class="muted">${esc(c.region)}</span></div>

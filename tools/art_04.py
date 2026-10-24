@@ -50,6 +50,15 @@ ART = [
        "la mesa, mirando el reloj de pared; Manolo entra por la puerta con un sobre en la mano.", 3),
     ev("ev_cartilla_enfado", "Doña Remedios al teléfono fijo de cable rizado, con la mano en la cadera, en su salón con tapetes de ganchillo; "
        "por la ventana se ve a la vecina cotilla en su balcón, también al teléfono.", 3),
+    # ------------------------------------------------------------------ Insignias de alertas del mapa (se dibujan a 16-18 px)
+    icon("icon_alert_perdidas", "una moneda agrietada con una flecha roja hacia abajo.", 3),
+    icon("icon_alert_franquicia", "un banderín naranja de franquicia roto.", 3),
+    icon("icon_alert_averia", "una llave inglesa envuelta en cinta americana.", 3),
+    icon("icon_alert_ilegal", "una llave de piso con una etiqueta en blanco tachada.", 3),
+    icon("icon_alert_rival", "dos espadas cruzadas sobre un sobao.", 3),
+    icon("icon_alert_obrador", "un horno con humo y una barra de capacidad en rojo.", 3),
+    icon("icon_alert_huelga", "una pancarta en blanco sujeta por dos palos.", 3),
+
     # ------------------------------------------------------------------ Sesenta velas
     ev("ev_velas_cumple", "Salón de restaurante de pueblo: tarta enorme con 60 velas y globos dorados con forma de 6 y de 0; Manolo sopla con los "
        "mofletes inflados; alrededor, Merche, Maripili, Doña Remedios y el cuñado Jonathan con copas.", 2),

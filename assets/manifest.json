@@ -2690,6 +2690,69 @@
       "status": "requested",
       "priority": 3,
       "request": "art/requests/07_interfaz.md#icon_reparto"
+    },
+    {
+      "id": "icon_alert_perdidas",
+      "file": "assets/ui/icon_alert_perdidas.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_alert_perdidas"
+    },
+    {
+      "id": "icon_alert_franquicia",
+      "file": "assets/ui/icon_alert_franquicia.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_alert_franquicia"
+    },
+    {
+      "id": "icon_alert_averia",
+      "file": "assets/ui/icon_alert_averia.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_alert_averia"
+    },
+    {
+      "id": "icon_alert_ilegal",
+      "file": "assets/ui/icon_alert_ilegal.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_alert_ilegal"
+    },
+    {
+      "id": "icon_alert_rival",
+      "file": "assets/ui/icon_alert_rival.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_alert_rival"
+    },
+    {
+      "id": "icon_alert_obrador",
+      "file": "assets/ui/icon_alert_obrador.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_alert_obrador"
+    },
+    {
+      "id": "icon_alert_huelga",
+      "file": "assets/ui/icon_alert_huelga.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_alert_huelga"
     }
   ]
 }

@@ -420,3 +420,30 @@ body.big-text .choice small, body.big-text .opt small, body.big-text .action sma
 
 /* Gráficos: el ancho lo marca el contenedor; el alto, el script. */
 #chart, #chart-cat, #chart-ending { display: block; width: 100%; }
+
+/* ------------------------------------------------------- 0.4: móvil y accesibilidad */
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.goto { display: flex; align-items: center; gap: 6px; margin: 0 0 8px; }
+.goto select { font: inherit; flex: 1; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: #fff; }
+.hud-more { display: none; }
+.panel-toggle { display: none; }
+.hud-sheet { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; background: var(--brown); color: #fff3df; padding: 8px; border-radius: 12px; }
+.hud-sheet .hud-item { white-space: normal; }
+.toast { cursor: pointer; }
+@media (max-width: 860px) {
+  #hud { grid-template-columns: repeat(5, minmax(0, 1fr)) auto auto; }
+  #hud .hud-secondary { display: none; }
+  .hud-sheet .hud-secondary { display: flex; }
+  .hud-more { display: inline-block; margin: 0; padding: 2px 6px; }
+  .hud-label { font-size: 11px; }
+  .panel-toggle { display: inline-block; }
+  .tab { min-width: 50px; }
+  .tab .tab-label { font-size: 10px; }
+}
+@media (pointer: coarse) {
+  .btn.small, .btn.tiny, .choice, .tab, .map-zoom .btn { min-height: 40px; }
+  .map-zoom .btn { min-width: 40px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}

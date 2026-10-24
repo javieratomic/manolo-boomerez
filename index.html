@@ -39,7 +39,8 @@
     <header id="hud"></header>
     <main id="main">
       <div id="map-wrap">
-        <canvas id="map" aria-label="Mapa de España con el imperio Boomerez"></canvas>
+        <canvas id="map" role="img" aria-label="Mapa de España con el imperio Boomerez"></canvas>
+        <div id="map-live" class="sr-only" aria-live="polite"></div>
         <button id="manolo-box" aria-label="Abrir panel de Manolo">
           <img id="manolo-portrait" alt="">
           <span id="manolo-bubble"></span>
@@ -50,6 +51,7 @@
           <button class="btn small" data-act="zoom-in" aria-label="Acercar">+</button>
           <button class="btn small" data-act="zoom-out" aria-label="Alejar">−</button>
           <button class="btn small" data-act="zoom-fit" aria-label="Ver toda España">⌂</button>
+          <button class="btn small panel-toggle" data-act="toggle-panel" aria-label="Agrandar o encoger el mapa">⤢</button>
         </div>
         <div class="map-hint">Arrastra para mover · rueda o pellizco para hacer zoom · clic en una ciudad</div>
       </div>
@@ -62,7 +64,7 @@
   </div>
 
   <div id="modal-root"></div>
-  <div id="toast-root"></div>
+  <div id="toast-root" role="status" aria-live="polite"></div>
   <noscript>Este juego necesita JavaScript. Como todo emprendedor moderno.</noscript>
   <script type="module" src="src/main.js"></script>
 </body>

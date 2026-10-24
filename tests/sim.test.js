@@ -30,6 +30,8 @@ import { epilogue, carta, cronica, MAX_VISIBLE } from '../src/core/epilogue.js';
 import { EPILOGUE, ARC_HITOS } from '../src/data/epilogues.js';
 import { codex } from '../src/core/codex.js';
 import { HELP_PAGES, helpChoices } from '../src/data/help.js';
+import { cityAlerts } from '../src/core/mapInfo.js';
+import { layoutLabels } from '../src/render/labels.js';
 import { playGame, from } from './bot.js';
 
 const started = (seed = 42, brand = 0) => {
@@ -1979,4 +1981,36 @@ test('regresión 0.4: no se sale a Bolsa sin tiempo para el bloqueo y la revista
   t.month = 50;
   t.ipo = { month: 48, float: 0.25, valuation: 1e7, price: 100, peak: 100, angryMonth: -99 };
   assert(!g.test(t), 'en el bloqueo, la revista no llama');
+});
+
+// ------------------------------------------------------------- 0.4 · Mapa
+test('mapa: las alertas por ciudad cumplen los umbrales y nunca hablan de inspecciones', () => {
+  const s = started();
+  s.cash = 1e6;
+  openBusiness(s, 'express', 'bilbao');
+  s.businesses.push({ id: 900, type: 'express', city: 'madrid', mode: 'franquicia', openedMonth: 0, value: 0, lossMonths: 3, level: 1 });
+  s.businesses.find((b) => b.city === 'bilbao').cond = 20;
+  const before = serialize(s);
+  const a = cityAlerts(s);
+  assertEq(serialize(s), before, 'pura');
+  assertEq(a.madrid[0].kind, 'franquicia');
+  assertEq(a.madrid[0].level, 3);
+  assertEq(a.bilbao[0].kind, 'averia');
+  s.businesses.find((b) => b.city === 'bilbao').cond = 35;
+  assertEq(cityAlerts(s).bilbao[0].level, 2);
+  for (let seed = 1; seed <= 3; seed++) {
+    const r = playGame(seed * 13, { diversify: true, choice: 'random', months: 48 });
+    assert(!/inspecci|Marisa|auditor/i.test(JSON.stringify(cityAlerts(r.state))));
+  }
+});
+
+test('mapa: los rótulos no se pisan y gana la prioridad', () => {
+  const items = [
+    { id: 'a', x: 100, y: 100, w: 60, h: 18, priority: 1 },
+    { id: 'b', x: 110, y: 105, w: 60, h: 18, priority: 9 },
+    { id: 'c', x: 300, y: 100, w: 60, h: 18, priority: 0 },
+  ];
+  const placed = layoutLabels(items);
+  assertEq(placed.map((p) => p.id).sort().join(), 'b,c');
+  for (const p of placed) for (const q of placed) if (p !== q) assert(p.box.x1 <= q.box.x0 || q.box.x1 <= p.box.x0 || p.box.y1 <= q.box.y0 || q.box.y1 <= p.box.y0);
 });

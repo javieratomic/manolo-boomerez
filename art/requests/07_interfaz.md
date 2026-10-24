@@ -395,3 +395,59 @@ Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplifi
 - **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
 
 Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre fondo claro o sobre la barra marrón (#3b2a1a). Sin texto. Motivo: un sobao cortado en porciones, como un gráfico de tarta.
+
+## icon_alert_perdidas
+
+- **Archivo:** `assets/ui/icon_alert_perdidas.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre fondo claro o sobre la barra marrón (#3b2a1a). Sin texto. Motivo: una moneda agrietada con una flecha roja hacia abajo.
+
+## icon_alert_franquicia
+
+- **Archivo:** `assets/ui/icon_alert_franquicia.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre fondo claro o sobre la barra marrón (#3b2a1a). Sin texto. Motivo: un banderín naranja de franquicia roto.
+
+## icon_alert_averia
+
+- **Archivo:** `assets/ui/icon_alert_averia.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre fondo claro o sobre la barra marrón (#3b2a1a). Sin texto. Motivo: una llave inglesa envuelta en cinta americana.
+
+## icon_alert_ilegal
+
+- **Archivo:** `assets/ui/icon_alert_ilegal.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre fondo claro o sobre la barra marrón (#3b2a1a). Sin texto. Motivo: una llave de piso con una etiqueta en blanco tachada.
+
+## icon_alert_rival
+
+- **Archivo:** `assets/ui/icon_alert_rival.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre fondo claro o sobre la barra marrón (#3b2a1a). Sin texto. Motivo: dos espadas cruzadas sobre un sobao.
+
+## icon_alert_obrador
+
+- **Archivo:** `assets/ui/icon_alert_obrador.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre fondo claro o sobre la barra marrón (#3b2a1a). Sin texto. Motivo: un horno con humo y una barra de capacidad en rojo.
+
+## icon_alert_huelga
+
+- **Archivo:** `assets/ui/icon_alert_huelga.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre fondo claro o sobre la barra marrón (#3b2a1a). Sin texto. Motivo: una pancarta en blanco sujeta por dos palos.

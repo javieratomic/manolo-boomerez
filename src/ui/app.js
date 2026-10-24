@@ -22,6 +22,7 @@ import { RIVALS } from '../data/rivals.js';
 import { clauseStatus, clauseWarn } from '../core/clauses.js';
 import { monthDigest, fmtDelta } from '../core/digest.js';
 import { askLoan, repayEarly } from '../core/cartilla.js';
+import { cityAlerts, ALERT_EMOJI } from '../core/mapInfo.js';
 import { buyLujo, sellLujo, doIPO, IPO_FLOAT } from '../core/life.js';
 import { LUJO_BY_ID } from '../data/lujo.js';
 import { grossPatrimonio } from '../core/economy.js';
@@ -144,6 +145,16 @@ function startGame(s) {
         renderAll();
         document.body.classList.add('panel-open');
       },
+      // La insignia de alertas abre la ciudad igual; tocar el mar cierra el panel en el móvil.
+      onBadgeClick: (id) => {
+        game.city = id;
+        game.tab = 'ciudad';
+        renderAll();
+        document.body.classList.add('panel-open');
+        const a = cityAlerts(game.s)[id]?.[0];
+        if (a) toast(`${ALERT_EMOJI[a.kind] || '⚠️'} ${a.text}`, a.level >= 3 ? 'bad' : 'info', 3500);
+      },
+      onEmptyClick: () => document.body.classList.remove('panel-open'),
     });
   }
   game.map.select(HQ_CITY);
@@ -182,20 +193,30 @@ function meter(v, danger = false) {
   return `<div class="meter ${danger ? (v > 66 ? 'hot' : v > 40 ? 'warm' : '') : v < 25 ? 'hot' : v < 45 ? 'warm' : 'good'}"><span style="width:${Math.round(v)}%"></span></div>`;
 }
 
-function renderHUD(s) {
+// Los indicadores del HUD. En pantallas estrechas solo se ven Fecha, Caja, Patrimonio, Moral y el radar
+// más caliente; el resto (clase hud-secondary) está en la hoja «⋯».
+function hudItems(s) {
   const pat = patrimonio(s);
-  $('#hud').innerHTML = `
-    <div class="hud-brand">${esc(s.brand === 'maison' ? 'Maison Boomerez' : 'Boomerez S.L.')}</div>
+  const hotT = s.heatTrabajo >= s.heatHacienda;
+  const sec = (html) => html.replace('class="hud-item"', 'class="hud-item hud-secondary"');
+  return `
     ${hudItem('icon_calendar', '📅', 'Fecha', `<span class="long">${dateLabel(s.month)}</span><span class="short">${dateLabel(s.month).slice(0, 3)} ${String(dateLabel(s.month)).slice(-2)}</span>`, `<span class="hud-sub">${s.endless ? `Mes ${s.month + 1} · ♾️` : `Mes ${Math.min(s.month + 1, GAME_MONTHS)}/${GAME_MONTHS}`}</span>`)}
     ${hudItem('icon_cash', '💶', 'Caja', `<span class="${s.cash < 0 ? 'neg' : ''}">${moneyShort(s.cash)}</span>`, '', 'Dinero disponible. Si baja de cero, el banco tira de la póliza.')}
-    ${hudItem('icon_debt', '🏦', 'Deuda', moneyShort(s.debt), '', `Lo que debes a la Caja Cantábrica. Genera intereses cada mes.${s.cartilla?.owed > 0 ? ` Además debes ${money(s.cartilla.owed)} a tu madre.` : ''}`)}
+    ${sec(hudItem('icon_debt', '🏦', 'Deuda', moneyShort(s.debt), '', `Lo que debes a la Caja Cantábrica. Genera intereses cada mes.${s.cartilla?.owed > 0 ? ` Además debes ${money(s.cartilla.owed)} a tu madre.` : ''}`))}
     ${hudItem('icon_patrimonio', '🏰', 'Patrimonio', moneyShort(pat), '', 'Caja − deuda + valor del obrador, los negocios y los caprichos. Es lo que cuenta para los finales.')}
-    ${hudItem('icon_macro', macroFx(s).emoji, 'Economía', macroFx(s).label, '', macroFx(s).desc)}
-    ${hudItem('icon_rep', '⭐', 'Reputación', Math.round(s.rep), meter(s.rep), 'Imagen pública. Multiplica la demanda de todos tus negocios.', 'rep')}
+    ${sec(hudItem('icon_macro', macroFx(s).emoji, 'Economía', macroFx(s).label, '', macroFx(s).desc))}
+    ${sec(hudItem('icon_rep', '⭐', 'Reputación', Math.round(s.rep), meter(s.rep), 'Imagen pública. Multiplica la demanda de todos tus negocios.', 'rep'))}
     ${hudItem('icon_moral', '🙂', 'Moral', Math.round(s.moral), meter(s.moral), 'Ánimo de la plantilla. Baja: peor servicio, denuncias y huelgas. Dos meses a 0: la plantilla se queda la empresa.', 'moral')}
-    ${hudItem('icon_fama', '📣', 'Fama', Math.round(s.fama), meter(s.fama), 'Lo conocido que es Manolo. Impulsa la Maison y la Academy. Se desvanece si no la alimentas.', 'fama')}
-    ${hudItem('icon_inspeccion', '🔎', 'Insp. Trabajo', Math.round(s.heatTrabajo), meter(s.heatTrabajo, true), 'Radar de la Inspección de Trabajo: cuanto más alto, más probable es una visita.', 'heatTrabajo')}
-    ${hudItem('icon_hacienda', '🏛️', 'Hacienda', Math.round(s.heatHacienda), meter(s.heatHacienda, true), 'Radar de Hacienda: cuanto más alto, más probable es una auditoría.', 'heatHacienda')}
+    ${sec(hudItem('icon_fama', '📣', 'Fama', Math.round(s.fama), meter(s.fama), 'Lo conocido que es Manolo. Impulsa la Maison y la Academy. Se desvanece si no la alimentas.', 'fama'))}
+    ${(hotT ? (x) => x : sec)(hudItem('icon_inspeccion', '🔎', 'Insp. Trabajo', Math.round(s.heatTrabajo), meter(s.heatTrabajo, true), 'Radar de la Inspección de Trabajo: cuanto más alto, más probable es una visita.', 'heatTrabajo'))}
+    ${(hotT ? sec : (x) => x)(hudItem('icon_hacienda', '🏛️', 'Hacienda', Math.round(s.heatHacienda), meter(s.heatHacienda, true), 'Radar de Hacienda: cuanto más alto, más probable es una auditoría.', 'heatHacienda'))}`;
+}
+
+function renderHUD(s) {
+  $('#hud').innerHTML = `
+    <div class="hud-brand">${esc(s.brand === 'maison' ? 'Maison Boomerez' : 'Boomerez S.L.')}</div>
+    ${hudItems(s)}
+    <button class="btn small ghost hud-more" data-act="hud-more" aria-label="Todos los indicadores">⋯</button>
     <button class="btn small ghost hud-menu" data-act="menu" aria-label="Menú">☰</button>`;
 }
 
@@ -505,6 +526,11 @@ async function onClick(e) {
       return;
     case 'menu':
       return showMenu();
+    case 'toggle-panel':
+      document.body.classList.toggle('panel-open');
+      return;
+    case 'hud-more':
+      return showModal({ title: 'Indicadores', kicker: 'Imperio Boomerez', html: `<div class="hud-sheet">${hudItems(s)}</div>`, dismissable: true, choices: [{ label: 'Cerrar', primary: true }] });
     case 'goals-more':
       game.goalsOpen = true;
       renderGoal(s);
@@ -522,6 +548,14 @@ async function onClick(e) {
 
 function onChange(e) {
   const el = e.target;
+  if (el.dataset.act === 'goto-select' && game.s && el.value) {
+    game.city = el.value;
+    game.tab = 'ciudad';
+    game.map.select(game.city);
+    game.map.focusCity(game.city);
+    renderAll();
+    return;
+  }
   if (el.dataset.act !== 'policy' || !game.s) return;
   const res = setPolicy(game.s, el.dataset.key, el.value);
   if (!res.ok) toast(res.msg, 'bad');
@@ -622,6 +656,9 @@ async function endMonth() {
     game.map.showProfits(r);
     play(r.net >= 0 ? 'cash' : 'loss');
     await showReport(r, prev, monthDigest(prevReport, r, s, head));
+    game.map.playProfits();
+    const nAlerts = Object.values(cityAlerts(s)).reduce((a, l) => a + l.length, 0);
+    $('#map-live').textContent = `${dateLabel(r.month)}: resultado ${moneyShort(r.net)}, ${s.businesses.length} negocios${nAlerts ? `, ${nAlerts} ${nAlerts === 1 ? 'alerta' : 'alertas'} en el mapa` : ''}.`;
     if (r.month % 12 === 11) await showYearSummary(s, r);
   }
   game.busy = false;

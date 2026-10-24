@@ -137,6 +137,9 @@ button.hud-item:focus-visible { outline: 2px solid #ffd36b; outline-offset: 1px;
 #map-tip .pos { color: #9be08a; }
 #map-tip .neg { color: #ff9a8a; }
 .h4-icon { width: 22px; height: 22px; vertical-align: -5px; }
+.goal-line { display: block; margin-top: 2px; }
+.goal-prog { font-size: 10px; font-weight: 700; color: var(--accent-dark); white-space: nowrap; }
+.goal-more { font: inherit; font-size: 11px; font-weight: 700; margin-left: 4px; border: 1px solid var(--line); border-radius: 999px; background: #fff; padding: 0 6px; cursor: pointer; }
 .goal-clause { display: block; margin-top: 3px; font-size: 11px; color: var(--muted); }
 .goal-clause.cumplida { color: var(--good); font-weight: 700; }
 .tag.bad { background: #f7d5cf; color: var(--bad); }
@@ -226,6 +229,11 @@ button.hud-item:focus-visible { outline: 2px solid #ffd36b; outline-offset: 1px;
 .carta p { margin: 4px 0; }
 .timeline { list-style: none; padding: 0; margin: 4px 0; }
 .timeline li { padding: 2px 0; }
+.folder { border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; margin: 6px 0; background: #fffdf8; }
+.folder summary { font-weight: 700; font-family: var(--display); cursor: pointer; }
+.folder.locked { background: none; border-style: dashed; }
+.advice-line a { color: inherit; text-decoration: none; }
+.advice-line { border-left: 4px solid var(--bad); }
 .pv-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
 .pv-chip { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #f6efe2; border: 1px solid var(--line); white-space: nowrap; }
 .pv-note { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; }

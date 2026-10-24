@@ -2,9 +2,9 @@ import { test, assert, assertEq } from './runner.js';
 import { newGame, serialize, deserialize } from '../src/core/state.js';
 import { advanceMonth, resolvePending, currentPending, checkEnding, eligibleEvents } from '../src/core/sim.js';
 import { computeEconomy, patrimonio, creditLimit, grossPatrimonio, estimateOpening } from '../src/core/economy.js';
-import { openBusiness, canOpen, setPolicy, borrow, repay, buyUpgrade, sellBusiness, doManoloAction, togglePerk, currentGoal, rebrand, dropMonthlyCost } from '../src/core/actions.js';
+import { openBusiness, canOpen, setPolicy, borrow, repay, buyUpgrade, sellBusiness, doManoloAction, togglePerk, currentGoal, currentGoals, checkGoals, rebrand, dropMonthlyCost } from '../src/core/actions.js';
 import { laborFine, trickOdds, recordTrick, recidivism, tickLaborHistory, clearRecord, laborVisitParams } from '../src/core/inspections.js';
-import { dateLabel } from '../src/core/helpers.js';
+import { dateLabel, money } from '../src/core/helpers.js';
 import { EVENTS } from '../src/data/events.js';
 import { BUSINESS_TYPES, OBRADOR_UPGRADES } from '../src/data/businesses.js';
 import { MANOLO_ACTIONS } from '../src/data/manoloActions.js';
@@ -28,6 +28,8 @@ import { askLoan, repayEarly, canAsk, tickCartilla, refran } from '../src/core/c
 import { bolsaState, tickBolsa, moveSent, reportedQuarter, discover } from '../src/core/bolsa.js';
 import { epilogue, carta, cronica, MAX_VISIBLE } from '../src/core/epilogue.js';
 import { EPILOGUE, ARC_HITOS } from '../src/data/epilogues.js';
+import { codex } from '../src/core/codex.js';
+import { HELP_PAGES, helpChoices } from '../src/data/help.js';
 import { playGame, from } from './bot.js';
 
 const started = (seed = 42, brand = 0) => {
@@ -1857,4 +1859,53 @@ test('hitos: únicos y en orden', () => {
   assert(h.some((x) => x.id === 'primera_tienda') && h.some((x) => x.id === 'millon'));
   const c = cronica(r.state);
   assert(c.length <= 5 && c.every((x, i) => i === 0 || x.m >= c[i - 1].m));
+});
+
+// ------------------------------------------------------------- 0.4 · Archivo y objetivos en tres carriles
+test('objetivos: tres carriles; el de equipo no bloquea al de dinero', () => {
+  const s = started();
+  const heads = currentGoals(s).map((g) => g.lane);
+  assertEq(heads.join(), 'negocio,equipo,dinero');
+  assertEq(currentGoal(s).id, 'primera_tienda');
+  s.cash = 2e6;
+  advanceMonth(s);
+  resolveAll(s);
+  assert(s.goalsDone.includes('primer_beneficio') || (s.lastReport?.net ?? 0) <= 0, 'el dinero avanza sin directivos');
+  if (!s.goalsDone.includes('primer_beneficio')) s.goalsDone.push('primer_beneficio');
+  s.cash = 1.2e6;
+  checkGoals(s);
+  assert(s.goalsDone.includes('millon'), 'el millón no espera a fichar a nadie');
+  assert(!s.goalsDone.includes('directivo'));
+});
+
+test('archivo: las carpetas cuentan lo mismo que el juego', () => {
+  const s = started();
+  recordTrick(s, 'frigorifico');
+  s.month = 30;
+  s.dossier.sanciones = [20];
+  s.dossier.ahorro = [5000, 5000];
+  s.customs.navidad = { count: 2, streak: 2, last: 'cesta', counts: { cesta: 2 } };
+  const f = codex(s);
+  const marisa = f.find((x) => x.id === 'marisa');
+  assert(marisa.rows[0].value.startsWith(`${Math.round(trickOdds(s, 'frigorifico') * 100)} %`));
+  assert(marisa.rows.some((r) => r.value === `×${recidivism(s).toFixed(2).replace('.', ',')}`));
+  assert(marisa.rows.some((r) => r.value === money(liquidacion(s))));
+  const cos = f.find((x) => x.id === 'costumbres');
+  assert(cos.unlocked && cos.rows[0].value.includes('Cesta') && cos.rows[0].value.includes('2 veces'));
+});
+
+test('archivo: nunca habla de cuándo puede venir una inspección', () => {
+  for (let seed = 1; seed <= 3; seed++) {
+    const r = playGame(seed * 101, { diversify: true, smart: true, choice: 'random', months: 60 });
+    const text = JSON.stringify(codex(r.state));
+    assert(!/probabilidad de (visita|auditoría)|próxima visita|cuándo vendr|enfriamiento|próxima inspección|auditoría en/i.test(text), text.slice(0, 200));
+  }
+});
+
+test('ayuda: cinco páginas con siguiente y anterior', () => {
+  assertEq(HELP_PAGES.length, 5);
+  assertEq(helpChoices(0)[0].go, 1);
+  assert(!helpChoices(0).some((c) => c.label === 'Anterior'));
+  assert(helpChoices(4).some((c) => c.label === 'Anterior' && c.go === 3));
+  assert(!helpChoices(4).some((c) => c.label === 'Siguiente'));
 });

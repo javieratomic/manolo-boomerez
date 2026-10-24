@@ -30,6 +30,7 @@ import { liquidacion, convenioDemand, credibilidad, profitRatio, K as PK } from 
 import { canAsk, maxLoan, breaksPromise, COND_TEXT, condDesc, MAMA } from '../core/cartilla.js';
 import { bolsaState, quarterProgress, qLabel, GUIAS } from '../core/bolsa.js';
 import { epilogue, cronica, carta, allHitos, MAX_VISIBLE } from '../core/epilogue.js';
+import { codex } from '../core/codex.js';
 import { HEIR_LABEL } from '../data/eventsVelas.js';
 import { collectRefranes, REFRAN_COUNT } from './refranero.js';
 import { seedCode } from '../core/seed.js';
@@ -48,7 +49,7 @@ export const TABS = [
   { id: 'plantilla', label: 'Plantilla', emoji: '👷' },
   { id: 'finanzas', label: 'Finanzas', emoji: '💶' },
   { id: 'manolo', label: 'Manolo', emoji: '😎' },
-  { id: 'noticias', label: 'Noticias', emoji: '📰' },
+  { id: 'noticias', label: 'Archivo', emoji: '🗂️' },
 ];
 
 const LOCK_HINTS = {
@@ -85,7 +86,9 @@ function lineFor(s, id) {
 export function renderCity(s, cityId) {
   const c = CITY_BY_ID[cityId] || CITY_BY_ID[HQ_CITY];
   const here = s.businesses.filter((b) => b.city === c.id);
-  let html = `
+  const urgent = advice(s).find((t) => t.level === 'alta');
+  let html = urgent ? `<div class="card advice-line small"><a href="#" data-act="tab" data-tab="${urgent.tab || 'imperio'}">📋 Paco: ${esc(urgent.text)}</a></div>` : '';
+  html += `
     <div class="card city-head">
       <div class="row between"><h3>${esc(c.name)}</h3><span class="muted">${esc(c.region)}</span></div>
       <p class="blurb">${esc(c.blurb)}</p>
@@ -944,11 +947,20 @@ export function manoloMood(s) {
 }
 
 // ---------------------------------------------------------------- Noticias
+// El Archivo de la casa: las carpetas (lo que la partida recuerda) y la hemeroteca.
 export function renderNews(s) {
-  if (!s.log.length) return '<div class="card muted">Todavía no ha pasado nada digno de titular.</div>';
-  return `<div class="card"><h4>El Sobao Digital · Hemeroteca</h4><ul class="news">
-    ${s.log.map((n) => `<li class="${n.tone}"><span class="muted small">${dateLabel(n.month)}</span> ${esc(n.text)}</li>`).join('')}
-  </ul></div>`;
+  const narrow = typeof window !== 'undefined' && window.matchMedia?.('(max-width: 600px)').matches;
+  const folders = codex(s).map((f, i) => {
+    if (!f.unlocked) return `<div class="folder locked small muted">🔒 ${esc(f.title)}${f.notes ? ` · ${esc(f.notes)}` : ''}</div>`;
+    const rows = f.rows.map((r) => `<tr><td>${esc(r.label)}</td><td class="${r.tone || ''}">${esc(r.value)}</td></tr>`).join('');
+    return `<details class="folder" ${!narrow || i === 0 ? 'open' : ''}><summary>${f.emoji} ${esc(f.title)}</summary>
+      <table class="tbl pl small"><tbody>${rows}</tbody></table>${f.notes ? `<p class="small muted">${esc(f.notes)}</p>` : ''}</details>`;
+  }).join('');
+  const news = s.log.length
+    ? `<ul class="news">${s.log.map((n) => `<li class="${n.tone}"><span class="muted small">${dateLabel(n.month)}</span> ${esc(n.text)}</li>`).join('')}</ul>`
+    : '<p class="muted">Todavía no ha pasado nada digno de titular.</p>';
+  return `<div class="card"><h4>🗂️ Carpetas</h4>${folders}</div>
+    <div class="card"><h4>El Sobao Digital · Hemeroteca</h4>${news}</div>`;
 }
 
 export function cityOptions() {

@@ -8,7 +8,9 @@ import { newGame, saveToStorage, loadFromStorage, clearStorage, serialize, deser
 import { seedCode, parseSeed, isoWeekKey, weekSeed } from '../core/seed.js';
 import { advanceMonth, currentPending, resolvePending, checkEnding, score, pickQuote } from '../core/sim.js';
 import { patrimonio } from '../core/economy.js';
-import { openBusiness, sellBusiness, buyUpgrade, setPolicy, togglePerk, borrow, repay, doManoloAction, dropMonthlyCost, currentGoal, goalNumber, checkGoals, rebrand, canRebrand, franchiseFee, LOAN_STEP } from '../core/actions.js';
+import { openBusiness, sellBusiness, buyUpgrade, setPolicy, togglePerk, borrow, repay, doManoloAction, dropMonthlyCost, currentGoal, currentGoals, goalNumber, checkGoals, rebrand, canRebrand, franchiseFee, LOAN_STEP } from '../core/actions.js';
+import { GOALS, LANES } from '../data/goals.js';
+import { HELP_PAGES, helpChoices } from '../data/help.js';
 import { play, isMuted, setMuted } from './sound.js';
 import { startMusic, isMusicOn, setMusic } from './music.js';
 import { checkAchievements } from './achievements.js';
@@ -243,13 +245,31 @@ function showTip(id, p) {
   tip.style.top = `${Math.max(8, p.y - tip.offsetHeight - 10)}px`;
 }
 
+// Un objetivo por carril (🏪 negocio, 👥 equipo, 💶 dinero); en pantallas estrechas, el más cercano y «+N».
+function goalLine(s, g) {
+  const lane = LANES.find((l) => l.id === g.lane);
+  const p = g.progress?.(s);
+  const prog = p ? ` <span class="goal-prog">${p[1] >= 1e5 ? `${moneyShort(p[0])}/${moneyShort(p[1])}` : `${p[0]}/${p[1]}`}</span>` : '';
+  return `<span class="goal-line">${lane?.emoji ?? '🎯'} ${esc(g.text)}${prog}</span>`;
+}
+
 function renderGoal(s) {
-  const g = currentGoal(s);
+  const goals = currentGoals(s);
   const c = clauseStatus(s);
   const clause = c && ['vigente', 'cumplida'].includes(c.state) ? `<span class="goal-clause ${c.state}">📜 ${esc(c.state === 'cumplida' ? `${c.def.title} · ¡cumplida!` : c.short)}</span>` : '';
   const el = $('#goal-chip');
-  el.hidden = (!g && !clause) || !!s.ending;
-  el.innerHTML = `${g ? `<span class="goal-kicker">🎯 Objetivo ${goalNumber(s)}</span>${esc(g.text)}` : ''}${clause}`;
+  el.hidden = (!goals.length && !clause) || !!s.ending;
+  const done = goalNumber(s) - 1;
+  const closeness = (g) => {
+    const p = g.progress?.(s);
+    return p ? p[0] / p[1] : 0;
+  };
+  const sorted = [...goals].sort((a, b) => closeness(b) - closeness(a));
+  const narrow = window.matchMedia('(max-width: 860px)').matches;
+  const lines = narrow && sorted.length > 1 && !game.goalsOpen
+    ? `${goalLine(s, sorted[0])}<button type="button" class="goal-more" data-act="goals-more">+${sorted.length - 1}</button>`
+    : goals.map((g) => goalLine(s, g)).join('');
+  el.innerHTML = `${goals.length ? `<span class="goal-kicker">🎯 Objetivos · ${done}/${GOALS.length}</span>${lines}` : ''}${clause}`;
 }
 
 // Si una acción rompería la cláusula del testamento, se pregunta antes.
@@ -485,6 +505,10 @@ async function onClick(e) {
       return;
     case 'menu':
       return showMenu();
+    case 'goals-more':
+      game.goalsOpen = true;
+      renderGoal(s);
+      return;
     case 'explain':
       play('click');
       return showModal({ kicker: '¿Por qué?', title: whyTitle(el.dataset.stat), html: renderWhy(s, el.dataset.stat), dismissable: true, className: 'why-modal', choices: [{ label: 'Entendido', primary: true }] });
@@ -573,35 +597,15 @@ function importSave() {
   input.click();
 }
 
-function showHelp() {
-  return showModal({
-    title: 'Cómo se juega',
-    wide: true,
-    html: `
-      <p>Cada turno es <b>un mes</b>. Tienes <b>8 años</b> para convertir el obrador de tu padre en un imperio... o en un caso de estudio. Sigue los <b>objetivos</b> del recuadro del mapa si no sabes por dónde empezar.</p>
-      <h4>El negocio</h4>
-      <ul>
-        <li>📍 <b>Haz clic en una ciudad</b> para abrir negocios: tiendas de sobaos, pisos para la plantilla, pisos turísticos, tabernas, smash burgers, empanadas, gimnasios, coworkings, residencias de mayores... La estimación te dice cuánto ganarías al mes.</li>
-        <li>🏭 Los sobaos salen del <b>obrador de Selaya</b>. Si no da abasto, mejóralo o tus tiendas venderán menos.</li>
-        <li>🤝 Puedes <b>vender franquicias</b>: cobras el canon y el riesgo lo corre el franquiciado.</li>
-        <li>🔨 Cada negocio propio se puede <b>reformar</b> (3 niveles) y cada ciudad admite <b>campañas de marketing</b>.</li>
-        <li>🏢 Cuantos más negocios, más <b>estructura central</b>: crecer tiene rendimientos decrecientes.</li>
-      </ul>
-      <h4>El mercado (pestaña 📊)</h4>
-      <ul>
-        <li>📈 La economía pasa por <b>expansión, burbuja, crisis y recuperación</b>. En burbuja todo vale más (y luego cae); en crisis se compra barato.</li>
-        <li>⚔️ <b>Cadenas rivales</b> aparecen y te copian donde ganas dinero. Puedes declararles una guerra de precios, robarles al encargado... o comprarlas con una OPA.</li>
-        <li>🧪 <b>I+D</b>: desarrolla productos nuevos (quesada, sobao proteico, congelados...).</li>
-      </ul>
-      <h4>La gente</h4>
-      <ul>
-        <li>👷 En <b>Plantilla</b> eliges cuánto "optimizar" sueldos, horas y becarios, y fichas a tu <b>equipo directivo</b> (cada uno con su manía).</li>
-        <li>🔎 Los <b>radares</b> de Inspección y Hacienda suben con las malas prácticas. Cuanto más altos, más visitas.</li>
-        <li>😎 Manolo hace <b>una acción al mes</b> (LinkedIn, el bar, el alcalde, una cena con Merche...), se compra <b>caprichos</b> y puede sacar la empresa a <b>Bolsa</b>. Ojo con descuidar a Merche: estáis en gananciales.</li>
-      </ul>
-      <p>⌨️ Atajos: <b>Espacio</b> cierra el mes, <b>1-7</b> cambia de pestaña y <b>1-4</b> elige opción en las cartas.</p>
-      <p><b>Finales:</b> bancarrota, prisión, que la plantilla se quede la empresa... o salir en la lista de millonarios de una revista económica (sección curiosidades).</p>`,
-  });
+// Ayuda en cinco páginas con «Siguiente» y «Anterior».
+async function showHelp() {
+  let i = 0;
+  while (i >= 0) {
+    const page = HELP_PAGES[i];
+    const choices = helpChoices(i);
+    const k = await showModal({ title: page.title, kicker: `Cómo se juega · ${i + 1}/${HELP_PAGES.length}`, wide: true, html: page.html, choices, dismissable: true });
+    i = k < 0 ? -1 : choices[k].go;
+  }
 }
 
 // ------------------------------------------------------------ Bucle de mes
@@ -675,7 +679,7 @@ function digestHtml(d) {
       ${d.drivers.map((x) => `<li><span>${esc(x.label)}${x.reason ? `<small>${esc(x.reason)}</small>` : ''}</span><b class="${x.delta >= 0 ? 'pos' : 'neg'}">${fmtDelta(x.delta)}</b></li>`).join('')}</ul>`;
   }
   if (d.fresh.items.length) {
-    html += block('Este mes', `<ul class="digest-list">${d.fresh.items.map((e) => `<li class="${e.tone}">${esc(e.text)}</li>`).join('')}</ul>${d.fresh.more ? `<p class="small muted">…y ${d.fresh.more} más en Noticias.</p>` : ''}`);
+    html += block('Este mes', `<ul class="digest-list">${d.fresh.items.map((e) => `<li class="${e.tone}">${esc(e.text)}</li>`).join('')}</ul>${d.fresh.more ? `<p class="small muted">…y ${d.fresh.more} más en el Archivo.</p>` : ''}`);
   }
   if (d.upcoming.length) html += block('Próximamente', `<ul class="digest-list">${d.upcoming.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>`);
   return html;

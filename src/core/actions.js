@@ -264,9 +264,21 @@ function goalsDone(s) {
   return s.goalsDone;
 }
 
-export function currentGoal(s) {
+// El primer objetivo pendiente de cada carril.
+export function currentGoals(s) {
   const done = goalsDone(s);
-  return GOALS.find((g) => !done.includes(g.id)) || null;
+  const out = [];
+  for (const lane of ['negocio', 'equipo', 'dinero']) {
+    const g = GOALS.find((x) => x.lane === lane && !done.includes(x.id));
+    if (g) out.push(g);
+  }
+  return out;
+}
+
+// El que se enseña primero: el pendiente que va antes en la lista.
+export function currentGoal(s) {
+  const heads = currentGoals(s);
+  return GOALS.find((g) => heads.includes(g)) || null;
 }
 
 export function goalNumber(s) {
@@ -276,13 +288,14 @@ export function goalNumber(s) {
 // Completa objetivos en cadena y deja el aviso en s.notices para la interfaz.
 export function checkGoals(s) {
   s.notices ??= [];
-  let g = currentGoal(s);
-  while (g && g.test(s)) {
+  // Cada carril avanza por su cuenta: se repite hasta que ningún carril cumple su objetivo actual.
+  let g = currentGoals(s).find((x) => x.test(s));
+  while (g) {
     const text = g.reward(s);
     log(s, `🎯 Objetivo cumplido: ${g.text} ${text}`, 'good');
     s.notices.push({ title: 'Objetivo cumplido', text: [g.text, text].join('\n\n') });
     if (s.notices.length > 4) s.notices.splice(0, s.notices.length - 4);
     goalsDone(s).push(g.id);
-    g = currentGoal(s);
+    g = currentGoals(s).find((x) => x.test(s));
   }
 }

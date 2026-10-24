@@ -280,6 +280,7 @@ const BASE_EVENTS = [
         effect(s) {
           addHeatTrabajo(s, -40);
           addRep(s, 2);
+          s.flags.inspeccionLimpia = true;
           clearRecord(s, 'trabajo');
           closeLaborVisit(s);
           return '"Esto no es un soborno, ¿verdad?" "Es un sobao, señora." Se lo come. Se va, y tacha algo en su carpeta. Radar de Inspección −40.';

@@ -377,8 +377,8 @@ const BASE_EVENTS = [
     portrait: 'portrait_inspector_hacienda', image: 'ev_hacienda',
     text: (s, p) =>
       p.debt > 0
-        ? `Don Fermín Rubalcaba, inspector de la Agencia Tributaria, te cita en Santander. Lleva manguitos. Nadie lleva manguitos desde 1970.\n\n"Hemos detectado discrepancias entre su nivel de vida y lo que declara. Sus redes sociales nos han ayudado mucho."\n\nCuota defraudada estimada: ${money(p.debt)}${p.debt >= DELITO_FISCAL ? ' (supera los 120.000 €: hay riesgo de delito fiscal)' : ''}.`
-        : 'Don Fermín Rubalcaba revisa tus cuentas durante tres horas. Todo cuadra. Se quita los manguitos, derrotado.',
+        ? `Don Fermín Rubalcaba, inspector de la Agencia Tributaria, te cita en Santander. Lleva coderas. Nadie lleva coderas desde 1970.\n\n"Hemos detectado discrepancias entre su nivel de vida y lo que declara. Sus redes sociales nos han ayudado mucho."\n\nCuota defraudada estimada: ${money(p.debt)}${p.debt >= DELITO_FISCAL ? ' (supera los 120.000 €: hay riesgo de delito fiscal)' : ''}.`
+        : 'Don Fermín Rubalcaba revisa tus cuentas durante tres horas. Todo cuadra. Se quita las coderas, derrotado.',
     weight: () => 0,
     choices: [
       {

@@ -26,7 +26,7 @@ La inspectora de Trabajo entra en el obrador con su carpeta mientras, al fondo, 
 - **Tamaño:** 768×432 px
 - **Prioridad:** 1 (1 = imprescindible, 3 = cuando haya tiempo)
 
-Despacho gris de la Agencia Tributaria: el inspector con manguitos revisa una montaña de tickets de marisquería; Manolo suda frente a él.
+Despacho gris de la Agencia Tributaria: el inspector con coderas revisa una montaña de tickets de marisquería; Manolo suda frente a él.
 
 ## ev_huelga
 

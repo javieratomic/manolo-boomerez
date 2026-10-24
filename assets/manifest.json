@@ -1880,54 +1880,66 @@
       "file": "assets/events/ev_ciudad_cordoba.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_cordoba"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_cordoba",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_toledo",
       "file": "assets/events/ev_ciudad_toledo.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_toledo"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_toledo",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_tarragona",
       "file": "assets/events/ev_ciudad_tarragona.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_tarragona"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_tarragona",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_almeria",
       "file": "assets/events/ev_ciudad_almeria.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_almeria"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_almeria",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_laspalmas",
       "file": "assets/events/ev_ciudad_laspalmas.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_laspalmas"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_laspalmas",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_granada",
       "file": "assets/events/ev_ciudad_granada.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_granada"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_granada",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_murcia",

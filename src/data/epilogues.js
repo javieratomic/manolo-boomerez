@@ -16,6 +16,7 @@ export const HITOS = {
   liquidacion: { label: 'Marisa le liquida lo ahorrado en nóminas', peso: 4 },
   expediente: { label: 'Primer expediente penal', peso: 5 },
   divorcio: { label: 'Merche pide el divorcio', peso: 5 },
+  selaya: { label: 'Se retira a Selaya', peso: 4 },
   bolsa: { label: 'Toca la campana: Boomerez S.A. sale a Bolsa', peso: 4 },
   maquillaje: { label: '«El sobao está hueco»: le pillan maquillando las cuentas', peso: 4 },
   opa: { label: 'Se come a una cadena rival con una OPA', peso: 3 },

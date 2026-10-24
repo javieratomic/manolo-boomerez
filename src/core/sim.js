@@ -1,7 +1,7 @@
 // Avance mensual de la simulación y resolución de sucesos.
 import { computeEconomy, policyFx, creditLimit, patrimonio, grossPatrimonio, hasCondition } from './economy.js';
 import { chance, weightedPick, pick, range } from './rng.js';
-import { addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, log, money, GAME_MONTHS, clamp, custom, remember, hito } from './helpers.js';
+import { addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, log, money, GAME_MONTHS, clamp, custom, remember, hito, dateLabel } from './helpers.js';
 import { velasPending } from '../data/eventsVelas.js';
 import { haciendaDebt, inspectionChance, auditChance, tickLaborHistory, laborVisitParams } from './inspections.js';
 import { checkUnlocks } from './actions.js';
@@ -323,6 +323,27 @@ export function checkEnding(s) {
   // Si la partida termina sin cumplirla, queda cerrada: el modo infinito ya no la puede cobrar.
   if (id && s.clausula && !s.clausula.done && !s.clausula.broken) s.clausula.closed = true;
   return id;
+}
+
+// «Vuelta a Selaya»: final voluntario desde el mes 72 (61 años), cuando ya ha pasado por el notario. Cuenta
+// la puntuación de hoy, pero no cobra la cláusula del testamento.
+export const RETIRE_MONTH = 72;
+export function canRetire(s) {
+  if (s.ending) return { ok: false, msg: 'La partida ya ha terminado.' };
+  if (s.month < RETIRE_MONTH) return { ok: false, msg: `Manolo no se jubila antes de ${dateLabel(RETIRE_MONTH).toLowerCase().replace(' ', ' de ')}.` };
+  if (s.seen?.velas_3 == null) return { ok: false, msg: 'Antes tiene que pasar por el notario («Sesenta velas»).' };
+  if (s.pending.length) return { ok: false, msg: 'Primero, lo que tienes encima de la mesa.' };
+  return { ok: true };
+}
+
+export function retire(s) {
+  const ok = canRetire(s);
+  if (!ok.ok) return ok;
+  s.ending = 'selaya';
+  if (s.clausula && !s.clausula.done && !s.clausula.broken) s.clausula.closed = true;
+  hito(s, 'selaya');
+  log(s, '🏡 Manolo se retira a Selaya.', 'info');
+  return { ok: true };
 }
 
 export function pickQuote(s) {

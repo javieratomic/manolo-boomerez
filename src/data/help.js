@@ -45,7 +45,7 @@ export const HELP_PAGES = [
         <li>📜 Cada partida trae una <b>cláusula del testamento</b>: un reto opcional que multiplica la puntuación si lo cumples al terminar.</li>
         <li>🎲 La <b>semilla</b> reproduce la partida: escribe el código de un amigo en el título o juega el <b>reto de la semana</b>.</li>
         <li>🎂 A los sesenta, Manolo elegirá <b>heredero</b> ante el notario.</li>
-        <li>🏁 <b>Finales:</b> concurso de acreedores, Soto del Real, la cooperativa, Pyme con ínfulas, Tiburón Pasiego (5 M€ al acabar) o la revista de millonarios (15 M€). Al final verás qué fue de cada uno.</li>
+        <li>🏁 <b>Finales:</b> concurso de acreedores, Soto del Real, la cooperativa, Pyme con ínfulas, Tiburón Pasiego (5 M€ al acabar) o la revista de millonarios (15 M€). Desde los 61, también puedes <b>volver a Selaya</b> (pestaña Manolo). Al final verás qué fue de cada uno.</li>
       </ul>
       <p>⌨️ Atajos: <b>Espacio</b> cierra el mes, <b>1-7</b> cambia de pestaña, <b>1-4</b> elige opción en las cartas y <b>,</b> <b>.</b> recorren las ciudades con alerta.</p>`,
   },

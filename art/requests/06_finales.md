@@ -59,3 +59,11 @@ Cena familiar en la que Manolo cuenta que estuvo 'a punto de petarlo'; el cuñad
 - **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
 
 Manolo solo, frente al obrador original bajo la lluvia pasiega, gritando a una nube; las pasiegas siguen trabajando dentro tan tranquilas.
+
+## end_selaya
+
+- **Archivo:** `assets/endings/end_selaya.png`
+- **Tamaño:** 1280×720 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Atardecer en Selaya (valle del Pas, Cantabria): Manolo, ya con 61 años, sin gafas de sol y con delantal enharinado, amasa sobaos con dos pasiegas en el obrador de piedra de su padre; por la ventana, prados verdes, cabañas pasiegas y vacas. Luz cálida y tranquila.

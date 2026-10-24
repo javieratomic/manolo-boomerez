@@ -6,7 +6,7 @@ import { MapView } from '../render/mapView.js';
 import { initAssets, imageUrl, hasArt } from '../render/assets.js';
 import { newGame, saveToStorage, loadFromStorage, clearStorage, serialize, deserialize, DIFFICULTIES, GAME_VERSION } from '../core/state.js';
 import { seedCode, parseSeed, isoWeekKey, weekSeed } from '../core/seed.js';
-import { advanceMonth, currentPending, resolvePending, checkEnding, score, pickQuote } from '../core/sim.js';
+import { advanceMonth, currentPending, resolvePending, checkEnding, score, pickQuote, retire } from '../core/sim.js';
 import { patrimonio } from '../core/economy.js';
 import { openBusiness, sellBusiness, buyUpgrade, setPolicy, togglePerk, borrow, repay, doManoloAction, dropMonthlyCost, currentGoal, currentGoals, goalNumber, checkGoals, rebrand, canRebrand, franchiseFee, LOAN_STEP } from '../core/actions.js';
 import { GOALS, LANES } from '../data/goals.js';
@@ -32,7 +32,7 @@ import { grossPatrimonio } from '../core/economy.js';
 import { money, moneyShort, dateLabel, GAME_MONTHS, START_YEAR, log, custom } from '../core/helpers.js';
 import { HQ_CITY, CITY_BY_ID } from '../data/cities.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
-import { ENDINGS } from '../data/endings.js';
+import { endingOf } from '../data/endings.js';
 
 const game = { s: null, tab: 'ciudad', city: HQ_CITY, map: null, busy: false };
 window.__boomerez = game; // para depurar desde la consola
@@ -117,7 +117,7 @@ function showRecords() {
   const diff = (d) => DIFFICULTIES[d]?.label.split(' (')[0] || d;
   const html = list.length
     ? `<table class="tbl pl records"><thead><tr><th>#</th><th>Final</th><th>Patrimonio</th><th>Puntos</th></tr></thead><tbody>
-        ${list.map((r, i) => `<tr><td>${i + 1}</td><td><b>${esc(r.title)}</b>${r.clausulaOk ? ' <span title="Cláusula del testamento cumplida">📜</span>' : ''}<div class="small muted">${esc(r.brand === 'maison' ? 'Maison' : 'Express')} · ${esc(diff(r.difficulty))} · ${r.months} meses · ${esc(r.date)}${r.seed ? ` · 🎲 ${esc(r.seed)}` : ''}${r.reto ? ` · reto ${esc(r.reto)}` : ''}</div></td><td>${moneyShort(r.patrimonio)}</td><td>${r.score.toLocaleString('es-ES')}</td></tr>`).join('')}
+        ${list.map((r, i) => `<tr><td>${i + 1}</td><td><b>${esc(r.title)}</b>${r.ending === 'selaya' ? ' <span title="Se retiró a Selaya">🏡</span>' : ''}${r.clausulaOk ? ' <span title="Cláusula del testamento cumplida">📜</span>' : ''}<div class="small muted">${esc(r.brand === 'maison' ? 'Maison' : 'Express')} · ${esc(diff(r.difficulty))} · ${r.months} meses · ${esc(r.date)}${r.seed ? ` · 🎲 ${esc(r.seed)}` : ''}${r.reto ? ` · reto ${esc(r.reto)}` : ''}</div></td><td>${moneyShort(r.patrimonio)}</td><td>${r.score.toLocaleString('es-ES')}</td></tr>`).join('')}
       </tbody></table>`
     : '<p>Todavía no has terminado ninguna partida. El salón está vacío, como la agenda de Manolo un lunes por la mañana.</p>';
   return showModal({ title: 'Salón de la fama', kicker: '🏆 Tus mejores imperios', html, wide: true, dismissable: true });
@@ -527,6 +527,16 @@ async function onClick(e) {
       }
       break;
     }
+    case 'retire': {
+      if (!(await confirmModal('Vuelta a Selaya', 'Manolo deja el imperio y vuelve al pueblo. La partida termina ahora, con la puntuación de hoy, y la cláusula del testamento no se cobra. No hay modo infinito.', 'Retirarse', 'Todavía no'))) return;
+      res = retire(s);
+      if (res.ok) {
+        renderAll();
+        await showEnding('selaya');
+        return;
+      }
+      break;
+    }
     case 'hire':
       res = hireExec(s, el.dataset.id);
       if (res.ok) toast(`🤝 Bienvenido/a, ${res.exec.name}`, 'good');
@@ -836,7 +846,7 @@ async function runQueue(s) {
 
 async function showEnding(id) {
   const s = game.s;
-  const e = ENDINGS[id];
+  const e = endingOf(s, id);
   play('ending');
   const cl = clauseStatus(s);
   const etext = e.text + (id === 'bancarrota' && s.cartilla?.rescatado ? '\nEsta vez tu madre no abre la puerta.' : '');

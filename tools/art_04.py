@@ -76,4 +76,8 @@ ART = [
        "cae del escritorio, un flexo encendido y un purito apagado; Manolo le trae un café.", 3),
     ev("ev_remedios_domingo", "Comedor de domingo en una casa de pueblo cántabra: una olla de cocido montañés humeante, nóminas extendidas "
        "junto al pan y la berza; Doña Remedios las lee con las gafas en la punta de la nariz mientras Manolo suda.", 3),
+    # ------------------------------------------------------------------ Final voluntario
+    dict(id="end_selaya", file="assets/endings/end_selaya.png", w=1280, h=720, priority=3,
+         prompt="Atardecer en Selaya (valle del Pas, Cantabria): Manolo, ya con 61 años, sin gafas de sol y con delantal enharinado, amasa sobaos "
+                "con dos pasiegas en el obrador de piedra de su padre; por la ventana, prados verdes, cabañas pasiegas y vacas. Luz cálida y tranquila."),
 ]

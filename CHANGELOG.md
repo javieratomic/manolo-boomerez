@@ -21,6 +21,8 @@
   el trimestre… y te pueden pillar («EL SOBAO ESTÁ HUECO»).
 - **¿Qué fue de...?** Epílogo de 13 personajes según lo que pasó, crónica de tus hitos y una carta de
   Manolo. A los sesenta, **«Sesenta velas»**: cumpleaños, heredero ante el notario y la cláusula de Manolo.
+  Desde los 61, un final voluntario: **«Vuelta a Selaya»** (pestaña Manolo), con la puntuación de ese momento
+  y sin cobrar la cláusula.
 
 ### Interfaz
 - **Archivo** (antes Noticias): carpetas de Marisa, Don Fermín, las costumbres, el comité, la cartilla y los

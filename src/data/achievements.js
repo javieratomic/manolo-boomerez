@@ -28,7 +28,7 @@ export const ACHIEVEMENTS = [
   { id: 'opa', emoji: '🦈', name: 'Depredador', desc: 'Compra una cadena rival con una OPA.', test: (s) => s.businesses.some((b) => b.acquired) },
   { id: 'millonario', emoji: '💰', name: 'Millonario (de patrimonio)', desc: 'Alcanza 1 millón de patrimonio.', test: (s) => patrimonio(s) >= 1e6 },
   ...Object.entries(ENDINGS).map(([id, e]) => ({
-    id: `final_${id}`, emoji: e.tone === 'good' ? '🏆' : e.tone === 'bad' ? '💀' : '🎬', name: `Final: ${e.title}`, desc: 'Consigue este final.',
+    id: `final_${id}`, emoji: e.emoji || (e.tone === 'good' ? '🏆' : e.tone === 'bad' ? '💀' : '🎬'), name: `Final: ${e.title}`, desc: 'Consigue este final.',
     test: (s) => s.ending === id,
   })),
   ...CLAUSES.map((c) => ({ id: `clausula_${c.id}`, emoji: '📜', name: `Cláusula: ${c.title}`, desc: `Acaba una partida cumpliendo la cláusula «${c.title}».`, test: (s) => s.clausula?.id === c.id && s.clausula.done })),

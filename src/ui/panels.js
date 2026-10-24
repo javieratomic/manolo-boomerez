@@ -1,4 +1,5 @@
 // Paneles laterales. Cada render devuelve HTML; las acciones van por atributos data-act.
+import { canRetire, RETIRE_MONTH } from '../core/sim.js';
 import { esc } from './dom.js';
 import { imageUrl, hasArt } from '../render/assets.js';
 
@@ -861,6 +862,7 @@ export function renderManolo(s) {
           ${artOr(a.icon, a.emoji)}<span><b>${esc(a.name)}</b><small>${esc(a.desc)}</small></span></button>`).join('')}
       </div>
     </div>
+    ${renderRetire(s)}
     ${renderClause(s)}
     ${renderBio(s)}
     ${renderFamily(s)}
@@ -871,6 +873,17 @@ export function renderManolo(s) {
         ${ACHIEVEMENTS.map((a) => `<div class="ach ${isUnlocked(a.id) ? 'on' : ''}" title="${esc(a.desc)}"><span class="emoji">${isUnlocked(a.id) ? a.emoji : '🔒'}</span><span><b>${esc(a.name)}</b><small>${esc(a.desc)}</small></span></div>`).join('')}
       </div>
     </div>`;
+}
+
+// «Vuelta a Selaya»: aparece a partir del mes 72; el botón explica por qué no se puede todavía.
+function renderRetire(s) {
+  if (s.month < RETIRE_MONTH || s.ending) return '';
+  const ok = canRetire(s);
+  return `<div class="card"><h4>🏡 Vuelta a Selaya</h4>
+    <p class="small">Deja el imperio y vuelve al obrador de tu padre. La partida termina con la puntuación de hoy; la cláusula del testamento no se cobra.</p>
+    <button class="btn small" data-act="retire" ${ok.ok ? '' : `disabled title="${esc(ok.msg)}"`}>Retirarse a Selaya</button>
+    ${ok.ok ? '' : `<p class="small muted">${esc(ok.msg)}</p>`}
+  </div>`;
 }
 
 // Biografía no autorizada: los hitos de la partida en orden.

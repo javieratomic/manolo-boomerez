@@ -32,6 +32,8 @@ import { codex } from '../src/core/codex.js';
 import { HELP_PAGES, helpChoices } from '../src/data/help.js';
 import { REFRANES } from '../src/data/refranes.js';
 import { resultSnapshot, isMinorResult } from '../src/core/results.js';
+import { retire, canRetire, RETIRE_MONTH } from '../src/core/sim.js';
+import { endingOf } from '../src/data/endings.js';
 import { cityAlerts } from '../src/core/mapInfo.js';
 import { layoutLabels } from '../src/render/labels.js';
 import { playGame, from } from './bot.js';
@@ -2268,4 +2270,36 @@ test('resultados: los menores van a un toast y lo serio siempre a ventana', () =
   s.cash += 2000;
   s.pending = [{ kind: 'event', id: 'y' }];
   assert(!isMinorResult('cena_cunado', 'Y ahora otra carta.', before, after()), 'deja otra carta');
+});
+
+test('Selaya: retirarse desde el mes 72 tras el notario, sin cobrar la cláusula', () => {
+  const s = withClause('sin_bancos');
+  s.month = RETIRE_MONTH - 1;
+  s.seen.velas_3 = 65;
+  assert(!canRetire(s).ok, 'antes de los 61, no');
+  s.month = RETIRE_MONTH;
+  delete s.seen.velas_3;
+  assert(!canRetire(s).ok && canRetire(s).msg.includes('notario'));
+  s.seen.velas_3 = 65;
+  s.cash = 6e6;
+  const cash = s.cash;
+  assert(retire(s).ok);
+  assertEq(checkEnding(s), 'selaya');
+  assertEq(s.cash, cash, 'sin el prado de las vacas');
+  assert(s.clausula.closed && !s.clausula.done, 'la cláusula queda cerrada');
+  assert(!canRetire(s).ok, 'una sola vez');
+  assert(s.hitos.some((h) => h.id === 'selaya'));
+  assert(ACHIEVEMENTS.some((a) => a.id === 'final_selaya' && a.emoji === '🏡'));
+});
+
+test('Selaya: buen tono con un año limpio o la receta del abuelo; si no, neutro', () => {
+  const s = started();
+  assertEq(endingOf(s, 'selaya').tone, 'neutral');
+  s.flags.legalStreak = 12;
+  assertEq(endingOf(s, 'selaya').tone, 'good');
+  s.flags.legalStreak = 0;
+  s.flags.anselmoFin = 'publicada';
+  assertEq(endingOf(s, 'selaya').tone, 'good');
+  assert(endingOf(s, 'selaya').text.includes('mantequilla de verdad'));
+  assertEq(endingOf(s, 'forbes').tone, 'good');
 });

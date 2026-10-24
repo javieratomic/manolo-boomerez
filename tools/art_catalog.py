@@ -356,7 +356,8 @@ def merge_extra():
     for a in extra:
         if a["id"] in known:
             continue
-        target = "04_retratos.md" if a["id"].startswith("portrait_") else "07_interfaz.md" if a["id"].startswith("icon_") else "05_sucesos.md"
+        target = ("04_retratos.md" if a["id"].startswith("portrait_") else "07_interfaz.md" if a["id"].startswith("icon_")
+                  else "06_finales.md" if a["id"].startswith("end_") else "05_sucesos.md")
         groups[target].append(a)
         known.add(a["id"])
 

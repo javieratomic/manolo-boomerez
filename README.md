@@ -58,7 +58,7 @@ pellizco para el zoom (en el móvil, tocar dos ciudades juntas acerca el mapa) �
 | Objetivos | 18 objetivos en tres carriles (negocio, equipo y dinero) que dan pequeñas recompensas |
 | Dificultad | Modo cuñado (fácil), Emprendedor (normal) y Modo Hacienda (difícil) |
 | Logros | 45 logros que se guardan entre partidas: uno por cada final y uno por cada cláusula, entre otros |
-| Finales | Concurso de acreedores, Soto del Real, la Cooperativa, la Revista de millonarios, Tiburón Pasiego, Pyme con ínfulas, Ruina lenta |
+| Finales | Concurso de acreedores, Soto del Real, la Cooperativa, la Revista de millonarios, Tiburón Pasiego, Pyme con ínfulas, Ruina lenta y, por voluntad propia, Vuelta a Selaya |
 | Sonido | Efectos y música de fondo (pasodoble lo-fi generativo) sintetizados con WebAudio, sin ficheros de audio; se silencian por separado en el menú |
 
 El diseño completo está en [`docs/GDD.md`](docs/GDD.md) y los consejos de estrategia en [`docs/GUIA.md`](docs/GUIA.md).

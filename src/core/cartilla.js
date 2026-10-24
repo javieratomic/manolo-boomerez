@@ -12,6 +12,7 @@ export const MAMA = {
   TERM: 12,
   PRORROGA: 6,
   VETO: 24,
+  RESPIRO: 12, // tras devolver, tu madre no vuelve a prestar en un año (si no, se vive de la cartilla)
   KEVIN_WAGE: 1800,
   DOMINGO_EVERY: 3,
   EMBARGO_MONTHS: 12,
@@ -71,7 +72,10 @@ export function canAsk(s) {
   if (!c) return { ok: false, msg: 'Tu madre no tiene cartilla.' };
   if (c.owed > 0) return { ok: false, msg: 'Primero devuélvele lo que le debes.' };
   if (s.month < MAMA.MIN_MONTH) return { ok: false, msg: '"¿Ya, Manolo? Si acabas de heredar." Espera unos meses.' };
-  if (s.month < c.vetoHasta) return { ok: false, msg: `Después del embargo, tu madre no presta hasta ${c.vetoHasta - s.month} meses más.` };
+  if (s.month < c.vetoHasta) {
+    const n = c.vetoHasta - s.month;
+    return { ok: false, msg: c.vetoMotivo === 'respiro' ? `"Acabas de devolvérmelo, Manolo. Déjame respirar." No presta hasta dentro de ${n} ${n === 1 ? 'mes' : 'meses'}.` : `Después del embargo, tu madre no presta hasta dentro de ${n} ${n === 1 ? 'mes' : 'meses'}.` };
+  }
   if (c.confianza < MAMA.MIN_CONF) return { ok: false, msg: 'Tu madre ya no se fía de ti (confianza por debajo de 30).' };
   if (s.cash >= MAMA.NEED_CASH && !s.flags.bancoNo) return { ok: false, msg: `Tu madre solo presta si de verdad lo necesitas (caja por debajo de ${money(MAMA.NEED_CASH)}) o si el banco te ha dicho que no.` };
   if (maxLoan(s) < 10000) return { ok: false, msg: 'A tu madre no le queda casi nada en la cartilla.' };
@@ -149,6 +153,10 @@ export function repayMama(s, ctx = 'devolver') {
   c.owed = 0;
   c.due = null;
   c.embargo = null;
+  if (c.vetoHasta < s.month + MAMA.RESPIRO) {
+    c.vetoHasta = s.month + MAMA.RESPIRO;
+    c.vetoMotivo = 'respiro';
+  }
   releaseConds(s);
   const r = entry(s, 'Manolo devuelve', 0, a, ctx);
   log(s, `👵 Devuelves ${money(a)} a tu madre. «${r}»`, 'good');
@@ -186,6 +194,7 @@ export function embargar(s) {
   c.due = null;
   c.confianza = 0;
   c.vetoHasta = s.month + MAMA.VETO;
+  c.vetoMotivo = 'embargo';
   s.flags.embargado = true;
   s.familia = clamp((s.familia ?? 60) - 15);
   addRep(s, -3);

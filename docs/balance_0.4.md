@@ -25,6 +25,7 @@ Patrimonio en millones de euros: mediana (media).
 - **Explotar ya no compensa.** En la 0.3, mínimo + voluntarias daba un 71 % más que jugar legal en Express y un
   29 % más en Maison; en la 0.4 da un 15 % y un 10 % menos. La diferencia es la liquidación de lo ahorrado
   frente al convenio (8 M€ de media por partida) y el agravio, que baja la moral.
+  (Con 96 semillas, explotar *vigilando el radar* queda a la par o algo por encima: ver la última sección.)
 - **La moral ya no está siempre a tope.** Meses con moral de 95 o más tras el mes 24 (Maison legal): del 90 %
   al 74 %; explotando, del 24 % al 21 %, y congelando el convenio, al 19 %, con 3,3 huelgas generales por partida.
 - **El final de partida es más exigente para el jugador fuerte.** Salir a Bolsa ya no es un atajo (la valoración
@@ -33,3 +34,30 @@ Patrimonio en millones de euros: mediana (media).
   tarde para la Express.
 - **La cartilla de Doña Remedios** no cambia el resultado del bot listo (15,0 frente a 14,8 de mediana) y, con
   el año de respiro tras devolver, tampoco el del que diversifica.
+
+## Tras la revisión de las piezas 3 a 6 (96 semillas)
+
+Con 32 semillas la mediana se mueve hasta un 10 % con solo cambiar cuándo sale una carta forzada (el orden de
+los sucesos cambia en todas las partidas), así que esta comparación usa 96 semillas (`--seeds 96`) y la
+**media**. Antes: el commit `66b2ef7`; después: con los 30 arreglos de la revisión.
+
+| Variante | Antes | Después | Revista antes → después |
+|---|---|---|---|
+| Express listo, legal | 16,6 | 16,9 | 64/96 → 69/96 |
+| Express, explotar vigilando el radar | 16,9 | 18,3 | 64/96 → 79/96 |
+| Express, mínimo + voluntarias | 12,4 | 14,6 | 45/96 → 66/96 |
+| Maison lista, legal | 36,0 | 38,8 | 96/96 → 95/96 |
+| Maison, explotar vigilando el radar | 34,9 | 39,3 | 96/96 → 96/96 |
+| Maison, mínimo + voluntarias | 32,2 | 34,5 | 95/96 → 95/96 |
+
+- **Cotizar sale algo mejor para todos** (del 2 % al 8 %): la guía prudente ya no hunde el sentimiento a la
+  larga y el cierre del trimestre estima con el mes que falta.
+- **Explotar a lo bruto sigue perdiendo** frente a jugar legal: un 14 % menos en Express y un 11 % menos en Maison.
+- **Explotar vigilando el radar ya estaba a la par** con 96 semillas (la tabla de 32 exageraba la diferencia) y
+  ahora queda un 8 % por encima en Express y un 1 % en Maison. Repartido entre la Bolsa, los objetivos que ya no
+  se atascan y el nuevo orden de los sucesos, sin un culpable único. No viene de la liquidación: subirla a ×1,5,
+  o cobrar la mitad al momento con un 15 % de recargo, apenas lo mueve (de 18,3 a 17,8-17,9 en Express).
+  **Pendiente para la 0.5:** decidir si leer bien el radar debe compensar y, si no, qué palanca usar (ventana de
+  la liquidación, denuncias del comité, probabilidad de visita con agravio alto).
+- «Da trabajo a 50 personas» ya no queda bloqueado detrás de una inspección limpia, y ahora solo da reputación
+  con el empleo en regla (si no, fama +2).

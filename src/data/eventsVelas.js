@@ -205,7 +205,7 @@ export const VELAS_EVENTS = [
   },
 ];
 
-// La revista de millonarios espera (como mucho 2 cierres) si el cumpleaños ya ha empezado.
+// ¿Queda «Sesenta velas» por salir o por acabar? La revista de millonarios espera (como mucho 4 cierres).
 export function velasPending(s) {
   if (s.pending.some((p) => /^velas_/.test(p.id))) return true;
   if (s.seen?.velas_1 == null) return s.month >= PRISA_MONTH && s.month <= 90; // está a punto de salir

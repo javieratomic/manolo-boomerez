@@ -38,6 +38,7 @@ Tu trabajo es convertir las peticiones de `art/requests/` en imágenes dentro de
 
 ## Si eres el agente de CÓDIGO
 
+- Si existe `HANDOFF.md` en la raíz, léelo primero: es el relevo de la sesión anterior (estado y pendientes).
 - La fuente de las peticiones de arte es `tools/art_catalog.py`. Para pedir arte nuevo, añade la entrada
   allí y ejecuta `python tools/art_catalog.py`: regenera `art/requests/*.md` y `assets/manifest.json`
   **conservando** el `status`, `notes` y `version` que ya haya puesto el agente de arte.

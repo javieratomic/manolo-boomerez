@@ -2,6 +2,8 @@
 // cumple, de arriba abajo; la última no tiene condición). Lee banderas que escriben los sucesos.
 const f = (s) => s.flags || {};
 const heir = (s) => s.sucesion?.heir;
+const CLAUSE_TEXT = { dubai: 'que abra en Dubái', horas: 'que nunca pague horas extra', tonterias: 'que no haga tonterías', receta: 'que vuelva a la receta de la abuela' };
+const myClause = (s) => CLAUSE_TEXT[s.sucesion?.clausula] || null;
 
 export const HITOS = {
   primera_tienda: { label: 'Abre su primera tienda', peso: 2 },
@@ -31,9 +33,9 @@ export const HITOS = {
 // Finales de los arcos (se derivan de la bandera del final y de <arco>Month, sin enganche).
 export const ARC_HITOS = {
   merche: { peso: 4, flag: 'mercheFin', label: { votos: 'Renueva los votos con Merche en la ermita', cena: 'Una cena sin móvil con Merche', perdon: 'Le pide perdón a Merche de verdad', despacho: 'Se muda al despacho del obrador', abogados: 'Abogados de por medio con Merche' } },
-  jonathan: { peso: 3, flag: 'jonFinal', label: { fianza: 'Paga la fianza de Jonathan', colabora: 'Colabora con la policía en lo de Jonathan', cosme: 'Don Cosme saca a Jonathan del lío', borra: 'Borra los mensajes de «Cuñaos al Millón»' } },
+  jonathan: { peso: 3, flag: 'jonFinal', monthFlag: 'jonFinalMonth', label: { fianza: 'Paga la fianza de Jonathan', colabora: 'Colabora con la policía en lo de Jonathan', cosme: 'Don Cosme saca a Jonathan del lío', borra: 'Borra los mensajes de «Cuñaos al Millón»' } },
   hojaldre: { peso: 5, flag: 'hojaldreFin', label: { conformidad: 'Acuerdo con la fiscalía en la Operación Hojaldre', juicio: 'Juicio de la Operación Hojaldre', manta: 'Tira de la manta en la Operación Hojaldre' } },
-  prensa: { peso: 3, flag: 'prensaFinal', label: { cara: 'Da la cara ante Lucía Ferrer', comprado: 'Compra el periódico', linkedin: 'Comparte en LinkedIn un reportaje contra él', querella: 'Se querella contra el periódico' } },
+  prensa: { peso: 3, flag: 'prensaFinal', monthFlag: 'prensaFinalMonth', label: { cara: 'Da la cara ante Lucía Ferrer', comprado: 'Compra el periódico', linkedin: 'Comparte en LinkedIn un reportaje contra él', querella: 'Se querella contra el periódico' } },
   comite: { peso: 3, flag: 'comiteFin', label: { firmado: 'Firma el I Convenio de Obradores Boomerez', light: 'Firma un convenio «light»', roto: 'Se levanta de la mesa del convenio', cedido: 'Cede y firma el convenio', huelga: 'Aguanta una huelga', esquiroles: 'Trae esquiroles en una huelga', mediado: 'Don Cosme media con el comité' } },
   anselmo: { peso: 3, flag: 'anselmoFin', label: { receta: 'Vuelve a la receta de su padre', edicion: 'Edición limitada «Receta Anselmo»', publicada: 'Regala la receta a todos los obradores del valle', vendida: 'Vende la receta de su padre a una multinacional' } },
 };
@@ -48,7 +50,7 @@ export const EPILOGUE = [
       { when: (s) => f(s).mercheFin === 'perdon', text: 'Te perdonó. Lo recuerda cada vez que alguien dice «Marbella» en la mesa.' },
       { when: (s) => f(s).mercheFin === 'despacho', text: 'Volviste del despacho del obrador al cabo de un año. No había cambiado la cerradura, pero lo pensó.' },
       { when: (s) => f(s).mercheFin === 'abogados', text: 'Los abogados se hicieron amigos entre ellos. Vosotros seguís casados, por pereza mutua.' },
-      { when: (s) => heir(s) === 'merche', text: 'Heredó la empresa y la vendió en un mes. Ahora da la vuelta al mundo en un crucero y te manda fotos de cada puerto.' },
+      { when: (s) => heir(s) === 'merche', text: (s) => `Heredó la empresa y la vendió en un mes${myClause(s) ? `, cláusula «${myClause(s)}» incluida` : ''}. Ahora da la vuelta al mundo en un crucero y te manda fotos de cada puerto.` },
       { when: (s) => (s.familia ?? 60) >= 70, text: 'Sigue a tu lado y te llama «mi tiburón» con una ironía que nunca pillas.' },
       { text: 'Sigue a tu lado. No sabes muy bien por qué, y ella tampoco.' },
     ],
@@ -57,7 +59,8 @@ export const EPILOGUE = [
     who: 'maripili', name: 'Maripili', portrait: 'portrait_empleada_maripili', always: true,
     lines: [
       { when: (s) => s.ending === 'cooperativa', text: 'Preside Sobaos Pasiegos S. Coop.: pagan bien, venden más y en la puerta hay un cartel: «Prohibida la entrada a Manolo».' },
-      { when: (s) => heir(s) === 'plantilla', text: 'La plantilla, ya dueña, la eligió presidenta. En la primera junta tachó tu cláusula del testamento con rotulador rojo.' },
+      { when: (s) => heir(s) === 'plantilla' && myClause(s), text: (s) => `La plantilla, ya dueña, la eligió presidenta. En la primera junta tachó con rotulador rojo tu cláusula «${myClause(s)}».` },
+      { when: (s) => heir(s) === 'plantilla', text: 'La plantilla, ya dueña, la eligió presidenta. Lo primero que hizo fue subir los sueldos al convenio, con efectos retroactivos.' },
       { when: (s) => (f(s).participacionMeses ?? 0) >= 24, text: 'Con la participación de los beneficios se compró un piso en Santander. Te invitó a la inauguración. No fuiste.' },
       { when: (s) => (s.comite?.rotas || []).length > 0, text: 'Todavía tiene tu promesa del convenio fotocopiada en el tablón. Amarillea, pero se lee.' },
       { when: (s) => (s.stats?.huelgas ?? 0) >= 2, text: 'Tiene enmarcadas las fotos de cada huelga en el cuarto de la mantequilla, con la fecha y lo que se consiguió.' },
@@ -79,7 +82,7 @@ export const EPILOGUE = [
   {
     who: 'vanessa', name: 'Vanessa', portrait: 'portrait_hija_vanessa',
     lines: [
-      { when: (s) => heir(s) === 'vanessa', text: 'Heredó la empresa. Lo primero que hizo fue leer las cuentas; lo segundo, llamar a la Inspección para regularizarlo todo.' },
+      { when: (s) => heir(s) === 'vanessa', text: (s) => `Heredó la empresa. Lo primero que hizo fue leer las cuentas; lo segundo, llamar a la Inspección para regularizarlo todo.${myClause(s) ? ` Tu cláusula «${myClause(s)}» la tiene enmarcada en el baño.` : ''}` },
       { when: (s) => f(s).vanessaRival, text: 'Su cooperativa de repostería, montada con tres de tus mejores pasteleras, ya vende más que tu Maison en Santander.' },
       { when: (s) => f(s).vanessaADE, text: 'Terminó ADE y un máster en Derecho Laboral. Trabaja en un fondo que el año pasado intentó comprarte a la baja.' },
       { when: (s) => f(s).vanessaArtista, text: 'Expone en Madrid una serie de cuadros titulada «Sobaos y plusvalía». Uno se llama como tú.' },
@@ -99,7 +102,7 @@ export const EPILOGUE = [
   {
     who: 'kevin', name: 'Kevin, tu sobrino', portrait: 'portrait_sobrino_kevin',
     lines: [
-      { when: (s) => heir(s) === 'kevin', text: 'Heredó la empresa. La cinta americana sigue siendo su principal herramienta de gestión.' },
+      { when: (s) => heir(s) === 'kevin', text: (s) => `Heredó la empresa. La cinta americana sigue siendo su principal herramienta de gestión.${myClause(s) ? ` Se tomó al pie de la letra tu cláusula «${myClause(s)}».` : ''}` },
       { when: (s) => f(s).kevinJefe, text: 'Fue jefe de mantenimiento «por tu madre». Ahora tiene un canal de bricolaje con 200 suscriptores, todos de la familia.' },
       { when: (s) => f(s).comiteActitud === 'amarillo', text: 'Presidió el comité «de consenso» durante tres semanas. Lo pone en su perfil profesional como «experiencia sindical».' },
       { text: 'Sigue sin oficio fijo. Está «emprendiendo», dice. Te suena de algo.' },
@@ -136,7 +139,9 @@ export const EPILOGUE = [
     who: 'lucia', name: 'Lucía Ferrer, periodista', portrait: 'portrait_periodista',
     lines: [
       { when: (s) => f(s).prensaFinal === 'comprado', text: 'Dejó el periódico que compraste y fundó La Pasiega Libre, que cada semana publica algo tuyo.' },
-      { when: (s) => f(s).prensaFinal === 'querella', text: 'Ganó la querella y el premio de periodismo del año. Te lo dedicó en el discurso.' },
+      { when: (s) => f(s).prensaFinal === 'querella' && f(s).prensaJuicio === 'ganado', text: 'Perdió el juicio por tu querella y escribió un libro sobre ello. Es un superventas; tú sales en la portada.' },
+      { when: (s) => f(s).prensaFinal === 'querella' && f(s).prensaJuicio === 'retirada', text: 'Aceptó tus disculpas en la puerta del juzgado. Las publicó, palabra por palabra.' },
+      { when: (s) => f(s).prensaFinal === 'querella', text: 'Ganó el juicio por tu querella y el premio de periodismo del año. Te lo dedicó en el discurso.' },
       { when: (s) => f(s).prensaFinal === 'linkedin', text: 'Su reportaje sobre ti es el más leído de su carrera, gracias a que lo compartiste tú en LinkedIn.' },
       { when: (s) => f(s).prensaFinal === 'cara', text: 'Escribió un segundo reportaje: «Boomerez cumple (más o menos)». Es lo más amable que ha escrito de nadie.' },
       { text: 'Sigue detrás de una historia. No sabes si es la tuya.' },

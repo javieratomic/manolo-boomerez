@@ -594,8 +594,7 @@ function renderCartilla(s) {
   const c = s.cartilla;
   if (!c) return '';
   const fecha = (m) => dateLabel(m).toLowerCase().replace(' ', ' de ');
-  const n = collectRefranes(c.entradas.map((e) => e.refran));
-  s.flags.refranero = n;
+  const n = s.flags.refranero ?? 0;
   const ask = canAsk(s);
   const max = ask.ok ? maxLoan(s) : 0;
   const rows = c.entradas.slice(-6).reverse().map((e) => `<tr><td>${esc(dateLabel(e.m).slice(0, 3))} ${String(dateLabel(e.m)).slice(-2)}</td><td>${esc(e.concepto)}<div class="refran">«${esc(e.refran)}»</div></td><td class="${e.haber ? 'pos' : e.debe ? 'neg' : ''}">${e.haber ? `+${moneyShort(e.haber)}` : e.debe ? `−${moneyShort(e.debe)}` : '—'}</td></tr>`).join('');
@@ -670,7 +669,7 @@ export function renderFinance(s) {
   if (s.extraMonthly.length) {
     html += `<div class="card"><h4>Gastos fijos extra</h4><ul class="perk-list">
       ${s.extraMonthly.map((x, i) => `<li class="perk"><div class="grow"><b>${esc(x.label)}</b> <span class="muted small">${money(x.amount)}/mes${x.months != null ? ` · ${x.months} ${x.months === 1 ? 'mes' : 'meses'} más` : ''}</span></div>
-        ${x.locked ? '<span class="tag" title="Aplazamiento con la Seguridad Social: no se puede quitar.">🔒</span>' : `<button class="btn small ghost" data-act="drop-cost" data-index="${i}">Quitar</button>`}</li>`).join('')}
+        ${x.locked ? `<span class="tag" title="${x.kevin ? 'Condición de tu madre: se va cuando le devuelvas el préstamo.' : 'Aplazamiento con la Seguridad Social: no se puede quitar.'}">🔒</span>` : `<button class="btn small ghost" data-act="drop-cost" data-index="${i}">Quitar</button>`}</li>`).join('')}
     </ul></div>`;
   }
   html += `<div class="card">${policyGroup(s, 'contabilidad', POLICIES.contabilidad)}${pvFootnote(s)}</div>
@@ -956,13 +955,19 @@ export function manoloMood(s) {
 }
 
 // ---------------------------------------------------------------- Noticias
-// El Archivo de la casa: las carpetas (lo que la partida recuerda) y la hemeroteca.
+// El Archivo de la casa: las carpetas (lo que la partida recuerda) y la hemeroteca. En el móvil, una carpeta
+// abierta cada vez, y se recuerda cuál entre repintados.
+let archivoOpen = null;
+export const setArchivoOpen = (id) => {
+  archivoOpen = id;
+};
 export function renderNews(s) {
   const narrow = typeof window !== 'undefined' && window.matchMedia?.('(max-width: 600px)').matches;
   const folders = codex(s).map((f, i) => {
     if (!f.unlocked) return `<div class="folder locked small muted">🔒 ${esc(f.title)}${f.notes ? ` · ${esc(f.notes)}` : ''}</div>`;
     const rows = f.rows.map((r) => `<tr><td>${esc(r.label)}</td><td class="${r.tone || ''}">${esc(r.value)}</td></tr>`).join('');
-    return `<details class="folder" ${!narrow || i === 0 ? 'open' : ''}><summary>${f.emoji} ${esc(f.title)}</summary>
+    const open = narrow ? (archivoOpen ? archivoOpen === f.id : i === 0) : true;
+    return `<details class="folder" data-folder="${f.id}" ${narrow ? 'name="archivo"' : ''} ${open ? 'open' : ''}><summary>${f.emoji} ${esc(f.title)}</summary>
       <table class="tbl pl small"><tbody>${rows}</tbody></table>${f.notes ? `<p class="small muted">${esc(f.notes)}</p>` : ''}</details>`;
   }).join('');
   const news = s.log.length

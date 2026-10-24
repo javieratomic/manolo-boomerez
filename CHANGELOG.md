@@ -38,7 +38,11 @@
 - La estimación de aperturas ya no clona la partida: el bot va 3,8 veces más rápido, con las mismas partidas.
 - `tests/balance.mjs`: barrida de equilibrado con 30 variantes en 32 semillas (datos en
   `docs/balance_0.4.md`).
-- Revisiones con agentes de cada tanda (detección y verificación adversaria) y sus correcciones.
+- Revisiones con agentes de cada tanda (detección y verificación adversaria) y sus correcciones: 14 fallos
+  en las piezas 1, 2 y 4a y 30 en las piezas 3, 4b, 5 y 6. Entre ellos: el sueldo de Kevin se quedaba para
+  siempre tras un rescate, un rescate durante el embargo perdonaba la deuda, la guía prudente hundía el
+  sentimiento a la larga, «Sesenta velas» salía antes de cumplir los sesenta y los 50 empleados esperaban a
+  una inspección limpia.
 - Las semillas de la 0.3 no reproducen las mismas partidas en la 0.4 (`GAME_VERSION`).
 
 ## 0.3.0 — Decisiones con memoria

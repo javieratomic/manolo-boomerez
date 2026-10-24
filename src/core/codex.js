@@ -89,7 +89,7 @@ function cartilla(s) {
 function analistas(s) {
   const ipo = s.ipo;
   if (!ipo) return { id: 'analistas', emoji: '📈', title: 'Los analistas', unlocked: false, rows: [], notes: 'Cuando salgas a Bolsa.' };
-  const next = qOf(s.month) + (s.month % 3 === 2 ? 1 : 0);
+  const next = qOf(s.month); // el trimestre en curso: solo lee trimestres ya cerrados y publicados
   return { id: 'analistas', emoji: '📈', title: 'Los analistas', unlocked: true, rows: [
     { label: `Consenso para el ${qLabel(next)}`, value: `+${pct(consensus(s, next))}` },
     { label: 'Promesa en curso', value: ipo.q ? `${GUIAS[ipo.q.guia]?.label ?? ipo.q.guia}: ${money(ipo.q.target)} (${qLabel(ipo.q.qi)})` : '—' },

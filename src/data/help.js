@@ -25,7 +25,7 @@ export const HELP_PAGES = [
     title: 'Plantilla, radares y «¿Por qué?»',
     html: `<ul>
         <li>💸 Pagar por debajo del convenio, las horas «voluntarias» y los becarios abaratan costes, pero bajan la moral y encienden el <b>radar de la Inspección</b>.</li>
-        <li>🧮 Lo que te ahorras frente al convenio se apunta como <b>deuda latente</b>: si viene Marisa, te liquida los últimos 24 meses (×1,2).</li>
+        <li>🧮 Lo que te ahorras frente al convenio se apunta como <b>deuda latente</b>: si viene Marisa, te liquida los últimos 24 meses con recargo (×1,2 en dificultad normal; menos en Modo cuñado y más en Modo Hacienda).</li>
         <li>⚖️ El <b>agravio</b> sube con el beneficio por cabeza. Con 50 personas nace el <b>comité</b>: convenio cada marzo y, si se le toma el pelo, huelga general. Repartir beneficios lo alivia.</li>
         <li>❓ Toca cualquier indicador de arriba (o la variación en el informe) para ver <b>por qué</b> se mueve y el riesgo real del mes.</li>
       </ul>`,

@@ -66,6 +66,17 @@ export const GOALS = [
     },
   },
   {
+    id: 'cincuenta',
+    lane: 'equipo',
+    progress: (s) => [Math.min(50, s.lastReport?.employees ?? 0), 50],
+    text: 'Da trabajo a 50 personas.',
+    test: (s) => (s.lastReport?.employees ?? 0) >= 50,
+    reward(s) {
+      addRep(s, 4);
+      return '"Yo genero empleo", repites en cada cena. Por una vez es verdad. Reputación +4.';
+    },
+  },
+  {
     id: 'primer_beneficio',
     lane: 'dinero',
     text: 'Cierra un mes con beneficio.',
@@ -166,17 +177,6 @@ export const GOALS = [
     reward(s) {
       addCash(s, 5000);
       return 'Paco te regala una agenda de cuero "por el año". Y la Caja Cantábrica, 5.000 € de bonificación por buen cliente.';
-    },
-  },
-  {
-    id: 'cincuenta',
-    lane: 'equipo',
-    progress: (s) => [Math.min(50, s.lastReport?.employees ?? 0), 50],
-    text: 'Da trabajo a 50 personas.',
-    test: (s) => (s.lastReport?.employees ?? 0) >= 50,
-    reward(s) {
-      addRep(s, 4);
-      return '"Yo genero empleo", repites en cada cena. Por una vez es verdad. Reputación +4.';
     },
   },
   {

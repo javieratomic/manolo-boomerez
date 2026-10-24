@@ -7,7 +7,7 @@ import { haciendaDebt, inspectionChance, auditChance, tickLaborHistory, laborVis
 import { checkUnlocks } from './actions.js';
 import { settleClause, clauseMult, checkClause } from './clauses.js';
 import { tickAhorro, driftAgravio, tickComite, rollConvenio, strikeChance } from './plantilla.js';
-import { tickCartilla, maybeRescue, isDomingo } from './cartilla.js';
+import { tickCartilla, maybeRescue, isDomingo, apunte } from './cartilla.js';
 import { tickBolsa, afterAudit } from './bolsa.js';
 import { addStress } from './life.js';
 import { tickMacro, macroFx } from './macro.js';
@@ -77,7 +77,7 @@ export function advanceMonth(s) {
     s.flags.domingo = s.month;
     s.familia = clamp((s.familia ?? 60) + 6);
     addStress(s, -4);
-    log(s, '🍲 Domingo de cocido en casa de tu madre: la acción de este mes se va en la sobremesa. Familia +6, estrés −4.', 'info');
+    log(s, `🍲 Domingo de cocido en casa de tu madre: la acción de este mes se va en la sobremesa. Familia +6, estrés −4. «${apunte(s, 'Cocido del domingo', 'domingo')}»`, 'info');
   }
   checkUnlocks(s);
   s.quote = pickQuote(s);
@@ -90,6 +90,11 @@ function franchiseUpdates(s, r) {
     const b = s.businesses.find((x) => x.id === line.id);
     if (!b) continue;
     b.lossMonths = line.franchiseeProfit < 0 ? (b.lossMonths || 0) + 1 : 0;
+    // Un mes de pérdidas que se le cargó por adelantar la facturación (maquillaje del trimestre).
+    if (b.extraLoss) {
+      b.lossMonths += b.extraLoss;
+      b.extraLoss = 0;
+    }
     if (b.lossMonths >= 4) {
       b.lossMonths = 0;
       s.pending.push({ kind: 'event', id: 'franquiciado_arruinado', params: { businessId: b.id, city: b.city } });
@@ -174,6 +179,7 @@ function handleOverdraft(s) {
     }
   }
   if (s.cash < 0) {
+    s.flags.bancoNo = s.month; // la póliza no da más: tu madre sí presta
     s.insolvencyMonths++;
     log(s, `🚨 Estás en descubierto y el banco no te da más. Mes ${s.insolvencyMonths} de 3 antes del concurso.`, 'bad');
   } else {
@@ -294,11 +300,12 @@ export function resolvePending(s, choiceIndex) {
   return result;
 }
 
-// La revista espera como mucho 2 cierres a que acabe «Sesenta velas» (cumpleaños, notario, cláusula).
+// La revista espera (como mucho 4 cierres) a que acabe «Sesenta velas»: cumpleaños, notario y cláusula
+// van en cierres seguidos, pero otra carta forzada puede quitarles el hueco de un mes.
 function holdForVelas(s) {
   if (!velasPending(s)) return false;
   s.flags.forbesHoldFrom ??= s.month;
-  return s.month - s.flags.forbesHoldFrom < 2;
+  return s.month - s.flags.forbesHoldFrom < 4;
 }
 
 export function checkEnding(s) {

@@ -10,6 +10,7 @@ import { LEGACY_GOAL_ORDER } from './state.js';
 import { creditLimit } from './economy.js';
 import { addCash, log, money, hito } from './helpers.js';
 import { checkClause } from './clauses.js';
+import { breaksPromise } from './cartilla.js';
 
 export const LOAN_STEP = 25000;
 export const MAX_PER_CITY = 6;
@@ -125,6 +126,7 @@ export function setPolicy(s, key, value) {
   if (key === 'reparto' && s.comite?.paz > 0 && s.comite.repartoMin && REPARTO_RANK[value] < REPARTO_RANK[s.comite.repartoMin]) {
     return { ok: false, msg: `Lo firmaste con el comité para acabar la huelga: no puedes bajarlo durante ${s.comite.paz} meses.` };
   }
+  if (s.cartilla?.firme && breaksPromise(s, key, value)) return { ok: false, msg: 'Tu madre: "Me lo prometiste, Manolo." Hasta que le devuelvas el dinero, eso no se toca.' };
   if (key === 'mantenimiento' && (s.cartilla?.owed || 0) > 0 && (s.cartilla.conds || []).includes('kevin') && value !== 'kevin') {
     return { ok: false, msg: 'Tu madre: "Kevin se queda hasta que me devuelvas lo mío."' };
   }
@@ -161,7 +163,7 @@ export function borrow(s, amount = LOAN_STEP) {
   const limit = creditLimit(s);
   const room = limit - s.debt;
   if (room <= 0) {
-    s.flags.bancoNo = true; // ahora tu madre sí presta
+    s.flags.bancoNo = s.month; // ahora tu madre sí presta (durante unos meses)
     return { ok: false, msg: 'El banco dice que no. Ni con un sobao de regalo. (Tu madre tiene una cartilla...)' };
   }
   const a = Math.min(amount, room);
@@ -213,6 +215,7 @@ export function rebrand(s) {
 export function dropMonthlyCost(s, index) {
   const x = s.extraMonthly[index];
   if (!x) return { ok: false, msg: 'Ese gasto ya no existe.' };
+  if (x.kevin) return { ok: false, msg: 'Tu madre: "Kevin se queda hasta que me devuelvas lo mío."' };
   if (x.locked) return { ok: false, msg: 'Eso no se quita con un clic: es la Seguridad Social.' };
   s.extraMonthly.splice(index, 1);
   log(s, `✂️ Quitas el gasto: ${x.label}.`, 'info');
@@ -293,13 +296,16 @@ export function goalNumber(s) {
 export function checkGoals(s) {
   s.notices ??= [];
   // Cada carril avanza por su cuenta: se repite hasta que ningún carril cumple su objetivo actual.
+  // Si se cumplen varios de golpe, un solo aviso (y nunca se pisan los avisos de otros sistemas).
+  const won = [];
   let g = currentGoals(s).find((x) => x.test(s));
   while (g) {
     const text = g.reward(s);
     log(s, `🎯 Objetivo cumplido: ${g.text} ${text}`, 'good');
-    s.notices.push({ title: 'Objetivo cumplido', text: [g.text, text].join('\n\n') });
-    if (s.notices.length > 4) s.notices.splice(0, s.notices.length - 4);
+    won.push([g.text, text].join('\n\n'));
     goalsDone(s).push(g.id);
     g = currentGoals(s).find((x) => x.test(s));
   }
+  if (won.length > 2) s.notices.push({ title: `${won.length} objetivos cumplidos`, text: won.join('\n\n—\n\n') });
+  else for (const t of won) s.notices.push({ title: 'Objetivo cumplido', text: t });
 }

@@ -2,7 +2,7 @@
 // no). La credibilidad y el sentimiento del mercado mueven lo que vale tu parte. Se puede maquillar la
 // cifra publicada, pero se revierte el trimestre siguiente y a veces se descubre.
 import { computeEconomy } from './economy.js';
-import { addFama, addRep, addHeatHacienda, addExpediente, clamp, log, money, START_YEAR, hito } from './helpers.js';
+import { addFama, addRep, addHeatHacienda, addExpediente, clamp, log, money, START_YEAR, GAME_MONTHS, hito } from './helpers.js';
 import { chance } from './rng.js';
 
 export const SENT_MIN = 0.85;
@@ -13,7 +13,7 @@ export const DISCOVER_Q = 0.08; // por maquillaje pendiente y cierre de trimestr
 export const DISCOVER_AUDIT = 0.25;
 
 export const GUIAS = {
-  prudente: { label: 'Prudente', d: -0.1, onPromise: { sent: -0.01 }, met: { cred: 2 }, fail: { cred: -5, sent: -0.03 } },
+  prudente: { label: 'Prudente', d: -0.1, onPromise: {}, met: { cred: 2, sent: 0.01 }, fail: { cred: -5, sent: -0.03 } },
   en_linea: { label: 'En línea', d: 0, onPromise: {}, met: { cred: 4, sent: 0.02 }, fail: { cred: -10, sent: -0.05 } },
   optimista: { label: 'Optimista', d: 0.1, onPromise: { fama: 2 }, met: { cred: 8, sent: 0.03 }, fail: { cred: -15, sent: -0.05 } },
   tiburon: { label: 'Modo tiburón', d: 0.25, onPromise: { fama: 4 }, met: { cred: 12, sent: 0.05 }, fail: { cred: -25, sent: -0.05, junta: true } },
@@ -60,7 +60,7 @@ const addCred = (s, d) => {
 
 // Neto real de un trimestre (con los meses ya cerrados).
 export const realQuarter = (s, qi) => s.history.filter((h) => qOf(h.month) === qi).reduce((a, h) => a + h.net, 0);
-export const publishedQuarter = (s, qi) => s.ipo?.publicados?.[qi] ?? realQuarter(s, qi);
+export const publishedQuarter = (s, qi) => s.ipo?.publicados?.[qi] ?? reportedQuarter(s, qi);
 const maqOf = (s, qi) => (s.ipo?.maquillajes || []).filter((x) => x.qi === qi).reduce((a, x) => a + x.importe, 0);
 
 // Lo que se publicará: el real, más lo maquillado este trimestre, menos lo maquillado el anterior.
@@ -78,13 +78,14 @@ export function consensus(s, qi) {
 }
 
 // Cómo va el trimestre prometido: lo cerrado, lo que se espera del mes que falta y el objetivo.
-export function quarterProgress(s) {
+// `month`: el mes que falta por cerrar (al cerrar un mes, el siguiente; en la interfaz, el actual).
+export function quarterProgress(s, month = s.month) {
   const ipo = bolsaState(s);
   if (!ipo?.q) return null;
   const qi = ipo.q.qi;
   const closed = reportedQuarter(s, qi);
   const left = 3 - s.history.filter((h) => qOf(h.month) === qi).length;
-  const est = closed + Math.max(0, left) * computeEconomy(s).net;
+  const est = closed + Math.max(0, left) * computeEconomy({ ...s, month }).net;
   return { qi, closed, est, target: ipo.q.target, ratio: ipo.q.target > 0 ? est / ipo.q.target : 1, left };
 }
 
@@ -135,19 +136,30 @@ export function tickBolsa(s) {
   const m = s.month;
   const qi = qOf(m);
   if (m % 3 === 1 && ipo.q?.qi === qi && !s.pending.some((p) => p.id === 'cierre_trimestre')) {
-    const pr = quarterProgress(s);
+    const pr = quarterProgress(s, m + 1); // el mes que falta es el siguiente (con su temporada)
     if (pr && pr.est < pr.target) s.pending.push({ kind: 'event', id: 'cierre_trimestre', params: { gap: Math.round(pr.target - pr.est) } });
   }
   if (m % 3 !== 2) return;
   const pend = ipo.maquillajes.filter((x) => !x.descubierto).length;
   if (pend && chance(s, Math.min(1, DISCOVER_Q * pend))) discover(s);
   if (ipo.q && ipo.q.qi === qi) judge(s, qi);
-  if (m >= ipo.month) {
-    const next = qi + 1;
-    const base = publishedQuarter(s, next - 4);
-    if (base <= 0) log(s, `📊 ${qLabel(next)}: el mismo trimestre del año pasado dio pérdidas, así que los analistas no esperan nada.`, 'info');
-    else s.pending.push({ kind: 'event', id: 'promesa_trimestre', params: { qi: next, base, g: consensus(s, next) } });
-  }
+  ipo.publicados[qi] ??= reportedQuarter(s, qi); // también sin promesa, para que cuente la reversión
+  // No se promete un trimestre que empieza cuando ya ha terminado la partida (salvo en modo infinito).
+  if (m >= ipo.month && (s.endless || (qi + 1) * 3 < GAME_MONTHS)) queuePromise(s, qi + 1);
+}
+
+export function queuePromise(s, next) {
+  const ipo = bolsaState(s);
+  if (!ipo || ipo.q || s.pending.some((p) => p.id === 'promesa_trimestre')) return;
+  const base = publishedQuarter(s, next - 4);
+  if (base <= 0) log(s, `📊 ${qLabel(next)}: el mismo trimestre del año pasado dio pérdidas, así que los analistas no esperan nada.`, 'info');
+  else s.pending.push({ kind: 'event', id: 'promesa_trimestre', params: { qi: next, base, g: consensus(s, next) } });
+}
+
+// Al seguir en modo infinito tras el final: la promesa del trimestre que no se hizo.
+export function resumePromises(s) {
+  if (!s.ipo) return;
+  queuePromise(s, qOf(s.month) + (s.month % 3 === 0 ? 0 : 1));
 }
 
 // Una auditoría de Hacienda puede tirar del hilo de un maquillaje.

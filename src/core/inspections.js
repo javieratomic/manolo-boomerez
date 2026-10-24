@@ -16,6 +16,17 @@ export function laborSeverity(s) {
   return v;
 }
 
+// Culpar a Paco (auditorías, informes bajistas): a la tercera vez que le culpas estando contratado, se va.
+export function blamePaco(s) {
+  if (!s.perks.gestor) return '';
+  s.flags.pacoCulpas = (s.flags.pacoCulpas ?? 0) + 1;
+  if (s.flags.pacoCulpas < 3) return '';
+  s.perks.gestor = false;
+  s.flags.pacoCulpas = 0;
+  s.flags.pacoSeFue = s.month;
+  return '\n\nPaco te deja: "A la tercera, Manolo, te defiendes tú solo." No te cogerá el teléfono en un año.';
+}
+
 // ------------------------------------------------------------- Expediente
 // Marisa (Trabajo) y Don Fermín (Hacienda) se acuerdan de todo: los trucos funcionan peor cada vez,
 // las sanciones recientes agravan la multa y la multa mira los últimos meses, no solo el de la visita.

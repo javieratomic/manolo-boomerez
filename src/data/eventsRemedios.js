@@ -3,7 +3,7 @@
 import { chance } from '../core/rng.js';
 import { addMoral, clamp, money, dateLabel } from '../core/helpers.js';
 import { addStress } from '../core/life.js';
-import { repayMama, embargar, rescue, addConfianza, owesMama, hasCond, MAMA, COND_TEXT, newCartilla, refran } from '../core/cartilla.js';
+import { repayMama, embargar, rescue, addConfianza, owesMama, hasCond, MAMA, COND_TEXT, newCartilla, apunte } from '../core/cartilla.js';
 import { LEGAL_LABOR } from './policies.js';
 
 // Las cartas aguantan que no haya cartilla (partidas viejas o el test de todas las cartas).
@@ -18,7 +18,7 @@ export const REMEDIOS_EVENTS = [
     portrait: 'portrait_madre', image: 'ev_cartilla_vence',
     text: (s) => {
       const c = cart(s);
-      return `Doña Remedios te espera en la cocina con la libreta abierta por la última página y el bastón apoyado en la mesa. Mira el reloj de pared.\n\n"Manolo, hoy hace ${c.prorroga ? 'dieciocho' : 'doce'} meses. Me debes ${money(c.owed)}. No te cobro intereses, pero tampoco me tomes el pelo."`;
+      return `Doña Remedios te espera en la cocina con la libreta abierta por la última página y el bastón apoyado en la mesa. Mira el reloj de pared.\n\n"Manolo, hoy vence lo que me pediste en ${fecha(c.condFrom ?? s.month)}. Me debes ${money(c.owed)}. No te cobro intereses, pero tampoco me tomes el pelo."`;
     },
     weight: () => 0,
     choices: [
@@ -46,7 +46,7 @@ export const REMEDIOS_EVENTS = [
           c.due = s.month + MAMA.PRORROGA;
           addConfianza(s, -10);
           s.familia = clamp((s.familia ?? 60) - 3);
-          return `"Seis meses. Ni uno más, que a mí no me quedan tantos." Lo apunta: vence en ${fecha(c.due)}. Confianza −10, familia −3.\n\n«${refran(s, 'tarde')}»`;
+          return `"Seis meses. Ni uno más, que a mí no me quedan tantos." Lo apunta: vence en ${fecha(c.due)}. Confianza −10, familia −3.\n\n«${apunte(s, 'Prórroga de seis meses', 'tarde')}»`;
         },
       },
       {
@@ -74,14 +74,15 @@ export const REMEDIOS_EVENTS = [
       {
         key: 'volver',
         label: 'Volver atrás: "Tienes razón, mamá"',
-        hint: 'Las condiciones vuelven a lo que prometiste. Confianza −10.',
+        hint: 'Las condiciones vuelven a lo que prometiste y no podrás cambiarlas mientras le debas. Confianza −10.',
         effect(s) {
           const c = cart(s);
           if (hasCond(s, 'ley')) Object.assign(s.policies, LEGAL_LABOR);
           if (hasCond(s, 'mantequilla')) s.policies.ingredientes = 'mantequilla';
           c.enfado = false;
+          c.firme = true; // ya no se puede volver a romper hasta devolverle el dinero
           addConfianza(s, -10);
-          return `"Así me gusta." Cuelga sin despedirse, que es como se despide cuando está contenta. Confianza −10.\n\n«${refran(s, 'enfado')}»`;
+          return `"Así me gusta. Y ni se te ocurra volver a las andadas mientras me debas." Cuelga sin despedirse, que es como se despide cuando está contenta. Confianza −10.\n\n«${apunte(s, 'Promesa renovada', 'enfado')}»`;
         },
       },
       {
@@ -104,7 +105,7 @@ export const REMEDIOS_EVENTS = [
           c.due = Math.min(c.due ?? Infinity, s.month + 3);
           addConfianza(s, -30);
           s.familia = clamp((s.familia ?? 60) - 10);
-          return `"¿Cosas de la empresa? La empresa la levantó tu padre con estas manos." Te lo reclama para ${fecha(c.due)}. Confianza −30, familia −10.\n\n«${refran(s, 'enfado')}»`;
+          return `"¿Cosas de la empresa? La empresa la levantó tu padre con estas manos." Te lo reclama para ${fecha(c.due)}. Confianza −30, familia −10.\n\n«${apunte(s, 'Discusión por teléfono', 'enfado')}»`;
         },
       },
     ],

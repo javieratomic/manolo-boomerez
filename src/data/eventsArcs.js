@@ -245,6 +245,7 @@ const ARC_PRENSA = [
           const { tier, fx } = prensaImpacto(s);
           advance(s, 'prensa', 3);
           s.flags.prensaFinal = 'cara';
+          s.flags.prensaFinalMonth = s.month;
           if (tier === 'bueno') {
             addRep(s, 2);
             return `Das las gracias en Radio Pas e incluso mencionas a tu padre. ${fx} Por la humildad: reputación +2.`;
@@ -261,6 +262,7 @@ const ARC_PRENSA = [
           const { tier, fx } = prensaImpacto(s);
           advance(s, 'prensa', 3);
           s.flags.prensaFinal = 'querella';
+          s.flags.prensaFinalMonth = s.month;
           addCash(s, -8000);
           addRep(s, -4);
           if (tier === 'bueno') {
@@ -278,6 +280,7 @@ const ARC_PRENSA = [
           const { fx } = prensaImpacto(s);
           advance(s, 'prensa', 3);
           s.flags.prensaFinal = 'comprado';
+          s.flags.prensaFinalMonth = s.month;
           addCash(s, -120000);
           addFama(s, 3);
           log(s, '📰 Manolo Boomerez compra "El Confidencial Pasiego". Lucía Ferrer dimite esa misma tarde.', 'news');
@@ -290,6 +293,7 @@ const ARC_PRENSA = [
           const { fx } = prensaImpacto(s);
           advance(s, 'prensa', 3);
           s.flags.prensaFinal = 'linkedin';
+          s.flags.prensaFinalMonth = s.month;
           addFama(s, 5);
           return `"Orgulloso de que los medios cuenten nuestra historia 🚀 #Resiliencia". 2.000 reacciones, casi todas de gente que no lo ha leído. ${fx} Fama +5.`;
         },
@@ -314,9 +318,11 @@ const ARC_PRENSA = [
         effect(s) {
           advance(s, 'prensa', 4);
           if (chance(s, 0.25)) {
+            s.flags.prensaJuicio = 'ganado';
             addRep(s, 3);
             return 'El juez considera "excesivo" el tono del reportaje. Ganas. No lo publica nadie, salvo tu LinkedIn. Reputación +3.';
           }
+          s.flags.prensaJuicio = 'perdido';
           fine(s, 12000);
           addRep(s, -6);
           addFama(s, 3);
@@ -328,6 +334,7 @@ const ARC_PRENSA = [
         available: (s) => s.flags.prensaFinal === 'querella',
         effect(s) {
           advance(s, 'prensa', 4);
+          s.flags.prensaJuicio = 'retirada';
           addCash(s, -3000);
           addRep(s, 3);
           return 'Pagas 3.000 € de costas y pides disculpas. La abuela de Lucía te da una palmadita: "Tu padre también era cabezota, pero rectificaba". Reputación +3.';
@@ -524,6 +531,7 @@ const ARC_JONATHAN = [
           const c = e > 0 ? 6000 + e * 6000 + (s.flags.jonDiamante ? 10000 : 0) : 0;
           advance(s, 'jonathan', 3);
           s.flags.jonFinal = 'colabora';
+          s.flags.jonFinalMonth = s.month;
           addFamilia(s, -5);
           log(s, '🚔 Operación Bizcocho: detenido Jonathan, cuñado de Manolo Boomerez. Manolo colabora con la policía.', 'news');
           if (c > 0) {
@@ -542,6 +550,7 @@ const ARC_JONATHAN = [
           const e = jonExpo(s);
           advance(s, 'jonathan', 3);
           s.flags.jonFinal = 'borra';
+          s.flags.jonFinalMonth = s.month;
           log(s, '🚔 Operación Bizcocho: detenido Jonathan, cuñado de Manolo Boomerez.', 'news');
           if (e <= 0) {
             addRep(s, -1);
@@ -561,6 +570,7 @@ const ARC_JONATHAN = [
         effect(s) {
           advance(s, 'jonathan', 3);
           s.flags.jonFinal = 'fianza';
+          s.flags.jonFinalMonth = s.month;
           s.flags.jonFianza = true;
           addCash(s, -30000);
           addFamilia(s, 12);
@@ -576,6 +586,7 @@ const ARC_JONATHAN = [
           const e = jonExpo(s);
           advance(s, 'jonathan', 3);
           s.flags.jonFinal = 'cosme';
+          s.flags.jonFinalMonth = s.month;
           addCash(s, -6000);
           if (e >= 3) fine(s, 10000);
           addRep(s, -1);

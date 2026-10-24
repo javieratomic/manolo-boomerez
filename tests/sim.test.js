@@ -10,7 +10,7 @@ import { BUSINESS_TYPES, OBRADOR_UPGRADES } from '../src/data/businesses.js';
 import { MANOLO_ACTIONS } from '../src/data/manoloActions.js';
 import { ACHIEVEMENTS } from '../src/data/achievements.js';
 import { refreshCandidates, hireExec, execBonus, fireExec } from '../src/core/execs.js';
-import { buyLujo, doIPO, companyValuation, ipoPremium, tickIPO, canIPO } from '../src/core/life.js';
+import { buyLujo, doIPO, companyValuation, ipoPremium, tickIPO, canIPO, divorce } from '../src/core/life.js';
 import { transportCost } from '../src/core/logistics.js';
 import { advice } from '../src/core/advice.js';
 import { tickRivals, rivalFactor, actOnRival, acquireRival, acquisitionPrice } from '../src/core/rivals.js';
@@ -25,11 +25,12 @@ import { netDrivers, freshEntries, upcoming, monthDigest, MAX_DRIVERS } from '..
 import { seedCode, parseSeed, isoWeekKey, weekSeed } from '../src/core/seed.js';
 import { tickAhorro, liquidacion, liquidate, strikeChance, tickComite, rollConvenio, K as PK } from '../src/core/plantilla.js';
 import { askLoan, repayEarly, canAsk, tickCartilla, refran } from '../src/core/cartilla.js';
-import { bolsaState, tickBolsa, moveSent, reportedQuarter, discover } from '../src/core/bolsa.js';
-import { epilogue, carta, cronica, MAX_VISIBLE } from '../src/core/epilogue.js';
+import { bolsaState, tickBolsa, moveSent, reportedQuarter, publishedQuarter, quarterProgress, resumePromises, discover } from '../src/core/bolsa.js';
+import { epilogue, carta, cronica, allHitos, MAX_VISIBLE } from '../src/core/epilogue.js';
 import { EPILOGUE, ARC_HITOS } from '../src/data/epilogues.js';
 import { codex } from '../src/core/codex.js';
 import { HELP_PAGES, helpChoices } from '../src/data/help.js';
+import { REFRANES } from '../src/data/refranes.js';
 import { cityAlerts } from '../src/core/mapInfo.js';
 import { layoutLabels } from '../src/render/labels.js';
 import { playGame, from } from './bot.js';
@@ -1800,13 +1801,16 @@ async function readSrc(path) {
 test('epílogo: cada bandera que lee la escribe algún suceso', async () => {
   const files = ['src/data/events.js', 'src/data/eventsArcs.js', 'src/data/eventsExtra.js', 'src/data/eventsSystems.js', 'src/data/eventsCities.js', 'src/data/eventsMacro.js',
     'src/data/eventsPlantilla.js', 'src/data/eventsRemedios.js', 'src/data/eventsBolsa.js', 'src/data/eventsVelas.js', 'src/core/actions.js', 'src/core/life.js', 'src/core/plantilla.js',
-    'src/core/cartilla.js', 'src/core/sim.js', 'src/core/execs.js', 'src/core/rivals.js', 'src/core/bolsa.js', 'src/ui/panels.js'];
+    'src/core/cartilla.js', 'src/core/sim.js', 'src/core/execs.js', 'src/core/rivals.js', 'src/core/bolsa.js', 'src/core/inspections.js', 'src/ui/panels.js', 'src/ui/app.js'];
   const all = (await Promise.all(files.map(readSrc))).join('\n');
   const written = new Set([...all.matchAll(/flags\.(\w+)\s*(?:=[^=]|\?\?=|\+\+)/g)].map((m) => m[1]));
   const epi = await readSrc('src/data/epilogues.js');
   const velas = await readSrc('src/data/eventsVelas.js');
   const read = new Set([...`${epi}\n${velas}`.matchAll(/f\(s\)\.(\w+)/g)].map((m) => m[1]));
-  for (const def of Object.values(ARC_HITOS)) read.add(def.flag);
+  for (const def of Object.values(ARC_HITOS)) {
+    read.add(def.flag);
+    if (def.monthFlag) read.add(def.monthFlag);
+  }
   for (const k of read) assert(written.has(k), `nadie escribe s.flags.${k}`);
 });
 
@@ -1821,26 +1825,28 @@ test('epílogo: partidas al azar dan una línea para cada personaje y como mucho
   }
 });
 
-test('velas: el cumpleaños sale a los 48 meses (o con 8 M€ desde el 36) y la revista espera como mucho 2 cierres', () => {
+test('velas: el cumpleaños sale cuando cumple sesenta y la revista espera como mucho 4 cierres', () => {
   const ev = EVENTS.find((e) => e.id === 'velas_1');
   const s = started();
-  s.month = 47;
-  assert(!(ev.weight(s) > 0));
-  s.month = 48;
+  s.month = PRISA_MONTH - 1;
+  s.cash = 9e6;
+  assert(!(ev.weight(s) > 0), 'ni rico antes de los sesenta');
+  s.month = PRISA_MONTH;
   assert(ev.weight(s) > 0);
-  const t = started();
-  t.month = 40;
-  t.cash = 9e6;
-  assert(ev.weight(t) > 0, 'rico a los 40');
   const u = started();
   u.month = 60;
   u.cash = 20e6;
   u.seen.velas_1 = 59;
-  assertEq(checkEnding(u), null, 'espera al notario');
-  u.month = 61;
-  assertEq(checkEnding(u), null);
-  u.month = 62;
-  assertEq(checkEnding(u), 'forbes', 'no espera más de 2 cierres');
+  for (let m = 60; m <= 63; m++) {
+    u.month = m;
+    assertEq(checkEnding(u), null, `espera al notario en el mes ${m}`);
+  }
+  u.month = 64;
+  assertEq(checkEnding(u), 'forbes', 'no espera más de 4 cierres');
+  const w = started();
+  w.month = 61;
+  w.cash = 20e6;
+  assertEq(checkEnding(w), null, 'el cumpleaños está a punto de salir');
 });
 
 test('velas: elegir heredero y cláusula quedan en la sucesión', () => {
@@ -2013,4 +2019,231 @@ test('mapa: los rótulos no se pisan y gana la prioridad', () => {
   const placed = layoutLabels(items);
   assertEq(placed.map((p) => p.id).sort().join(), 'b,c');
   for (const p of placed) for (const q of placed) if (p !== q) assert(p.box.x1 <= q.box.x0 || q.box.x1 <= p.box.x0 || p.box.y1 <= q.box.y0 || q.box.y1 <= p.box.y0);
+});
+
+// ------------------------------------------------------------- Regresiones de la revisión de la 0.4 (piezas 3, 4b, 5 y 6)
+test('regresión 0.4: Kevin se va al devolver aunque el rescate añada condiciones', () => {
+  const s = needy();
+  s.policies.mantenimiento = 'profesional';
+  askLoan(s, 20000);
+  assertEq(s.cartilla.conds[0], 'kevin');
+  s.cash = -50000;
+  pick(s, visit(s, 'cartilla_rescate', {}), 'Aceptar, con la cabeza baja');
+  assertEq([...s.cartilla.conds].sort().join(), 'kevin,ley,mantequilla', 'el rescate suma, no sustituye');
+  s.cash = 1e6;
+  repayEarly(s);
+  assert(!s.extraMonthly.some((x) => x.kevin), 'sin sueldo de Kevin');
+  assertEq(s.policies.mantenimiento, 'profesional', 'vuelve lo que tenías');
+});
+
+test('regresión 0.4: el rescate acaba con el embargo del mostrador', () => {
+  const s = needy();
+  askLoan(s, 50000);
+  pick(s, visit(s, 'cartilla_vence', {}), 'No tengo');
+  assert(s.cartilla.embargo);
+  s.cash = -60000;
+  pick(s, visit(s, 'cartilla_rescate', {}), 'Aceptar, con la cabeza baja');
+  assertEq(s.cartilla.embargo, null);
+  assert(s.cartilla.owed > 50000, 'lo embargado sigue debiéndose');
+  assertEq(computeEconomy(s).embargo || 0, 0);
+});
+
+test('regresión 0.4: tu madre presta si el banco acaba de decir que no', () => {
+  const s = needy();
+  s.cash = 100000;
+  assert(!canAsk(s).ok, 'con caja, no');
+  s.flags.bancoNo = s.month;
+  assert(canAsk(s).ok, 'el banco ha dicho que no');
+  s.month += 4;
+  assert(!canAsk(s).ok, 'eso fue hace meses');
+  s.debt = creditLimit(s);
+  assert(canAsk(s).ok, 'póliza agotada');
+  const old = JSON.parse(serialize(needy()));
+  old.flags.bancoNo = true;
+  assertEq(deserialize(JSON.stringify(old)).flags.bancoNo, undefined, 'el «para siempre» de antes se borra');
+});
+
+test('regresión 0.4: el embargo del palco le quita también el crédito', () => {
+  const s = needy();
+  s.cash = 1e6;
+  buyLujo(s, 'palco');
+  const credit = creditLimit(s);
+  s.cash = 10000;
+  askLoan(s, 50000);
+  s.cash = 0;
+  pick(s, visit(s, 'cartilla_vence', {}), 'No tengo');
+  assertEq(s.lujo.length, 0);
+  assertEq(creditLimit(s), credit - 150000);
+});
+
+test('regresión 0.4: el refranero recoge la prórroga y el cocido, y salen todos con la cartilla llena', () => {
+  const s = needy();
+  s.familia = 40;
+  askLoan(s, 20000);
+  pick(s, visit(s, 'cartilla_vence', {}), 'seis meses');
+  assertEq(s.cartilla.entradas.at(-1).concepto, 'Prórroga de seis meses');
+  s.cooldowns.trabajo = s.cooldowns.hacienda = 99;
+  for (let i = 0; i < 3; i++) {
+    s.cash = Math.max(s.cash, 50000);
+    advanceMonth(s);
+    resolveAll(s);
+  }
+  assert(s.cartilla.entradas.some((e) => e.concepto === 'Cocido del domingo'), 'el domingo deja apunte');
+  const t = needy();
+  const seen = new Set();
+  for (let i = 0; i < 40; i++) {
+    t.cartilla.apuntes = i;
+    t.cartilla.entradas = Array.from({ length: 24 }, () => ({ refran: 'x' }));
+    seen.add(refran(t, 'tarde'));
+  }
+  assertEq(seen.size, REFRANES.tarde.length, 'con la cartilla llena siguen saliendo todos');
+});
+
+test('regresión 0.4: la condición se decide con la foto del cierre, no con un cambio de última hora', () => {
+  const s = needy();
+  s.policies.salario = 'minimo';
+  tickCartilla(s, computeEconomy(s));
+  s.policies.salario = 'convenio';
+  askLoan(s, 20000);
+  assertEq(s.cartilla.conds[0], 'ley');
+});
+
+test('regresión 0.4: «Tienes razón, mamá» obliga hasta devolver; y el vencimiento no espera al enfado', () => {
+  const s = needy();
+  s.policies.salario = 'minimo';
+  askLoan(s, 20000);
+  assertEq(s.cartilla.conds[0], 'ley');
+  s.month = s.cartilla.due;
+  tickCartilla(s, computeEconomy(s));
+  assertEq(s.pending.map((p) => p.id).join(), 'cartilla_enfado,cartilla_vence', 'las dos cartas');
+  pick(s, visit(s, 'cartilla_enfado', {}), 'Volver atrás');
+  assertEq(s.policies.salario, 'convenio');
+  assert(!setPolicy(s, 'salario', 'minimo').ok, 'prometido');
+  s.cash = 1e6;
+  repayEarly(s);
+  assert(setPolicy(s, 'salario', 'minimo').ok, 'devuelto, libre');
+});
+
+test('regresión 0.4: el cierre del trimestre estima con el mes que falta', () => {
+  const s = listed();
+  s.ipo.q = { qi: 16, guia: 'en_linea', target: 1e9, base: 1 };
+  s.history.push({ month: 48, net: 100000, revenue: 0, cash: 0, patrimonio: 0, cat: {} }, { month: 49, net: 100000, revenue: 0, cash: 0, patrimonio: 0, cat: {} });
+  s.month = 49;
+  const pr = quarterProgress(s, 50);
+  assert(Math.abs(pr.est - (200000 + computeEconomy({ ...s, month: 50 }).net)) < 1e-6, `${pr.est}`);
+});
+
+test('regresión 0.4: prudente no hunde el sentimiento a la larga', () => {
+  const t = listed();
+  t.ipo.sent = 1;
+  pick(t, visit(t, 'promesa_trimestre', { qi: 16, base: 300000, g: 0 }), 'Prudente');
+  assertEq(t.ipo.sent, 1, 'prometer poco no baja nada');
+  for (let m = 48; m <= 50; m++) t.history.push({ month: m, net: 100000, revenue: 0, cash: 0, patrimonio: 0, cat: {} });
+  t.month = 50;
+  tickBolsa(t);
+  assert(t.ipo.lastResult.ok && Math.abs(t.ipo.sent - 1.01) < 1e-9, `sentimiento ${t.ipo.sent}`);
+});
+
+test('regresión 0.4: no se promete un trimestre después del final, salvo en modo infinito', () => {
+  const s = listed(100000, 96);
+  tickBolsa(s);
+  assert(!s.pending.some((p) => p.id === 'promesa_trimestre'), 'la partida acaba');
+  s.month = 96;
+  s.endless = true;
+  resumePromises(s);
+  assertEq(s.pending.find((p) => p.id === 'promesa_trimestre')?.params.qi, 32);
+});
+
+test('regresión 0.4: lo publicado sin promesa ya lleva el maquillaje', () => {
+  const s = listed();
+  s.ipo.maquillajes = [{ qi: 14, tipo: 'gastos', importe: 50000, descubierto: false }];
+  assertEq(publishedQuarter(s, 14), reportedQuarter(s, 14));
+  assertEq(publishedQuarter(s, 15), 250000, 'y la reversión del siguiente');
+});
+
+test('regresión 0.4: adelantar la facturación suma un mes de pérdidas que no se borra al cerrar', () => {
+  const s = started();
+  s.cash = 1e6;
+  openBusiness(s, 'express', 'bilbao', 'franquicia');
+  const b = s.businesses.find((x) => x.mode === 'franquicia');
+  assert(b, 'franquicia abierta');
+  s.lastReport = computeEconomy(s);
+  s.ipo = { month: 0, float: 0.25, valuation: 1e7, price: 100, peak: 100, angryMonth: -99 };
+  bolsaState(s);
+  pick(s, visit(s, 'cierre_trimestre', { gap: 1000 }), 'Adelantar');
+  s.cooldowns.trabajo = s.cooldowns.hacienda = 99;
+  advanceMonth(s);
+  assert(b.lossMonths >= 1, `meses de pérdidas ${b.lossMonths}`);
+  assertEq(b.extraLoss, 0);
+});
+
+test('regresión 0.4: culpar a Paco en un informe bajista cuenta igual que en una auditoría', () => {
+  const s = listed();
+  s.perks.gestor = true;
+  s.flags.pacoCulpas = 2;
+  pick(s, visit(s, 'informe_bajista', { n: 1 }), 'Culpar a Paco');
+  assert(!s.perks.gestor && s.flags.pacoSeFue === s.month, 'a la tercera se va');
+});
+
+test('regresión 0.4: la junta cuenta su causa y sus opciones mueven el sentimiento', () => {
+  const s = listed();
+  s.ipo.sent = 0.9;
+  s.cash = 1e6;
+  const p = visit(s, 'junta_accionistas', {});
+  assert(p.text.includes('sentimiento'), p.text);
+  pick(s, p, 'dividendo');
+  assert(Math.abs(s.ipo.sent - 0.93) < 1e-9, `sentimiento ${s.ipo.sent}`);
+});
+
+test('regresión 0.4: el divorcio y la marcha de Vanessa los sacan del testamento', () => {
+  const s = started();
+  s.sucesion = { heir: 'merche' };
+  divorce(s, 0.5);
+  assertEq(s.sucesion.heir, 'nadie');
+  const t = started();
+  t.sucesion = { heir: 'vanessa' };
+  pick(t, visit(t, 'vanessa_vuelve', {}), 'Cuando tengas tu empresa');
+  assertEq(t.sucesion.heir, 'nadie');
+});
+
+test('regresión 0.4: el epílogo usa la cláusula y el resultado de la querella; el convenio no sale dos veces', () => {
+  const s = started();
+  s.sucesion = { heir: 'kevin', clausula: 'dubai' };
+  assert(epilogue(s).some((p) => p.text.includes('Dubái')));
+  s.flags.prensaFinal = 'querella';
+  s.flags.prensaJuicio = 'ganado';
+  s.flags.prensaFinalMonth = 40;
+  assert(epilogue(s).some((p) => p.text.includes('Perdió el juicio')));
+  assertEq(allHitos(s).find((h) => h.id === 'prensa:querella').m, 40);
+  s.hitos = [{ id: 'convenio', m: 14 }];
+  s.flags.comiteFin = 'firmado';
+  s.flags.comiteMonth = 14;
+  assertEq(allHitos(s).filter((h) => /convenio/i.test(h.label)).length, 1);
+});
+
+test('regresión 0.4: la cadena de velas va en cierres seguidos', () => {
+  const s = started();
+  s.month = 60;
+  s.seen.velas_1 = 60;
+  assert(EVENTS.find((e) => e.id === 'velas_2').weight(s) > 0, 'el notario, en el cierre siguiente');
+});
+
+test('regresión 0.4: los 50 empleados van justo después del primer directivo', () => {
+  const eq = GOALS.filter((g) => g.lane === 'equipo').map((g) => g.id);
+  assertEq(eq.slice(0, 2).join(), 'directivo,cincuenta');
+});
+
+test('regresión 0.4: varios objetivos de golpe dan un solo aviso y no borran los demás', () => {
+  const s = started();
+  s.cash = 1e6;
+  for (const c of ['bilbao', 'santander', 'oviedo']) openBusiness(s, 'express', c);
+  s.cash = 1.2e6;
+  s.history.push({ month: 0, net: 1000, revenue: 1, cash: 0, patrimonio: 0, cat: {} });
+  s.lastReport = { ...computeEconomy(s), net: 1000 };
+  s.goalsDone = [];
+  s.notices = [1, 2, 3, 4].map((i) => ({ title: `otro ${i}`, text: '' }));
+  checkGoals(s);
+  assert(s.goalsDone.length >= 3, `cumplidos ${s.goalsDone.length}`);
+  assertEq(s.notices.filter((n) => n.title.startsWith('otro')).length, 4, 'los avisos de otros sistemas siguen');
+  assertEq(s.notices.filter((n) => /objetivo/i.test(n.title)).length, 1, 'un solo aviso');
 });

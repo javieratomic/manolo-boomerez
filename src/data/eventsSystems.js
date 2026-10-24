@@ -1,4 +1,5 @@
 // Sucesos ligados a sistemas: competencia y directivos.
+import { moveSent } from '../core/bolsa.js';
 import { chance } from '../core/rng.js';
 import { addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addMod, money } from '../core/helpers.js';
 import { RIVALS } from './rivals.js';
@@ -250,7 +251,12 @@ export const SYSTEM_EVENTS = [
     id: 'junta_accionistas',
     title: 'Junta de accionistas furiosa',
     portrait: 'portrait_banquero', image: 'ev_junta',
-    text: (s) => `La acción de Boomerez S.A. ha caído a ${Math.round(s.ipo?.price ?? 0)} € (salió a 100 €). En la junta, un fondo inglés pide tu cabeza y un jubilado de Torrelavega te tira un sobao.`,
+    text: (s) => {
+      const ipo = s.ipo || {};
+      const cause = (ipo.sent ?? 1) <= 0.9 ? `Los analistas han perdido la fe en Boomerez S.A. (sentimiento ×${(ipo.sent ?? 1).toFixed(2).replace('.', ',')})` : 'Has fallado la promesa en modo tiburón';
+      const price = (ipo.price ?? 100) < (ipo.peak ?? 100) ? ` y la acción ha caído a ${Math.round(ipo.price)} €` : '';
+      return `${cause}${price}. En la junta, un fondo inglés pide tu cabeza y un jubilado de Torrelavega te tira un sobao.`;
+    },
     weight: () => 0,
     choices: [
       {
@@ -259,15 +265,20 @@ export const SYSTEM_EVENTS = [
           const d = Math.max(50000, Math.round(Math.max(0, s.cash) * 0.15));
           addCash(s, -d);
           if (s.ipo) s.ipo.price *= 1.12;
-          return `Repartes ${money(d)} entre los accionistas. La acción rebota un 12 %. El jubilado te pide perdón por lo del sobao.`;
+          moveSent(s, 0.03);
+          return `Repartes ${money(d)} entre los accionistas. La acción rebota un 12 % y el mercado se calma un poco (sentimiento +0,03). El jubilado te pide perdón por lo del sobao.`;
         },
       },
       {
         label: 'Prometer un "plan estratégico 2030"',
         effect(s) {
           addFama(s, 2);
-          if (s.ipo) s.ipo.price *= chance(s, 0.5) ? 1.06 : 0.94;
-          return 'Presentas 84 diapositivas con la palabra "sinergias". Nadie entiende nada; la acción se mueve al azar.';
+          const good = chance(s, 0.5);
+          if (s.ipo) {
+            s.ipo.price *= good ? 1.06 : 0.94;
+            s.ipo.cred = Math.max(0, Math.min(100, (s.ipo.cred ?? 50) + (good ? 5 : -5)));
+          }
+          return `Presentas 84 diapositivas con la palabra "sinergias". ${good ? 'A los analistas les gusta (credibilidad +5).' : 'Los analistas no se lo creen (credibilidad −5).'} Fama +2.`;
         },
       },
       {
@@ -275,7 +286,8 @@ export const SYSTEM_EVENTS = [
         effect(s) {
           addRep(s, -3);
           if (s.ipo) s.ipo.price *= 0.95;
-          return 'Los accionistas no votan en España. La acción cae otro 5 %. Reputación −3.';
+          moveSent(s, -0.02);
+          return 'Los accionistas no votan en España. La acción cae otro 5 % y el mercado lo toma como una excusa (sentimiento −0,02). Reputación −3.';
         },
       },
     ],

@@ -15,7 +15,8 @@ function weightOf(s, portrait) {
 export function epilogue(s) {
   const out = EPILOGUE.map((c) => {
     const line = c.lines.find((l) => !l.when || l.when(s));
-    return { who: c.who, name: c.name, portrait: c.portrait, text: line.text, always: !!c.always, weight: weightOf(s, c.portrait) + (c.always ? 1000 : 0) };
+    const text = typeof line.text === 'function' ? line.text(s) : line.text;
+    return { who: c.who, name: c.name, portrait: c.portrait, text, always: !!c.always, weight: weightOf(s, c.portrait) + (c.always ? 1000 : 0) };
   });
   return out.sort((a, b) => b.weight - a.weight);
 }
@@ -25,7 +26,12 @@ export function allHitos(s) {
   const list = (s.hitos || []).filter((h) => HITOS[h.id]).map((h) => ({ id: h.id, m: h.m, label: HITOS[h.id].label, peso: HITOS[h.id].peso }));
   for (const [arc, def] of Object.entries(ARC_HITOS)) {
     const v = s.flags?.[def.flag];
-    if (v && def.label[v]) list.push({ id: `${arc}:${v}`, m: s.flags[`${arc}Month`] ?? s.month, label: def.label[v], peso: def.peso });
+    if (!v || !def.label[v]) continue;
+    const m = s.flags[def.monthFlag] ?? s.flags[`${arc}Month`] ?? s.month;
+    // El convenio del arco y el hito «convenio» son lo mismo: una sola entrada, con el nombre del arco.
+    const dup = arc === 'comite' && ['firmado', 'cedido'].includes(v) && list.find((h) => h.id === 'convenio' && Math.abs(h.m - m) <= 1);
+    if (dup) dup.label = def.label[v];
+    else list.push({ id: `${arc}:${v}`, m, label: def.label[v], peso: def.peso });
   }
   return list;
 }

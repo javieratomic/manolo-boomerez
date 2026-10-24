@@ -2,12 +2,14 @@
 // propia cláusula, como hizo Don Anselmo. Tres cartas forzadas, una vez cada una.
 import { addFama, addMoral, addRep, addHeatHacienda, clamp, hito } from '../core/helpers.js';
 import { addStress } from '../core/life.js';
-import { patrimonio } from '../core/economy.js';
+import { PRISA_MONTH } from './clauses.js';
+import { addConfianza } from '../core/cartilla.js';
 
 const f = (s) => s.flags || {};
 const legalLabor = (s) => s.policies.salario === 'convenio' && s.policies.horas === 'pagadas' && s.policies.becarios === 'ninguno';
 const sucesion = (s) => (s.sucesion ||= { heir: null, execName: null, clausula: null, m: null });
-const seenAgo = (s, id, months) => s.seen?.[id] != null && s.month - s.seen[id] >= months;
+// La carta siguiente sale en el cierre posterior a resolver la anterior (resolvePending apunta el mes ya avanzado).
+const after = (s, id) => s.seen?.[id] != null && s.month >= s.seen[id];
 // El mejor directivo que no sea un enchufado (con nivel 2 o más).
 function bestExec(s) {
   return Object.values(s.execs || {}).filter((e) => e.trait !== 'enchufado' && (e.skill ?? 0) >= 2).sort((a, b) => (b.skill ?? 0) - (a.skill ?? 0))[0] || null;
@@ -33,7 +35,8 @@ export const VELAS_EVENTS = [
     title: 'Sesenta velas',
     portrait: 'portrait_manolo_happy', image: 'ev_velas_cumple',
     text: (s) => `Manolo cumple sesenta. Restaurante del pueblo, tarta con sesenta velas y globos dorados con forma de 6 y de 0.\n\n${invitados(s)}\n\nToca soplar y decir unas palabras.`,
-    weight: (s) => (s.seen?.velas_1 == null && s.month <= 90 && (s.month >= 48 || (s.month >= 36 && patrimonio(s) >= 8e6)) ? 1 : 0),
+    // Manolo empieza con 55 años: cumple sesenta en el mes 60 (enero de 2031).
+    weight: (s) => (s.seen?.velas_1 == null && s.month >= PRISA_MONTH && s.month <= 90 ? 1 : 0),
     once: true, forced: true,
     choices: [
       {
@@ -79,7 +82,7 @@ export const VELAS_EVENTS = [
     title: 'El notario de Villacarriedo, otra vez',
     portrait: 'portrait_padre_anselmo', image: 'ev_velas_notario',
     text: () => 'La misma notaría donde leyeron el testamento de tu padre. El mismo notario, con treinta años más y las mismas gafas. Su retrato de Don Anselmo sigue en la pared, mirándote.\n\n"Don Manuel, a cierta edad conviene dejar las cosas atadas. ¿A quién deja usted el imperio Boomerez?"',
-    weight: (s) => (seenAgo(s, 'velas_1', 1) && s.seen?.velas_2 == null ? 1 : 0),
+    weight: (s) => (after(s, 'velas_1') && s.seen?.velas_2 == null ? 1 : 0),
     once: true, forced: true,
     choices: [
       {
@@ -92,7 +95,7 @@ export const VELAS_EVENTS = [
           hito(s, 'heredero');
           addMoral(s, 10);
           s.agravio = clamp((s.agravio || 0) - 10);
-          return 'Lo firmas: el día que faltes, la empresa será de quien la amasa. Maripili se entera esa misma tarde y no dice nada; solo te trae un café. Moral +10.';
+          return 'Lo firmas: el día que faltes, la empresa será de quien la amasa. Maripili se entera esa misma tarde y no dice nada; solo te trae un café. Moral +10, agravio −10.';
         },
       },
       {
@@ -135,13 +138,13 @@ export const VELAS_EVENTS = [
       {
         key: 'kevin',
         label: 'A Kevin, tu sobrino',
-        hint: 'Tu madre estará encantada. El resto, no.',
+        hint: 'Tu madre estará encantada (confianza +10). El resto, no: reputación −2.',
         effect(s) {
           Object.assign(sucesion(s), { heir: 'kevin', m: s.month });
           hito(s, 'heredero');
-          if (s.cartilla) s.cartilla.confianza = clamp(s.cartilla.confianza + 10);
+          addConfianza(s, 10);
           addRep(s, -2);
-          return 'El notario se quita las gafas, las limpia y te pregunta si estás seguro. Tu madre, en cambio, te llama para darte las gracias. Reputación −2.';
+          return 'El notario se quita las gafas, las limpia y te pregunta si estás seguro. Tu madre, en cambio, te llama para darte las gracias. Confianza de tu madre +10, reputación −2.';
         },
       },
       {
@@ -162,7 +165,7 @@ export const VELAS_EVENTS = [
     title: 'La cláusula de Manolo',
     portrait: 'portrait_manolo_thinking', image: 'ev_velas_clausula',
     text: (s) => `Antes de firmar, el notario te recuerda la cláusula que tu padre escribió a mano en el margen.\n\n"¿Quiere usted añadir la suya, Don Manuel?" Te ofrece la pluma.${sucesion(s).heir && sucesion(s).heir !== 'nadie' ? '' : '\n\n(Aunque no haya heredero, la cláusula queda escrita.)'}`,
-    weight: (s) => (seenAgo(s, 'velas_2', 1) && s.seen?.velas_3 == null ? 1 : 0),
+    weight: (s) => (after(s, 'velas_2') && s.seen?.velas_3 == null ? 1 : 0),
     once: true, forced: true,
     choices: [
       {
@@ -205,7 +208,8 @@ export const VELAS_EVENTS = [
 // La revista de millonarios espera (como mucho 2 cierres) si el cumpleaños ya ha empezado.
 export function velasPending(s) {
   if (s.pending.some((p) => /^velas_/.test(p.id))) return true;
-  return s.seen?.velas_1 != null && s.seen?.velas_3 == null;
+  if (s.seen?.velas_1 == null) return s.month >= PRISA_MONTH && s.month <= 90; // está a punto de salir
+  return s.seen?.velas_3 == null;
 }
 
 export const HEIR_LABEL = (s) => ({

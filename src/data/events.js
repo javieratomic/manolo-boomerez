@@ -9,7 +9,7 @@ import {
   addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addExpediente, addMod, addMonthlyCost, log, money, custom, clamp, hito,
 } from '../core/helpers.js';
 import { addStress } from '../core/life.js';
-import { laborVisitParams, DELITO_FISCAL, dossier, trickOdds, trickCount, recordTrick, recordSanction, recidivism, recentSanctions, clearRecord } from '../core/inspections.js';
+import { laborVisitParams, blamePaco, DELITO_FISCAL, dossier, trickOdds, trickCount, recordTrick, recordSanction, recidivism, recentSanctions, clearRecord } from '../core/inspections.js';
 import { LEGAL_LABOR } from './policies.js';
 import { BUSINESS_TYPES } from './businesses.js';
 import { CITY_BY_ID } from './cities.js';
@@ -411,15 +411,8 @@ const BASE_EVENTS = [
           const ok = chance(s, odds);
           s.evaded = 0;
           addHeatHacienda(s, -40);
-          let paco = '';
           // Paco solo cuenta las veces que le has culpado estando contratado.
-          if (s.perks.gestor) s.flags.pacoCulpas = (s.flags.pacoCulpas ?? 0) + 1;
-          if (s.perks.gestor && s.flags.pacoCulpas >= 3) {
-            s.perks.gestor = false;
-            s.flags.pacoCulpas = 0;
-            s.flags.pacoSeFue = s.month;
-            paco = '\n\nPaco te deja: "A la tercera, Manolo, te defiendes tú solo." No te cogerá el teléfono en un año.';
-          }
+          const paco = blamePaco(s);
           if (ok) {
             pay(s, p.debt);
             return `"Yo de números no entiendo, eso lo llevaba Paco." Cuela. Pagas solo la cuota: ${money(p.debt)}.${!paco && s.perks.gestor ? ' Paco no te habla en una semana.' : ''}${paco}`;
@@ -1535,7 +1528,9 @@ const BASE_EVENTS = [
         effect(s) {
           addMoral(s, -3);
           s.flags.vanessaRival = true;
-          return 'Vanessa se va... a montar una cooperativa de repostería con tres de tus mejores pasteleras. Moral −3.';
+          const heir = s.sucesion?.heir === 'vanessa';
+          if (heir) s.sucesion.heir = 'nadie';
+          return `Vanessa se va... a montar una cooperativa de repostería con tres de tus mejores pasteleras. Moral −3.${heir ? ' Y, de paso, sale de tu testamento.' : ''}`;
         },
       },
     ],

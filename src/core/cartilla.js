@@ -2,6 +2,8 @@
 // intereses, pero con condiciones (lo que Manolo hace mal) y con un refrán en cada apunte. Sin azar.
 import { addMonthlyCost, addRep, addFama, clamp, log, money, hito } from './helpers.js';
 import { REFRANES } from '../data/refranes.js';
+import { LUJO_BY_ID } from '../data/lujo.js';
+import { creditLimit } from './economy.js';
 
 export const MAMA = {
   START: { cunado: 160000, normal: 120000, hacienda: 90000 },
@@ -49,10 +51,13 @@ export const addConfianza = (s, d) => {
 };
 
 // La condición apunta a lo que Manolo hace mal, en este orden.
+// Mira cómo estaba todo al cerrar el último mes (así no se elige condición cambiando una política un clic).
 export function chooseCond(s) {
-  if (!legalLabor(s)) return 'ley';
-  if (s.policies.ingredientes !== 'mantequilla') return 'mantequilla';
-  if ((s.familia ?? 60) < 50 || s.flags.divorciado) return 'domingos';
+  const pol = s.cartilla?.polCierre || s.policies;
+  const familia = s.cartilla?.familiaCierre ?? s.familia ?? 60;
+  if (!(pol.salario === 'convenio' && pol.horas === 'pagadas' && pol.becarios === 'ninguno')) return 'ley';
+  if (pol.ingredientes !== 'mantequilla') return 'mantequilla';
+  if (familia < 50 || s.flags.divorciado) return 'domingos';
   return 'kevin';
 }
 
@@ -64,6 +69,9 @@ export function breaksPromise(s, key, value) {
   return false;
 }
 export const promiseBroken = (s) => (hasCond(s, 'ley') && !legalLabor(s)) || (hasCond(s, 'mantequilla') && s.policies.ingredientes !== 'mantequilla');
+
+// El banco ha dicho que no hace poco (o la póliza está agotada ahora mismo).
+export const bancoNo = (s) => (typeof s.flags.bancoNo === 'number' && s.month - s.flags.bancoNo <= 3) || s.debt >= creditLimit(s);
 
 export const maxLoan = (s) => Math.floor(Math.min(s.cartilla.saldo, (s.cartilla.saldo * s.cartilla.confianza) / 100) / 10000) * 10000;
 
@@ -77,24 +85,29 @@ export function canAsk(s) {
     return { ok: false, msg: c.vetoMotivo === 'respiro' ? `"Acabas de devolvérmelo, Manolo. Déjame respirar." No presta hasta dentro de ${n} ${n === 1 ? 'mes' : 'meses'}.` : `Después del embargo, tu madre no presta hasta dentro de ${n} ${n === 1 ? 'mes' : 'meses'}.` };
   }
   if (c.confianza < MAMA.MIN_CONF) return { ok: false, msg: 'Tu madre ya no se fía de ti (confianza por debajo de 30).' };
-  if (s.cash >= MAMA.NEED_CASH && !s.flags.bancoNo) return { ok: false, msg: `Tu madre solo presta si de verdad lo necesitas (caja por debajo de ${money(MAMA.NEED_CASH)}) o si el banco te ha dicho que no.` };
+  if (s.cash >= MAMA.NEED_CASH && !bancoNo(s)) return { ok: false, msg: `Tu madre solo presta si de verdad lo necesitas (caja por debajo de ${money(MAMA.NEED_CASH)}) o si el banco te ha cerrado el grifo (póliza agotada).` };
   if (maxLoan(s) < 10000) return { ok: false, msg: 'A tu madre no le queda casi nada en la cartilla.' };
   return { ok: true, max: maxLoan(s) };
 }
 
-// Refrán del apunte: sin azar y sin repetir el último.
+// Refrán del apunte: sin azar y sin repetir el último. Cuenta todos los apuntes (la cartilla solo enseña los
+// 24 últimos), para que vayan saliendo todos.
 export function refran(s, ctx) {
   const list = REFRANES[ctx] || REFRANES.pedir;
   const c = s.cartilla;
   const last = c.entradas.at(-1)?.refran;
-  let i = c.entradas.length % list.length;
+  let i = (c.apuntes ?? c.entradas.length) % list.length;
   if (list[i] === last) i = (i + 1) % list.length;
   return list[i];
 }
 
+// Apunte sin dinero (prórroga, enfado, cocido...): también deja su refrán en la cartilla.
+export const apunte = (s, concepto, ctx) => entry(s, concepto, 0, 0, ctx);
+
 function entry(s, concepto, debe, haber, ctx) {
   const c = s.cartilla;
   const r = refran(s, ctx);
+  c.apuntes = (c.apuntes ?? c.entradas.length) + 1;
   c.entradas.push({ m: s.month, concepto, debe: Math.round(debe), haber: Math.round(haber), saldo: Math.round(c.saldo), refran: r });
   if (c.entradas.length > 24) c.entradas.shift();
   return r;
@@ -102,20 +115,22 @@ function entry(s, concepto, debe, haber, ctx) {
 
 function applyConds(s) {
   if (!hasCond(s, 'kevin')) return;
+  s.cartilla.mantPrev = s.policies.mantenimiento; // se devuelve cuando se va Kevin
   s.policies.mantenimiento = 'kevin';
   s.flags.kevinJefe = true;
   addMonthlyCost(s, KEVIN_LABEL, MAMA.KEVIN_WAGE);
   Object.assign(s.extraMonthly[s.extraMonthly.length - 1], { locked: true, kevin: true });
 }
 
+// Al devolver se va cualquier rastro de Kevin, aunque otra condición haya sustituido a la suya.
 function releaseConds(s) {
   const c = s.cartilla;
-  if ((c.conds || []).includes('kevin')) {
-    s.extraMonthly = s.extraMonthly.filter((x) => !x.kevin);
-    s.policies.mantenimiento = 'manitas';
-  }
+  const hadKevin = s.extraMonthly.some((x) => x.kevin);
+  s.extraMonthly = s.extraMonthly.filter((x) => !x.kevin);
+  if (hadKevin && s.policies.mantenimiento === 'kevin') s.policies.mantenimiento = c.mantPrev && c.mantPrev !== 'kevin' ? c.mantPrev : 'manitas';
   c.conds = [];
   c.enfado = false;
+  c.firme = false;
 }
 
 export function askLoan(s, amount) {
@@ -183,6 +198,8 @@ export function embargar(s) {
   if (lujo && lujo.value >= c.owed / 2) {
     const take = Math.min(lujo.value, c.owed);
     s.lujo = s.lujo.filter((x) => x !== lujo);
+    const def = LUJO_BY_ID[lujo.id];
+    if (def?.credit) s.creditBonus -= def.credit; // como al venderlo: el banco ya no lo cuenta
     c.owed -= take;
     c.saldo += take;
     text = `Doña Remedios se lleva ${lujo.id === 'yate' ? 'el yate' : 'tu capricho más caro'} (${money(lujo.value)}) y lo descuenta de la cartilla.`;
@@ -209,6 +226,7 @@ export function embargar(s) {
 export function tickCartilla(s, r) {
   const c = s.cartilla;
   if (!c) return;
+  snapshotCartilla(s);
   c.saldo += MAMA.PENSION;
   if (s.perks.fundacion) addConfianza(s, 0.2);
   if (c.embargo) {
@@ -229,9 +247,15 @@ export function tickCartilla(s, r) {
   if (promiseBroken(s) && !c.enfado && !queued('cartilla_enfado')) {
     c.enfado = true;
     s.pending.push({ kind: 'event', id: 'cartilla_enfado' });
-  } else if (c.due != null && s.month >= c.due && !queued('cartilla_vence')) {
-    s.pending.push({ kind: 'event', id: 'cartilla_vence' });
   }
+  if (c.due != null && s.month >= c.due && !queued('cartilla_vence')) s.pending.push({ kind: 'event', id: 'cartilla_vence' });
+}
+
+// Cómo estaba todo al cerrar el mes (para elegir la condición del próximo préstamo).
+export function snapshotCartilla(s) {
+  if (!s.cartilla) return;
+  s.cartilla.polCierre = { ...s.policies };
+  s.cartilla.familiaCierre = s.familia ?? 60;
 }
 
 // Una vez por partida: con dos meses en descubierto, tu madre se presenta en el banco.
@@ -256,7 +280,8 @@ export function rescue(s, casa = false) {
   c.owed += a;
   c.due = s.month + MAMA.RESCUE_TERM;
   c.prorroga = false;
-  c.conds = ['ley', 'mantequilla'];
+  c.embargo = null; // lo que quedaba del embargo pasa a ser parte del rescate
+  c.conds = [...new Set([...(c.conds || []), 'ley', 'mantequilla'])];
   c.condFrom = s.month;
   c.prestamos++;
   c.rescatado = true;

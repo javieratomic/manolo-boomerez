@@ -3,6 +3,7 @@
 import { chance } from '../core/rng.js';
 import { addRep, addHeatHacienda, money, moneyShort } from '../core/helpers.js';
 import { GUIAS, promise, qLabel, qOf, moveSent, bolsaState, quarterProgress } from '../core/bolsa.js';
+import { blamePaco } from '../core/inspections.js';
 
 const pct = (x) => `${(x * 100).toFixed(0)} %`;
 // Las cartas aguantan que no se cotice (p. ej. en el test de todas las cartas).
@@ -74,7 +75,7 @@ export const BOLSA_EVENTS = [
           const qi = ipo.q?.qi ?? qOf(s.month);
           const fr = (s.lastReport?.lines || []).filter((l) => l.franchise).reduce((a, l) => a + l.revenue, 0);
           ipo.maquillajes.push({ qi, tipo: 'franquicias', importe: Math.round(fr), descubierto: false });
-          for (const b of s.businesses) if (b.mode === 'franquicia') b.lossMonths = (b.lossMonths || 0) + 1;
+          for (const b of s.businesses) if (b.mode === 'franquicia') b.extraLoss = (b.extraLoss || 0) + 1;
           return `Facturas por adelantado ${money(fr)} a los franquiciados "por la campaña que viene". Ellos pagan con cara de pocos amigos. Lo publicado sube; la caja, no.`;
         },
       },
@@ -127,10 +128,10 @@ export const BOLSA_EVENTS = [
       {
         key: 'paco',
         label: 'Culpar a Paco',
-        hint: 'Paco se lo apunta (cuenta como una culpa más).',
+        hint: (s) => (s.perks.gestor ? `Cuenta como una culpa más (${s.flags.pacoCulpas ?? 0}/3: a la tercera, Paco se va).` : 'No tienes gestor: nadie se lo cree.'),
         effect(s) {
-          if (s.perks.gestor) s.flags.pacoCulpas = (s.flags.pacoCulpas ?? 0) + 1;
-          return '"Las cuentas las hacía mi gestor." Paco te mira por encima de las gafas y apunta algo en una libreta.';
+          const paco = blamePaco(s);
+          return `"Las cuentas las hacía mi gestor." Paco te mira por encima de las gafas y apunta algo en una libreta.${paco}`;
         },
       },
     ],

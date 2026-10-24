@@ -1,6 +1,6 @@
 // Controlador principal de la interfaz.
 import { $, esc, showModal, toast, confirmModal, isModalOpen } from './dom.js';
-import { TABS, renderCity, renderEmpire, renderMarket, renderStaff, renderFinance, renderManolo, renderNews, drawChart, drawCategoryChart, manoloMood, renderWhy, whyTitle, renderEpilogue } from './panels.js';
+import { TABS, renderCity, renderEmpire, renderMarket, renderStaff, renderFinance, renderManolo, renderNews, drawChart, drawCategoryChart, manoloMood, renderWhy, whyTitle, renderEpilogue, setArchivoOpen } from './panels.js';
 import { macroFx } from '../core/macro.js';
 import { MapView } from '../render/mapView.js';
 import { initAssets, imageUrl, hasArt } from '../render/assets.js';
@@ -22,6 +22,8 @@ import { RIVALS } from '../data/rivals.js';
 import { clauseStatus, clauseWarn } from '../core/clauses.js';
 import { monthDigest, fmtDelta } from '../core/digest.js';
 import { askLoan, repayEarly } from '../core/cartilla.js';
+import { collectRefranes } from './refranero.js';
+import { resumePromises } from '../core/bolsa.js';
 import { cityAlerts, ALERT_EMOJI } from '../core/mapInfo.js';
 import { buyLujo, sellLujo, doIPO, IPO_FLOAT } from '../core/life.js';
 import { LUJO_BY_ID } from '../data/lujo.js';
@@ -167,6 +169,7 @@ function startGame(s) {
 function renderAll() {
   const s = game.s;
   if (!s) return;
+  if (s.cartilla) s.flags.refranero = collectRefranes(s.cartilla.entradas.map((e) => e.refran));
   renderHUD(s);
   renderTabs();
   renderPanel(s);
@@ -289,7 +292,7 @@ function renderGoal(s) {
   const narrow = window.matchMedia('(max-width: 860px)').matches;
   const lines = narrow && sorted.length > 1 && !game.goalsOpen
     ? `${goalLine(s, sorted[0])}<button type="button" class="goal-more" data-act="goals-more">+${sorted.length - 1}</button>`
-    : goals.map((g) => goalLine(s, g)).join('');
+    : goals.map((g) => goalLine(s, g)).join('') + (narrow && sorted.length > 1 ? '<button type="button" class="goal-more" data-act="goals-more">−</button>' : '');
   el.innerHTML = `${goals.length ? `<span class="goal-kicker">🎯 Objetivos · ${done}/${GOALS.length}</span>${lines}` : ''}${clause}`;
 }
 
@@ -319,6 +322,10 @@ function bindGlobal() {
   document.addEventListener('pointerdown', () => game.s && startMusic(), { passive: true });
   document.addEventListener('click', onClick);
   document.addEventListener('change', onChange);
+  document.addEventListener('toggle', (e) => {
+    const d = e.target;
+    if (d instanceof HTMLDetailsElement && d.dataset.folder && d.open) setArchivoOpen(d.dataset.folder);
+  }, true);
   $('#end-month').addEventListener('click', endMonth);
   $('#manolo-box').addEventListener('click', () => {
     game.tab = 'manolo';
@@ -532,7 +539,7 @@ async function onClick(e) {
     case 'hud-more':
       return showModal({ title: 'Indicadores', kicker: 'Imperio Boomerez', html: `<div class="hud-sheet">${hudItems(s)}</div>`, dismissable: true, choices: [{ label: 'Cerrar', primary: true }] });
     case 'goals-more':
-      game.goalsOpen = true;
+      game.goalsOpen = !game.goalsOpen;
       renderGoal(s);
       return;
     case 'explain':
@@ -825,6 +832,7 @@ async function showEnding(id) {
   if (i === 2) {
     s.ending = null;
     s.endless = true;
+    resumePromises(s);
     log(s, '♾️ Manolo decide que jubilarse es de pobres. Modo infinito activado.', 'info');
     renderAll();
     return;

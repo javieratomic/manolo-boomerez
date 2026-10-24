@@ -128,6 +128,7 @@ export function migrate(s) {
   for (const x of s.extraMonthly || []) if (x.label === 'Aplazamiento con la Seguridad Social') x.ss = true;
   // 0.4: claves anidadas que el bucle de abajo no rellena.
   if (s.dossier) s.dossier.ahorro ||= [];
+  if (s.flags?.bancoNo === true) delete s.flags.bancoNo; // antes era para siempre
   s.stats.liquidado ??= 0;
   s.stats.huelgas ??= 0;
   const d = newGame(s.seed, s.difficulty || 'normal');

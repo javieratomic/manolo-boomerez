@@ -99,6 +99,10 @@ export function tickLife(s) {
 export function divorce(s, share) {
   if (s.cartilla) s.cartilla.confianza = Math.max(0, s.cartilla.confianza - 30); // «Merche era como una hija para mí»
   hito(s, 'divorcio');
+  if (s.sucesion?.heir === 'merche') {
+    s.sucesion.heir = 'nadie';
+    log(s, '📜 Merche sale del testamento junto con el chalet.', 'info');
+  }
   const cashPart = Math.max(0, s.cash) * share;
   addCash(s, -cashPart);
   const kept = [];

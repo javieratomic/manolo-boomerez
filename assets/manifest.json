@@ -2133,54 +2133,66 @@
       "file": "assets/ui/icon_cash.png",
       "w": 64,
       "h": 64,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/07_interfaz.md#icon_cash"
+      "request": "art/requests/07_interfaz.md#icon_cash",
+      "version": 1,
+      "notes": "Icono 2.5D de 64×64, transparencia RGBA comprobada e inspección a tamaño nativo."
     },
     {
       "id": "icon_debt",
       "file": "assets/ui/icon_debt.png",
       "w": 64,
       "h": 64,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/07_interfaz.md#icon_debt"
+      "request": "art/requests/07_interfaz.md#icon_debt",
+      "version": 1,
+      "notes": "Icono 2.5D de 64×64, transparencia RGBA comprobada e inspección a tamaño nativo."
     },
     {
       "id": "icon_patrimonio",
       "file": "assets/ui/icon_patrimonio.png",
       "w": 64,
       "h": 64,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/07_interfaz.md#icon_patrimonio"
+      "request": "art/requests/07_interfaz.md#icon_patrimonio",
+      "version": 1,
+      "notes": "Icono 2.5D de 64×64, transparencia RGBA comprobada e inspección a tamaño nativo."
     },
     {
       "id": "icon_rep",
       "file": "assets/ui/icon_rep.png",
       "w": 64,
       "h": 64,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/07_interfaz.md#icon_rep"
+      "request": "art/requests/07_interfaz.md#icon_rep",
+      "version": 1,
+      "notes": "Icono 2.5D de 64×64, transparencia RGBA comprobada e inspección a tamaño nativo."
     },
     {
       "id": "icon_moral",
       "file": "assets/ui/icon_moral.png",
       "w": 64,
       "h": 64,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/07_interfaz.md#icon_moral"
+      "request": "art/requests/07_interfaz.md#icon_moral",
+      "version": 1,
+      "notes": "Icono 2.5D de 64×64, transparencia RGBA comprobada e inspección a tamaño nativo."
     },
     {
       "id": "icon_fama",
       "file": "assets/ui/icon_fama.png",
       "w": 64,
       "h": 64,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/07_interfaz.md#icon_fama"
+      "request": "art/requests/07_interfaz.md#icon_fama",
+      "version": 1,
+      "notes": "Icono 2.5D de 64×64, transparencia RGBA comprobada e inspección a tamaño nativo."
     },
     {
       "id": "icon_inspeccion",

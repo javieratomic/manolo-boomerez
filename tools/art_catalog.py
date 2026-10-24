@@ -346,7 +346,7 @@ def merge_extra():
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import importlib
     extra = []
-    for name in ("art_events_extra", "art_content_extra2", "art_04", "art_06"):
+    for name in ("art_events_extra", "art_content_extra2", "art_04", "art_06", "art_08"):
         try:
             extra += importlib.import_module(name).ART
         except ImportError:

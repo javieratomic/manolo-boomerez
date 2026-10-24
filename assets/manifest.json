@@ -2197,6 +2197,21 @@
       "notes": "Generado con image_gen, inspeccionado; PNG 256×256 transparente, base centrada en (128,240)."
     },
     {
+      "id": "bld_urbanizacion",
+      "file": "assets/buildings/bld_urbanizacion.png",
+      "w": 256,
+      "h": 256,
+      "status": "done",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#bld_urbanizacion",
+      "anchor": [
+        128,
+        240
+      ],
+      "version": 1,
+      "notes": "Diez chalets inspeccionados; PNG transparente 256x256, base centrada en (128,240)."
+    },
+    {
       "id": "end_bancarrota",
       "file": "assets/endings/end_bancarrota.png",
       "w": 1280,

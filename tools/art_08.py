@@ -1,0 +1,2 @@
+"""Urbanizaciones residenciales de la versión 0.8."""
+ART=[dict(id='bld_urbanizacion',file='assets/buildings/bld_urbanizacion.png',w=256,h=256,anchor=[128,240],priority=2,prompt='Urbanización de diez chalets: dos filas de cinco, estuco crema, tejados de terracota, setos verdes y pequeña calle privada. Diorama 2.5D isométrico 2:1, luz cálida superior izquierda, transparente, base centrada en (128,240), sin texto.')]

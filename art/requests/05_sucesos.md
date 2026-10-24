@@ -1131,3 +1131,11 @@ Boomerez Telecom: central compacta moderna con torre de antenas y platos satéli
 - **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
 
 Boomerez Logística: almacén verde y crema con dos muelles de carga, cajas y una furgoneta naranja diminuta, sin marcas. Diorama 2.5D isométrico 2:1, luz cálida superior izquierda, PNG transparente, base centrada en (128,240), sin texto.
+
+## bld_urbanizacion
+
+- **Archivo:** `assets/buildings/bld_urbanizacion.png`
+- **Tamaño:** 256×256 px · **ancla:** (128, 240)
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Urbanización de diez chalets: dos filas de cinco, estuco crema, tejados de terracota, setos verdes y pequeña calle privada. Diorama 2.5D isométrico 2:1, luz cálida superior izquierda, transparente, base centrada en (128,240), sin texto.

@@ -1748,54 +1748,66 @@
       "file": "assets/events/ev_ciudad_pamplona.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_pamplona"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_pamplona",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_valencia",
       "file": "assets/events/ev_ciudad_valencia.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_valencia"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_valencia",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_sevilla",
       "file": "assets/events/ev_ciudad_sevilla.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_sevilla"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_sevilla",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_marbella",
       "file": "assets/events/ev_ciudad_marbella.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_marbella"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_marbella",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_bilbao",
       "file": "assets/events/ev_ciudad_bilbao.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_bilbao"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_bilbao",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_barcelona",
       "file": "assets/events/ev_ciudad_barcelona.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_barcelona"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_barcelona",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_madrid",

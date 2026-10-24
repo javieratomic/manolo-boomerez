@@ -97,3 +97,39 @@ test('DOM: mantener una tecla no cierra el resultado ni elige en la carta siguie
     }
   }
 });
+
+test('DOM: Tab y Mayús-Tab mantienen el foco dentro del diálogo', async () => {
+  const el = root();
+  const done = showModal({ title: 'Foco dentro del diálogo', choices: [{ label: 'Primera' }, { label: 'Última' }] });
+  await wait(380);
+  const buttons = el.lastElementChild.querySelectorAll('button');
+  try {
+    buttons[0].focus();
+    buttons[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true }));
+    assertEq(document.activeElement, buttons[1], 'Mayús-Tab vuelve a la última opción');
+    buttons[1].dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+    assertEq(document.activeElement, buttons[0], 'Tab vuelve a la primera opción');
+  } finally {
+    buttons[0].click();
+    await done;
+    await wait(180);
+  }
+});
+
+test('DOM: al cerrar se devuelve el foco al control que abrió el diálogo', async () => {
+  const el = root();
+  const origin = document.createElement('button');
+  origin.textContent = 'Abrir diálogo';
+  document.body.appendChild(origin);
+  origin.focus();
+  const done = showModal({ title: 'Devolver el foco' });
+  await wait(380);
+  el.lastElementChild.querySelector('button').click();
+  await done;
+  try {
+    assertEq(document.activeElement, origin);
+  } finally {
+    origin.remove();
+    await wait(180);
+  }
+});

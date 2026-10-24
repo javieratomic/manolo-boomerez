@@ -8,7 +8,7 @@
 
 ## Validación de la continuación
 
-- 173/173 tests de simulación en Node; 177/177 en `tests/index.html`, incluidos los del DOM real.
+- 184/184 tests de simulación en Node; 190/190 en `tests/index.html`, incluidos los del DOM real.
 - Playwright con Edge, a 1365×900 y 375×812: elecciones rápidas, contador de diálogos, bocadillo,
   edad y continuación en modo infinito comprobados. La promesa se muestra y se puede cerrar el mes.
 - Sintaxis de los módulos comprobada. Importación de `src/ui/app.js` en Node con `globalThis.window = {}`
@@ -29,6 +29,19 @@
 - Detectada y corregida la repetición automática de teclas: mantener `1` o Intro podía descartar el
   resultado y seguir eligiendo cartas. Regresión DOM para ambas teclas, resultado y carta siguiente;
   falló antes de la corrección. Revisión independiente sin hallazgos importantes.
+
+### Importaciones y navegación por teclado
+
+- Un JSON con negocio desconocido se aceptaba hasta `startGame`: sustituía la partida abierta y luego
+  fallaba al renderizar. `deserialize` comprueba ahora catálogos, estructuras, importes finitos y cuentas
+  antes de devolver el estado; la migración rellena las estadísticas ausentes antes de utilizarlas.
+- Once casos nuevos de importación: referencias desconocidas, importes/mes inválidos, estructuras
+  anidadas rotas y recuperación de estadísticas antiguas. Las doce partidas y sus 1.066 comprobaciones
+  siguen cargando correctamente.
+- Playwright en móvil (375×812): cuatro archivos dañados conservan la misma partida y el mismo guardado;
+  el archivo válido se importa (semilla 7, mes 12), sin errores ni desbordamiento horizontal.
+- Tab/Mayús-Tab ya no escapan de los diálogos; al cerrar vuelve el foco al control de origen. Dos
+  regresiones de DOM reproducían los fallos antes de corregirlos.
 
 > Para el agente de **código** (Claude u otro). El agente de arte (Codex) puede ignorar este fichero.
 > Escrito el 24-10-2026 sobre `main` en `6dd4109`, más el commit que lo añade.

@@ -234,6 +234,38 @@ test('guardar y cargar conserva la partida', () => {
   assertEq(patrimonio(copy), patrimonio(s));
 });
 
+for (const [name, damage] of [
+  ['tipo de negocio desconocido', (s) => { s.businesses[0].type = 'desconocido'; }],
+  ['ciudad desconocida', (s) => { s.businesses[0].city = 'desconocida'; }],
+  ['política desconocida', (s) => { s.policies.salario = 'desconocido'; }],
+  ['suceso pendiente desconocido', (s) => { s.pending = [{ kind: 'event', id: 'desconocido' }]; }],
+  ['mes negativo', (s) => { s.month = -1; }],
+  ['caja de texto', (s) => { s.cash = 'ochenta mil'; }],
+  ['importe no finito', (s) => { s.cash = null; }],
+  ['mejoras del obrador rotas', (s) => { s.obrador.upgrades = null; }],
+  ['modificador roto', (s) => { s.mods = [null]; }],
+  ['historial roto', (s) => { s.history = [null]; }],
+]) {
+  test(`importación: rechaza ${name} antes de cargar la partida`, () => {
+    const s = started(9);
+    assert(openBusiness(s, 'express', 'zaragoza').ok);
+    damage(s);
+    let rejected = false;
+    try { deserialize(serialize(s)); } catch { rejected = true; }
+    assert(rejected, 'el archivo debe rechazarse antes de sustituir el estado visible');
+  });
+}
+
+test('importación: migra una partida antigua sin estadísticas antes de rellenarlas', () => {
+  const s = started(9);
+  s.version = 1;
+  delete s.stats;
+  const loaded = deserialize(serialize(s));
+  assertEq(loaded.stats.inspecciones, 0);
+  assertEq(loaded.stats.liquidado, 0);
+  assert(Number.isFinite(computeEconomy(loaded).net));
+});
+
 test('la simulación es determinista con la misma semilla', () => {
   const a = playGame(123, { choice: 'random', diversify: true });
   const b = playGame(123, { choice: 'random', diversify: true });

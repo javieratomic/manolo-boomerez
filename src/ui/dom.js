@@ -42,6 +42,7 @@ const choiceButtons = (choices) =>
 export function showModal(opts) {
   return new Promise((resolve) => {
     const root = $('#modal-root');
+    const previousFocus = document.activeElement;
     const wrap = document.createElement('div');
     wrap.className = 'modal-backdrop';
     let choices = opts.choices?.length ? opts.choices : [{ label: 'Continuar', primary: true }];
@@ -72,6 +73,7 @@ export function showModal(opts) {
       setTimeout(() => wrap.remove(), 160);
       modalOpen--;
       lastClose = performance.now();
+      if (previousFocus?.isConnected && !previousFocus.closest('.closing')) previousFocus.focus({ preventScroll: true });
       resolve(i);
     };
     const close = (i) => {
@@ -95,6 +97,21 @@ export function showModal(opts) {
     };
     const onKey = (e) => {
       if (wrap !== root.lastElementChild) return;
+      if (e.key === 'Tab') {
+        const focusable = [...wrap.querySelectorAll('button, a[href], input, select, textarea, [tabindex]')]
+          .filter((el) => !el.disabled && el.tabIndex >= 0 && el.getClientRects().length);
+        const first = focusable[0];
+        const last = focusable.at(-1);
+        const outside = !wrap.contains(document.activeElement);
+        if (e.shiftKey && (document.activeElement === first || outside)) {
+          e.preventDefault();
+          last?.focus({ preventScroll: true });
+        } else if (!e.shiftKey && (document.activeElement === last || outside)) {
+          e.preventDefault();
+          first?.focus({ preventScroll: true });
+        }
+        return;
+      }
       const n = parseInt(e.key, 10);
       // Una tecla mantenida puede seguir repitiéndose tras cambiar de resultado o de carta.
       if (e.repeat && ((n >= 1 && n <= choices.length) || e.key === 'Enter' || e.key === 'Escape')) {

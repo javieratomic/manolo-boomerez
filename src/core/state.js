@@ -1,7 +1,10 @@
-import { DEFAULT_POLICIES } from '../data/policies.js';
+import { DEFAULT_POLICIES, POLICIES } from '../data/policies.js';
+import { BUSINESS_TYPES } from '../data/businesses.js';
+import { CITY_BY_ID } from '../data/cities.js';
+import { EVENT_BY_ID } from '../data/events.js';
 import { clauseForSeed } from '../data/clauses.js';
 import { newCartilla } from './cartilla.js';
-import { grossPatrimonio } from './economy.js';
+import { grossPatrimonio, computeEconomy } from './economy.js';
 
 export const SAVE_KEY = 'manolo-boomerez-save-v1';
 export const SAVE_VERSION = 2;
@@ -113,6 +116,8 @@ export function migrate(s) {
   // Las partidas empezadas sin cláusula no heredan una a mitad.
   if (!('clausula' in s)) s.clausula = null;
   if (!('gameVersion' in s)) s.gameVersion = '0.2';
+  const d = newGame(s.seed, s.difficulty || 'normal');
+  for (const [k, v] of Object.entries(d)) if (!(k in s)) s[k] = v;
   // En modo infinito la partida ya terminó: una cláusula sin cumplir queda cerrada.
   if (s.endless && s.clausula && !s.clausula.done && !s.clausula.broken) s.clausula.closed = true;
   if (s.lastReport && s.lastReport.debt == null) s.lastReport.debt = s.debt;
@@ -131,8 +136,6 @@ export function migrate(s) {
   if (s.flags?.bancoNo === true) delete s.flags.bancoNo; // antes era para siempre
   s.stats.liquidado ??= 0;
   s.stats.huelgas ??= 0;
-  const d = newGame(s.seed, s.difficulty || 'normal');
-  for (const [k, v] of Object.entries(d)) if (!(k in s)) s[k] = v;
   s.policies = { ...DEFAULT_POLICIES, ...s.policies };
   s.version = SAVE_VERSION;
   return s;
@@ -144,10 +147,55 @@ export function serialize(state) {
 
 export function deserialize(text) {
   const s = JSON.parse(text);
-  if (!s || typeof s !== 'object' || !(s.version >= 1 && s.version <= SAVE_VERSION) || !Array.isArray(s.businesses)) {
+  if (!s || typeof s !== 'object' || !Number.isInteger(s.version) || !(s.version >= 1 && s.version <= SAVE_VERSION) || !Array.isArray(s.businesses)) {
     throw new Error('Partida incompatible');
   }
-  return migrate(s);
+  const ready = migrate(s);
+  // Un JSON válido todavía puede contener una partida rota. Se valida antes de que la interfaz
+  // sustituya la partida abierta o escriba el guardado automático.
+  const defaults = newGame(ready.seed, ready.difficulty);
+  const invalid = () => { throw new Error('Partida incompatible'); };
+  const checkShape = (actual, template) => {
+    for (const [key, value] of Object.entries(template)) {
+      if (typeof value === 'number' && !Number.isFinite(actual[key])) invalid();
+      if (Array.isArray(value) && !Array.isArray(actual[key])) invalid();
+      if (value && typeof value === 'object' && !Array.isArray(value) && key !== 'clausula') {
+        if (!actual[key] || typeof actual[key] !== 'object' || Array.isArray(actual[key])) invalid();
+        checkShape(actual[key], value);
+      }
+    }
+  };
+  checkShape(ready, defaults);
+  const checkData = (value) => {
+    if (typeof value === 'number' && !Number.isFinite(value)) invalid();
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        if (item == null) invalid();
+        checkData(item);
+      }
+    } else if (value && typeof value === 'object') {
+      for (const child of Object.values(value)) checkData(child);
+    }
+  };
+  checkData(ready);
+  if (!Number.isInteger(ready.month) || ready.month < 0) invalid();
+  for (const [key, value] of Object.entries(ready.policies)) {
+    if (!Object.hasOwn(POLICIES, key) || !Object.hasOwn(POLICIES[key].options, value)) invalid();
+  }
+  const businessIds = new Set();
+  for (const business of ready.businesses) {
+    if (!business || !Object.hasOwn(BUSINESS_TYPES, business.type) || !Object.hasOwn(CITY_BY_ID, business.city) ||
+      !Number.isFinite(business.value) || !Number.isInteger(business.id) || businessIds.has(business.id) ||
+      (business.mode != null && !['propia', 'franquicia'].includes(business.mode))) invalid();
+    businessIds.add(business.id);
+  }
+  for (const pending of ready.pending) {
+    if (!pending || !Object.hasOwn(EVENT_BY_ID, pending.id)) invalid();
+  }
+  // También comprueba las estructuras variables (modificadores, directivos, contratos...) que
+  // intervienen en las cuentas, sin avanzar el mes ni cambiar el estado del azar.
+  if (!Number.isFinite(computeEconomy(ready).net)) invalid();
+  return ready;
 }
 
 export function saveToStorage(state) {

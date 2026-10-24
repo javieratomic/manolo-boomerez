@@ -42,6 +42,8 @@
   mapa; la pulsación que cierra un diálogo ya no cierra también el mes.
 - Mantener pulsado un número o Intro no descarta el resultado de una carta ni elige en la siguiente:
   hace falta una pulsación nueva.
+- Los diálogos mantienen el foco al recorrerlos con Tab y Mayús-Tab y lo devuelven al control de origen
+  al cerrarse.
 
 ### Técnica y calidad
 - La estimación de aperturas ya no clona la partida: el bot va 3,8 veces más rápido, con las mismas partidas.
@@ -56,6 +58,8 @@
   procesa sus promesas; la retirada respeta el bloqueo bursátil; las velas tienen prioridad; la cartilla,
   las causas de juntas y los herederos conservan un estado coherente. Edad actual y bocadillo corregidos.
 - Las semillas de la 0.3 no reproducen las mismas partidas en la 0.4 (`GAME_VERSION`).
+- Las importaciones comprueban catálogos, estructuras y cuentas antes de aceptar el archivo: un guardado
+  dañado no sustituye la partida abierta. Las partidas antiguas sin estadísticas se rellenan al migrar.
 
 ## 0.3.0 — Decisiones con memoria
 

@@ -1946,54 +1946,66 @@
       "file": "assets/events/ev_ciudad_murcia.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_murcia"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_murcia",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_alicante",
       "file": "assets/events/ev_ciudad_alicante.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_alicante"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_alicante",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_salamanca",
       "file": "assets/events/ev_ciudad_salamanca.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_salamanca"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_salamanca",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_oviedo",
       "file": "assets/events/ev_ciudad_oviedo.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_oviedo"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_oviedo",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_vitoria",
       "file": "assets/events/ev_ciudad_vitoria.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_vitoria"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_vitoria",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_selaya",
       "file": "assets/events/ev_ciudad_selaya.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_selaya"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_selaya",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "end_bancarrota",

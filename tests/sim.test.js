@@ -31,6 +31,7 @@ import { EPILOGUE, ARC_HITOS } from '../src/data/epilogues.js';
 import { codex } from '../src/core/codex.js';
 import { HELP_PAGES, helpChoices } from '../src/data/help.js';
 import { REFRANES } from '../src/data/refranes.js';
+import { resultSnapshot, isMinorResult } from '../src/core/results.js';
 import { cityAlerts } from '../src/core/mapInfo.js';
 import { layoutLabels } from '../src/render/labels.js';
 import { playGame, from } from './bot.js';
@@ -2246,4 +2247,25 @@ test('regresión 0.4: varios objetivos de golpe dan un solo aviso y no borran lo
   assert(s.goalsDone.length >= 3, `cumplidos ${s.goalsDone.length}`);
   assertEq(s.notices.filter((n) => n.title.startsWith('otro')).length, 4, 'los avisos de otros sistemas siguen');
   assertEq(s.notices.filter((n) => /objetivo/i.test(n.title)).length, 1, 'un solo aviso');
+});
+
+test('resultados: los menores van a un toast y lo serio siempre a ventana', () => {
+  const s = started();
+  s.cash = 100000;
+  s.pending = [{ kind: 'event', id: 'x' }];
+  const before = resultSnapshot(s);
+  s.pending = [];
+  const after = () => resultSnapshot(s);
+  assert(isMinorResult('cena_cunado', 'Jonathan se calla. Fama +1.', before, after()), 'corto y sin efecto');
+  assert(!isMinorResult('inspeccion_trabajo', 'Nada.', before, after()), 'una inspección, siempre');
+  assert(!isMinorResult('cartilla_vence', 'Nada.', before, after()), 'la cartilla, siempre');
+  assert(!isMinorResult('cena_cunado', 'x'.repeat(141), before, after()), 'texto largo');
+  s.rep += 5;
+  assert(!isMinorResult('cena_cunado', 'Reputación +5.', before, after()), 'un indicador se mueve 5');
+  s.rep -= 5;
+  s.cash -= 2000;
+  assert(!isMinorResult('cena_cunado', 'Pagas 2.000 €.', before, after()), 'caja: 2 % o 2.000 €');
+  s.cash += 2000;
+  s.pending = [{ kind: 'event', id: 'y' }];
+  assert(!isMinorResult('cena_cunado', 'Y ahora otra carta.', before, after()), 'deja otra carta');
 });

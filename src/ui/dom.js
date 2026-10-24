@@ -18,18 +18,34 @@ export const paragraphs = (text) =>
     .join('');
 
 let modalOpen = 0;
+let lastClose = -Infinity;
 export const isModalOpen = () => modalOpen > 0;
+// Para no cerrar el mes con la misma pulsación que cierra un diálogo.
+export const msSinceModal = () => performance.now() - lastClose;
+
+const choiceButtons = (choices) =>
+  choices
+    .map(
+      (c, i) => `<button class="choice ${c.primary ? 'primary' : ''} ${c.danger ? 'danger' : ''}" data-i="${i}">
+        <span class="choice-key">${i + 1}</span>
+        <span class="choice-text"><strong>${esc(c.label)}</strong>${c.hint ? `<small>${esc(c.hint)}</small>` : ''}</span>
+      </button>`,
+    )
+    .join('');
 
 /**
  * Muestra un modal y resuelve con el índice de la opción elegida.
- * opts: { title, kicker?, image?, portrait?, html?, text?, choices: [{label, hint?, primary?, danger?}], wide?, dismissable? }
+ * opts: { title, kicker?, image?, portrait?, html?, text?, choices: [{label, hint?, primary?, danger?}], wide?, dismissable?, followUp? }
+ * `followUp(i)`: al elegir, devuelve `{ text }` para enseñar el resultado en el mismo diálogo (con un
+ * «Continuar») o nada para cerrarlo ya. La promesa se resuelve con la opción elegida.
  */
 export function showModal(opts) {
   return new Promise((resolve) => {
     const root = $('#modal-root');
     const wrap = document.createElement('div');
     wrap.className = 'modal-backdrop';
-    const choices = opts.choices?.length ? opts.choices : [{ label: 'Continuar', primary: true }];
+    let choices = opts.choices?.length ? opts.choices : [{ label: 'Continuar', primary: true }];
+    let picked = null;
     wrap.innerHTML = `
       <div class="modal ${opts.wide ? 'wide' : ''} ${opts.className || ''}" role="dialog" aria-modal="true" aria-label="${esc(opts.title)}">
         ${opts.image ? `<div class="modal-image"><img src="${imageUrl(opts.image)}" alt=""></div>` : ''}
@@ -42,25 +58,34 @@ export function showModal(opts) {
             </div>
           </div>
           <div class="modal-body">${opts.html ?? paragraphs(opts.text || '')}</div>
-          <div class="modal-choices">
-            ${choices
-              .map(
-                (c, i) => `<button class="choice ${c.primary ? 'primary' : ''} ${c.danger ? 'danger' : ''}" data-i="${i}">
-                  <span class="choice-key">${i + 1}</span>
-                  <span class="choice-text"><strong>${esc(c.label)}</strong>${c.hint ? `<small>${esc(c.hint)}</small>` : ''}</span>
-                </button>`,
-              )
-              .join('')}
-          </div>
+          <div class="modal-choices">${choiceButtons(choices)}</div>
         </div>
       </div>`;
     modalOpen++;
-    const close = (i) => {
+    const finish = (i) => {
       document.removeEventListener('keydown', onKey, true);
       wrap.classList.add('closing');
       setTimeout(() => wrap.remove(), 160);
       modalOpen--;
+      lastClose = performance.now();
       resolve(i);
+    };
+    const close = (i) => {
+      if (picked != null) return finish(picked);
+      const res = opts.followUp && i >= 0 ? opts.followUp(i) : null;
+      if (!res?.text) return finish(i);
+      // El resultado sustituye al texto y a las opciones, sin otro fondo ni otra animación.
+      picked = i;
+      choices = [{ label: 'Continuar', primary: true }];
+      const kicker = wrap.querySelector('.kicker');
+      if (kicker) kicker.textContent = 'Resultado';
+      const body = wrap.querySelector('.modal-body');
+      body.setAttribute('aria-live', 'polite');
+      body.innerHTML = `<p class="picked">${esc(opts.choices[i]?.label ?? '')}</p>${paragraphs(res.text)}`;
+      body.scrollTop = 0;
+      wrap.querySelector('.modal-choices').innerHTML = choiceButtons(choices);
+      wrap.querySelector('.modal-content')?.scrollTo?.(0, 0);
+      wrap.querySelector('button.choice')?.focus({ preventScroll: true });
     };
     const onKey = (e) => {
       if (wrap !== root.lastElementChild) return;

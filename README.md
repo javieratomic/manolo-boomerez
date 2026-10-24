@@ -27,7 +27,8 @@ En Windows también puedes hacer doble clic en `jugar.bat`. La partida se guarda
 menú (☰) se puede exportar a un archivo e importar en otro dispositivo.
 
 **Controles:** clic o toque en una ciudad para abrir negocios · arrastrar para mover el mapa · rueda o
-pellizco para el zoom · `Espacio` cierra el mes · `1`-`6` cambia de pestaña · `1`-`4` elige opción en las cartas.
+pellizco para el zoom (en el móvil, tocar dos ciudades juntas acerca el mapa) · `Espacio` cierra el mes ·
+`1`-`7` cambia de pestaña · `1`-`4` elige opción en las cartas · `,` y `.` recorren las ciudades con alerta.
 
 ## Cómo funciona
 

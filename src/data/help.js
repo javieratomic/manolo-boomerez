@@ -47,7 +47,7 @@ export const HELP_PAGES = [
         <li>🎂 A los sesenta, Manolo elegirá <b>heredero</b> ante el notario.</li>
         <li>🏁 <b>Finales:</b> concurso de acreedores, Soto del Real, la cooperativa, Pyme con ínfulas, Tiburón Pasiego (5 M€ al acabar) o la revista de millonarios (15 M€). Al final verás qué fue de cada uno.</li>
       </ul>
-      <p>⌨️ Atajos: <b>Espacio</b> cierra el mes, <b>1-7</b> cambia de pestaña y <b>1-4</b> elige opción en las cartas.</p>`,
+      <p>⌨️ Atajos: <b>Espacio</b> cierra el mes, <b>1-7</b> cambia de pestaña, <b>1-4</b> elige opción en las cartas y <b>,</b> <b>.</b> recorren las ciudades con alerta.</p>`,
   },
 ];
 

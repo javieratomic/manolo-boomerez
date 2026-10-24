@@ -11,6 +11,7 @@ import { layoutLabels } from './labels.js';
 
 const reducedMotion = () => !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 const PULSE_MS = 1500;
+const PAIR_PX = 30; // dos ciudades a menos de esto del dedo: el toque acerca en vez de elegir
 const LEVEL_RING = { 3: '#e74c3c', 2: '#f39c12', 1: '#95a5a6' };
 
 const SLOTS = [[0, -8], [-32, 4], [32, 4], [-16, 18], [16, 18], [0, 30]];
@@ -124,6 +125,14 @@ export class MapView {
     return best;
   }
 
+  // Ciudades a menos de `px` píxeles de pantalla del punto.
+  citiesNear(sx, sy, px) {
+    return CITIES.filter((c) => {
+      const q = this.cityPos[c.id];
+      return Math.hypot(q.x * this.cam.z + this.cam.x - sx, q.y * this.cam.z + this.cam.y - sy) <= px;
+    }).map((c) => c.id);
+  }
+
   bindInput() {
     const cv = this.canvas;
     let drag = null;
@@ -184,6 +193,12 @@ export class MapView {
       if (this.pointers.size < 2) pinch = null;
       if (drag && !drag.moved && e.type === 'pointerup') {
         const badge = this.badges.find((b) => Math.hypot(b.x - p.x, b.y - p.y) <= b.r + 6);
+        // Con el dedo y el mapa casi entero, si caen dos ciudades bajo el dedo, primero se acerca (×2,2).
+        if (!badge && e.pointerType !== 'mouse' && this.cam.z < this.fitZ * 1.35 && this.citiesNear(p.x, p.y, PAIR_PX).length >= 2) {
+          this.zoomAt(p.x, p.y, 2.2);
+          drag = null;
+          return;
+        }
         const id = badge?.city || this.cityAt(p.x, p.y);
         if (id) {
           this.select(id);

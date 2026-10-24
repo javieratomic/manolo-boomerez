@@ -33,6 +33,11 @@
   «reducir movimiento». **Accesibilidad**: «Ir a…», resumen del mes para lectores de pantalla y avisos
   anunciados.
 - Ayuda en cinco páginas; el consejo urgente de Paco en la pestaña Ciudad.
+- **Menos ventanas**: el resultado de una carta sale en el mismo diálogo, y los resultados menores (texto
+  corto, poco efecto y sin carta nueva) van a un aviso y al registro; inspecciones, auditorías, huelgas, la
+  cartilla y lo que mueva la caja siempre se enseñan. La acción de Manolo va a su bocadillo hasta el cierre.
+- Teclas `,` y `.` para recorrer las ciudades con alerta; en el móvil, tocar dos ciudades juntas acerca el
+  mapa; la pulsación que cierra un diálogo ya no cierra también el mes.
 
 ### Técnica y calidad
 - La estimación de aperturas ya no clona la partida: el bot va 3,8 veces más rápido, con las mismas partidas.

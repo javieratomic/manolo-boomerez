@@ -1,5 +1,5 @@
 // Controlador principal de la interfaz.
-import { $, esc, showModal, toast, confirmModal, isModalOpen } from './dom.js';
+import { $, esc, showModal, toast, confirmModal, isModalOpen, msSinceModal } from './dom.js';
 import { TABS, renderCity, renderEmpire, renderMarket, renderStaff, renderFinance, renderManolo, renderNews, drawChart, drawCategoryChart, manoloMood, renderWhy, whyTitle, renderEpilogue, setArchivoOpen } from './panels.js';
 import { macroFx } from '../core/macro.js';
 import { MapView } from '../render/mapView.js';
@@ -21,6 +21,7 @@ import { hireExec, fireExec, refreshCandidates, execOf, severance } from '../cor
 import { RIVALS } from '../data/rivals.js';
 import { clauseStatus, clauseWarn } from '../core/clauses.js';
 import { monthDigest, fmtDelta } from '../core/digest.js';
+import { resultSnapshot, isMinorResult } from '../core/results.js';
 import { askLoan, repayEarly } from '../core/cartilla.js';
 import { collectRefranes } from './refranero.js';
 import { resumePromises } from '../core/bolsa.js';
@@ -314,7 +315,9 @@ async function showNotices() {
 
 function renderManoloBox(s) {
   $('#manolo-portrait').src = imageUrl(`portrait_manolo_${manoloMood(s)}`);
-  $('#manolo-bubble').textContent = s.quote || '';
+  const b = game.bubble?.month === s.month ? game.bubble.text : null;
+  $('#manolo-bubble').textContent = b || s.quote || '';
+  $('#manolo-bubble').classList.toggle('action', !!b);
 }
 
 // ------------------------------------------------------------------ Acciones
@@ -335,10 +338,15 @@ function bindGlobal() {
   document.addEventListener('keydown', (e) => {
     if (!game.s || $('#game').hidden || isModalOpen()) return;
     if (e.target.matches('input, textarea, select')) return;
-    // Con un botón o enlace enfocado, Espacio/Intro lo pulsan a él, no cierran el mes.
+    // Con un botón o enlace enfocado, Espacio/Intro lo pulsan a él, no cierran el mes. Y la pulsación que
+    // acaba de cerrar un diálogo tampoco (400 ms).
     if ((e.code === 'Space' || e.key === 'Enter') && !e.target.closest('button, a, summary')) {
       e.preventDefault();
-      endMonth();
+      if (msSinceModal() >= 400) endMonth();
+    }
+    if (e.key === ',' || e.key === '.') {
+      e.preventDefault();
+      cycleAlerts(e.key === '.' ? 1 : -1);
     }
     const idx = '1234567'.indexOf(e.key);
     if (idx >= 0 && !e.ctrlKey && !e.metaKey) {
@@ -346,6 +354,29 @@ function bindGlobal() {
       renderAll();
     }
   });
+}
+
+// Teclas , y .: la ciudad con alerta anterior o siguiente (en el orden de la lista de ciudades).
+function cycleAlerts(dir) {
+  const s = game.s;
+  const alerts = cityAlerts(s);
+  const ids = Object.keys(CITY_BY_ID).filter((id) => alerts[id]?.length);
+  if (!ids.length) {
+    toast('Ninguna ciudad con alertas en el mapa.', 'info');
+    return;
+  }
+  const k = ids.indexOf(game.city);
+  const id = ids[k < 0 ? (dir > 0 ? 0 : ids.length - 1) : (k + dir + ids.length) % ids.length];
+  game.city = id;
+  game.tab = 'ciudad';
+  game.map.select(id);
+  game.map.focusCity(id);
+  renderAll();
+  document.body.classList.add('panel-open');
+  const a = alerts[id][0];
+  const text = `${CITY_BY_ID[id].name}: ${ALERT_EMOJI[a.kind] || '⚠️'} ${a.text}`;
+  $('#map-live').textContent = text;
+  toast(text, a.level >= 3 ? 'bad' : 'info', 3500);
 }
 
 async function onClick(e) {
@@ -430,9 +461,10 @@ async function onClick(e) {
     case 'manolo':
       if (!(await clauseOk(s, (c) => doManoloAction(c, el.dataset.id)))) return;
       res = doManoloAction(s, el.dataset.id);
+      // El resultado va al bocadillo de Manolo (hasta el cierre) y a un toast; no para el juego.
       if (res.ok) {
-        renderAll();
-        await showModal({ title: 'Manolo en acción', portrait: `portrait_manolo_${manoloMood(s)}`, text: res.text });
+        game.bubble = { month: s.month, text: res.text };
+        toast(`😎 ${res.text}`, 'info', Math.max(2600, res.text.length * 45));
       }
       break;
     case 'upgrade-biz':
@@ -654,6 +686,7 @@ async function endMonth() {
   const s = game.s;
   if (!s || game.busy || s.ending || s.pending.length || isModalOpen()) return;
   game.busy = true;
+  game.bubble = null;
   const prev = { rep: s.rep, moral: s.moral, fama: s.fama, ht: s.heatTrabajo, hh: s.heatHacienda, agr: s.agravio || 0 };
   const prevReport = s.lastReport;
   const head = s.log[0];
@@ -766,6 +799,22 @@ async function runQueue(s) {
   while (s.pending.length && game.s === s) {
     const p = currentPending(s);
     play(['inspeccion_trabajo', 'auditoria_hacienda', 'sanidad'].includes(p.pending.id) ? 'stamp' : 'event');
+    let resolved = false;
+    // Al elegir se resuelve la carta y el resultado sale en el mismo diálogo, salvo que sea menor (o una
+    // costumbre repetida por tercera vez seguida): entonces va a un toast y al registro.
+    const resolve = (i) => {
+      const before = resultSnapshot(s);
+      const result = resolvePending(s, p.choices[Math.max(0, i)].index);
+      resolved = true;
+      renderAll();
+      const repeat = p.event.quickRepeat && custom(s, p.pending.id).streak >= 3;
+      if (repeat || isMinorResult(p.pending.id, result, before, resultSnapshot(s))) {
+        log(s, `${repeat ? '↺' : '•'} ${p.title}: ${result}`, 'info');
+        toast(`${repeat ? '↺ ' : ''}${p.title}: ${result}`, 'info', Math.max(2600, result.length * 45));
+        return null;
+      }
+      return { text: result };
+    };
     const i = await showModal({
       title: p.title,
       kicker: 'Suceso',
@@ -773,17 +822,9 @@ async function runQueue(s) {
       portrait: p.portrait,
       text: p.text,
       choices: p.choices.map((c, k) => ({ label: c.label, hint: c.hint, primary: k === 0 })),
+      followUp: resolve,
     });
-    const choice = p.choices[Math.max(0, i)];
-    const result = resolvePending(s, choice.index);
-    renderAll();
-    // Costumbres de la casa: a partir de la tercera vez seguida que eliges lo mismo, el resultado no para el juego.
-    if (p.event.quickRepeat && custom(s, p.pending.id).streak >= 3) {
-      log(s, `↺ ${p.title}: ${result}`, 'info');
-      toast(`↺ ${p.title}: ${result}`, 'info', Math.max(2600, result.length * 45));
-      continue;
-    }
-    await showModal({ title: p.title, kicker: 'Resultado', portrait: p.portrait, text: result });
+    if (!resolved) resolve(i);
   }
   if (game.s !== s) return;
   checkGoals(s);

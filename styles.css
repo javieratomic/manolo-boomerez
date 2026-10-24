@@ -161,6 +161,8 @@ button.hud-item:focus-visible { outline: 2px solid #ffd36b; outline-offset: 1px;
   font-family: var(--display); font-style: italic; font-size: 14px; box-shadow: var(--shadow);
 }
 #manolo-bubble:empty { display: none; }
+/* Resultado de la acción del mes: hasta el cierre, en letra normal y como mucho cinco líneas. */
+#manolo-bubble.action { font-family: var(--font); font-style: normal; font-size: 13px; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
 #manolo-bubble::before { content: ""; position: absolute; left: -8px; bottom: 10px; border: 8px solid transparent; border-right-color: #fff; border-left: 0; }
 
 #panel { display: grid; grid-template-rows: auto 1fr auto; min-height: 0; background: var(--paper); border-left: 1px solid var(--line); }
@@ -336,6 +338,9 @@ blockquote { margin: 8px 0 0; font-family: var(--display); font-style: italic; b
 .modal-body { font-size: 15px; }
 .modal-body ul { padding-left: 18px; }
 .modal-body h4 { margin: 12px 0 4px; }
+/* La opción elegida, encima del resultado (en el mismo diálogo). */
+.modal-body .picked { color: var(--muted); font-size: 13px; font-weight: 600; margin: 0 0 8px; }
+.modal-body .picked::before { content: "→ "; }
 .modal-choices { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
 .choice {
   display: flex; gap: 10px; align-items: center; text-align: left;

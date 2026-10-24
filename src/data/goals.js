@@ -71,9 +71,15 @@ export const GOALS = [
     progress: (s) => [Math.min(50, s.lastReport?.employees ?? 0), 50],
     text: 'Da trabajo a 50 personas.',
     test: (s) => (s.lastReport?.employees ?? 0) >= 50,
+    // La reputación solo llega si el empleo es de verdad (convenio, horas pagadas y sin becarios).
     reward(s) {
-      addRep(s, 4);
-      return '"Yo genero empleo", repites en cada cena. Por una vez es verdad. Reputación +4.';
+      const p = s.policies;
+      if (p.salario === 'convenio' && p.horas === 'pagadas' && p.becarios === 'ninguno') {
+        addRep(s, 4);
+        return '"Yo genero empleo", repites en cada cena. Por una vez es verdad. Reputación +4.';
+      }
+      addFama(s, 2);
+      return '"Yo genero empleo", repites en cada cena. En el pueblo se ríen: saben lo que pagas. Fama +2.';
     },
   },
   {

@@ -1,4 +1,5 @@
 import {newDynasty} from './dynasty.js';
+import {LOCAL_RULES} from '../data/localEvents.js';
 import {HOUSING_FORMS} from '../data/housing.js';
 import {isResidential} from './construction.js';
 import {execPortrait} from '../data/execs.js';
@@ -15,7 +16,7 @@ import { grossPatrimonio, computeEconomy } from './economy.js';
 export const SAVE_KEY = 'manolo-boomerez-save-v1';
 export const SAVE_VERSION = 2;
 // Versión del contenido: una semilla solo reproduce la misma partida con la misma versión.
-export const GAME_VERSION = '0.8.0';
+export const GAME_VERSION = '0.9.0';
 
 export const DIFFICULTIES = {
   cunado: {
@@ -99,6 +100,7 @@ export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal
     candidates: [],
     citySobaoSales: {},
     housingPolicies: {},
+    localEvents: {},
     candidatesMonth: -99,
     lujo: [],
     familia: 60,
@@ -216,6 +218,13 @@ export function deserialize(text) {
     for(const [key,value] of Object.entries(terms))if(!['employee','public'].includes(key)||!(key==='employee'?Object.hasOwn(POLICIES.alquiler.options,value):Object.hasOwn(PUBLIC_RENTS,value)))invalid();
   }
   for(const [city,units] of Object.entries(ready.citySobaoSales))if(!Object.hasOwn(CITY_BY_ID,city)||typeof units!=='number'||!Number.isFinite(units)||units<0)invalid();
+  for(const [id,p] of Object.entries(ready.localEvents)) {
+    if(!Object.hasOwn(LOCAL_RULES,id)||!p||typeof p!=='object'||Array.isArray(p))invalid();
+    for(const k of ['visits','successes','failures','level'])if(!Number.isSafeInteger(p[k])||p[k]<0)invalid();
+    for(const k of ['lastMonth','lastYear','lastSuccessYear'])if(!Number.isSafeInteger(p[k])||p[k]<-1)invalid();
+    if(p.level>4||!Number.isInteger(p.standing)||Math.abs(p.standing)>10||typeof p.lastChoice!=='string'||typeof p.lastLabel!=='string'||!['acuerdo','conflicto'].includes(p.lastOutcome))invalid();
+    if(p.successes+p.failures!==p.visits||p.level>p.successes||p.lastMonth>ready.month||p.lastYear!==Math.floor(p.lastMonth/12)||p.lastSuccessYear>p.lastYear||id!=='ciudad_salamanca'&&p.level!==0)invalid();
+  }
   if(!Number.isInteger(ready.dynasty.generation)||ready.dynasty.generation<0||!Number.isFinite(ready.dynasty.birthMonth)||typeof ready.dynasty.name!=='string'||!Array.isArray(ready.dynasty.history))invalid();
   for(const [country,track] of Object.entries(ready.foreignTrack))if(!Object.hasOwn(FOREIGN_BY_ID,country)||!Number.isInteger(track?.successMonths)||track.successMonths<0)invalid();
   const businessIds = new Set();

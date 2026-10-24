@@ -1,5 +1,14 @@
 # Cambios
 
+## 0.9.0 — Las ciudades tienen memoria
+
+- Invitaciones y conflictos locales dependen de reputación y confianza acumulada. Las cartas recuerdan la elección anterior; cuidar acuerdos mejora próximas campañas y repetir abusos cuesta más reputación.
+- El ninot de Fallas y la historia del concurso de patios son oportunidades puntuales. San Fermín, Feria, Ofrenda, Carnaval, Bando de la Huerta y Nochevieja pueden volver cada año sin perder turnos por el desfase entre sorteo y resolución.
+- Las celebraciones coincidentes se encolan todas; no se borra una fiesta porque otra ciudad tenga fiesta el mismo mes. Las obras todavía no reciben invitaciones.
+- Nochevieja Universitaria progresa mediante cuatro patrocinios exitosos en años distintos: Salamanca, otras universidades de Castilla y León, campaña nacional y tradición consolidada. Exige presupuesto, reputación creciente, moral y suministro suficiente para la demanda adicional.
+- La tradición de los minisobaos da +15 % de demanda española de sobaos cada diciembre; se reduce a la mitad si la reputación cae de30. Sin efecto fuera de España, en otros meses ni en negocios ajenos a sobaos.
+- Progreso en Mercado e historial local en Ciudad; guardado compatible y sin éxitos retroactivos inventados.
+
 ## 0.8.0 — Promociones y obras
 
 - Edificios de 25 apartamentos y urbanizaciones de 10 chalets: costes base de 2 y 3 M€, ajustados por ciudad; los chalets tienen mejor efecto sobre la moral y alquiler ×1,5.

@@ -1,3 +1,18 @@
+# Continuación 0.9.0 — Fiestas con memoria (25-10-2026)
+
+Petición completa implementada, con equilibrio delegado:
+- Las24cartas locales se decoran con memoria de elección/resultado/confianza y peso según reputación. Buenas colaboraciones previas aportan hasta10% local durante un mes; repetir conducta conflictiva resta reputación adicional. Historial visible en Ciudad.
+- Ninot de Fallas y concurso de patios: una oportunidad por partida, sin forzar todos los años. Fiestas recurrentes: Pamplona, Sevilla, Zaragoza, Las Palmas, Murcia y Salamanca, con memoria anual. Se corrigió el desfase cola/resolución que bloqueaba el año siguiente; si coinciden dos fiestas, se encolan ambas.
+- Nochevieja conserva `ciudad_salamanca` y arte anterior. Cuatro patrocinios exitosos en años distintos: Salamanca→universidades de Castilla y León→campaña nacional→tradición. Costes3k/12k/45k/100k; reputación40/50/60/70, moral35, suministro reciente y previsto≥90% incluyendo bonus de demanda. Fracasar pierde inversión sin ascenso. Duplicar edición no cobra, progresa ni suma memoria.
+- Tradición: +15% de demanda de sobaos españoles cada diciembre, permanente incluso sin renovar patrocinio; con reputación<30 se reduce a7,5%. No afecta extranjero, otros meses ni otros negocios. Etapa2 beneficia región y etapa3 campaña nacional solo en el diciembre patrocinado. Progreso visible en Mercado.
+- Nuevo `localEvents` validado/migrado; no inventa éxitos de partidas anteriores, y las historias puntuales antiguas ya vistas no vuelven a ofrecerse. La memoria sobrevive en la empresa y usa también el sistema de costumbres existente. Negocios en obras no reciben ofertas locales.
+
+Verificación final: **252/252 Node y15/15 DOM**, sintaxis correcta. Edge1365×900 y375×812: cuatro patrocinios mediante botones reales, tradición4/4, bonus España1,15/extranjero1/otrosmeses1, recarga y progreso conservado; sin errores/desbordamiento. Simulación de72meses con caja/capacidad altas para aislar progresión y rechazo de venta del local de Salamanca: niveles1/2/3/4 en meses11/23/35/47 y mantenimiento después,72cargas conservan neto/RNG. Revisión independiente detectó clasificación incorrecta de opciones positivas (Murcia/Las Palmas), reproducida y corregida; cierre sin nuevos hallazgos importantes.
+
+Build y smoke de desempaquetado correctos. Portable: `desktop/dist/ManoloBoomerez-0.9.0-portable.exe`. Sin push ni cierre del juego del usuario. Plan: `docs/superpowers/plans/2026-10-25-fiestas-con-memoria.md`.
+
+---
+
 # Continuación 0.8.0 — Promociones y obras (25-10-2026)
 
 Petición completa implementada, con equilibrio delegado por el usuario:

@@ -212,3 +212,9 @@ test('DOM: las obras muestran plazo, bloquean reforma y se entregan con su capac
  s.month=12;el.innerHTML=renderStaff(s);assert(el.textContent.includes('25 viviendas disponibles'));
  assert(el.textContent.includes('renovación en 180 meses'));
 });
+
+test('DOM: reputación local y etapas de las campanadas son visibles',()=>{
+ const s=newGame(42);resolvePending(s,0);
+ const el=document.createElement('div');el.innerHTML=renderCity(s,'salamanca');assert(el.querySelector('.local-relations'));assert(el.textContent.includes('Reputación:'));
+ el.innerHTML=renderMarket(s);assert(el.querySelector('.new-year-tradition'));assert(el.textContent.includes('0/4'));assert(el.textContent.includes('patrocinios exitosos'));
+});

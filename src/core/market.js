@@ -1,4 +1,5 @@
 import {workforcePlan} from './workforce.js';
+import {decemberTradition} from './localEvents.js';
 import {isOperating} from './construction.js';
 // Marketing, I+D y reformas de negocios.
 import { CAMPAIGNS, PRODUCTS, UPGRADE_COST, MAX_LEVEL, LEVEL_BONUS } from '../data/market.js';
@@ -82,7 +83,7 @@ export function tickRD(s) {
 
 // Multiplicador de demanda por los productos del catálogo.
 export function productFactor(s, type, category, city, month) {
-  let f = 1;
+  let f = decemberTradition(s,type,category,city,month);
   for (const id of s.products) {
     const p = PRODUCT_BY_ID[id];
     if (!p) continue;

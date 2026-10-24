@@ -52,6 +52,7 @@ pellizco para el zoom (en el móvil, tocar dos ciudades juntas acerca el mapa) �
 | Rejugabilidad | Cláusula del testamento (reto opcional por partida), semilla compartible y reto de la semana, balance anual, salón de la fama, logros entre partidas y modo infinito |
 | Información | Previsión de cada política (mes que viene y 6 meses), «¿Por qué?» en cada indicador y parte del mes |
 | Memoria | Los inspectores recuerdan tus trucos y sanciones; Navidad y agosto recuerdan tus costumbres; el Archivo lo enseña todo |
+| Fiestas locales | Reputación, acuerdos y conflictos cambian invitaciones y resultados. Fiestas anuales con memoria; cuatro patrocinios de Nochevieja pueden crear una tradición nacional y más demanda de sobaos en diciembre |
 | Plantilla (0.4) | Liquidación de lo ahorrado frente al convenio, agravio, comité con revisión anual del convenio, huelga general y reparto de beneficios |
 | Familia (0.4) | La cartilla de Doña Remedios: préstamos sin intereses con condiciones, embargo materno y rescate |
 | Bolsa (0.4) | Bloqueo de 6 meses y la promesa trimestral a los analistas, con maquillaje y fondos bajistas |

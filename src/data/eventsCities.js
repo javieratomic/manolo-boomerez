@@ -3,6 +3,8 @@
 // Calendario: como en eventsExtra.js, el suceso se sortea al cerrar el mes m y se juega al empezar el m + 1,
 // así que la ventana de moy() es el mes anterior a la fiesta y un modificador de 1 mes afecta al mes de la fiesta.
 import { chance, int } from '../core/rng.js';
+import {decorateLocalEvent} from '../core/localEvents.js';
+import {newYearEvent} from './eventsNewYear.js';
 import { recordSanction } from '../core/inspections.js';
 import {
   addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addMod, addMonthlyCost, money, clamp,
@@ -11,7 +13,7 @@ import {
 const moy = (s) => s.month % 12;
 // Negocios donde se desayuna, se come o se compra algo dulce.
 const FOOD = ['express', 'maison', 'smash', 'empanadas', 'taberna'];
-const at = (s, city, types = null) => s.businesses.some((b) => b.city === city && (!types || types.includes(b.type)));
+const at = (s, city, types = null) => s.businesses.some((b) => b.city === city && (b.readyMonth==null||s.month>=b.readyMonth) && (!types || types.includes(b.type)));
 const fine = (s, amount) => {
   addCash(s, -amount);
   s.stats.multas += amount;
@@ -1313,4 +1315,4 @@ export const CITY_EVENTS = [
       },
     ],
   },
-];
+].map(e=>e.id==='ciudad_salamanca'?newYearEvent(e):decorateLocalEvent(e));

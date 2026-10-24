@@ -1,4 +1,7 @@
 import {workforcePlan} from '../core/workforce.js';
+import {LOCAL_RULES,NEW_YEAR_STAGES} from '../data/localEvents.js';
+import {localState,localMemoryText} from '../core/localEvents.js';
+import {sponsorshipTerms} from '../data/eventsNewYear.js';
 import {HOUSING_FORMS,housingSpec} from '../data/housing.js';
 import {isOperating,buildMonths,businessName,businessSprite,renovationCost,isResidential} from '../core/construction.js';
 import {housingTerms,PUBLIC_RENTS} from '../core/housing.js';
@@ -124,6 +127,7 @@ export function renderCity(s, cityId) {
       ${rivalChips(s, c.id)}
     </div>`;
 
+  html+=renderLocalRelations(s,c.id);
   if (c.hq) html += renderObrador(s);
 
   if (here.length) {
@@ -198,6 +202,16 @@ export function renderCity(s, cityId) {
   return html;
 }
 
+function renderLocalRelations(s,city) {
+ const ids=Object.keys(LOCAL_RULES).filter(id=>LOCAL_RULES[id][0]===city);
+ if(!ids.length)return '';
+ return `<div class="card local-relations"><h4>🤝 Relación con la ciudad</h4><p class="small">Reputación: <b>${Math.round(s.rep)}/100</b>. La reputación cambia las invitaciones y los conflictos. Los acuerdos y abusos anteriores se recuerdan.</p>${ids.filter(id=>localState(s,id).visits).map(id=>{const p=localState(s,id);return `<p class="small">${esc(localMemoryText(s,id))}<br>Ediciones: ${p.visits} · Acuerdos: ${p.successes} · Confianza local: ${p.standing>0?'+':''}${p.standing}${id==='ciudad_salamanca'?` · ${esc(NEW_YEAR_STAGES[p.level])} (${p.level}/4)`:''}</p>`}).join('')}${city==='salamanca'?'<p class="small">Las campanadas con minisobaos pueden extenderse por España tras varios patrocinios exitosos. Consulta el progreso en Mercado.</p>':''}</div>`;
+}
+function renderNewYearTradition(s) {
+ const p=localState(s,'ciudad_salamanca'),terms=sponsorshipTerms(s);
+ const hasPresence=s.businesses.some(b=>b.city==='salamanca'&&isOperating(s,b));
+ return `<div class="card new-year-tradition"><h4>🎆 Campanadas con minisobaos</h4><p><b>${esc(NEW_YEAR_STAGES[p.level])} · ${p.level}/4</b></p><p class="small">${p.level>=4?'Tradición consolidada: demanda española de sobaos +15 % cada diciembre, incluso sin renovar el patrocinio. Con reputación inferior a 30, el bonus se reduce a la mitad.':'Cuatro patrocinios exitosos en años distintos pueden convertir la Nochevieja Universitaria de Salamanca en una tradición nacional. Cada extensión requiere más reputación y una inversión mayor.'}</p><p class="small">Siguiente patrocinio: ${money(terms.cost)} · reputación ${terms.rep} · moral 35 · suministro reciente y previsto ≥90 %.</p>${hasPresence?'':'<p class="small muted">Necesitas un negocio operativo en Salamanca para recibir la propuesta en noviembre y decidir en diciembre.</p>'}${p.visits?`<p class="small">${esc(localMemoryText(s,'ciudad_salamanca'))}</p>`:''}</div>`;
+}
 function transportChip(s, cityId) {
   const n = nearestSite(s, cityId);
   if (!n || n.km === 0) return '<span class="chip">🚚 Obrador en la ciudad</span>';
@@ -464,6 +478,7 @@ export function renderMarket(s) {
       </div>
       <p class="small muted">Lleva ${s.macro.months} ${s.macro.months === 1 ? 'mes' : 'meses'} en esta fase. Nadie sabe cuánto durará (bueno, los economistas dicen que sí, pero cada uno una cosa).</p>
     </div>
+    ${renderNewYearTradition(s)}
     ${renderGov(s)}
     ${renderRivals(s)}
     <div class="card"><h4>Campañas nacionales</h4><div class="campaigns">

@@ -1,4 +1,5 @@
 import {tickDynasty,beginSuccession,europeProgress,leaderAge} from './dynasty.js';
+import {localState} from './localEvents.js';
 import {applyRenovations,announceCompletions,isOperating} from './construction.js';
 import { tickInternational } from './international.js';
 // Avance mensual de la simulación y resolución de sucesos.
@@ -249,6 +250,7 @@ export function eligibleEvents(s) {
     const last = s.seen[e.id];
     if (last == null) return true;
     if (e.once) return false;
+    if(e.annual)return Math.floor((s.month+1)/12)>Math.floor(last/12);
     return s.month - last >= (e.cooldown ?? 12);
   });
 }
@@ -256,10 +258,12 @@ export function eligibleEvents(s) {
 function rollRandomEvent(s) {
   const eligible = eligibleEvents(s);
   // Los pasos de arcos narrativos salen en cuanto se cumplen sus condiciones (uno por mes).
-  const forced = eligible.find((e) => e.forced && /^velas_/.test(e.id)) || eligible.find((e) => e.forced);
-  if (forced) {
-    s.pending.push({ kind: 'event', id: forced.id });
-    s.seen[forced.id] = s.month;
+  const forced = eligible.find((e) => e.forced && /^velas_/.test(e.id)) || eligible.find((e) => e.forced&&!e.annual);
+  const annual=eligible.filter(e=>e.annual&&e.forced);
+  if (forced||annual.length) {
+    for(const e of [...(forced?[forced]:[]),...annual]){
+      s.pending.push({ kind: 'event', id: e.id });s.seen[e.id]=s.month;
+    }
     return;
   }
   if (s.pending.length >= 2 || !chance(s, RANDOM_EVENT_CHANCE)) return;
@@ -302,6 +306,9 @@ export function resolvePending(s, choiceIndex) {
   const ev = EVENT_BY_ID[p.id];
   const params = p.params || {};
   const choice = ev.choices[choiceIndex];
+  if(ev.local&&ev.annual&&localState(s,ev.id).lastYear===Math.floor(s.month/12)){
+    s.pending.shift();return 'Esta edición ya se ha resuelto. No se vuelve a cobrar ni se añade otro éxito.';
+  }
   if (!choice || (choice.available && !choice.available(s, params))) throw new Error(`Opción no válida ${p.id}#${choiceIndex}`);
   s.seen ||= {};
   s.seen[p.id] = s.month;

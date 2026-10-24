@@ -987,3 +987,35 @@ Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal des
 - **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
 
 Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Plaza de Selaya con la iglesia de piedra, prados verdes y vacas pasiegas al fondo entre la niebla: a la salida de misa, el alcalde con cara de funeral señala una escuela rural pequeña con un columpio vacío, y Manolo, con gafas de sol, mira el móvil; unos pocos vecinos mayores observan la escena. Sin texto legible.
+
+## ev_comite_nace
+
+- **Archivo:** `assets/events/ev_comite_nace.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Sala de descanso del obrador convertida en colegio electoral: urna de cartón, papeletas, gorros de panadera colgados; Maripili (delantal, moño, gafas en la punta de la nariz) cuenta votos; Kevin, un chaval con gorra hacia atrás, vota solo en un rincón. Sin texto legible.
+
+## ev_convenio_anual
+
+- **Archivo:** `assets/events/ev_convenio_anual.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Mesa de la cocina del obrador con una tabla salarial fotocopiada, cafetera italiana, bandeja de sobaos y una calculadora; Maripili señala una cifra con el bolígrafo; Manolo (55 años, gafas de sol subidas en la calva, camisa salmón) suda con la corbata aflojada. Sin texto legible.
+
+## ev_huelga_general
+
+- **Archivo:** `assets/events/ev_huelga_general.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Calle de una ciudad española con varios negocios del grupo (tienda de sobaos, taberna, gimnasio, residencia de mayores) con las persianas a medio bajar y piquetes con chalecos y pancartas en blanco; Manolo mira desde la ventanilla de un todoterreno. Sin texto legible.
+
+## ev_liquidacion
+
+- **Archivo:** `assets/events/ev_liquidacion.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Despacho del obrador: la inspectora de Trabajo (traje azul marino, gafas, carpeta gruesa) con una calculadora de rollo cuyo tique larguísimo cae al suelo y llega hasta los zapatos de Manolo; carpetas llenas de pósits. Sin texto legible.

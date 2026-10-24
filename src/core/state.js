@@ -72,7 +72,7 @@ export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal
     history: [],
     lastReport: null,
     ending: null,
-    stats: { inspecciones: 0, auditorias: 0, multas: 0, maxPatrimonio: 0, abiertos: 0 },
+    stats: { inspecciones: 0, auditorias: 0, multas: 0, maxPatrimonio: 0, abiertos: 0, liquidado: 0, huelgas: 0 },
     quote: null,
     // --- v2: profundidad ---
     macro: { phase: 'expansion', months: 0, length: 20 },
@@ -89,7 +89,10 @@ export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal
     restMonths: 0,
     ipo: null,
     gov: null,
-    dossier: { trucos: {}, sanciones: [], historial: [] },
+    dossier: { trucos: {}, sanciones: [], historial: [], ahorro: [] },
+    agravio: 0,
+    plantilla: { ratio: 0 },
+    comite: null,
     customs: {},
     clausula: { id: clauseForSeed(seed), broken: false, done: false },
   };
@@ -108,6 +111,10 @@ export function migrate(s) {
   // En modo infinito la partida ya terminó: una cláusula sin cumplir queda cerrada.
   if (s.endless && s.clausula && !s.clausula.done && !s.clausula.broken) s.clausula.closed = true;
   if (s.lastReport && s.lastReport.debt == null) s.lastReport.debt = s.debt;
+  // 0.4: claves anidadas que el bucle de abajo no rellena.
+  if (s.dossier) s.dossier.ahorro ||= [];
+  s.stats.liquidado ??= 0;
+  s.stats.huelgas ??= 0;
   const d = newGame(s.seed, s.difficulty || 'normal');
   for (const [k, v] of Object.entries(d)) if (!(k in s)) s[k] = v;
   s.policies = { ...DEFAULT_POLICIES, ...s.policies };

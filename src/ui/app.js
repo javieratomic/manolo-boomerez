@@ -593,7 +593,7 @@ async function endMonth() {
   const s = game.s;
   if (!s || game.busy || s.ending || s.pending.length || isModalOpen()) return;
   game.busy = true;
-  const prev = { rep: s.rep, moral: s.moral, fama: s.fama, ht: s.heatTrabajo, hh: s.heatHacienda };
+  const prev = { rep: s.rep, moral: s.moral, fama: s.fama, ht: s.heatTrabajo, hh: s.heatHacienda, agr: s.agravio || 0 };
   const prevReport = s.lastReport;
   const head = s.log[0];
   const r = advanceMonth(s);
@@ -680,7 +680,7 @@ function showReport(r, prev, digest) {
       ${r.evaded > 0 ? `<p class="small">🧾 Impuestos "optimizados" este mes: ${money(r.evaded)}.</p>` : ''}
       <div class="deltas">
         ${delta('Reputación', prev.rep, s.rep, false, 'rep')}${delta('Moral', prev.moral, s.moral, false, 'moral')}${delta('Fama', prev.fama, s.fama, false, 'fama')}
-        ${delta('Radar Inspección', prev.ht, s.heatTrabajo, true, 'heatTrabajo')}${delta('Radar Hacienda', prev.hh, s.heatHacienda, true, 'heatHacienda')}
+        ${delta('Radar Inspección', prev.ht, s.heatTrabajo, true, 'heatTrabajo')}${delta('Radar Hacienda', prev.hh, s.heatHacienda, true, 'heatHacienda')}${prev.agr != null ? delta('Agravio', prev.agr, s.agravio || 0, true, 'agravio') : ''}
       </div>
       ${s.insolvencyMonths ? `<p class="neg"><b>🚨 Descubierto sin crédito: mes ${s.insolvencyMonths} de 3.</b></p>` : ''}
       ${digestHtml(digest)}

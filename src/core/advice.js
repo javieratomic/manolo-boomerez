@@ -7,6 +7,7 @@ import { money } from './helpers.js';
 import { nextUpgrade } from './actions.js';
 import { regionalCount } from './logistics.js';
 import { recidivism } from './inspections.js';
+import { liquidacion, K as PK } from './plantilla.js';
 
 // Devuelve consejos ordenados por urgencia: { level: 'alta' | 'media' | 'baja', text, tab? }
 export function advice(s) {
@@ -24,6 +25,9 @@ export function advice(s) {
     out.push({ level: 'alta', text: `El obrador solo cubre el ${Math.round(r.fill * 100)} % de la demanda: estás perdiendo ventas.${fix}`, tab: 'ciudad' });
   }
 
+  const liq = liquidacion(s);
+  if (liq > 0 && liq > 3 * Math.max(0, r.net)) out.push({ level: 'alta', text: `Lo que te ahorras con la plantilla no se evapora: Marisa liquidaría ${money(liq)} (más de tres meses de beneficio). Volver al convenio deja de sumar deuda.`, tab: 'plantilla' });
+  if ((s.agravio || 0) > PK.STRIKE_AT) out.push({ level: 'media', text: `La plantilla echa cuentas (agravio ${Math.round(s.agravio)}). ${s.comite ? `Con ${PK.STRIKE_AT} o más puede haber huelga general;` : 'Cuando haya comité, eso serán huelgas;'} una paga de beneficios lo baja a la mitad.`, tab: 'plantilla' });
   if (recidivism(s) > 1) out.push({ level: 'media', text: `Marisa te tiene fichado: la próxima multa laboral lleva un agravante de ×${recidivism(s).toFixed(2).replace('.', ',')} por reincidencia.`, tab: 'plantilla' });
   if (s.heatTrabajo > 65) out.push({ level: 'alta', text: 'El radar de la Inspección de Trabajo está en rojo. Regulariza algo o ficha a alguien en RR. HH.', tab: 'plantilla' });
   if (s.heatHacienda > 65) out.push({ level: 'alta', text: `El radar de Hacienda está en rojo y debes ${money(s.evaded)} "optimizados". Una auditoría ahora dolería.`, tab: 'finanzas' });

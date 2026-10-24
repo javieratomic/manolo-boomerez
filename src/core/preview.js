@@ -5,8 +5,10 @@ import { driftStats } from './sim.js';
 import { laborVisitParams, haciendaDebt, inspectionChance, auditChance, tickLaborHistory, recidivism, DELITO_FISCAL } from './inspections.js';
 import { clamp, unclamped } from './helpers.js';
 import { POLICIES } from '../data/policies.js';
+import { tickAhorro, monthlySaving, strikeChance, profitRatio, K as PK } from './plantilla.js';
+import { difficultyOf } from './state.js';
 
-export const STATS = ['moral', 'rep', 'fama', 'heatTrabajo', 'heatHacienda'];
+export const STATS = ['moral', 'rep', 'fama', 'heatTrabajo', 'heatHacienda', 'agravio'];
 export const HORIZON = 6;
 
 const clone = (s) => JSON.parse(JSON.stringify(s));
@@ -32,10 +34,13 @@ export function forecast(s, mutate) {
 }
 
 // Multa de Trabajo si Marisa viniera al cerrar el mes (el historial incluye el mes que se cierra).
-function fineAtClose(c) {
-  const tmp = { ...c, dossier: { ...(c.dossier || {}), historial: [...(c.dossier?.historial || [])] } };
+// Lo que traería Marisa si viniera al cerrar el mes: multa (con una denuncia pendiente) y liquidación
+// (con lo que se ahorra este mes incluido).
+function visitAtClose(c, r) {
+  const tmp = { ...c, dossier: { ...(c.dossier || {}), historial: [...(c.dossier?.historial || [])], ahorro: [...(c.dossier?.ahorro || [])] } };
   tickLaborHistory(tmp);
-  return laborVisitParams(tmp).fine; // incluye una denuncia pendiente (vacaciones)
+  if (r) tickAhorro(tmp, r);
+  return laborVisitParams(tmp);
 }
 
 // Neto acumulado a varios meses, ya descontadas la moral (va dentro de la economía) y las multas esperadas.
@@ -52,6 +57,9 @@ export function horizonNet(s, mutate, months = HORIZON) {
     c.cooldowns.hacienda--;
     tickLaborHistory(c);
     if (c.cooldowns.trabajo <= 0) total -= inspectionChance(c.heatTrabajo) * laborVisitParams(c).fine;
+    // Lo ahorrado este mes acabará liquidado (×1,2) si Marisa viene antes de que prescriba.
+    const pCatch = 1 - (1 - inspectionChance(c.heatTrabajo)) ** PK.LIQ_WINDOW;
+    total -= monthlySaving(c, r.employees) * PK.LIQ_K * difficultyOf(c).fines * pCatch;
     if (c.cooldowns.hacienda <= 0) total -= auditChance(c.heatHacienda) * haciendaDebt(c) * 1.2;
   }
   return total;
@@ -67,7 +75,8 @@ export function policyPreview(s, key, opt, base = previewBase(s)) {
     c.policies[key] = opt;
   };
   const alt = forecast(s, set);
-  const out = { net: alt.r.net - base.f.r.net, evaded: alt.r.evaded - base.f.r.evaded, fine: fineAtClose(alt.c) };
+  const v = visitAtClose(alt.c, alt.r);
+  const out = { net: alt.r.net - base.f.r.net, evaded: alt.r.evaded - base.f.r.evaded, fine: v.fine, liq: v.liq, saving: (monthlySaving(alt.c, alt.r.employees) - monthlySaving(base.f.c, base.f.r.employees)) * PK.LIQ_K };
   for (const k of STATS) out[k] = alt.d[k] - base.f.d[k];
   out.net6 = horizonNet(s, set) - base.h;
   return out;
@@ -81,11 +90,14 @@ export function riskInfo(s, f = forecast(s)) {
   const waitH = Math.max(0, s.cooldowns.hacienda - 1);
   const debt = haciendaDebt(c);
   // Como en el cierre: las huelgas que terminan este mes ya no cuentan cuando se tira la de la próxima.
-  const striking = s.mods.some((m) => m.kind === 'strike' && m.months > 1);
+  const striking = s.mods.some((m) => m.kind === 'strike' && m.months > 1) || s.pending.some((p) => p.id === 'huelga' || p.id === 'huelga_general');
+  const st = strikeChance(c, r);
+  const v = visitAtClose(c, r);
   return {
-    trabajo: { chance: waitT ? 0 : inspectionChance(c.heatTrabajo), wait: waitT, fine: fineAtClose(c), recidivism: recidivism(c) },
+    trabajo: { chance: waitT ? 0 : inspectionChance(c.heatTrabajo), wait: waitT, fine: v.fine, liq: v.liq, recidivism: recidivism(c) },
     hacienda: { chance: waitH ? 0 : auditChance(c.heatHacienda), wait: waitH, debt, delito: debt >= DELITO_FISCAL },
-    moral: { strike: !striking && c.moral < 25 ? 0.15 * (1 - 0.7 * r.control) : 0, zeroMonths: c.zeroMoralMonths, factor: moralFactor(c.moral) },
+    moral: { strike: !striking ? st.p : 0, general: st.card === 'huelga_general', zeroMonths: c.zeroMoralMonths, factor: moralFactor(c.moral) },
+    agravio: { ratio: c.plantilla?.ratio ?? profitRatio(c, r), moralCost: PK.AGR_MORAL * (c.agravio || 0), strike: !striking && st.card === 'huelga_general' ? st.p : 0, comite: !!c.comite },
     rep: { factor: repFactor(c.rep) },
     fama: { academy: c.fama >= 25, coworking: c.fama >= 35 },
   };
@@ -112,7 +124,7 @@ export function blame(s, stat, base = previewBase(s)) {
   const raw = rawDrift(s);
   const rows = [];
   for (const [key, def] of Object.entries(POLICIES)) {
-    const first = Object.keys(def.options)[0];
+    const first = def.honest ?? Object.keys(def.options)[0];
     const cur = s.policies[key];
     if (!cur || cur === first) continue;
     const v = raw[stat] - rawDrift(s, (c) => { c.policies[key] = first; })[stat];

@@ -2,6 +2,7 @@
 import { chance, int, pick } from '../core/rng.js';
 import { addCash, addFama, addRep, addMoral, addHeatHacienda, addHeatTrabajo, log } from '../core/helpers.js';
 import { EXTRA_ACTIONS } from './manoloActionsExtra.js';
+import { credibilidad } from '../core/plantilla.js';
 
 export const MANOLO_ACTIONS = [
   {
@@ -67,8 +68,9 @@ export const MANOLO_ACTIONS = [
     icon: 'icon_action_charla', emoji: '📣',
     run(s) {
       if (s.policies.salario === 'convenio' && s.policies.horas === 'pagadas') {
-        addMoral(s, 6);
-        return 'Hablas de "la familia Boomerez" y, como pagas lo que toca, hasta te aplauden. Moral +6.';
+        const mo = Math.round(6 * credibilidad(s));
+        addMoral(s, mo);
+        return `Hablas de "la familia Boomerez" y, como pagas lo que toca, hasta te aplauden. Moral +${mo}${mo < 6 ? ' (Maripili ya no se cree nada: aplaude despacio)' : ''}.`;
       }
       if (chance(s, 0.5)) {
         addMoral(s, 3);

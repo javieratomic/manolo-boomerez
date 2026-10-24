@@ -44,7 +44,7 @@ Tu trabajo es convertir las peticiones de `art/requests/` en imágenes dentro de
 - Todo id de arte que use el código (`portrait_*`, `bld_*`, `ev_*`, `end_*`, `icon_*`) debe existir en el
   catálogo. `assets.js` genera marcadores para los que falten.
 - Además de `tools/art_catalog.py`, el catálogo incorpora las peticiones de `tools/art_events_extra.py` y
-  `tools/art_content_extra2.py` (listas `ART`). Las claves extra que añada el agente de arte (`notes`,
+  `tools/art_content_extra2.py` y `tools/art_04.py` (listas `ART`). Las claves extra que añada el agente de arte (`notes`,
   `version`...) se conservan tal cual al regenerar.
 - Lógica de juego en `src/core` (sin DOM, testeable) y contenido en `src/data`. Tests:
   `tests/index.html` en el navegador o `node tests/run-node.mjs` (en esta máquina hay un Node portable en

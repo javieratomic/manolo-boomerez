@@ -32,4 +32,8 @@ export const ACHIEVEMENTS = [
   })),
   ...CLAUSES.map((c) => ({ id: `clausula_${c.id}`, emoji: '📜', name: `Cláusula: ${c.title}`, desc: `Acaba una partida cumpliendo la cláusula «${c.title}».`, test: (s) => s.clausula?.id === c.id && s.clausula.done })),
   { id: 'albacea', emoji: '⚖️', name: 'Albacea de ti mismo', desc: 'Cumple la cláusula del testamento y acaba en la revista de millonarios.', test: (s) => !!s.clausula?.done && s.ending === 'forbes' },
+  { id: 'paz_social', emoji: '🤝', name: 'Paz social', desc: 'Firma 3 revisiones del convenio en una partida.', test: (s) => (s.comite?.firmas ?? 0) >= 3 },
+  { id: 'del_valle', emoji: '🐄', name: 'Del valle, para el valle', desc: 'Mantén 36 meses seguidos la participación del 8 % para la plantilla.', test: (s) => (s.flags.participacionMeses ?? 0) >= 36 },
+  { id: 'beneficios_record', emoji: '🪧', name: 'Beneficios récord, sueldos de risa', desc: 'Sufre una huelga general.', test: (s) => (s.stats.huelgas ?? 0) >= 1 },
+  { id: 'calculadora_marisa', emoji: '🧮', name: 'La calculadora de Marisa', desc: 'Paga de una vez una liquidación de más de 1 M€.', test: (s) => (s.stats.maxLiquidacion ?? 0) > 1e6 },
 ];

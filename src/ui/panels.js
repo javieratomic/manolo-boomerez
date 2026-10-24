@@ -26,6 +26,7 @@ import { grossPatrimonio } from '../core/economy.js';
 import { money, moneyShort, dateLabel } from '../core/helpers.js';
 import { haciendaDebt } from '../core/inspections.js';
 import { clauseStatus } from '../core/clauses.js';
+import { liquidacion, convenioDemand, credibilidad, profitRatio, K as PK } from '../core/plantilla.js';
 import { seedCode } from '../core/seed.js';
 import { CLAUSE_PRIZE } from '../data/clauses.js';
 import { policyPreview, previewBase, riskInfo, blame, HORIZON } from '../core/preview.js';
@@ -262,12 +263,16 @@ function policyChips(s, key, id) {
   if (Math.abs(p.rep) >= 0.05) chips.push([cls(p.rep), `Reputación ${fmt1(p.rep)}/mes`]);
   if (Math.abs(p.heatTrabajo) >= 0.05) chips.push([cls(-p.heatTrabajo), `Radar Trabajo ${fmt1(p.heatTrabajo)}/mes`]);
   if (Math.abs(p.heatHacienda) >= 0.05) chips.push([cls(-p.heatHacienda), `Radar Hacienda ${fmt1(p.heatHacienda)}/mes`]);
+  if (Math.abs(p.agravio) >= 0.05) chips.push([cls(-p.agravio), `Agravio ${fmt1(p.agravio)}/mes`]);
+  // Lo que se ahorra frente al convenio se apunta como deuda latente con la Seguridad Social.
+  const debt = LABOR_KEYS.includes(key) && Math.abs(p.saving) >= 50 ? (p.saving > 0 ? ['neg', `+${moneyShort(p.saving)}/mes de deuda con la Seguridad Social`] : ['pos', `${signMoney(p.saving)}/mes de deuda con la Seguridad Social`]) : null;
   // La multa siempre se ve: es justo lo que más importa en las opciones más tentadoras.
-  const fine = LABOR_KEYS.includes(key) && p.fine > 0 ? ['neg', `Multa si viene: ${moneyShort(p.fine)}`] : null;
-  const shown = fine ? [...chips.slice(0, 3), fine] : chips.slice(0, 4);
+  const fine = LABOR_KEYS.includes(key) && (p.fine > 0 || p.liq > 0) ? ['neg', `Multa si viene: ${moneyShort(p.fine)}${p.liq > 0 ? ` + liquidación ${moneyShort(p.liq)}` : ''}`] : null;
+  const extra = [debt, fine].filter(Boolean);
+  const shown = [...chips.slice(0, 4 - extra.length), ...extra];
   let html = shown.length ? `<span class="pv-chips">${shown.map(([c, t]) => `<span class="pv-chip ${c}">${esc(t)}</span>`).join('')}</span>` : '';
   if (key === 'contabilidad' && id !== 'limpia' && previewCache(s).base.f.r.profit <= 0 && p.heatHacienda > 0) html += '<span class="pv-note">Este mes no hay beneficio: no te ahorrarías impuestos, solo subiría el radar.</span>';
-  else if (Math.abs(p.net6) >= 100) html += `<span class="pv-note">A ${HORIZON} meses: <b class="${cls(p.net6)}">${signMoney(p.net6)}</b>, ya descontadas la moral y las multas esperadas.</span>`;
+  else if (Math.abs(p.net6) >= 100) html += `<span class="pv-note">A ${HORIZON} meses: <b class="${cls(p.net6)}">${signMoney(p.net6)}</b>, ya descontadas la moral, las multas y la liquidación esperadas.</span>`;
   return html;
 }
 
@@ -298,6 +303,7 @@ const WHY = {
   fama: { label: 'Fama de Manolo', good: 1, paco: 'La fama se gasta sola. Si no sales en ningún sitio, te olvidan.' },
   heatTrabajo: { label: 'Radar de la Inspección de Trabajo', good: -1, paco: 'El radar no baja por mirarlo fijamente, Manolo.' },
   heatHacienda: { label: 'Radar de Hacienda', good: -1, paco: 'Don Fermín no se olvida de nada. Yo tampoco, y eso que te cobro poco.' },
+  agravio: { label: 'Agravio de la plantilla', good: -1, paco: 'Manolo, la plantilla también sabe leer el Registro Mercantil.' },
 };
 export const WHY_STATS = Object.keys(WHY);
 export const whyTitle = (stat) => WHY[stat]?.label || '';
@@ -312,7 +318,8 @@ function riskText(s, stat, risk) {
     case 'heatTrabajo': {
       const t = risk.trabajo;
       if (t.wait) return `Marisa no puede volver hasta dentro de ${meses(t.wait)}.`;
-      const fine = t.fine > 0 ? ` Si viene, multa de ${money(t.fine)}${t.recidivism > 1 ? ` (con agravante ${factor(t.recidivism)} por reincidente)` : ''}.` : ' Si viniera ahora, no encontraría nada.';
+      const liq = t.liq > 0 ? ` Además liquidaría ${money(t.liq)} de lo ahorrado frente al convenio (24 meses ×${String(PK.LIQ_K).replace('.', ',')}).` : '';
+      const fine = t.fine > 0 ? ` Si viene, multa de ${money(t.fine)}${t.recidivism > 1 ? ` (con agravante ${factor(t.recidivism)} por reincidente)` : ''}.${liq}` : liq || ' Si viniera ahora, no encontraría nada.';
       return `Probabilidad de visita al cerrar el mes: <b>${pct100(t.chance)}</b>.${fine}`;
     }
     case 'heatHacienda': {
@@ -324,13 +331,20 @@ function riskText(s, stat, risk) {
     case 'moral': {
       const m = risk.moral;
       let t = `La plantilla rinde al <b>${factor(m.factor)}</b>.`;
-      if (m.strike > 0) t += ` Por debajo de 25 puede haber huelga: ${pct100(m.strike)} al cerrar el mes.`;
+      if (m.strike > 0) t += m.general ? ` Huelga general (comité): ${pct100(m.strike)} al cerrar el mes.` : ` Por debajo de 25 puede haber huelga: ${pct100(m.strike)} al cerrar el mes.`;
       if (m.zeroMonths >= 2) t += ' Si cierras el mes así, serán 2 meses seguidos a cero y la plantilla se queda la empresa.';
       else if (m.zeroMonths > 0) t += ` Al cerrar el mes llevará ${meses(m.zeroMonths)} a cero: a los 2, la plantilla se queda la empresa.`;
       return t;
     }
     case 'rep':
       return `La demanda de todos tus negocios va al <b>${factor(risk.rep.factor)}</b>.`;
+    case 'agravio': {
+      const a = risk.agravio;
+      let t = `Beneficio por cabeza: <b>${dec1(a.ratio)} sueldos</b> al mes. Te resta ${dec1(a.moralCost)} de moral al mes.`;
+      if (a.comite) t += a.strike > 0 ? ` Con el comité y el agravio en ${PK.STRIKE_AT} o más: huelga general ${pct100(a.strike)} al cerrar el mes.` : ` Con el comité, a partir de ${PK.STRIKE_AT} puede haber huelga general.`;
+      else t += ` Cuando la plantilla pase de ${PK.COMITE_AT} personas habrá comité de empresa.`;
+      return t;
+    }
     case 'fama':
       return `La fama hace vender a la Maison y a la Academy, y se desvanece sola (−0,5 al mes y un 3 % más). La Academy se desbloquea con 25 y el coworking con 35.`;
     default:
@@ -480,13 +494,18 @@ export function renderStaff(s) {
   const r = previewCache(s).base.f.r; // la plantilla de ahora (con lo abierto o vendido este mes)
   const locked = s.flags.forcedLegal > 0;
   const hasHousing = s.businesses.some((b) => b.type === 'vivienda');
+  const liq = liquidacion(s);
+  const agr = Math.round(s.agravio || 0);
   return `<div class="card kpis">
       <div><span class="muted small">Empleados</span><b>${r.employees}</b></div>
       <div><span class="muted small">Coste medio</span><b>${money(averageWage(s))}</b></div>
       <div><span class="muted small">Moral</span><b>${Math.round(s.moral)}</b></div>
       <div><span class="muted small">Control</span><b>${Math.round(r.control * 100)} %</b></div>
+      <button type="button" class="kpi-btn" data-act="explain" data-stat="agravio" title="¿Por qué?"><span class="muted small">Agravio</span><b class="${agr >= PK.STRIKE_AT ? 'neg' : ''}">${agr}</b>${meterBar(agr)}</button>
     </div>
-    ${locked ? `<div class="card warn">⚖️ Tras la inspección, durante ${s.flags.forcedLegal} ${s.flags.forcedLegal === 1 ? 'mes' : 'meses'} más solo puedes aplicar condiciones legales.</div>` : ''}
+    ${liq > 0 ? `<div class="card warn">🧮 Deuda latente con la Seguridad Social: <b>${money(liq)}</b>. Es lo que Marisa liquidaría hoy (lo ahorrado frente al convenio en los últimos ${PK.LIQ_WINDOW} meses, ×${String(PK.LIQ_K).replace('.', ',')}); lo más antiguo prescribe.</div>` : ''}
+    ${locked ? `<div class="card warn">⚖️ ${s.flags.forcedBy === 'convenio' ? 'Por el convenio firmado' : 'Tras la inspección'}, durante ${s.flags.forcedLegal} ${s.flags.forcedLegal === 1 ? 'mes' : 'meses'} más solo puedes aplicar condiciones legales.</div>` : ''}
+    ${renderComite(s, r)}
     <div class="card">
       <p class="small muted">Las condiciones "emprendedoras" abaratan costes, pero bajan la moral y encienden el radar de la Inspección de Trabajo. Las plantillas grandes llaman más la atención.</p>
       ${policyGroup(s, 'salario', POLICIES.salario, locked)}
@@ -494,9 +513,36 @@ export function renderStaff(s) {
       ${policyGroup(s, 'becarios', POLICIES.becarios, locked)}
       ${hasHousing ? policyGroup(s, 'alquiler', POLICIES.alquiler) : `<p class="small muted">🔑 Cuando tengas un Residencial Boomerez podrás alojar a la plantilla y fijar su alquiler.</p>`}
       ${hasHousing ? `<p class="small">Alojados: <b>${r.housed}/${r.beds}</b>. Con más control hay menos denuncias y menos huelgas.</p>` : ''}
+      ${policyGroup(s, 'reparto', POLICIES.reparto)}
+      <p class="small muted">El agravio sube con el beneficio por cabeza (en sueldos de lo que cobran), los caprichos y la Bolsa. Resta moral cada mes y, con comité, trae huelgas generales. Repartir lo alivia y es deducible.</p>
       ${pvFootnote(s)}
     </div>
     ${renderExecs(s)}`;
+}
+
+const meterBar = (v) => `<div class="meter ${v >= PK.STRIKE_AT ? 'hot' : v >= 30 ? 'warm' : 'good'}"><span style="width:${Math.round(Math.min(100, v))}%"></span></div>`;
+
+function renderComite(s, r) {
+  const c = s.comite;
+  if (!c) return '';
+  const fecha = (m) => dateLabel(m).toLowerCase().replace(' ', ' de ');
+  let next = c.nextConvenio;
+  while (next % 12 !== 2) next++;
+  const d = convenioDemand(s);
+  const ratio = s.plantilla?.ratio ?? profitRatio(s, r);
+  const cred = credibilidad(s);
+  return `<div class="card comite"><div class="row gap"><img src="${imageUrl('portrait_empleada_maripili')}" class="portrait-sm" alt="">
+    <div class="grow"><h4>Comité de empresa</h4><div class="small muted">Presidenta: Maripili. Desde ${fecha(c.since)}.</div></div></div>
+    <table class="tbl pl small">
+      <tr><td>Beneficio por cabeza</td><td>${ratio.toFixed(1).replace('.', ',')} sueldos/mes</td></tr>
+      <tr><td>Plus del convenio de empresa</td><td>${c.plus > 0 ? `+${(c.plus * 100).toFixed(1).replace('.', ',')} %` : '—'}</td></tr>
+      <tr><td>Paz social</td><td>${c.paz > 0 ? `${c.paz} ${c.paz === 1 ? 'mes' : 'meses'}` : 'no'}</td></tr>
+      <tr><td>Próxima revisión</td><td>${fecha(next)} · hoy pedirían ${d > 0 ? `un ${(d * 100).toFixed(1).replace('.0', '').replace('.', ',')} %` : 'nada'}</td></tr>
+      ${c.prometido != null ? `<tr><td>Promesa pendiente</td><td class="warn">«El año que viene, sin falta» (${fecha(c.prometido)})</td></tr>` : ''}
+      <tr><td>Huelgas generales</td><td>${c.huelgas || 0}</td></tr>
+      ${cred < 1 ? `<tr><td>Credibilidad</td><td class="neg">${Math.round(cred * 100)} % (promesas rotas)</td></tr>` : ''}
+    </table>
+  </div>`;
 }
 
 function renderExecs(s) {
@@ -565,6 +611,7 @@ export function renderFinance(s) {
       ${c.asesores ? `<tr><td>Asesores</td><td class="neg">−${money(c.asesores)}</td></tr>` : ''}
       ${c.personales ? `<tr><td>Gastos personales de Manolo</td><td class="neg">−${money(c.personales)}</td></tr>` : ''}
       ${c.intereses ? `<tr><td>Intereses</td><td class="neg">−${money(c.intereses)}</td></tr>` : ''}
+      ${c.reparto ? `<tr><td title="Paga de beneficios o participación: un porcentaje del beneficio antes de impuestos.">Reparto con la plantilla</td><td class="neg">−${money(c.reparto)}</td></tr>` : ''}
       <tr><td>Impuesto de Sociedades</td><td class="neg">−${money(r.tax)}</td></tr>
       <tr class="total"><td>Resultado neto</td><td class="${cls(r.net)}">${signed(r.net)}</td></tr>
     </table>${r.evaded > 0 ? `<p class="small warn">Este mes has "optimizado" ${money(r.evaded)} de impuestos.</p>` : ''}</div>`;
@@ -572,7 +619,7 @@ export function renderFinance(s) {
   if (s.extraMonthly.length) {
     html += `<div class="card"><h4>Gastos fijos extra</h4><ul class="perk-list">
       ${s.extraMonthly.map((x, i) => `<li class="perk"><div class="grow"><b>${esc(x.label)}</b> <span class="muted small">${money(x.amount)}/mes${x.months != null ? ` · ${x.months} ${x.months === 1 ? 'mes' : 'meses'} más` : ''}</span></div>
-        <button class="btn small ghost" data-act="drop-cost" data-index="${i}">Quitar</button></li>`).join('')}
+        ${x.locked ? '<span class="tag" title="Aplazamiento con la Seguridad Social: no se puede quitar.">🔒</span>' : `<button class="btn small ghost" data-act="drop-cost" data-index="${i}">Quitar</button>`}</li>`).join('')}
     </ul></div>`;
   }
   html += `<div class="card">${policyGroup(s, 'contabilidad', POLICIES.contabilidad)}${pvFootnote(s)}</div>

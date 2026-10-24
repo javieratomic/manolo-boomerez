@@ -1,6 +1,7 @@
 // Cálculo de la gravedad de inspecciones y auditorías.
 
 import { difficultyOf } from './state.js';
+import { liquidacion, ahorroMeses } from './plantilla.js';
 
 export const DELITO_FISCAL = 120000;
 
@@ -84,7 +85,7 @@ export function complaintFine(s) {
 export function laborVisitParams(s, extra = {}) {
   const veranos = extra.veranos ?? s.flags?.denunciaVacaciones ?? 0;
   const minFine = Math.max(extra.minFine ?? 0, veranos ? complaintFine(s) : 0);
-  const out = { fine: Math.max(laborFine(s), minFine), recid: recidivism(s), sanciones: recentSanctions(s) };
+  const out = { fine: Math.max(laborFine(s), minFine), liq: liquidacion(s), liqMeses: ahorroMeses(s), recid: recidivism(s), sanciones: recentSanctions(s) };
   if (veranos) Object.assign(out, { motivo: 'vacaciones', veranos });
   return out;
 }

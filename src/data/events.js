@@ -15,6 +15,8 @@ import { BUSINESS_TYPES } from './businesses.js';
 import { CITY_BY_ID } from './cities.js';
 import { sobaoOutlets } from '../core/actions.js';
 import { CLAUSE_BY_ID } from './clauses.js';
+import { PLANTILLA_EVENTS } from './eventsPlantilla.js';
+import { liquidate, credibilidad } from '../core/plantilla.js';
 import { MACRO_EVENTS } from './eventsMacro.js';
 import { ARC_EVENTS } from './eventsArcs.js';
 import { EXTRA_EVENTS } from './eventsExtra.js';
@@ -32,6 +34,7 @@ const veces = (n) => `${n} ${n === 1 ? 'vez' : 'veces'}`;
 // Al cerrar una inspección de Trabajo se empieza historial nuevo.
 const closeLaborVisit = (s) => {
   dossier(s).historial = [];
+  dossier(s).ahorro = [];
   delete s.flags.denunciaVacaciones;
 };
 
@@ -56,7 +59,11 @@ function clauseText(s) {
 const forceLegal = (s, months = 6) => {
   Object.assign(s.policies, LEGAL_LABOR);
   s.flags.forcedLegal = months;
+  s.flags.forcedBy = 'inspeccion';
 };
+// Lo que Marisa reclama además de la multa: lo ahorrado frente al convenio en los últimos 24 meses.
+const liqNote = (p) => (p.liq > 0 ? `\n\nY además, la liquidación: ${money(p.liq)} en cuotas y diferencias salariales de ${p.liqMeses ? `los últimos ${p.liqMeses} ${p.liqMeses === 1 ? 'mes' : 'meses'}` : 'los últimos meses'}. Un 25 % ahora y el resto aplazado.` : '');
+const hasCase = (p) => p.fine > 0 || p.liq > 0;
 
 const BASE_EVENTS = [
   // ---------------------------------------------------------------- Guion
@@ -117,10 +124,13 @@ const BASE_EVENTS = [
         effect(s) {
           const c = employees(s) * 80;
           const prev = custom(s, 'navidad');
+          const cred = credibilidad(s);
+          const mo = Math.round(6 * cred);
           addCash(s, -c);
-          addMoral(s, 6);
-          if (prev.last === 'cesta') return `Turrón, embutido y el Rioja de siempre. ${money(c)}. Ya nadie se imagina una Navidad sin cesta Boomerez. Moral +6.`;
-          return `Turrón, embutido y un Rioja decente. ${money(c)}. La plantilla se acuerda de tu padre con cariño, y un poco de ti. Moral +6.`;
+          addMoral(s, mo);
+          const dudas = cred < 1 ? ' (Maripili ya no se cree nada)' : '';
+          if (prev.last === 'cesta') return `Turrón, embutido y el Rioja de siempre. ${money(c)}. Ya nadie se imagina una Navidad sin cesta Boomerez. Moral +${mo}${dudas}.`;
+          return `Turrón, embutido y un Rioja decente. ${money(c)}. La plantilla se acuerda de tu padre con cariño, y un poco de ti. Moral +${mo}${dudas}.`;
         },
       },
       {
@@ -249,14 +259,16 @@ const BASE_EVENTS = [
     title: 'Inspección de Trabajo',
     portrait: 'portrait_inspectora_trabajo', image: 'ev_inspeccion',
     text: (s, p) =>
-      p.fine > 0
-        ? `La inspectora Marisa Ortega se presenta en el obrador sin avisar, con una carpeta muy gorda.\n\n${p.motivo === 'vacaciones' ? `"Buenos días, Don Manuel. Venimos por una denuncia de su plantilla: ${p.veranos && p.veranos !== 3 ? p.veranos : 'tres'} veranos sin vacaciones. Las vacaciones son un derecho, no una sugerencia."` : '"Buenos días, Don Manuel. Venimos por unas denuncias anónimas. Muy anónimas. Firmadas por toda la plantilla."'}\n\nMulta estimada: ${money(p.fine)}.${laborFileNote(s, p)}`
+      p.fine === 0 && p.liq > 0
+        ? `La inspectora Marisa Ortega revisa contratos, nóminas y registros horarios.\n\nTodo está en regla... este mes. Marisa saca una calculadora con rollo de papel: "Ahora, lo de los dos últimos años, Don Manuel."${liqNote(p)}${laborFileNote(s, p)}`
+        : p.fine > 0
+        ? `La inspectora Marisa Ortega se presenta en el obrador sin avisar, con una carpeta muy gorda.\n\n${p.motivo === 'vacaciones' ? `"Buenos días, Don Manuel. Venimos por una denuncia de su plantilla: ${p.veranos && p.veranos !== 3 ? p.veranos : 'tres'} veranos sin vacaciones. Las vacaciones son un derecho, no una sugerencia."` : '"Buenos días, Don Manuel. Venimos por unas denuncias anónimas. Muy anónimas. Firmadas por toda la plantilla."'}\n\nMulta estimada: ${money(p.fine)}.${liqNote(p)}${laborFileNote(s, p)}`
         : 'La inspectora Marisa Ortega revisa contratos, nóminas y registros horarios de los últimos meses.\n\n...Todo está en regla. Se la nota decepcionada.',
     weight: () => 0,
     choices: [
       {
         label: 'Ofrecerle un sobao (legal)',
-        available: (s, p) => p.fine === 0,
+        available: (s, p) => !hasCase(p),
         effect(s) {
           addHeatTrabajo(s, -40);
           addRep(s, 2);
@@ -267,21 +279,24 @@ const BASE_EVENTS = [
       },
       {
         label: 'Colaborar y regularizar',
-        hint: 'Pagas la mitad de la multa y vuelves a la legalidad durante 6 meses.',
-        available: (s, p) => p.fine > 0,
+        hint: (s, p) => `Pagas la mitad de la multa${p.liq > 0 ? ' y la liquidación (un 25 % ahora, el resto en cuotas)' : ''} y vuelves a la legalidad durante 6 meses.`,
+        available: (s, p) => hasCase(p),
         effect(s, p) {
-          pay(s, p.fine * 0.5);
-          recordSanction(s);
+          if (p.fine > 0) {
+            pay(s, p.fine * 0.5);
+            recordSanction(s);
+          }
+          const liq = liquidate(s, p.liq);
           closeLaborVisit(s);
           forceLegal(s);
           addHeatTrabajo(s, -50);
           addMoral(s, 8);
-          return `Firmas el acta con cara de mártir. Multa: ${money(p.fine * 0.5)}. Durante 6 meses, contratos legales y horas pagadas. La plantilla no se lo cree. Moral +8.`;
+          return `Firmas el acta con cara de mártir.${p.fine > 0 ? ` Multa: ${money(p.fine * 0.5)}.` : ''}${liq} Durante 6 meses, contratos legales y horas pagadas. La plantilla no se lo cree. Moral +8.`;
         },
       },
       {
         label: 'Esconder a los becarios en la cámara frigorífica',
-        hint: (s) => `${pct(trickOdds(s, 'frigorifico'))}: no pasa nada${trickCount(s, 'frigorifico') ? ` (ya lo intentaste ${veces(trickCount(s, 'frigorifico'))}: Marisa sospecha de la cámara)` : ''}. Si sale mal: multa ×1,5, escándalo y 6 meses de legalidad forzosa.`,
+        hint: (s, p) => `${pct(trickOdds(s, 'frigorifico'))}: no pasa nada${trickCount(s, 'frigorifico') ? ` (ya lo intentaste ${veces(trickCount(s, 'frigorifico'))}: Marisa sospecha de la cámara)` : ''}. Si sale mal: multa ×1,5, escándalo y 6 meses de legalidad forzosa.${p.liq > 0 ? ' Esconde la multa, no las nóminas: la liquidación la pagas igual.' : ''}`,
         available: (s, p) => p.fine > 0 && s.policies.becarios !== 'ninguno',
         effect(s, p) {
           const prev = trickCount(s, 'frigorifico');
@@ -291,21 +306,23 @@ const BASE_EVENTS = [
           if (chance(s, odds)) {
             addHeatTrabajo(s, -15);
             addMoral(s, -5);
-            return 'Tres becarios pasan 40 minutos a 2 °C entre cajas de mantequilla. La inspectora no los encuentra. Ellos a ti sí te encuentran después. Moral −5.';
+            const liq = liquidate(s, p.liq);
+            return `Tres becarios pasan 40 minutos a 2 °C entre cajas de mantequilla. La inspectora no los encuentra. Ellos a ti sí te encuentran después. Moral −5.${liq ? `\n\nLas nóminas, en cambio, no caben en la cámara.${liq}` : ''}`;
           }
+          const liqF = liquidate(s, p.liq);
           pay(s, p.fine * 1.5);
           recordSanction(s);
           addRep(s, -12);
           forceLegal(s);
           addHeatTrabajo(s, -30);
-          if (prev) return `La inspectora va directa a la cámara frigorífica. "Por la mantequilla, ya sabe." Ya sospechaba de la cámara. Multa: ${money(p.fine * 1.5)}. Sale en las noticias. Reputación −12.`;
-          return `La inspectora abre la cámara para "ver la mantequilla". Encuentra a tres becarios con escarcha en las cejas. Multa: ${money(p.fine * 1.5)}. Sale en las noticias. Reputación −12.`;
+          if (prev) return `La inspectora va directa a la cámara frigorífica. "Por la mantequilla, ya sabe." Ya sospechaba de la cámara. Multa: ${money(p.fine * 1.5)}. Sale en las noticias. Reputación −12.${liqF}`;
+          return `La inspectora abre la cámara para "ver la mantequilla". Encuentra a tres becarios con escarcha en las cejas. Multa: ${money(p.fine * 1.5)}. Sale en las noticias. Reputación −12.${liqF}`;
         },
       },
       {
         label: 'Invitarla a sobaos y un orujo',
-        hint: (s) => `${pct(trickOdds(s, 'orujo'))}: se ablanda${trickCount(s, 'orujo') ? ` (ya lo intentaste ${veces(trickCount(s, 'orujo'))})` : ''}. Si no: multa ×1,3 y expediente por cohecho.`,
-        available: (s, p) => p.fine > 0,
+        hint: (s, p) => `${pct(trickOdds(s, 'orujo'))}: se ablanda${p.liq > 0 ? ' (y la liquidación se queda en la mitad)' : ''}${trickCount(s, 'orujo') ? ` (ya lo intentaste ${veces(trickCount(s, 'orujo'))})` : ''}. Si no: multa ×1,3${p.liq > 0 ? ', liquidación entera' : ''} y expediente por cohecho.`,
+        available: (s, p) => hasCase(p),
         effect(s, p) {
           const prev = trickCount(s, 'orujo');
           const odds = trickOdds(s, 'orujo');
@@ -313,26 +330,33 @@ const BASE_EVENTS = [
           closeLaborVisit(s);
           if (chance(s, odds)) {
             addHeatTrabajo(s, -30);
-            return '"Bueno... por esta vez solo le pongo un requerimiento." El orujo de tu padre hace milagros. Radar de Inspección −30.';
+            const liq = liquidate(s, (p.liq || 0) * 0.5);
+            return `"Bueno... por esta vez solo le pongo un requerimiento." El orujo de tu padre hace milagros. Radar de Inspección −30.${liq ? `\n\nEso sí, la calculadora no bebe: la liquidación se queda en la mitad.${liq}` : ''}`;
           }
-          pay(s, p.fine * 1.3);
-          recordSanction(s);
+          if (p.fine > 0) {
+            pay(s, p.fine * 1.3);
+            recordSanction(s);
+          }
+          const liqF = liquidate(s, p.liq);
           addExpediente(s, 1, 'intento de cohecho a una inspectora');
           addHeatTrabajo(s, -20);
-          if (prev) return `"¿Otra vez el orujo, Don Manuel? Lo tengo apuntado desde la última vez." Multa: ${money(p.fine * 1.3)} y un expediente.`;
-          return `"¿Me está usted ofreciendo algo, Don Manuel?" Lo apunta todo. Multa: ${money(p.fine * 1.3)} y un expediente.`;
+          if (prev) return `"¿Otra vez el orujo, Don Manuel? Lo tengo apuntado desde la última vez."${p.fine > 0 ? ` Multa: ${money(p.fine * 1.3)}` : ''} y un expediente.${liqF}`;
+          return `"¿Me está usted ofreciendo algo, Don Manuel?" Lo apunta todo.${p.fine > 0 ? ` Multa: ${money(p.fine * 1.3)}` : ''} y un expediente.${liqF}`;
         },
       },
       {
         label: 'Llamar a Don Cosme',
-        hint: 'El abogado de tu padre. Multa ×0,6 y sin intervención.',
-        available: (s, p) => p.fine > 0 && s.perks.abogado,
+        hint: (s, p) => `El abogado de tu padre. Multa ×0,6${p.liq > 0 ? ', liquidación ×0,85' : ''} y sin intervención.`,
+        available: (s, p) => hasCase(p) && s.perks.abogado,
         effect(s, p) {
-          pay(s, p.fine * 0.6);
-          recordSanction(s);
+          if (p.fine > 0) {
+            pay(s, p.fine * 0.6);
+            recordSanction(s);
+          }
+          const liq = liquidate(s, (p.liq || 0) * 0.85);
           closeLaborVisit(s);
           addHeatTrabajo(s, -35);
-          return `Don Cosme llega en una berlina de 1994 y cita jurisprudencia de 1987. Multa reducida: ${money(p.fine * 0.6)}. Puedes seguir con tus políticas (de momento).`;
+          return `Don Cosme llega en una berlina de 1994 y cita jurisprudencia de 1987.${p.fine > 0 ? ` Multa reducida: ${money(p.fine * 0.6)}.` : ''}${liq} Puedes seguir con tus políticas (de momento).`;
         },
       },
     ],
@@ -1532,6 +1556,6 @@ const BASE_EVENTS = [
   },
 ];
 
-export const EVENTS = [...BASE_EVENTS, ...MACRO_EVENTS, ...SYSTEM_EVENTS, ...ARC_EVENTS, ...EXTRA_EVENTS, ...CITY_EVENTS];
+export const EVENTS = [...BASE_EVENTS, ...MACRO_EVENTS, ...SYSTEM_EVENTS, ...ARC_EVENTS, ...EXTRA_EVENTS, ...CITY_EVENTS, ...PLANTILLA_EVENTS];
 
 export const EVENT_BY_ID = Object.fromEntries(EVENTS.map((e) => [e.id, e]));

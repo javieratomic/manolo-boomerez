@@ -2,7 +2,7 @@ import { test, assert, assertEq } from './runner.js';
 import { newGame, serialize, deserialize } from '../src/core/state.js';
 import { advanceMonth, resolvePending, currentPending, checkEnding, eligibleEvents } from '../src/core/sim.js';
 import { computeEconomy, patrimonio, creditLimit, grossPatrimonio, estimateOpening } from '../src/core/economy.js';
-import { openBusiness, canOpen, setPolicy, borrow, repay, buyUpgrade, sellBusiness, doManoloAction, togglePerk, currentGoal, rebrand } from '../src/core/actions.js';
+import { openBusiness, canOpen, setPolicy, borrow, repay, buyUpgrade, sellBusiness, doManoloAction, togglePerk, currentGoal, rebrand, dropMonthlyCost } from '../src/core/actions.js';
 import { laborFine, trickOdds, recordTrick, recidivism, tickLaborHistory, clearRecord, laborVisitParams } from '../src/core/inspections.js';
 import { dateLabel } from '../src/core/helpers.js';
 import { EVENTS } from '../src/data/events.js';
@@ -23,6 +23,7 @@ import { checkClause, clauseWarn, clauseMult, clauseActive } from '../src/core/c
 import { score } from '../src/core/sim.js';
 import { netDrivers, freshEntries, upcoming, monthDigest, MAX_DRIVERS } from '../src/core/digest.js';
 import { seedCode, parseSeed, isoWeekKey, weekSeed } from '../src/core/seed.js';
+import { tickAhorro, liquidacion, liquidate, strikeChance, tickComite, rollConvenio, K as PK } from '../src/core/plantilla.js';
 import { playGame, from } from './bot.js';
 
 const started = (seed = 42, brand = 0) => {
@@ -1025,6 +1026,7 @@ test('parte: se calcula cada mes de una partida sin errores', () => {
   }
 });
 
+// Cifras fijadas de la 0.4 (el agravio resta algo de moral; con AGR_MORAL = 0 salen las de la 0.3).
 test('regresión: los campos del parte no cambian las cuentas', () => {
   const a = newGame(1);
   resolvePending(a, 0);
@@ -1047,7 +1049,7 @@ test('regresión: los campos del parte no cambian las cuentas', () => {
     advanceMonth(c);
     resolveAll(c);
   }
-  const expected = [[24037.83, 20595.49, 2581.75], [106390.18, 76757.12, 22224.8], [58048.44, 46659.82, 8541.47]];
+  const expected = [[24037.83, 20595.49, 2581.75], [106390.18, 76757.12, 22224.8], [58048.68, 46659.66, 8541.77]];
   [a, b, c].forEach((s, i) => {
     const r = computeEconomy(s);
     [r.revenue, r.totalCost, r.net].forEach((v, k) => assert(Math.abs(v - expected[i][k]) < 0.01, `estado ${i} cifra ${k}: ${v}`));
@@ -1134,8 +1136,9 @@ test('regresión 0.3: la culpa se ve aunque la moral esté en el tope', () => {
   s.policies.salario = 'negro';
   s.policies.horas = 'tiburon';
   const b = blame(s, 'moral');
-  assert(b.clamp > 0 && b.rows.length === 2, JSON.stringify(b));
-  assert(b.rows.every((x) => x.value < 0));
+  const labor = b.rows.filter((x) => ['salario', 'horas'].includes(x.key));
+  assert(b.clamp > 0 && labor.length === 2, JSON.stringify(b));
+  assert(labor.every((x) => x.value < 0));
   assert(Math.abs(b.rows.reduce((a, x) => a + x.value, 0) + b.rest + b.clamp - b.total) < 1e-9, 'las partes suman el total');
 });
 
@@ -1326,4 +1329,185 @@ test('bot: modo infinito, políticas por fases y control del radar', () => {
   assertEq(r.month, 96);
   assertEq(r.mon.length, 96);
   assert(r.mon.some((x) => x.m > 24), 'traza');
+});
+
+// ------------------------------------------------------------- 0.4 · La cuenta de la plantilla
+const report = (s) => computeEconomy(s);
+const freshComite = () => ({ since: 0, plus: 0, paz: 0, nextConvenio: 0, prometido: null, rotas: [], extra: 0, huelgas: 0, firmas: 0 });
+
+test('plantilla: el ahorro se mide frente al convenio y no cuenta los pactos de crisis', () => {
+  const s = started();
+  s.policies.salario = 'minimo';
+  const r = report(s);
+  tickAhorro(s, r);
+  assertEq(s.dossier.ahorro.at(-1), Math.round(r.employees * 400));
+  s.mods.push({ kind: 'labor', factor: 0.9, months: 3, label: 'Pacto de crisis' });
+  tickAhorro(s, r);
+  assertEq(s.dossier.ahorro.at(-1), Math.round(r.employees * 400), 'el pacto legal no se liquida');
+  s.policies.salario = 'convenio';
+  tickAhorro(s, r);
+  assertEq(s.dossier.ahorro.at(-1), 0);
+});
+
+test('plantilla: la liquidación suma 24 meses ×1,2 y la visita la vacía', () => {
+  const s = started();
+  s.dossier.ahorro = Array.from({ length: PK.LIQ_WINDOW }, () => 1000);
+  assertEq(liquidacion(s), Math.round(24 * 1000 * 1.2));
+  const p = visit(s, 'inspeccion_trabajo', { fine: 0, liq: liquidacion(s), liqMeses: 24 });
+  assert(!p.choices.some((c) => c.label.includes('Ofrecerle un sobao')), 'sin sobao con liquidación');
+  assert(p.text.includes('dos últimos años'));
+  pick(s, p, 'Colaborar');
+  assertEq(s.dossier.ahorro.length, 0);
+});
+
+test('plantilla: la liquidación paga como mucho el 25 % sin dejar la caja en negativo y aplaza el resto', () => {
+  const s = started();
+  s.cash = 10000;
+  const text = liquidate(s, 200000);
+  assertEq(s.cash, 0, 'el 25 % no cabe: se paga lo que hay');
+  const cuota = s.extraMonthly.at(-1);
+  assert(cuota.locked && cuota.months >= 18 && cuota.months <= 48, JSON.stringify(cuota));
+  assert(Math.abs(cuota.amount * cuota.months - 190000 * 1.05) < cuota.months, 'resto con recargo del 5 %');
+  assert(!dropMonthlyCost(s, s.extraMonthly.length - 1).ok, 'no se quita con un clic');
+  assert(text.includes('cuotas'));
+  const t = started();
+  t.cash = 1e6;
+  liquidate(t, 100000);
+  assertEq(t.cash, 1e6 - 25000);
+});
+
+test('plantilla: Don Cosme rebaja la liquidación al 85 %', () => {
+  const s = started();
+  s.perks.abogado = true;
+  s.cash = 1e6;
+  pick(s, visit(s, 'inspeccion_trabajo', { fine: 0, liq: 100000 }), 'Don Cosme');
+  assertEq(s.stats.liquidado, 85000);
+});
+
+test('plantilla: el reparto es deducible', () => {
+  const s = started(4);
+  const r0 = report(s);
+  assert(r0.profit > 0, 'el obrador heredado da beneficio');
+  s.policies.reparto = 'paga';
+  const r = report(s);
+  assert(Math.abs(r.costs.reparto - 0.03 * r0.profit) < 1e-6, 'el 3 % del beneficio antes de impuestos');
+  assert(r.tax < r0.tax, 'paga menos impuestos');
+  assert(Math.abs(r.profit - (r0.profit - r.costs.reparto)) < 1e-6);
+});
+
+test('plantilla: el comité nace con 50 empleados y no a mitad del arco', () => {
+  const s = started();
+  const fake = { ...report(s), employees: 60 };
+  s.flags.comiteStep = 2;
+  tickComite(s, fake);
+  assert(!s.comite, 'a mitad del arco, no');
+  delete s.flags.comiteStep;
+  tickComite(s, fake);
+  assert(s.comite && s.pending.some((p) => p.id === 'comite_nace'), 'nace');
+  s.month = 30;
+  assert(!EVENTS.find((e) => e.id === 'arc_comite_1').weight(s), 'el arco ya no empieza');
+});
+
+test('plantilla: marzo sin subida con poco agravio; firmar sube el plus y bloquea 12 meses', () => {
+  const s = started();
+  s.comite = freshComite();
+  s.month = 14;
+  s.agravio = 5;
+  rollConvenio(s);
+  assertEq(s.pending.length, 0, 'sin carta');
+  assertEq(s.comite.paz, 12);
+  s.comite.nextConvenio = 0;
+  s.agravio = 40;
+  rollConvenio(s);
+  const p = currentPending(s);
+  assertEq(p.pending.id, 'convenio_anual');
+  assertEq(p.pending.params.d, 0.02);
+  s.policies.salario = 'minimo';
+  pick(s, p, 'Firmar');
+  assert(Math.abs(s.comite.plus - 0.02) < 1e-9 && s.comite.paz === 12);
+  assertEq(s.flags.forcedLegal, 12);
+  assertEq(s.policies.salario, 'convenio');
+  const res = setPolicy(s, 'salario', 'negro');
+  assert(!res.ok && res.msg.includes('convenio'), res.msg);
+});
+
+test('plantilla: prometer y no cumplir trae huelga general de 2 meses y agravio +20', () => {
+  const s = started();
+  s.comite = freshComite();
+  s.agravio = 40;
+  pick(s, visit(s, 'convenio_anual', { d: 0.02 }), 'año que viene');
+  assertEq(s.comite.prometido, s.month);
+  s.month += 12;
+  pick(s, visit(s, 'convenio_anual', { d: 0.02 }), 'Congelar');
+  assertEq(s.agravio, 70, 'agravio +10 por congelar y +20 por la promesa rota');
+  const h = s.pending.find((p) => p.id === 'huelga_general');
+  assert(h && h.params.months === 2, JSON.stringify(s.pending));
+  assertEq(s.comite.rotas.length, 1);
+});
+
+test('plantilla: nunca dos huelgas a la vez; con comité no sale la de moral', () => {
+  const s = started();
+  s.moral = 5;
+  assertEq(strikeChance(s, { control: 0 }).card, 'huelga');
+  s.comite = freshComite();
+  s.comite.nextConvenio = 99;
+  s.agravio = 80;
+  const st = strikeChance(s, { control: 0 });
+  assertEq(st.card, 'huelga_general');
+  assert(st.p > 0.15);
+  for (let seed = 1; seed <= 30; seed++) {
+    const t = started(seed);
+    t.comite = { ...s.comite };
+    t.agravio = 80;
+    t.moral = 5;
+    t.cooldowns.trabajo = t.cooldowns.hacienda = 99;
+    advanceMonth(t);
+    const n = t.pending.filter((p) => p.id === 'huelga' || p.id === 'huelga_general').length;
+    assert(n <= 1, `semilla ${seed}: ${n} huelgas`);
+    assert(!t.pending.some((p) => p.id === 'huelga'), 'con comité no hay huelga de moral');
+  }
+});
+
+test('plantilla: el «¿Por qué?» del agravio culpa a no repartir', () => {
+  const s = started(4);
+  s.cash = 1e6;
+  for (const c of ['madrid', 'barcelona', 'valencia']) openBusiness(s, 'express', c);
+  s.agravio = 30;
+  s.plantilla.ratio = 1.5;
+  const b = blame(s, 'agravio');
+  const row = b.rows.find((x) => x.key === 'reparto');
+  assert(row && row.value > 0, JSON.stringify(b.rows));
+});
+
+test('plantilla: el neto a 6 meses de explotar descuenta la liquidación esperada', () => {
+  const s = started(4);
+  s.cash = 1e6;
+  for (const c of ['madrid', 'barcelona', 'valencia']) openBusiness(s, 'express', c);
+  s.heatTrabajo = 40;
+  const p = policyPreview(s, 'salario', 'minimo');
+  assert(p.saving > 0 && p.liq > 0, JSON.stringify(p));
+  assert(p.net6 < p.net * 6 * 0.9, `el horizonte descuenta la deuda latente: ${p.net6} vs ${p.net * 6}`);
+});
+
+test('plantilla: las partidas viejas migran sin comité y con el ahorro vacío', () => {
+  const s = started();
+  const old = JSON.parse(serialize(s));
+  delete old.agravio;
+  delete old.comite;
+  delete old.plantilla;
+  delete old.dossier.ahorro;
+  delete old.policies.reparto;
+  delete old.stats.liquidado;
+  const back = deserialize(JSON.stringify(old));
+  assertEq(back.agravio, 0);
+  assertEq(back.comite, null);
+  assertEq(back.dossier.ahorro.length, 0);
+  assertEq(back.policies.reparto, 'ninguno');
+  assertEq(back.stats.liquidado, 0);
+  advanceMonth(back);
+});
+
+test('bot: una partida explotadora acaba pagando una liquidación', () => {
+  const r = playGame(7932, { diversify: true, smart: true, leverage: true, endless: true, policyAt: from(24, { salario: 'minimo', horas: 'gratis' }) });
+  assert(r.liquidado > 0, `liquidado ${r.liquidado}`);
 });

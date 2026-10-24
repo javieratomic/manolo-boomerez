@@ -379,3 +379,19 @@ Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplifi
 - **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
 
 Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre la barra marrón (#3b2a1a). Sin texto. Motivo: un sobre de papel antiguo cerrado con un sello de lacre rojo con una vaca pasiega grabada.
+
+## icon_agravio
+
+- **Archivo:** `assets/ui/icon_agravio.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre fondo claro o sobre la barra marrón (#3b2a1a). Sin texto. Motivo: una balanza: en un platillo, una bolsa de dinero grande; en el otro, un gorro de panadera pequeño.
+
+## icon_reparto
+
+- **Archivo:** `assets/ui/icon_reparto.png`
+- **Tamaño:** 64×64 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Icono de interfaz de 64×64 px, PNG con fondo transparente. Estilo 2.5D simplificado, con volumen ligero y contorno oscuro de 2-3 px para que se lea a 16-24 px sobre fondo claro o sobre la barra marrón (#3b2a1a). Sin texto. Motivo: un sobao cortado en porciones, como un gráfico de tarta.

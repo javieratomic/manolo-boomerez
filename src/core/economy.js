@@ -30,6 +30,7 @@ export function policyFx(s) {
     con: POLICIES.contabilidad.options[p.contabilidad],
     ing: POLICIES.ingredientes.options[p.ingredientes],
     man: POLICIES.mantenimiento.options[p.mantenimiento || 'manitas'],
+    rep: POLICIES.reparto.options[p.reparto || 'ninguno'],
   };
 }
 
@@ -45,10 +46,18 @@ export function obradorValue(s) {
   return OBRADOR_BASE.baseValue + s.obrador.upgrades.reduce((a, id) => a + (OBRADOR_UPGRADES.find((u) => u.id === id)?.cost || 0) * 0.8, 0);
 }
 
-export function averageWage(s) {
+// Sueldo de convenio (con el plus del convenio de empresa) y el que sale de las políticas. Los pactos
+// temporales de los sucesos (ERE, pacto de crisis...) son legales: no cuentan para la liquidación.
+export const legalWage = (s) => POLICIES.salario.options.convenio.wage * (s.wageIndex || 1) * (1 + (s.comite?.plus || 0));
+
+export function policyWage(s) {
   const fx = policyFx(s);
-  const base = (1 - fx.bec.share) * fx.sal.wage * (s.wageIndex || 1) + fx.bec.share * BECARIO_WAGE;
-  return base * fx.hor.laborMult * modFactor(s, 'labor');
+  const base = (1 - fx.bec.share) * fx.sal.wage * (s.wageIndex || 1) * (1 + (s.comite?.plus || 0)) + fx.bec.share * BECARIO_WAGE;
+  return base * fx.hor.laborMult;
+}
+
+export function averageWage(s) {
+  return policyWage(s) * modFactor(s, 'labor');
 }
 
 // Modificadores temporales (sucesos, campañas, guerras de precios...). Filtran por categoría, ciudad y tipo.
@@ -124,7 +133,7 @@ export function computeEconomy(s) {
   const sat = (b) => 1 / (1 + 0.45 * ((counts[`${b.city}:${b.type}`] || 1) - 1));
 
   const lines = [];
-  const costs = { salarios: 0, directivos: 0, estructura: 0, mantenimiento: 0, alquileres: 0, materias: 0, transporte: 0, otros: 0, intereses: 0, asesores: 0, personales: 0, impuestos: 0 };
+  const costs = { salarios: 0, directivos: 0, estructura: 0, mantenimiento: 0, alquileres: 0, materias: 0, transporte: 0, otros: 0, intereses: 0, asesores: 0, personales: 0, reparto: 0, impuestos: 0 };
   const revenueByCat = { sobaos: 0, inmobiliario: 0, hosteleria: 0, formacion: 0, servicios: 0, produccion: 0 };
   let employees = 0;
 
@@ -308,7 +317,10 @@ export function computeEconomy(s) {
   costs.mantenimiento = maintenanceCost(s);
 
   const revenue = Object.values(revenueByCat).reduce((a, b) => a + b, 0);
-  const totalCost = costs.salarios + costs.directivos + costs.alquileres + costs.materias + costs.otros + costs.intereses + costs.asesores + costs.personales + costs.estructura + costs.transporte + costs.mantenimiento;
+  let totalCost = costs.salarios + costs.directivos + costs.alquileres + costs.materias + costs.otros + costs.intereses + costs.asesores + costs.personales + costs.estructura + costs.transporte + costs.mantenimiento;
+  // Reparto con la plantilla: un porcentaje del beneficio antes de impuestos (deducible).
+  costs.reparto = Math.max(0, revenue - totalCost) * (fx.rep?.share || 0);
+  totalCost += costs.reparto;
   const profit = revenue - totalCost;
 
   let tax = 0;

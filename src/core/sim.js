@@ -5,6 +5,7 @@ import { addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, log, money,
 import { haciendaDebt, inspectionChance, auditChance, tickLaborHistory, laborVisitParams } from './inspections.js';
 import { checkUnlocks } from './actions.js';
 import { settleClause, clauseMult, checkClause } from './clauses.js';
+import { tickAhorro, driftAgravio, tickComite, rollConvenio, strikeChance } from './plantilla.js';
 import { tickMacro, macroFx } from './macro.js';
 import { tickRivals, rivalHit } from './rivals.js';
 import { tickRD } from './market.js';
@@ -25,6 +26,7 @@ export function advanceMonth(s) {
   s.seen ||= {};
   const r = computeEconomy(s);
   s.lastReport = r;
+  tickAhorro(s, r);
   s.cash += r.net;
   s.evaded += r.evaded;
 
@@ -42,6 +44,8 @@ export function advanceMonth(s) {
   tickLaborHistory(s);
   rollVisits(s, r);
   rollScheduled(s);
+  tickComite(s, r);
+  rollConvenio(s);
   tickPolitics(s);
   rollRandomEvent(s);
   if (chance(s, 0.4)) log(s, `📰 ${pick(s, HEADLINES)}`, 'news');
@@ -101,6 +105,7 @@ export function driftStats(s, r) {
   addHeatHacienda(s, hacGain * (1 - execBonus(s, 'finanzas')) + execHeat(s));
   addHeatHacienda(s, -1.2);
 
+  driftAgravio(s, r);
   s.zeroMoralMonths = s.moral <= 0.5 ? s.zeroMoralMonths + 1 : 0;
   const p = s.policies;
   const legal = p.salario === 'convenio' && p.horas === 'pagadas' && p.becarios === 'ninguno' && p.contabilidad === 'limpia';
@@ -170,10 +175,10 @@ function rollVisits(s, r) {
     s.cooldowns.hacienda = 6;
     s.stats.auditorias++;
   }
-  const striking = s.mods.some((m) => m.kind === 'strike');
-  if (!striking && s.moral < 25 && chance(s, 0.15 * (1 - 0.7 * r.control))) {
-    s.pending.push({ kind: 'event', id: 'huelga' });
-  }
+  // Nunca dos huelgas a la vez; con comité, la huelga es general y también la provoca el agravio.
+  const striking = s.mods.some((m) => m.kind === 'strike') || s.pending.some((p) => p.id === 'huelga' || p.id === 'huelga_general');
+  const st = strikeChance(s, r);
+  if (!striking && st.p > 0 && chance(s, st.p)) s.pending.push({ kind: 'event', id: st.card });
   for (const b of s.businesses) {
     const strict = { estricto: 1.5, laxo: 0.5 }[govFx(s).tourism] ?? 1;
     if (b.ilegal && b.type !== 'airbnb') b.ilegal = false; // reconvertido en vivienda: ya no es un piso turístico

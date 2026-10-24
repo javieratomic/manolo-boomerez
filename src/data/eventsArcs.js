@@ -653,7 +653,7 @@ const ARC_COMITE = [
     text: (s) =>
       'Maripili deja encima de tu mesa un sobre de papel de estraza. Dentro hay un calendario, una lista de nombres y el Estatuto de los Trabajadores subrayado en tres colores.\n\n' +
       `"Manolo, somos ${employees(s)}. Queremos una comisión negociadora y un convenio de empresa: con tablas salariales, registro horario y todo lo que tu padre nos prometía en las cenas de Navidad."`,
-    weight: (s) => (canStart(s, 10) && employees(s) >= 25 ? (s.moral < 50 ? 2 : 1.3) : 0),
+    weight: (s) => (!s.comite && canStart(s, 10) && employees(s) >= 25 ? (s.moral < 50 ? 2 : 1.3) : 0),
     once: true,
     choices: [
       {
@@ -775,6 +775,8 @@ const ARC_COMITE = [
           s.flags.comiteFin = 'firmado';
           s.wageIndex = (s.wageIndex || 1) * 1.06;
           Object.assign(s.policies, { salario: 'convenio', horas: 'pagadas', becarios: 'ninguno' });
+          s.flags.forcedLegal = Math.max(s.flags.forcedLegal || 0, 12);
+          s.flags.forcedBy = 'convenio';
           addMod(s, { kind: 'revenue', factor: 1.04, months: 36, label: 'Convenio Boomerez' });
           addMoral(s, 15);
           addHeatTrabajo(s, -20);

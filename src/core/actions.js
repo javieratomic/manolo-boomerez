@@ -121,7 +121,8 @@ export function buyUpgrade(s) {
 export function setPolicy(s, key, value) {
   if (!POLICIES[key]?.options[value]) return { ok: false, msg: 'Política desconocida.' };
   if (s.flags.forcedLegal > 0 && isIllegalChoice(key, value)) {
-    return { ok: false, msg: `La Inspección te vigila: no puedes cambiar esto durante ${s.flags.forcedLegal} meses.` };
+    const who = s.flags.forcedBy === 'convenio' ? 'Lo firmaste en el convenio' : 'La Inspección te vigila';
+    return { ok: false, msg: `${who}: no puedes cambiar esto durante ${s.flags.forcedLegal} meses.` };
   }
   s.policies[key] = value;
   return { ok: true };
@@ -201,6 +202,7 @@ export function rebrand(s) {
 export function dropMonthlyCost(s, index) {
   const x = s.extraMonthly[index];
   if (!x) return { ok: false, msg: 'Ese gasto ya no existe.' };
+  if (x.locked) return { ok: false, msg: 'Eso no se quita con un clic: es la Seguridad Social.' };
   s.extraMonthly.splice(index, 1);
   log(s, `✂️ Quitas el gasto: ${x.label}.`, 'info');
   return { ok: true, item: x };

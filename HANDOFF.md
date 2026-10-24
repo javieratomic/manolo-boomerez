@@ -1,3 +1,15 @@
+# Estado para el siguiente agente (25-10-2026)
+
+- Versión actual: **0.11.0**. La última entrega de código es `c9707aa` (venta online); antes, `e2149b8` (central de marketing) y `c427b08` (fiestas con memoria).
+- Las peticiones de código recibidas hasta esta entrega están implementadas y verificadas. No queda implementación de esta sesión pendiente. Los apartados siguientes documentan cada entrega; los diagnósticos antiguos se conservan como historial y no deben reabrirse sin reproducirlos en la versión actual.
+- Última validación de código: **271 pruebas Node y 18 DOM**, más los flujos y simulaciones detallados abajo. Esta actualización de relevo solo cambia documentación; no repite esas pruebas.
+- Portable actual comprobado y disponible: `desktop/dist/ManoloBoomerez-0.11.0-portable.exe`. Los ejecutables de `desktop/dist/` son artefactos ignorados por Git y se conservan.
+- Arte: **198 done, 62 requested y 1 blocked** en el manifiesto. Es la cola de recursos existente, no un bloqueo de la entrega de código.
+- Trabajo realizado en `main`, mediante commits locales. **No se ha hecho push**. El árbol estaba limpio antes de actualizar este relevo; esta actualización se guarda también en un commit local.
+- El usuario autorizó continuar código y decidir el equilibrio por entregas. La antigua vigilancia autónoma de arte de ocho horas ya terminó; no reiniciarla.
+
+---
+
 # Continuación 0.11.0 — Venta online (25-10-2026)
 
 Petición completa implementada:

@@ -10,7 +10,7 @@ import { BUSINESS_TYPES, OBRADOR_UPGRADES } from '../src/data/businesses.js';
 import { MANOLO_ACTIONS } from '../src/data/manoloActions.js';
 import { ACHIEVEMENTS } from '../src/data/achievements.js';
 import { refreshCandidates, hireExec, execBonus, fireExec } from '../src/core/execs.js';
-import { buyLujo, doIPO, companyValuation, ipoPremium, tickIPO } from '../src/core/life.js';
+import { buyLujo, doIPO, companyValuation, ipoPremium, tickIPO, canIPO } from '../src/core/life.js';
 import { transportCost } from '../src/core/logistics.js';
 import { advice } from '../src/core/advice.js';
 import { tickRivals, rivalFactor, actOnRival, acquireRival, acquisitionPrice } from '../src/core/rivals.js';
@@ -1441,10 +1441,10 @@ test('plantilla: prometer y no cumplir trae huelga general de 2 meses y agravio 
   const s = started();
   s.comite = freshComite();
   s.agravio = 40;
-  pick(s, visit(s, 'convenio_anual', { d: 0.02 }), 'año que viene');
+  pick(s, visit(s, 'convenio_anual', { d: 0.02, m: s.month }), 'año que viene');
   assertEq(s.comite.prometido, s.month);
   s.month += 12;
-  pick(s, visit(s, 'convenio_anual', { d: 0.02 }), 'Congelar');
+  pick(s, visit(s, 'convenio_anual', { d: 0.02, m: s.month }), 'Congelar');
   assertEq(s.agravio, 70, 'agravio +10 por congelar y +20 por la promesa rota');
   const h = s.pending.find((p) => p.id === 'huelga_general');
   assert(h && h.params.months === 2, JSON.stringify(s.pending));
@@ -1908,4 +1908,75 @@ test('ayuda: cinco páginas con siguiente y anterior', () => {
   assert(!helpChoices(0).some((c) => c.label === 'Anterior'));
   assert(helpChoices(4).some((c) => c.label === 'Anterior' && c.go === 3));
   assert(!helpChoices(4).some((c) => c.label === 'Siguiente'));
+});
+
+// ------------------------------------------------------------- Regresiones de la revisión de la 0.4 (piezas 1, 2 y 4a)
+test('regresión 0.4: el aplazamiento con la Seguridad Social cuenta como deuda', () => {
+  const s = started();
+  s.cash = 0;
+  const p0 = patrimonio(s);
+  liquidate(s, 2e6);
+  assert(Math.abs(patrimonio(s) - (p0 - 2e6 * 1.05)) < 50, `patrimonio ${patrimonio(s)} frente a ${p0}`); // sin caja, todo aplazado con recargo
+});
+
+test('regresión 0.4: una inspección no acorta el bloqueo del convenio', () => {
+  const s = started();
+  s.comite = { since: 0, plus: 0, paz: 0, nextConvenio: 0, prometido: null, rotas: [], extra: 0, huelgas: 0, firmas: 0 };
+  pick(s, visit(s, 'convenio_anual', { d: 0.02, m: s.month }), 'Firmar');
+  pick(s, visit(s, 'inspeccion_trabajo', { fine: 0, liq: 18000 }), 'Colaborar');
+  assertEq(s.flags.forcedLegal, 12);
+  assertEq(s.flags.forcedBy, 'convenio');
+});
+
+test('regresión 0.4: el convenio se revisa todos los marzos', () => {
+  const s = started(5);
+  s.comite = { since: 0, plus: 0, paz: 0, nextConvenio: 0, prometido: null, rotas: [], extra: 0, huelgas: 0, firmas: 0 };
+  s.month = 2;
+  const cards = [];
+  for (let i = 0; i < 26; i++) {
+    s.agravio = 40;
+    s.cooldowns.trabajo = s.cooldowns.hacienda = 99;
+    s.cash = Math.max(s.cash, 2e5);
+    const m = s.month;
+    advanceMonth(s);
+    if (s.pending.some((p) => p.id === 'convenio_anual')) cards.push(m);
+    while (s.pending.length) {
+      const p = currentPending(s);
+      const k = p.choices.find((c) => c.key === 'firmar') ?? p.choices[0];
+      resolvePending(s, k.index);
+    }
+  }
+  assertEq(cards.join(), '2,14,26', `revisiones en ${cards.join()}`);
+});
+
+test('regresión 0.4: nunca dos huelgas generales a la vez y lo firmado para acabarla obliga', () => {
+  const s = started();
+  s.comite = { since: 0, plus: 0, paz: 0, nextConvenio: 99, prometido: s.month - 12, rotas: [], extra: 0, huelgas: 0, firmas: 0 };
+  s.agravio = 80;
+  pick(s, visit(s, 'huelga_general', { months: 1 }), 'Aguantar');
+  pick(s, visit(s, 'convenio_anual', { d: 0.03, m: s.month }), 'Congelar');
+  assertEq(s.mods.filter((m) => m.kind === 'strike').length, 1, 'una sola huelga');
+  assert(s.mods.find((m) => m.kind === 'strike').months >= 2, 'alargada');
+  const t = started();
+  t.comite = { since: 0, plus: 0, paz: 0, nextConvenio: 99, prometido: null, rotas: [], extra: 0, huelgas: 0, firmas: 0 };
+  pick(t, visit(t, 'huelga_general', {}), 'paga de beneficios');
+  assert(!setPolicy(t, 'reparto', 'ninguno').ok, 'no se quita en la paz');
+  t.comite.paz = 0;
+  assert(setPolicy(t, 'reparto', 'ninguno').ok);
+});
+
+test('regresión 0.4: no se sale a Bolsa sin tiempo para el bloqueo y la revista lo respeta', () => {
+  const s = started();
+  s.cash = 6e6;
+  s.month = 92;
+  s.rep = 60;
+  assert(!canIPO(s, grossPatrimonio(s)).ok);
+  s.endless = true;
+  assert(canIPO(s, grossPatrimonio(s)).ok, 'en modo infinito sí');
+  const g = GOALS.find((x) => x.id === 'forbes');
+  const t = started();
+  t.cash = 20e6;
+  t.month = 50;
+  t.ipo = { month: 48, float: 0.25, valuation: 1e7, price: 100, peak: 100, angryMonth: -99 };
+  assert(!g.test(t), 'en el bloqueo, la revista no llama');
 });

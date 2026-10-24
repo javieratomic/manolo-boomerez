@@ -8,7 +8,7 @@ import { CITY_BY_ID, CITIES, HQ_CITY } from '../data/cities.js';
 import { BUSINESS_TYPES, PERKS } from '../data/businesses.js';
 import { POLICIES } from '../data/policies.js';
 import { MANOLO_ACTIONS } from '../data/manoloActions.js';
-import { computeEconomy, estimateOpening, obradorCapacity, patrimonio, creditLimit, averageWage } from '../core/economy.js';
+import { computeEconomy, estimateOpening, obradorCapacity, patrimonio, creditLimit, averageWage, ssOwed } from '../core/economy.js';
 import { canOpen, openingCost, sobaoTypeId, nextUpgrade, saleValue, canRebrand, franchiseFee, needsLicense, LOAN_STEP } from '../core/actions.js';
 import { nearestSite, transportCost } from '../core/logistics.js';
 import { advice } from '../core/advice.js';
@@ -327,7 +327,7 @@ function riskText(s, stat, risk) {
     case 'heatTrabajo': {
       const t = risk.trabajo;
       if (t.wait) return `Marisa no puede volver hasta dentro de ${meses(t.wait)}.`;
-      const liq = t.liq > 0 ? ` Además liquidaría ${money(t.liq)} de lo ahorrado frente al convenio (24 meses ×${String(PK.LIQ_K).replace('.', ',')}).` : '';
+      const liq = t.liq > 0 ? ` Además liquidaría ${money(t.liq)} de lo ahorrado frente al convenio (${PK.LIQ_WINDOW} meses ×${(PK.LIQ_K * difficultyOf(s).fines).toFixed(2).replace('.', ',')}).` : '';
       const fine = t.fine > 0 ? ` Si viene, multa de ${money(t.fine)}${t.recidivism > 1 ? ` (con agravante ${factor(t.recidivism)} por reincidente)` : ''}.${liq}` : liq || ' Si viniera ahora, no encontraría nada.';
       return `Probabilidad de visita al cerrar el mes: <b>${pct100(t.chance)}</b>.${fine}`;
     }
@@ -350,7 +350,8 @@ function riskText(s, stat, risk) {
     case 'agravio': {
       const a = risk.agravio;
       let t = `Beneficio por cabeza: <b>${dec1(a.ratio)} sueldos</b> al mes. Te resta ${dec1(a.moralCost)} de moral al mes.`;
-      if (a.comite) t += a.strike > 0 ? ` Con el comité y el agravio en ${PK.STRIKE_AT} o más: huelga general ${pct100(a.strike)} al cerrar el mes.` : ` Con el comité, a partir de ${PK.STRIKE_AT} puede haber huelga general.`;
+      if (a.comite && a.paz > 0) t += ` Con el comité en paz social ${meses(a.paz)} más, no habrá huelga general; después, a partir de ${PK.STRIKE_AT} de agravio, puede haberla.`;
+      else if (a.comite) t += a.strike > 0 ? ` Con el comité y el agravio en ${PK.STRIKE_AT} o más: huelga general ${pct100(a.strike)} al cerrar el mes.` : ` Con el comité, a partir de ${PK.STRIKE_AT} puede haber huelga general.`;
       else t += ` Cuando la plantilla pase de ${PK.COMITE_AT} personas habrá comité de empresa.`;
       return t;
     }
@@ -512,7 +513,7 @@ export function renderStaff(s) {
       <div><span class="muted small">Control</span><b>${Math.round(r.control * 100)} %</b></div>
       <button type="button" class="kpi-btn" data-act="explain" data-stat="agravio" title="¿Por qué?"><span class="muted small">Agravio</span><b class="${agr >= PK.STRIKE_AT ? 'neg' : ''}">${agr}</b>${meterBar(agr)}</button>
     </div>
-    ${liq > 0 ? `<div class="card warn">🧮 Deuda latente con la Seguridad Social: <b>${money(liq)}</b>. Es lo que Marisa liquidaría hoy (lo ahorrado frente al convenio en los últimos ${PK.LIQ_WINDOW} meses, ×${String(PK.LIQ_K).replace('.', ',')}); lo más antiguo prescribe.</div>` : ''}
+    ${liq > 0 ? `<div class="card warn">🧮 Deuda latente con la Seguridad Social: <b>${money(liq)}</b>. Es lo que Marisa liquidaría hoy (lo ahorrado frente al convenio en los últimos ${PK.LIQ_WINDOW} meses, ×${(PK.LIQ_K * difficultyOf(s).fines).toFixed(2).replace('.', ',')}); lo más antiguo prescribe.${ssOwed(s) > 0 ? ` Aplazamiento pendiente: ${money(ssOwed(s))}.` : ''}</div>` : ''}
     ${locked ? `<div class="card warn">⚖️ ${s.flags.forcedBy === 'convenio' ? 'Por el convenio firmado' : 'Tras la inspección'}, durante ${s.flags.forcedLegal} ${s.flags.forcedLegal === 1 ? 'mes' : 'meses'} más solo puedes aplicar condiciones legales.</div>` : ''}
     ${renderComite(s, r)}
     <div class="card">

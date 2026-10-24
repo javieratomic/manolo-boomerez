@@ -1,6 +1,6 @@
 // Vida personal de Manolo (lujos y familia) y salida a Bolsa.
 import { LUJO_BY_ID } from '../data/lujo.js';
-import { addCash, addFama, addHeatHacienda, addRep, log, money, clamp, hito } from './helpers.js';
+import { addCash, addFama, addHeatHacienda, addRep, log, money, clamp, hito, GAME_MONTHS } from './helpers.js';
 import { macroFx } from './macro.js';
 import { checkClause } from './clauses.js';
 
@@ -152,6 +152,7 @@ export function canIPO(s, equity) {
   if (s.month < 36) return { ok: false, msg: 'Los bancos de inversión quieren ver al menos tres años de cuentas.' };
   if (equity < 4e6) return { ok: false, msg: 'Necesitas un patrimonio de al menos 4 millones.' };
   if (s.rep < 35) return { ok: false, msg: 'Con esa reputación, ningún banco te saca a Bolsa.' };
+  if (!s.endless && s.month + IPO_LOCKUP > GAME_MONTHS) return { ok: false, msg: 'Los bancos no sacan a Bolsa una empresa a punto de cerrar el ejercicio: el bloqueo no acabaría a tiempo.' };
   return { ok: true };
 }
 
@@ -162,7 +163,7 @@ export function doIPO(s, equity) {
   const raised = valuation * IPO_FLOAT;
   const fee = raised * IPO_FEE;
   addCash(s, raised - fee);
-  s.ipo = { month: s.month, float: IPO_FLOAT, valuation, price: 100, peak: 100, angryMonth: -99, sent: 1, cred: 50, q: null, publicados: {}, maquillajes: [], descubiertos: 0, racha: 0 };
+  s.ipo = { month: s.month, float: IPO_FLOAT, valuation, price: 100, peak: 100, angryMonth: -99, sent: 1, cred: 50, q: null, publicados: {}, maquillajes: [], descubiertos: 0, racha: 0, blend: true };
   addFama(s, 12);
   addRep(s, 3);
   hito(s, 'bolsa');

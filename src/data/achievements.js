@@ -36,7 +36,7 @@ export const ACHIEVEMENTS = [
   { id: 'paz_social', emoji: '🤝', name: 'Paz social', desc: 'Firma 3 revisiones del convenio en una partida.', test: (s) => (s.comite?.firmas ?? 0) >= 3 },
   { id: 'del_valle', emoji: '🐄', name: 'Del valle, para el valle', desc: 'Mantén 36 meses seguidos la participación del 8 % para la plantilla.', test: (s) => (s.flags.participacionMeses ?? 0) >= 36 },
   { id: 'beneficios_record', emoji: '🪧', name: 'Beneficios récord, sueldos de risa', desc: 'Sufre una huelga general.', test: (s) => (s.stats.huelgas ?? 0) >= 1 },
-  { id: 'calculadora_marisa', emoji: '🧮', name: 'La calculadora de Marisa', desc: 'Paga de una vez una liquidación de más de 1 M€.', test: (s) => (s.stats.maxLiquidacion ?? 0) > 1e6 },
+  { id: 'calculadora_marisa', emoji: '🧮', name: 'La calculadora de Marisa', desc: 'Que Marisa te liquide más de 1 M€ de una vez (aunque lo pagues a plazos).', test: (s) => (s.stats.maxLiquidacion ?? 0) > 1e6 },
   { id: 'hijo_de_tu_madre', emoji: '🧓', name: 'Hijo de tu madre', desc: 'Devuelve a tiempo 3 préstamos de la cartilla de Doña Remedios.', test: (s) => (s.cartilla?.devueltos ?? 0) >= 3 },
   { id: 'embargo_materno', emoji: '🥘', name: 'Embargo materno', desc: 'Dile a tu madre "No tengo, mamá" y deja que te embargue.', test: (s) => !!s.flags.embargado },
   { id: 'refranero', emoji: '📖', name: 'Refranero completo', desc: `Colecciona los ${REFRAN_COUNT} refranes de la cartilla (entre partidas).`, test: (s) => (s.flags.refranero ?? 0) >= REFRAN_COUNT },

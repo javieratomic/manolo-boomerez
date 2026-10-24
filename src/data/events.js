@@ -62,8 +62,9 @@ function clauseText(s) {
 
 const forceLegal = (s, months = 6) => {
   Object.assign(s.policies, LEGAL_LABOR);
-  s.flags.forcedLegal = months;
-  s.flags.forcedBy = 'inspeccion';
+  // Si ya hay un bloqueo más largo (p. ej. el del convenio firmado), se respeta.
+  if (months >= (s.flags.forcedLegal || 0)) s.flags.forcedBy = 'inspeccion';
+  s.flags.forcedLegal = Math.max(s.flags.forcedLegal || 0, months);
 };
 // Lo que Marisa reclama además de la multa: lo ahorrado frente al convenio en los últimos 24 meses.
 const liqNote = (p) => (p.liq > 0 ? `\n\nY además, la liquidación: ${money(p.liq)} en cuotas y diferencias salariales de ${p.liqMeses ? `los últimos ${p.liqMeses} ${p.liqMeses === 1 ? 'mes' : 'meses'}` : 'los últimos meses'}. Un 25 % ahora y el resto aplazado.` : '');

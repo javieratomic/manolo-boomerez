@@ -8,6 +8,7 @@
 //        hojaldre (corrupción municipal), merche (crisis de los 55), anselmo (la carta del padre).
 import { chance, int } from '../core/rng.js';
 import { recordSanction } from '../core/inspections.js';
+import { creditAhorro } from '../core/plantilla.js';
 import {
   addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addExpediente, addMod, addMonthlyCost, log, money, clamp, hito,
 } from '../core/helpers.js';
@@ -202,6 +203,7 @@ const ARC_PRENSA = [
           advance(s, 'prensa', 2);
           s.flags.prensaPlantilla = 'regulariza';
           addCash(s, -cost);
+          creditAhorro(s, cost); // los atrasos pagados ya no los liquidará Marisa
           Object.assign(s.policies, { salario: 'convenio', horas: 'pagadas', becarios: 'ninguno' });
           addMoral(s, 8);
           addHeatTrabajo(s, -10);

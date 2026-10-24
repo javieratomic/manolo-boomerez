@@ -90,10 +90,13 @@ export function maintenanceCost(s) {
 }
 
 // Todo lo que vale la empresa (y los caprichos de Manolo), antes de descontar a los accionistas.
+// Lo que queda por pagar del aplazamiento con la Seguridad Social (es deuda, aunque se pague a plazos).
+export const ssOwed = (s) => (s.extraMonthly || []).reduce((a, x) => a + (x.ss && x.months ? x.amount * x.months : 0), 0);
+
 export function grossPatrimonio(s) {
   const assets = s.businesses.reduce((a, b) => a + (b.value || 0), 0);
   // Lo que se debe a Doña Remedios también resta (el banco no se entera, el patrimonio sí).
-  return s.cash - s.debt - (s.cartilla?.owed || 0) + obradorValue(s) + assets + lujoValue(s);
+  return s.cash - s.debt - (s.cartilla?.owed || 0) - ssOwed(s) + obradorValue(s) + assets + lujoValue(s);
 }
 
 // Lo que es de Manolo: si cotiza en Bolsa, descuenta la parte de los accionistas.

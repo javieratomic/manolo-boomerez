@@ -121,6 +121,10 @@ export function buyUpgrade(s) {
 
 export function setPolicy(s, key, value) {
   if (!POLICIES[key]?.options[value]) return { ok: false, msg: 'Política desconocida.' };
+  const REPARTO_RANK = { ninguno: 0, paga: 1, participacion: 2 };
+  if (key === 'reparto' && s.comite?.paz > 0 && s.comite.repartoMin && REPARTO_RANK[value] < REPARTO_RANK[s.comite.repartoMin]) {
+    return { ok: false, msg: `Lo firmaste con el comité para acabar la huelga: no puedes bajarlo durante ${s.comite.paz} meses.` };
+  }
   if (key === 'mantenimiento' && (s.cartilla?.owed || 0) > 0 && (s.cartilla.conds || []).includes('kevin') && value !== 'kevin') {
     return { ok: false, msg: 'Tu madre: "Kevin se queda hasta que me devuelvas lo mío."' };
   }

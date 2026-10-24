@@ -3,6 +3,7 @@
 // progress(s) → [ahora, meta], opcional, para la barra del recuadro.
 import { BUSINESS_TYPES } from './businesses.js';
 import { patrimonio } from '../core/economy.js';
+import { inLockup } from '../core/life.js';
 import { addCash, addFama, addRep } from '../core/helpers.js';
 
 const outlets = (s) => s.businesses.filter((b) => BUSINESS_TYPES[b.type].category === 'sobaos').length;
@@ -204,8 +205,8 @@ export const GOALS = [
     id: 'forbes',
     lane: 'dinero',
     progress: (s) => [Math.min(15e6, Math.max(0, Math.round(patrimonio(s)))), 15e6],
-    text: 'El sueño: 15 millones de patrimonio.',
-    test: (s) => patrimonio(s) >= 15e6,
+    text: 'El sueño: 15 millones de patrimonio (sin periodo de bloqueo bursátil en marcha).',
+    test: (s) => patrimonio(s) >= 15e6 && !inLockup(s),
     reward() {
       return 'La revista de millonarios ya está al teléfono.';
     },

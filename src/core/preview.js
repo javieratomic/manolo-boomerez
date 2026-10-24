@@ -76,7 +76,7 @@ export function policyPreview(s, key, opt, base = previewBase(s)) {
   };
   const alt = forecast(s, set);
   const v = visitAtClose(alt.c, alt.r);
-  const out = { net: alt.r.net - base.f.r.net, evaded: alt.r.evaded - base.f.r.evaded, fine: v.fine, liq: v.liq, saving: (monthlySaving(alt.c, alt.r.employees) - monthlySaving(base.f.c, base.f.r.employees)) * PK.LIQ_K };
+  const out = { net: alt.r.net - base.f.r.net, evaded: alt.r.evaded - base.f.r.evaded, fine: v.fine, liq: v.liq, saving: (monthlySaving(alt.c, alt.r.employees) - monthlySaving(base.f.c, base.f.r.employees)) * PK.LIQ_K * difficultyOf(alt.c).fines };
   for (const k of STATS) out[k] = alt.d[k] - base.f.d[k];
   out.net6 = horizonNet(s, set) - base.h;
   return out;
@@ -97,7 +97,7 @@ export function riskInfo(s, f = forecast(s)) {
     trabajo: { chance: waitT ? 0 : inspectionChance(c.heatTrabajo), wait: waitT, fine: v.fine, liq: v.liq, recidivism: recidivism(c) },
     hacienda: { chance: waitH ? 0 : auditChance(c.heatHacienda), wait: waitH, debt, delito: debt >= DELITO_FISCAL },
     moral: { strike: !striking ? st.p : 0, general: st.card === 'huelga_general', zeroMonths: c.zeroMoralMonths, factor: moralFactor(c.moral) },
-    agravio: { ratio: c.plantilla?.ratio ?? profitRatio(c, r), moralCost: PK.AGR_MORAL * (c.agravio || 0), strike: !striking && st.card === 'huelga_general' ? st.p : 0, comite: !!c.comite },
+    agravio: { ratio: c.plantilla?.ratio ?? profitRatio(c, r), moralCost: PK.AGR_MORAL * (c.agravio || 0), strike: !striking && c.comite ? st.pAgr : 0, comite: !!c.comite, paz: c.comite?.paz || 0 },
     rep: { factor: repFactor(c.rep) },
     fama: { academy: c.fama >= 25, coworking: c.fama >= 35 },
   };

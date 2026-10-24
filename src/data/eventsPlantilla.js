@@ -14,12 +14,23 @@ const agr = (s, f) => {
 };
 // Las cartas aguantan que aún no haya comité (p. ej. en los tests de todas las cartas).
 const comite = (s) => (s.comite ||= newComite(s));
+// Si ya hay una huelga en marcha o convocada, se alarga en vez de abrir otra.
 const strike = (s, months) => {
-  if (!s.pending.some((p) => p.id === 'huelga_general')) s.pending.push({ kind: 'event', id: 'huelga_general', params: { months } });
+  const running = s.mods.find((m) => m.kind === 'strike');
+  if (running) {
+    running.months = Math.max(running.months, months);
+    return;
+  }
+  const queued = s.pending.find((p) => p.id === 'huelga_general');
+  if (queued) queued.params = { ...(queued.params || {}), months: Math.max(queued.params?.months ?? 1, months) };
+  else s.pending.push({ kind: 'event', id: 'huelga_general', params: { months } });
 };
 const fecha = (m) => dateLabel(m).toLowerCase().replace(' ', ' de ');
 const dOf = (s, p) => p?.d ?? convenioDemand(s);
 const raiseCost = (s, d) => (s.lastReport?.costs?.salarios ?? employees(s) * 1900) * d;
+
+// Probabilidad de huelga al congelar, con el agravio ya subido (+10), igual en la pista y en la tirada.
+const congelarP = (a) => Math.min(1, 0.25 + clamp(a + 10) / 150);
 
 // Romper la promesa del año pasado: agravio +20 y huelga de dos meses.
 function breakPromise(s) {
@@ -39,7 +50,8 @@ export const PLANTILLA_EVENTS = [
     portrait: 'portrait_empleada_maripili', image: 'ev_comite_nace',
     text: (s) => {
       const n = employees(s);
-      return `Sois ${n}. Con más de 50 toca comité, y la candidatura de Maripili gana por ${Math.max(3, n - 2)} votos a 2 (Kevin y su madre).\n\nDeja el acta y un calendario: "Cada marzo revisamos el convenio. Trae las cuentas del Registro Mercantil, que esas no las maquilla Paco."`;
+      const why = s.flags.comiteFin ? `Sois ${n}. Cerrado lo del convenio, la comisión negociadora se convierte en comité de empresa` : `Sois ${n}. Con 50 o más toca comité`;
+      return `${why}, y la candidatura de Maripili gana por ${Math.max(3, n - 2)} votos a 2 (Kevin y su madre).\n\nDeja el acta y un calendario: "Cada marzo revisamos el convenio. Trae las cuentas del Registro Mercantil, que esas no las maquilla Paco."`;
     },
     weight: () => 0,
     choices: [
@@ -94,7 +106,6 @@ export const PLANTILLA_EVENTS = [
           c.extra = 0;
           c.paz = 12;
           c.prometido = null;
-          c.nextConvenio = s.month + 12;
           c.firmas = (c.firmas || 0) + 1;
           hito(s, 'convenio');
           agr(s, (a) => a * 0.6);
@@ -114,7 +125,6 @@ export const PLANTILLA_EVENTS = [
           const cost = employees(s) * K.PAGA_UNICA;
           addCash(s, -cost);
           c.extra = (c.extra || 0) + 1;
-          c.nextConvenio = s.month + 12;
           agr(s, (a) => a * 0.8);
           addMoral(s, 4);
           const broken = breakPromise(s);
@@ -126,10 +136,9 @@ export const PLANTILLA_EVENTS = [
         label: '"El año que viene, sin falta"',
         hint: 'Moral +2. Si el año que viene no firmas, huelga general de dos meses.',
         available: (s) => comite(s).prometido == null,
-        effect(s) {
+        effect(s, p) {
           const c = comite(s);
-          c.prometido = s.month;
-          c.nextConvenio = s.month + 12;
+          c.prometido = p?.m ?? s.month - 1;
           addMoral(s, 2);
           return 'Maripili lo apunta en la agenda, con tu firma y la fecha. "Para que no se nos olvide a ninguno, Manolo." Moral +2.';
         },
@@ -137,10 +146,10 @@ export const PLANTILLA_EVENTS = [
       {
         key: 'congelar',
         label: 'Congelar: "Son tiempos difíciles"',
-        hint: (s) => `Moral −8, agravio +10 y riesgo de huelga general (${Math.round(100 * Math.min(1, 0.25 + (s.agravio || 0) / 150))} % si no hay crisis ni pérdidas).${comite(s).prometido != null ? ' Rompe tu promesa del año pasado: huelga de dos meses.' : ''}`,
+        hint: (s) => `Moral −8, agravio +10 y riesgo de huelga general (${Math.round(100 * congelarP(s.agravio || 0))} % si no hay crisis ni pérdidas).${comite(s).prometido != null ? ' Rompe tu promesa del año pasado: huelga de dos meses.' : ''}`,
         effect(s) {
           const c = comite(s);
-          c.nextConvenio = s.month + 12;
+          const a0 = s.agravio || 0;
           addMoral(s, -8);
           agr(s, (a) => a + 10);
           let extra = '';
@@ -150,7 +159,7 @@ export const PLANTILLA_EVENTS = [
           }
           const broken = breakPromise(s);
           const hard = s.macro?.phase === 'crisis' || (s.lastReport?.net ?? 0) < 0;
-          if (!broken && !hard && chance(s, Math.min(1, 0.25 + (s.agravio || 0) / 150))) {
+          if (!broken && !hard && chance(s, congelarP(a0))) {
             strike(s, 1);
             extra += '\n\nMaripili no discute: convoca huelga general.';
           }
@@ -172,11 +181,12 @@ export const PLANTILLA_EVENTS = [
       {
         key: 'paga',
         label: (s) => (s.policies.reparto === 'paga' ? 'Subir a la participación del 8 %' : 'Firmar la paga de beneficios (3 %)'),
-        hint: 'Moral +10, agravio ×0,7 y seis meses de paz.',
+        hint: 'Moral +10, agravio ×0,7 y seis meses de paz (durante los que no podrás quitar el reparto).',
         available: (s) => s.policies.reparto !== 'participacion',
         effect(s) {
           const c = comite(s);
           s.policies.reparto = s.policies.reparto === 'paga' ? 'participacion' : 'paga';
+          c.repartoMin = s.policies.reparto; // firmado con el comité: no se baja mientras dure la paz
           addMoral(s, 10);
           agr(s, (a) => a * 0.7);
           c.paz = 6;
@@ -189,11 +199,13 @@ export const PLANTILLA_EVENTS = [
       {
         key: 'convenio',
         label: (s) => `Subir al convenio y pagar ${money(K.PAGA_HUELGA)} por cabeza (${money(employees(s) * K.PAGA_HUELGA)})`,
-        hint: 'Moral +15 y seis meses de paz.',
+        hint: 'Moral +15, seis meses de paz y seis meses con condiciones legales.',
         effect(s) {
           const c = comite(s);
           addCash(s, -employees(s) * K.PAGA_HUELGA);
-          s.policies.salario = 'convenio';
+          Object.assign(s.policies, LEGAL_LABOR);
+          s.flags.forcedLegal = Math.max(s.flags.forcedLegal || 0, 6);
+          s.flags.forcedBy = 'convenio';
           addMoral(s, 15);
           c.paz = 6;
           c.huelgas++;
@@ -210,7 +222,9 @@ export const PLANTILLA_EVENTS = [
           const c = comite(s);
           const a = s.agravio || 0;
           const m = p?.months ?? 1 + (a >= 60 ? 1 : 0) + (a >= 80 ? 1 : 0);
-          addMod(s, { kind: 'strike', factor: 0.7, months: m, label: 'Huelga general' });
+          const running = s.mods.find((x) => x.kind === 'strike');
+          if (running) running.months = Math.max(running.months, m);
+          else addMod(s, { kind: 'strike', factor: 0.7, months: m, label: 'Huelga general' });
           addRep(s, -6);
           addMoral(s, 5);
           agr(s, (x) => x - 10);

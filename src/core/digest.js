@@ -13,6 +13,7 @@ import { dateLabel, moneyShort } from './helpers.js';
 import { convenioDemand, isConvenioMonth } from './plantilla.js';
 import { MAMA, hasCond } from './cartilla.js';
 import { quarterProgress, qLabel } from './bolsa.js';
+import { forecast } from './preview.js';
 
 export const CAT_NAMES = { sobaos: 'Sobaos', inmobiliario: 'Inmobiliario', hosteleria: 'Hostelería', formacion: 'Formación', servicios: 'Servicios', produccion: 'Producción' };
 export const COST_NAMES = {
@@ -136,7 +137,8 @@ export function upcoming(s) {
   }
   for (const m of closes) {
     if (isConvenioMonth(s, m)) {
-      const d = convenioDemand(s);
+      // Al cerrar este mes, con el agravio ya movido (como lo calculará la carta).
+      const d = m === s.month ? convenioDemand(forecast(s).c) : convenioDemand(s);
       out.push(d > 0 || s.comite.prometido != null ? `🤝 Revisión del convenio ${when(m)}: Maripili pediría un ${(d * 100).toFixed(1).replace('.0', '').replace('.', ',')} %.` : `🤝 Revisión del convenio ${when(m)}: con el agravio así de bajo, Maripili no pediría subida.`);
     }
   }

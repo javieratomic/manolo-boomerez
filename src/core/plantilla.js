@@ -57,12 +57,23 @@ export function liquidate(s, amount) {
   s.stats.maxLiquidacion = Math.max(s.stats.maxLiquidacion || 0, amount);
   if (amount >= 100000) hito(s, 'liquidacion');
   const rest = amount - now;
-  if (rest <= 0) return ` Liquidación de cuotas y diferencias salariales: ${money(amount)}, pagada al momento.`;
   const total = Math.round(rest * (1 + K.LIQ_SURCHARGE));
   const n = liqCuotas(s, total);
   addMonthlyCost(s, 'Aplazamiento con la Seguridad Social', Math.round(total / n), n);
-  s.extraMonthly[s.extraMonthly.length - 1].locked = true;
+  Object.assign(s.extraMonthly[s.extraMonthly.length - 1], { locked: true, ss: true });
   return ` Liquidación de cuotas y diferencias salariales: ${money(amount)} (${money(now)} ahora y el resto en ${n} cuotas de ${money(total / n)}).`;
+}
+
+// Pagar atrasos por tu cuenta descuenta de lo que liquidaría Marisa (de lo más antiguo a lo más nuevo).
+export function creditAhorro(s, paid) {
+  const d = s.dossier;
+  if (!d?.ahorro?.length || paid <= 0) return;
+  let left = paid / (K.LIQ_K * difficultyOf(s).fines);
+  for (let i = 0; i < d.ahorro.length && left > 0; i++) {
+    const take = Math.min(d.ahorro[i], left);
+    d.ahorro[i] -= take;
+    left -= take;
+  }
 }
 
 // ------------------------------------------------------------------ Agravio
@@ -134,17 +145,19 @@ export function rollConvenio(s) {
     log(s, '🤝 Maripili prorroga el convenio un año sin pedir subida: "Con que no lo estropees, Manolo."', 'good');
     return;
   }
-  s.pending.push({ kind: 'event', id: 'convenio_anual', params: { d } });
+  // La próxima revisión se fecha desde este marzo (la carta se resuelve ya en abril).
+  c.nextConvenio = s.month + 12;
+  s.pending.push({ kind: 'event', id: 'convenio_anual', params: { d, m: s.month } });
 }
 
 // Probabilidad de huelga al cerrar: sin comité, la de siempre por moral; con comité, también por agravio.
 export function strikeChance(s, r) {
   const control = r.control ?? 0;
   const pMoral = s.moral < 25 ? 0.15 * (1 - 0.7 * control) : 0;
-  if (!s.comite) return { p: pMoral, card: 'huelga' };
-  if (s.comite.paz > 0) return { p: 0, card: 'huelga_general' };
+  if (!s.comite) return { p: pMoral, pMoral, pAgr: 0, card: 'huelga' };
+  if (s.comite.paz > 0) return { p: 0, pMoral: 0, pAgr: 0, card: 'huelga_general' };
   const pAgr = (s.agravio || 0) >= K.STRIKE_AT ? (((s.agravio || 0) - 40) / K.STRIKE_DIV) * (1 - 0.5 * control) : 0;
-  return { p: Math.max(pMoral, pAgr), card: 'huelga_general' };
+  return { p: Math.max(pMoral, pAgr), pMoral, pAgr, card: 'huelga_general' };
 }
 
 // Promesas rotas en los últimos 24 meses: cada una quita un 25 % de lo que se cree Maripili.

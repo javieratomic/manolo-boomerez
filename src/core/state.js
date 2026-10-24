@@ -1,6 +1,7 @@
 import { DEFAULT_POLICIES } from '../data/policies.js';
 import { clauseForSeed } from '../data/clauses.js';
 import { newCartilla } from './cartilla.js';
+import { grossPatrimonio } from './economy.js';
 
 export const SAVE_KEY = 'manolo-boomerez-save-v1';
 export const SAVE_VERSION = 2;
@@ -115,6 +116,16 @@ export function migrate(s) {
   // En modo infinito la partida ya terminó: una cláusula sin cumplir queda cerrada.
   if (s.endless && s.clausula && !s.clausula.done && !s.clausula.broken) s.clausula.closed = true;
   if (s.lastReport && s.lastReport.debt == null) s.lastReport.debt = s.debt;
+  // 0.4: la valoración bursátil mezcla libros y beneficio; las salidas a Bolsa antiguas se reescalan una vez.
+  if (s.ipo && !s.ipo.blend) {
+    const E = grossPatrimonio(s);
+    const P = (s.history || []).slice(-12).reduce((a, h) => a + h.net, 0);
+    const oldV = Math.max(E, 6 * P);
+    const newV = Math.max(E, 0.5 * E + 3 * P);
+    if (oldV > 0 && newV > 0) s.ipo.valuation *= newV / oldV;
+    s.ipo.blend = true;
+  }
+  for (const x of s.extraMonthly || []) if (x.label === 'Aplazamiento con la Seguridad Social') x.ss = true;
   // 0.4: claves anidadas que el bucle de abajo no rellena.
   if (s.dossier) s.dossier.ahorro ||= [];
   s.stats.liquidado ??= 0;

@@ -2008,6 +2008,42 @@
       "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
+      "id": "ev_comite_nace",
+      "file": "assets/events/ev_comite_nace.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_comite_nace"
+    },
+    {
+      "id": "ev_convenio_anual",
+      "file": "assets/events/ev_convenio_anual.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_convenio_anual"
+    },
+    {
+      "id": "ev_huelga_general",
+      "file": "assets/events/ev_huelga_general.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_huelga_general"
+    },
+    {
+      "id": "ev_liquidacion",
+      "file": "assets/events/ev_liquidacion.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_liquidacion"
+    },
+    {
       "id": "end_bancarrota",
       "file": "assets/endings/end_bancarrota.png",
       "w": 1280,
@@ -2199,9 +2235,11 @@
       "file": "assets/ui/icon_inspeccion.png",
       "w": 64,
       "h": 64,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/07_interfaz.md#icon_inspeccion"
+      "request": "art/requests/07_interfaz.md#icon_inspeccion",
+      "version": 1,
+      "notes": "Icono 2.5D de 64×64, transparencia RGBA comprobada e inspección a tamaño nativo."
     },
     {
       "id": "icon_hacienda",
@@ -2526,6 +2564,24 @@
       "status": "requested",
       "priority": 3,
       "request": "art/requests/07_interfaz.md#icon_clausula"
+    },
+    {
+      "id": "icon_agravio",
+      "file": "assets/ui/icon_agravio.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/07_interfaz.md#icon_agravio"
+    },
+    {
+      "id": "icon_reparto",
+      "file": "assets/ui/icon_reparto.png",
+      "w": 64,
+      "h": 64,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/07_interfaz.md#icon_reparto"
     }
   ]
 }

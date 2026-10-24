@@ -1,5 +1,18 @@
 # Cambios
 
+## 0.6.0 — Un imperio heredable
+
+- Viviendas para empleados visibles al principio de Plantilla, compra por ciudad y desbloqueo inmediato al cargar partidas antiguas.
+- Diez niveles por negocio, obradores regionales ampliables y más locales rentables en ciudades grandes.
+- Mercado laboral local: grandes plantillas requieren viviendas; venderlas puede reducir empleo, actividad y capacidad fabril.
+- 35 proyectos I+D con iconos propios: producción, automatización, materias primas, energía, rutas, estructura, expansión y sectores estratégicos.
+- Banca, telecomunicaciones y logística, con ingresos y costes específicos; tres sprites nuevos generados e inspeccionados.
+- Diez mercados extranjeros y 16 ciudades europeas para abrir empresas propias después de seis meses de marca blanca cumplida y el I+D correspondiente.
+- La Academy gana atractivo con la fama y con la red empresarial.
+- Campaña europea continua: 1.000 M€ de patrimonio, ocho países europeos y presencia en los tres sectores estratégicos. El reto semanal conserva la campaña clásica.
+- Dinastía: estrés crítico prolongado puede causar fallecimiento; a los 80 años hay sucesión. Se conserva el imperio y el calendario, cambia el dirigente y se registra cada generación. También hay relevo voluntario desde los 60.
+
+
 ## 0.5.0 — De Selaya al mundo
 
 - Obrador ampliable tras las tres mejoras iniciales: módulos de +25.000 uds/mes, desde 650.000 €, cada vez un 32 % más caros, con mantenimiento y valor patrimonial.

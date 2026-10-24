@@ -1,3 +1,4 @@
+import {tickDynasty,beginSuccession,europeProgress,leaderAge} from './dynasty.js';
 import { tickInternational } from './international.js';
 // Avance mensual de la simulación y resolución de sucesos.
 import { computeEconomy, policyFx, creditLimit, patrimonio, grossPatrimonio, hasCondition } from './economy.js';
@@ -43,7 +44,9 @@ export function advanceMonth(s) {
   tickRivals(s, r);
   tickRD(s);
   tickExecs(s, laborSeverity(s));
+  const resting=s.restMonths>0;
   tickLife(s);
+  tickDynasty(s,resting);
   ageAssets(s);
   tickIPO(s, grossPatrimonio(s), range(s, -8, 8));
   handleOverdraft(s);
@@ -163,6 +166,7 @@ function ageAssets(s) {
     if (hasCondition(b)) b.cond = clamp((b.cond ?? 100) + man.drift);
     if (b.cond < 30 && !b.brokenMonth && chance(s, 0.06)) {
       b.brokenMonth = s.month;
+      addStress(s,4);
       s.pending.push({ kind: 'event', id: 'averia', params: { businessId: b.id, city: b.city } });
     }
     if (t.realEstate) b.value *= 1 + macroFx(s).property;
@@ -191,11 +195,13 @@ function handleOverdraft(s) {
 
 function rollVisits(s, r) {
   if (s.cooldowns.trabajo <= 0 && chance(s, inspectionChance(s.heatTrabajo))) {
+    addStress(s,8);
     s.pending.push({ kind: 'event', id: 'inspeccion_trabajo', params: laborVisitParams(s) });
     s.cooldowns.trabajo = 4;
     s.stats.inspecciones++;
   }
   if (s.cooldowns.hacienda <= 0 && chance(s, auditChance(s.heatHacienda))) {
+    addStress(s,7);
     s.pending.push({ kind: 'event', id: 'auditoria_hacienda', params: { debt: haciendaDebt(s) } });
     s.cooldowns.hacienda = 6;
     s.stats.auditorias++;
@@ -231,6 +237,7 @@ function rollScheduled(s) {
 export function eligibleEvents(s) {
   s.seen ||= {};
   return EVENTS.filter((e) => {
+    if((s.flags.founderGone||s.dynasty?.pendingCause)&&(/^(velas_|remedios_|cartilla_)/.test(e.id)||['susto_padel','divorcio'].includes(e.id)))return false;
     const w = e.weight(s);
     if (!(w > 0)) return false;
     const last = s.seen[e.id];
@@ -319,11 +326,12 @@ export function checkEnding(s) {
   if (s.expedientes >= 3) id = 'carcel';
   else if (s.insolvencyMonths >= 3) id = 'bancarrota';
   else if (s.zeroMoralMonths >= 2) id = 'cooperativa';
-  else if (pat >= 15e6 && !s.endless && (s.month >= GAME_MONTHS || (!inLockup(s) && !holdForVelas(s)))) id = 'forbes';
-  else if (s.month >= GAME_MONTHS && !s.endless) id = pat >= 5e6 ? 'tiburon' : pat >= 800000 ? 'pyme' : 'ruina_lenta';
+  else if(s.campaign==='europe'&&!s.endless&&europeProgress(s,pat).complete)id='europe';
+  else if (s.campaign!=='europe' && pat >= 15e6 && !s.endless && (s.month >= GAME_MONTHS || (!inLockup(s) && !holdForVelas(s)))) id = 'forbes';
+  else if (s.campaign!=='europe' && s.month >= GAME_MONTHS && !s.endless) id = pat >= 5e6 ? 'tiburon' : pat >= 800000 ? 'pyme' : 'ruina_lenta';
   if (id) s.ending = id;
   // El premio de la cláusula no cambia el final: se decide antes y se paga una sola vez.
-  if (['pyme', 'tiburon', 'forbes'].includes(id)) settleClause(s);
+  if (['pyme', 'tiburon', 'forbes','europe'].includes(id)) settleClause(s);
   // Si la partida termina sin cumplirla, queda cerrada: el modo infinito ya no la puede cobrar.
   if (id && s.clausula && !s.clausula.done && !s.clausula.broken) s.clausula.closed = true;
   return id;
@@ -334,6 +342,12 @@ export function checkEnding(s) {
 export const RETIRE_MONTH = 72;
 export function canRetire(s) {
   if (s.ending) return { ok: false, msg: 'La partida ya ha terminado.' };
+  if(s.campaign==='europe') {
+    if(leaderAge(s)<60)return {ok:false,msg:'El dirigente puede ceder el mando desde los 60 años.'};
+    if(inLockup(s))return {ok:false,msg:'Termina primero el bloqueo bursátil.'};
+    if(s.pending.length)return {ok:false,msg:'Resuelve primero los asuntos pendientes.'};
+    return {ok:true};
+  }
   if (s.month < RETIRE_MONTH) return { ok: false, msg: `Manolo no se jubila antes de ${dateLabel(RETIRE_MONTH).toLowerCase().replace(' ', ' de ')}.` };
   if (inLockup(s)) return { ok: false, msg: `El bloqueo de la salida a Bolsa termina en ${dateLabel(lockupEnd(s)).toLowerCase().replace(' ', ' de ')}. Hasta entonces no puedes retirarte.` };
   if (s.seen?.velas_3 == null) return { ok: false, msg: 'Antes tiene que pasar por el notario («Sesenta velas»).' };
@@ -344,6 +358,7 @@ export function canRetire(s) {
 export function retire(s) {
   const ok = canRetire(s);
   if (!ok.ok) return ok;
+  if(s.campaign==='europe'){beginSuccession(s,'retiro');return {ok:true,succession:true};}
   s.ending = 'selaya';
   if (s.clausula && !s.clausula.done && !s.clausula.broken) s.clausula.closed = true;
   hito(s, 'selaya');

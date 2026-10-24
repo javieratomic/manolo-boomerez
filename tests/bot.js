@@ -40,7 +40,7 @@ const DIVERSIFY = ['smash', 'empanadas', 'airbnb', 'vivienda', 'academy', 'taber
 export const LEGAL = { salario: 'convenio', horas: 'pagadas', becarios: 'ninguno' };
 export const from = (m, pol) => (s) => (s.month >= m ? pol : null);
 export function playGame(seed, strategy = {}) {
-  const s = newGame(seed, strategy.difficulty || 'normal');
+  const s = newGame(seed, strategy.difficulty || 'normal',strategy.campaign||'classic');
   resolvePending(s, strategy.brand === 'maison' ? 1 : 0);
   Object.assign(s.policies, strategy.policies || {});
   if (strategy.clause) s.clausula = { id: strategy.clause, broken: false, done: false };

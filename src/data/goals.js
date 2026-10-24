@@ -200,7 +200,7 @@ export const GOALS = [
     id: 'tiburon',
     lane: 'dinero',
     progress: (s) => [Math.min(5e6, Math.max(0, Math.round(patrimonio(s)))), 5e6],
-    text: 'Llega a 5 millones antes de 2034 para ser un Tiburón Pasiego.',
+    text: 'Alcanza 5 millones de patrimonio para ser un Tiburón Pasiego.',
     test: (s) => patrimonio(s) >= 5e6,
     reward(s) {
       addFama(s, 10);
@@ -211,7 +211,7 @@ export const GOALS = [
     id: 'forbes',
     lane: 'dinero',
     progress: (s) => [Math.min(15e6, Math.max(0, Math.round(patrimonio(s)))), 15e6],
-    text: 'El sueño: 15 millones de patrimonio (sin periodo de bloqueo bursátil en marcha).',
+    text: 'Próximo hito: 15 millones de patrimonio (sin periodo de bloqueo bursátil en marcha).',
     test: (s) => patrimonio(s) >= 15e6 && !inLockup(s),
     reward() {
       return 'La revista de millonarios ya está al teléfono.';

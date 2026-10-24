@@ -1,3 +1,4 @@
+import {workforcePlan} from './workforce.js';
 // Marketing, I+D y reformas de negocios.
 import { CAMPAIGNS, PRODUCTS, UPGRADE_COST, MAX_LEVEL, LEVEL_BONUS } from '../data/market.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
@@ -43,6 +44,7 @@ export function canStartRD(s, id) {
   const p = PRODUCT_BY_ID[id];
   if (!p) return { ok: false, msg: 'Proyecto desconocido.' };
   if (s.products.includes(id)) return { ok: false, msg: 'Ya lo tienes en el catálogo.' };
+  if (p.whiteSuccess && !Object.values(s.foreignTrack||{}).some(x=>x.successMonths>=p.whiteSuccess)) return {ok:false,msg:'Primero cumple seis meses de marca blanca sirviendo al menos el 90 % del pedido en un país.'};
   if (s.rd) return { ok: false, msg: 'El laboratorio (la trastienda del obrador) ya está ocupado.' };
   if (p.requires && !s.unlocked[p.requires] && !s.businesses.some((b) => b.type === p.requires)) return { ok: false, msg: `Requiere: ${BUSINESS_TYPES[p.requires]?.name || p.requires}.` };
   if (s.cash < p.cost) return { ok: false, msg: `Necesitas ${money(p.cost)}.` };
@@ -67,6 +69,7 @@ export function tickRD(s) {
   const p = PRODUCT_BY_ID[s.rd.id];
   s.rd = null;
   s.products.push(p.id);
+  if(p.opens)s.unlocked[p.opens]=true;
   if (p.fama) addFama(s, p.fama);
   if (p.hac) addHeatHacienda(s, p.hac);
   if (p.contract) s.contracts.push({ id: p.id, label: p.name, units: p.contract.units, price: p.contract.price, months: 999 });
@@ -98,13 +101,13 @@ export function productFactor(s, type, category, city, month) {
 export const levelFactor = (b) => 1 + LEVEL_BONUS * ((b.level || 1) - 1);
 
 export function upgradeEffect(b) {
-  return { vivienda: '+5 plazas', airbnb: '+2 pisos turísticos', residencia: '+10 plazas' }[b.type] || `+${Math.round(LEVEL_BONUS * 100)} % de clientela`;
+  return { obrador_regional: '+5.250 uds/mes de capacidad instalada', vivienda: '+5 plazas', airbnb: '+2 pisos turísticos', residencia: '+10 plazas' }[b.type] || `+${Math.round(LEVEL_BONUS * 100)} % de clientela`;
 }
 
 export function upgradeCost(b) {
   const lvl = b.level || 1;
-  if (lvl >= MAX_LEVEL || b.mode === 'franquicia' || BUSINESS_TYPES[b.type].model === 'production') return null;
-  return Math.round(BUSINESS_TYPES[b.type].cost * UPGRADE_COST[lvl - 1]);
+  if (lvl >= MAX_LEVEL || b.mode === 'franquicia') return null;
+  return Math.round(BUSINESS_TYPES[b.type].cost * (UPGRADE_COST[lvl-1] ?? 1.0*1.45**(lvl-2)));
 }
 
 export function upgradeBusiness(s, id) {
@@ -113,6 +116,9 @@ export function upgradeBusiness(s, id) {
   const cost = upgradeCost(b);
   if (cost == null) return { ok: false, msg: b.mode === 'franquicia' ? 'Las franquicias las reforma el franquiciado (o nadie).' : 'Ya está al máximo.' };
   if (s.cash < cost) return { ok: false, msg: `Necesitas ${money(cost)}.` };
+  b.level=(b.level||1)+1;
+  let plan;try{plan=workforcePlan(s,b.city);}finally{b.level--;}
+  if(b.type!=='vivienda'&&plan.missingBeds>0)return {ok:false,msg:`Faltan ${plan.missingBeds} plazas de vivienda en ${CITY_BY_ID[b.city].name}. Ve a Plantilla.`};
   addCash(s, -cost);
   b.level = (b.level || 1) + 1;
   b.cond = 100; // la reforma lo deja como nuevo

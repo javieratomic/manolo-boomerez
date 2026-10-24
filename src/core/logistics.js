@@ -1,3 +1,4 @@
+import {researchFactor} from '../data/market.js';
 // Logística: los sobaos viajan desde el obrador más cercano y el transporte cuesta por kilómetro.
 import { CITY_BY_ID } from '../data/cities.js';
 
@@ -41,7 +42,8 @@ export function transportCost(s, cityId) {
   const n = nearestSite(s, cityId);
   // Cruzar el mar encarece el transporte, salga de una isla o vaya a ella.
   const sea = n.city !== cityId ? Math.max(ISLAND[cityId] || 1, ISLAND[n.city] || 1) : 1;
-  return (TRANSPORT_PER_100KM * n.km) / 100 * sea;
+  const hub=s.businesses.some(b=>b.type==='logistica'&&b.mode!=='franquicia'&&[cityId,n.city].includes(b.city));
+  return (TRANSPORT_PER_100KM * n.km) / 100 * sea * researchFactor(s,'transportFactor')*(hub?0.7:1);
 }
 
 export function regionalCount(s) {

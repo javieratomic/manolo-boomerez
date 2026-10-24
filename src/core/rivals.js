@@ -4,7 +4,7 @@ import { CITY_BY_ID, CITIES } from '../data/cities.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
 import { chance, random, weightedPick } from './rng.js';
 import { addCash, addRep, addHeatHacienda, addMod, log, money, hito } from './helpers.js';
-import { MAX_PER_CITY, sobaoTypeId } from './actions.js';
+import { cityBusinessLimit, sobaoTypeId } from './actions.js';
 import { checkClause } from './clauses.js';
 
 export const rivalTotal = (r) => Object.values(r.presence).reduce((a, b) => a + b, 0);
@@ -171,7 +171,7 @@ export function acquireRival(s, rivalId) {
   if (BUSINESS_TYPES[typeId].category === 'sobaos') typeId = sobaoTypeId(s);
   const cities = Object.entries(r.presence).sort((a, b) => b[1] - a[1]).map(([c]) => c);
   const gained = [];
-  const slots = cities.filter((city) => s.businesses.filter((b) => b.city === city).length < MAX_PER_CITY).slice(0, 4);
+  const slots = cities.filter((city) => s.businesses.filter((b) => b.city === city).length < cityBusinessLimit(city)).slice(0, 4);
   const t = BUSINESS_TYPES[typeId];
   // Cada local vale lo que se pagó por él (como mucho, el 70 % de abrirlo nuevo).
   const each = slots.length ? Math.min(t.cost * 0.7, price / rivalTotal(r)) : 0;

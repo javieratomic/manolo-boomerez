@@ -1,3 +1,4 @@
+import {addStress} from './life.js';
 // Acuerdos territoriales: estado serializable y riesgos con el RNG de la partida.
 import { FOREIGN_BY_ID, DEAL_MODES, DISPUTES } from '../data/international.js';
 import { addCash, addRep, addMod, log, money } from './helpers.js';
@@ -64,6 +65,9 @@ export function endAgreement(s, id) {
 
 export function tickInternational(s, report) {
   for (const d of [...(s.foreignDeals || [])]) {
+    if(d.mode==='private_label'&&!d.dispute&&report.fill>=0.9) {
+      s.foreignTrack||={};const track=s.foreignTrack[d.market]||={successMonths:0};track.successMonths++;
+    }
     d.months--;
     if (d.months <= 0) {
       removeDeal(s,d.id);
@@ -75,6 +79,7 @@ export function tickInternational(s, report) {
     d.shortMonths = d.mode === 'private_label' && report.fill < 0.8 ? (d.shortMonths || 0) + 1 : 0;
     const shortage = d.shortMonths >= 2;
     if (shortage || chance(s,agreementTerms(d.market,d.mode,d.audit).risk)) {
+      addStress(s,6);
       d.dispute = shortage ? 'suministro' : pick(s, d.mode === 'licence' ? ['calidad','impago','copia'] : ['calidad','impago']);
       s.pending.push({kind:'event', id:'socio_extranjero', params:{dealId:d.id,reason:d.dispute}});
     }

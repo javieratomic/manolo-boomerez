@@ -1,3 +1,4 @@
+import {newDynasty} from './dynasty.js';
 import { FOREIGN_BY_ID, DEAL_MODES, DISPUTES } from '../data/international.js';
 import { DEFAULT_POLICIES, POLICIES } from '../data/policies.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
@@ -10,7 +11,7 @@ import { grossPatrimonio, computeEconomy } from './economy.js';
 export const SAVE_KEY = 'manolo-boomerez-save-v1';
 export const SAVE_VERSION = 2;
 // Versión del contenido: una semilla solo reproduce la misma partida con la misma versión.
-export const GAME_VERSION = '0.5.0';
+export const GAME_VERSION = '0.6.0';
 
 export const DIFFICULTIES = {
   cunado: {
@@ -32,7 +33,7 @@ export const DIFFICULTIES = {
 
 export const difficultyOf = (s) => DIFFICULTIES[s.difficulty] || DIFFICULTIES.normal;
 
-export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal') {
+export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal', campaign = 'europe') {
   const d = DIFFICULTIES[difficulty] || DIFFICULTIES.normal;
   return {
     version: SAVE_VERSION,
@@ -40,6 +41,9 @@ export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal
     seed,
     rng: seed >>> 0,
     difficulty,
+    campaign,
+    dynasty:newDynasty(),
+    foreignTrack:{},
     month: 0,
     brand: null,
     cash: d.cash,
@@ -65,7 +69,7 @@ export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal
     goalsDone: [],
     notices: [],
     wageIndex: 1,
-    unlocked: { sobaos: true },
+    unlocked: { sobaos: true, vivienda:true },
     cooldowns: { trabajo: 2, hacienda: 4 },
     insolvencyMonths: 0,
     zeroMoralMonths: 0,
@@ -143,6 +147,7 @@ export function migrate(s) {
   if (s.obrador && !('expansions' in s.obrador)) s.obrador.expansions = 0;
   s.stats.liquidado ??= 0;
   s.stats.huelgas ??= 0;
+  if(s.brand&&s.unlocked)s.unlocked.vivienda=true;
   s.policies = { ...DEFAULT_POLICIES, ...s.policies };
   s.version = SAVE_VERSION;
   return s;
@@ -190,6 +195,9 @@ export function deserialize(text) {
   for (const [key, value] of Object.entries(ready.policies)) {
     if (!Object.hasOwn(POLICIES, key) || !Object.hasOwn(POLICIES[key].options, value)) invalid();
   }
+  if(!['europe','classic'].includes(ready.campaign))invalid();
+  if(!Number.isInteger(ready.dynasty.generation)||ready.dynasty.generation<0||!Number.isFinite(ready.dynasty.birthMonth)||typeof ready.dynasty.name!=='string'||!Array.isArray(ready.dynasty.history))invalid();
+  for(const [country,track] of Object.entries(ready.foreignTrack))if(!Object.hasOwn(FOREIGN_BY_ID,country)||!Number.isInteger(track?.successMonths)||track.successMonths<0)invalid();
   const businessIds = new Set();
   for (const business of ready.businesses) {
     if (!business || !Object.hasOwn(BUSINESS_TYPES, business.type) || !Object.hasOwn(CITY_BY_ID, business.city) ||

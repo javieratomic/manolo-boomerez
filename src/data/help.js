@@ -2,7 +2,7 @@
 export const HELP_PAGES = [
   {
     title: 'Tu primer mes en 4 pasos',
-    html: `<p>Cada turno es <b>un mes</b>. Tienes <b>8 años</b> para convertir el obrador de tu padre en un imperio... o en un caso de estudio.</p>
+    html: `<p>Cada turno es <b>un mes</b>. La <b>campaña europea es continua</b>: construye un grupo de 1.000 M€ en ocho países con banca, telecomunicaciones y logística. El reto semanal conserva la campaña clásica de ocho años.</p>
       <ol>
         <li>📍 <b>Pincha en una ciudad grande</b> del mapa y abre tu primera tienda de sobaos. La estimación te dice cuánto ganarías al mes.</li>
         <li>👷 Mira la pestaña <b>Plantilla</b>: debajo de cada política verás qué cambiaría el mes que viene y a 6 meses.</li>
@@ -14,8 +14,8 @@ export const HELP_PAGES = [
   {
     title: 'Dinero y obrador',
     html: `<ul>
-        <li>🏭 Los sobaos salen del <b>obrador de Selaya</b>. Si no da abasto, mejóralo o abre un obrador regional.</li>
-        <li>🤝 Las <b>franquicias</b> dan dinero rápido; si el franquiciado se arruina, viene a pedirte cuentas.</li>
+        <li>🏭 Los sobaos salen del <b>obrador de Selaya</b>. Si no da abasto, mejóralo, investiga producción o abre un obrador regional. La plantilla debe disponer de vivienda suficiente.</li>
+        <li>🏘️ <b>Viviendas para empleados:</b> se compran directamente al principio de <b>Plantilla</b>, con un botón por ciudad. Los alquileres se ajustan en esa misma pestaña.</li><li>🤝 Las <b>franquicias</b> dan dinero rápido; si el franquiciado se arruina, viene a pedirte cuentas.</li>
         <li>🔨 <b>Reformas</b>, <b>campañas</b> e <b>I+D</b>: en Mercado y en cada ciudad. Cuantos más negocios, más estructura central.</li>
         <li>🏦 La <b>póliza</b> de la Caja Cantábrica cubre los descubiertos; tres meses sin margen es concurso de acreedores.</li>
         <li>🔔 Con 3 años de cuentas y 4 M€ puedes <b>salir a Bolsa</b>: luego cada trimestre prometes una cifra a los analistas.</li>
@@ -45,7 +45,7 @@ export const HELP_PAGES = [
         <li>📜 Cada partida trae una <b>cláusula del testamento</b>: un reto opcional que multiplica la puntuación si lo cumples al terminar.</li>
         <li>🎲 La <b>semilla</b> reproduce la partida: escribe el código de un amigo en el título o juega el <b>reto de la semana</b>.</li>
         <li>🎂 A los sesenta, Manolo elegirá <b>heredero</b> ante el notario.</li>
-        <li>🏁 <b>Finales:</b> concurso de acreedores, Soto del Real, la cooperativa, Pyme con ínfulas, Tiburón Pasiego (5 M€ al acabar) o la revista de millonarios (15 M€). Desde los 61, también puedes <b>volver a Selaya</b> (pestaña Manolo). Al final verás qué fue de cada uno.</li>
+        <li>🫀 <b>Dinastía:</b> tres meses por encima de 90 de estrés pueden causar un fallecimiento. El reposo protege. A los 80 años toma el mando un sucesor; nomínalo desde Manolo. La empresa y el calendario continúan.</li><li>🌍 <b>Europa:</b> completa seis meses de marca blanca sirviendo el 90 % e investiga Despliegue comercial internacional para abrir locales propios en ese país desde Mercado.</li><li>🏁 <b>Finales de la campaña clásica:</b> concurso de acreedores, Soto del Real, la cooperativa, Pyme con ínfulas, Tiburón Pasiego (5 M€ al acabar) o la revista de millonarios (15 M€). Desde los 61, también puedes <b>volver a Selaya</b> (pestaña Manolo). Al final verás qué fue de cada uno.</li>
       </ul>
       <p>⌨️ Atajos: <b>Espacio</b> cierra el mes, <b>1-7</b> cambia de pestaña, <b>1-4</b> elige opción en las cartas y <b>,</b> <b>.</b> recorren las ciudades con alerta.</p>`,
   },

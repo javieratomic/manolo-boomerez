@@ -1,3 +1,4 @@
+import {DYNASTY_EVENTS} from './eventsDynasty.js';
 import { INTERNATIONAL_EVENTS } from './eventsInternational.js';
 // Cartas de sucesos. Cada evento:
 //  { id, title, portrait, image, text(s, params), weight(s) -> número (0 = no elegible / solo por guion),
@@ -1564,6 +1565,6 @@ const BASE_EVENTS = [
   },
 ];
 
-export const EVENTS = [...INTERNATIONAL_EVENTS, ...BASE_EVENTS, ...MACRO_EVENTS, ...SYSTEM_EVENTS, ...ARC_EVENTS, ...EXTRA_EVENTS, ...CITY_EVENTS, ...PLANTILLA_EVENTS, ...REMEDIOS_EVENTS, ...BOLSA_EVENTS, ...VELAS_EVENTS];
+export const EVENTS = [...DYNASTY_EVENTS,...INTERNATIONAL_EVENTS, ...BASE_EVENTS, ...MACRO_EVENTS, ...SYSTEM_EVENTS, ...ARC_EVENTS, ...EXTRA_EVENTS, ...CITY_EVENTS, ...PLANTILLA_EVENTS, ...REMEDIOS_EVENTS, ...BOLSA_EVENTS, ...VELAS_EVENTS];
 
 export const EVENT_BY_ID = Object.fromEntries(EVENTS.map((e) => [e.id, e]));

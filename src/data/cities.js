@@ -1,3 +1,4 @@
+import {FOREIGN_CITIES} from './foreignCities.js';
 // Ciudades donde Manolo puede plantar su imperio.
 // Capitales contrastadas con IGN, Directrices toponímicas 2023, apartado 6.2:
 // https://www.ign.es/web/resources/acercaDe/libDigPub/Directrices_toponimicas_2023.pdf
@@ -96,7 +97,8 @@ export const CITIES = [
   {"id": "melilla", "name": "Melilla", "region": "Ciudad autónoma de Melilla", "lon": -2.94, "lat": 35.29, "pop": 0.2, "wealth": 0.86, "tourism": 0.3, "rent": 0.82, "blurb": "Otra orilla y otro puerto. Abrir es fácil; llegar con el producto fresco tiene su coste."},
 ];
 
-export const CITY_BY_ID = Object.fromEntries(CITIES.map((c) => [c.id, c]));
+export const ALL_CITIES = [...CITIES,...FOREIGN_CITIES];
+export const CITY_BY_ID = Object.fromEntries(ALL_CITIES.map((c) => [c.id, c]));
 
 // Las 50 capitales provinciales; Ceuta y Melilla son ciudades autónomas.
 export const PROVINCIAL_CAPITALS = CITIES.filter(c => !['selaya','marbella','ibiza','ceuta','melilla'].includes(c.id));

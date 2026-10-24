@@ -15,7 +15,7 @@ import { MAMA, hasCond } from './cartilla.js';
 import { quarterProgress, qLabel } from './bolsa.js';
 import { forecast } from './preview.js';
 
-export const CAT_NAMES = { sobaos: 'Sobaos', inmobiliario: 'Inmobiliario', hosteleria: 'Hostelería', formacion: 'Formación', servicios: 'Servicios', produccion: 'Producción' };
+export const CAT_NAMES = { finanzas:'Banca',infraestructura:'Telecomunicaciones',logistica:'Logística', sobaos: 'Sobaos', inmobiliario: 'Inmobiliario', hosteleria: 'Hostelería', formacion: 'Formación', servicios: 'Servicios', produccion: 'Producción' };
 export const COST_NAMES = {
   salarios: 'Salarios', directivos: 'Directivos', estructura: 'Estructura central', mantenimiento: 'Mantenimiento', alquileres: 'Alquileres',
   materias: 'Materias primas', transporte: 'Transporte', otros: 'Otros gastos', intereses: 'Intereses', asesores: 'Asesores', personales: 'Caprichos de Manolo', reparto: 'Reparto con la plantilla', impuestos: 'Impuestos',

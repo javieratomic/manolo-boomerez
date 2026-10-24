@@ -1,3 +1,22 @@
+# Continuación 0.6.0 — Un imperio heredable (24-10-2026)
+
+El usuario delega implementación y equilibrio por entregas. Terminado:
+- Viviendas: primer bloque de Plantilla, botón de compra por ciudad, nombre inequívoco y migración de desbloqueo al cargar. Cada plaza aumenta la oferta laboral; las grandes ampliaciones y plantillas requieren vivienda. La actividad baja si se venden plazas necesarias.
+- Diez niveles por negocio (también obradores regionales), más locales y menor saturación en grandes ciudades. Academy escala con fama y red empresarial.
+- 35 I+D con iconos SVG: capacidad, automatización, energía, compras, rutas, estructura, despliegue exterior y licencias de tres sectores nuevos.
+- Banca, telecomunicaciones y logística: datos, costes, ingresos, desbloqueos y sprites PNG generados/inspeccionados; sin repetir costes de materias ni personal.
+- Diez mercados de acuerdos y 16 ciudades europeas propias. Seis meses de marca blanca con suministro ≥90 % por país más I+D permiten entrar; licencia no cuenta. Acceso desde Mercado y selector; el mapa conserva España y filtra sus animaciones exteriores.
+- Campaña europea predeterminada: sin corte en 96 meses ni 15 M€; meta 1.000 M€, ocho países y tres sectores estratégicos. Reto semanal y tests históricos conservan campaña clásica explícita.
+- Dinastía: estrés ≥90 durante tres meses trae riesgo mortal, reposo protege, relevo al cumplir 80 y retirada voluntaria desde 60. Conserva empresa/caja/deuda/contratos/I+D y calendario; cambia dirigente y edad. Los familiares también envejecen antes de heredar.
+
+Validación final: **221/221 Node y 12/12 DOM**. Edge 1365×900 y 375×812: compra vivienda desde Plantilla, ampliaciones, nivel 10, tres Express en Madrid, tres sectores, Lisboa, relevo al mes 300 y recarga; 35 iconos cargados, cero errores o desbordamiento. Prueba de 1.000 meses con presupuesto alto para aislar continuidad: dos relevos, sin final ni pérdida de guardado. Revisión independiente, cuatro errores reproducidos y corregidos; segunda revisión sin hallazgos importantes. Compilación, smoke del desempaquetado y del portable 0.6 correctos.
+
+Arte: 197 done, 62 requested, 1 blocked. Nuevos `bld_banco`, `bld_telecom`, `bld_logistica` en 256×256, transparencia y ancla (128,240), todos <80 KB. `check_assets.py` correcto. Ejecutable: `desktop/dist/ManoloBoomerez-0.6.0-portable.exe`. Sin push.
+
+Plan: `docs/superpowers/plans/2026-10-24-imperio-europeo.md`. Los apartados anteriores de abajo se conservan como historial. No reabrir diagnósticos corregidos de 0.4/0.5.
+
+---
+
 # Continuación 0.5.0 — De Selaya al mundo (24-10-2026)
 
 El usuario ha autorizado código y equilibrio por entregas. Implementado: ampliaciones industriales sin tope de niveles (coste creciente), precios locales de apertura, bonus de cortesía con excedentes reales, vivienda y plantilla local desde el inicio, 24 innovaciones con SVG propios, contratos exteriores en seis países (marca blanca/licencia, auditoría, disputas, rescisión y vencimiento) y 50 capitales provinciales más Ceuta/Melilla. Se mantienen Selaya, Marbella e Ibiza: 55 destinos.

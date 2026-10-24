@@ -238,7 +238,7 @@ export class MapView {
     const byCity = {};
     for (const l of report.lines) byCity[l.city] = (byCity[l.city] || 0) + (l.revenue - l.cost);
     this.pendingFloaters = Object.entries(byCity)
-      .filter(([, v]) => Math.abs(v) >= 1)
+      .filter(([city, v]) => this.cityPos[city] && Math.abs(v) >= 1)
       .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
       .slice(0, 10)
       .map(([city, v]) => ({ city, text: `${v >= 0 ? '+' : ''}${moneyShort(v)}`, good: v >= 0 }));
@@ -603,6 +603,7 @@ export class MapView {
       const k = (now - f.t0) / life;
       if (k < 0) continue;
       const p = this.cityPos[f.city];
+      if(!p)continue;
       const x = this.cam.x + p.x * this.cam.z;
       const y = this.cam.y + p.y * this.cam.z - Math.max(24, 70 * this.cam.z) - (reducedMotion() ? 0 : k * 30);
       ctx.globalAlpha = 1 - k * k;

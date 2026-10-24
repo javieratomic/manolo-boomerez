@@ -1,5 +1,6 @@
 // Finales de partida.
 export const ENDINGS = {
+  europe:{title:'Imperio económico europeo',image:'end_tiburon',tone:'good',text:'De un obrador de Selaya a un grupo con 1.000 millones de patrimonio, presencia propia en ocho países europeos y banca, telecomunicaciones y logística. La dinastía Boomerez ha construido su imperio. Puedes seguir ampliándolo en modo infinito.'},
   bancarrota: {
     title: 'Concurso de acreedores',
     image: 'end_bancarrota', tone: 'bad',

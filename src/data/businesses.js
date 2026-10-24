@@ -19,7 +19,7 @@ export const BUSINESS_TYPES = {
   },
   vivienda: {
     id: 'vivienda', category: 'inmobiliario',
-    name: 'Residencial Boomerez', short: 'Residencial',
+    name: 'Viviendas para empleados', short: 'Viviendas',
     cost: 210000, staff: 0, upkeep: 700, beds: 10, realEstate: true,
     sprite: 'bld_vivienda', color: '#9a9183', letter: 'R',
     desc: 'Pisos para tu plantilla. El alquiler sale directamente de la nómina. Así nadie se va... ni se queja.',
@@ -94,6 +94,10 @@ export const BUSINESS_TYPES = {
     sprite: 'bld_residencia', color: '#b2bec3', letter: '♥',
     desc: 'Sesenta plazas para "seniors" con vistas al aparcamiento. Rentable si los números cuadran... y la plantilla aguanta.',
   },
+  banca: {id:'banca',category:'finanzas',name:'Banco Boomerez',short:'Banco',cost:5000000,staff:18,rentBase:9000,baseRevenue:240000,cogs:0.14,model:'service',popExp:0.55,wealthExp:0.8,sprite:'bld_banco',color:'#315f7b',letter:'€',desc:'Crédito comercial y servicios de pago. Necesita I+D de licencia bancaria y una plantilla profesional.'},
+  telecom: {id:'telecom',category:'infraestructura',name:'Boomerez Telecom',short:'Telecom',cost:3000000,staff:14,rentBase:7000,baseRevenue:160000,cogs:0.22,model:'service',popExp:0.6,wealthExp:0.4,sprite:'bld_telecom',color:'#7163aa',letter:'T',desc:'Fibra, datos y atención al cliente. Cada centro abarata un 3 % la estructura del grupo, hasta un 18 %.'},
+  logistica: {id:'logistica',category:'logistica',name:'Boomerez Logística',short:'Logística',cost:1800000,staff:20,rentBase:6500,baseRevenue:130000,cogs:0.26,model:'service',popExp:0.5,wealthExp:0.2,sprite:'bld_logistica',color:'#598267',letter:'L',desc:'Almacén, distribución y servicios a terceros. Transporte de sobaos −30 % en rutas con un centro en origen o destino.'},
+
 };
 
 export const SOBAO_TYPE_BY_BRAND = { express: 'express', maison: 'maison' };

@@ -65,11 +65,35 @@ export const PRODUCTS = [
   {"id": "rehabilitacion", "name": "Programa de rehabilitación sénior", "cost": 95000, "months": 5, "effects": [{"types": ["residencia"], "factor": 1.09}], "desc": "Fisioterapia y seguimiento real. Aumenta el atractivo de la residencia un 9 %, respetando sus plazas.", "requires": "residencia"},
   {"id": "simulador", "name": "Simulador de gestión para la Academy", "cost": 60000, "months": 4, "effects": [{"types": ["academy"], "factor": 1.13}], "desc": "Los alumnos practican sin hipotecar a su madre. Academy +13 %.", "requires": "academy"},
   {"id": "desayunos", "name": "Desayunos corporativos por reserva", "cost": 110000, "months": 5, "effects": [{"category": "sobaos", "factor": 1.06}, {"types": ["coworking", "taberna"], "factor": 1.06}], "desc": "Reuniones con menos diapositivas y más desayuno. Sobaos, coworking y tabernas +6 %."},
+  {id:'horneado_continuo',name:'Horneado continuo',cost:180000,months:5,effects:[],production:1.20,desc:'Capacidad instalada del grupo +20 %. Necesita plantilla y vivienda suficientes.'},
+  {id:'fermentacion_controlada',name:'Fermentación controlada',cost:240000,months:6,effects:[],production:1.15,desc:'Capacidad instalada +15 %, acumulable con el horneado continuo.'},
+  {id:'robots_envasado',name:'Robots de envasado',cost:320000,months:6,effects:[],laborFactor:0.85,desc:'Personal necesario para fabricar −15 %. Libera capacidad y reduce nóminas.'},
+  {id:'energia_recuperada',name:'Recuperación de calor del horno',cost:160000,months:4,effects:[],fixedFactor:0.8,desc:'Gastos fijos industriales −20 %.'},
+  {id:'compra_agrupada',name:'Compra centralizada de materias',cost:140000,months:4,effects:[],materialFactor:0.94,desc:'Coste de materias primas −6 %, sin alterar la receta.'},
+  {id:'rutas_predictivas',name:'Planificación predictiva de rutas',cost:190000,months:5,effects:[],transportFactor:0.85,desc:'Coste de transporte −15 %.'},
+  {id:'erp_grupo',name:'ERP para el grupo empresarial',cost:260000,months:6,effects:[],structureFactor:0.85,desc:'Coste de estructura central −15 %.'},
+  {id:'expansion_propia',name:'Despliegue comercial internacional',cost:350000,months:6,effects:[],whiteSuccess:6,desc:'Permite abrir locales propios en cada país europeo donde hayas cumplido seis meses de marca blanca con al menos el 90 % del pedido servido.'},
+  {id:'licencia_bancaria',name:'Licencia de banca comercial',cost:650000,months:9,effects:[],opens:'banca',desc:'Desbloquea Banco Boomerez. Una oficina cuesta desde 5 M€, antes del ajuste local.'},
+  {id:'red_telecom',name:'Red de telecomunicaciones del grupo',cost:450000,months:8,effects:[],opens:'telecom',desc:'Desbloquea Boomerez Telecom. Además de sus clientes, reduce costes de estructura del grupo.'},
+  {id:'plataforma_logistica',name:'Plataforma logística integrada',cost:300000,months:6,effects:[],opens:'logistica',desc:'Desbloquea centros logísticos que venden servicios y abaratan las rutas que pasan por su ciudad.'},
+
 ];
 
 // Iconos vectoriales propios de la interfaz: cada proyecto tiene una ilustración distinta.
 for (const product of PRODUCTS) product.icon = `assets/ui/rd_${product.id}.svg`;
 
 export const UPGRADE_COST = [0.6, 1.0]; // coste de pasar a nivel 2 y a nivel 3 (fracción del coste del negocio)
-export const MAX_LEVEL = 3;
+export const MAX_LEVEL = 10;
 export const LEVEL_BONUS = 0.15; // demanda extra por nivel
+
+const factorCache=new WeakMap();
+export function researchFactor(s,key) {
+ const products=s.products||[],signature=products.join('|');
+ let cached=factorCache.get(s);
+ if(!cached||cached.signature!==signature){
+  const factors={};
+  for(const p of PRODUCTS)if(products.includes(p.id))for(const k of ['production','laborFactor','fixedFactor','materialFactor','transportFactor','structureFactor'])factors[k]=(factors[k]||1)*(p[k]||1);
+  cached={signature,factors};factorCache.set(s,cached);
+ }
+ return cached.factors[key]||1;
+}

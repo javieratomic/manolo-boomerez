@@ -1,3 +1,4 @@
+import {nominateHeir} from '../core/dynasty.js';
 import { signAgreement, endAgreement, agreementTerms } from '../core/international.js';
 import { FOREIGN_BY_ID, DEAL_MODES } from '../data/international.js';
 // Controlador principal de la interfaz.
@@ -100,7 +101,7 @@ function setupTitle() {
   $('#btn-week').onclick = async () => {
     const key = isoWeekKey(new Date());
     const seed = weekSeed(key);
-    const preview = newGame(seed, 'normal');
+    const preview = newGame(seed, 'normal','classic');
     const clause = clauseStatus(preview);
     const text = `Esta semana (${key}) todo el mundo juega la misma partida: misma semilla, mismos sucesos si eliges lo mismo y la misma cláusula del testamento. Dificultad normal.\n\nCódigo: ${seedCode(seed)}${clause ? `\nCláusula: «${clause.def.title}» (${clause.def.rule})` : ''}\n\nCompara tu puntuación del Salón de la fama con la de tus amigos.`;
     if (!(await confirmModal('🗓️ Reto de la semana', text, 'Empezar'))) return;
@@ -207,7 +208,7 @@ function hudItems(s) {
   const hotT = s.heatTrabajo >= s.heatHacienda;
   const sec = (html) => html.replace('class="hud-item"', 'class="hud-item hud-secondary"');
   return `
-    ${hudItem('icon_calendar', '📅', 'Fecha', `<span class="long">${dateLabel(s.month)}</span><span class="short">${dateLabel(s.month).slice(0, 3)} ${String(dateLabel(s.month)).slice(-2)}</span>`, `<span class="hud-sub">${s.endless ? `Mes ${s.month + 1} · ♾️` : `Mes ${Math.min(s.month + 1, GAME_MONTHS)}/${GAME_MONTHS}`}</span>`)}
+    ${hudItem('icon_calendar', '📅', 'Fecha', `<span class="long">${dateLabel(s.month)}</span><span class="short">${dateLabel(s.month).slice(0, 3)} ${String(dateLabel(s.month)).slice(-2)}</span>`, `<span class="hud-sub">${s.endless || s.campaign==='europe' ? `Mes ${s.month + 1} · ♾️` : `Mes ${Math.min(s.month + 1, GAME_MONTHS)}/${GAME_MONTHS}`}</span>`)}
     ${hudItem('icon_cash', '💶', 'Caja', `<span class="${s.cash < 0 ? 'neg' : ''}">${moneyShort(s.cash)}</span>`, '', 'Dinero disponible. Si baja de cero, el banco tira de la póliza.')}
     ${sec(hudItem('icon_debt', '🏦', 'Deuda', moneyShort(s.debt), '', `Lo que debes a la Caja Cantábrica. Genera intereses cada mes.${s.cartilla?.owed > 0 ? ` Además debes ${money(s.cartilla.owed)} a tu madre.` : ''}`))}
     ${hudItem('icon_patrimonio', '🏰', 'Patrimonio', moneyShort(pat), '', 'Caja − deuda + valor del obrador, los negocios y los caprichos. Es lo que cuenta para los finales.')}
@@ -286,7 +287,7 @@ function renderGoal(s) {
   const c = clauseStatus(s);
   const clause = c && ['vigente', 'cumplida'].includes(c.state) ? `<span class="goal-clause ${c.state}">📜 ${esc(c.state === 'cumplida' ? `${c.def.title} · ¡cumplida!` : c.short)}</span>` : '';
   const el = $('#goal-chip');
-  el.hidden = (!goals.length && !clause) || !!s.ending;
+  el.hidden = (!goals.length && !clause && s.campaign!=='europe') || !!s.ending;
   const done = goalNumber(s) - 1;
   const closeness = (g) => {
     const p = g.progress?.(s);
@@ -297,7 +298,7 @@ function renderGoal(s) {
   const lines = narrow && sorted.length > 1 && !game.goalsOpen
     ? `${goalLine(s, sorted[0])}<button type="button" class="goal-more" data-act="goals-more">+${sorted.length - 1}</button>`
     : goals.map((g) => goalLine(s, g)).join('') + (narrow && sorted.length > 1 ? '<button type="button" class="goal-more" data-act="goals-more">−</button>' : '');
-  el.innerHTML = `${goals.length ? `<span class="goal-kicker">🎯 Objetivos · ${done}/${GOALS.length}</span>${lines}` : ''}${clause}`;
+  el.innerHTML = `${s.campaign==='europe'?'<span class="goal-clause">🇪🇺 Meta: 1.000 M€ · 8 países · banca, telecom y logística</span>':''}${goals.length ? `<span class="goal-kicker">🎯 Objetivos · ${done}/${GOALS.length}</span>${lines}` : ''}${clause}`;
 }
 
 // Si una acción rompería la cláusula del testamento, se pregunta antes.
@@ -317,7 +318,7 @@ async function showNotices() {
 }
 
 function renderManoloBox(s) {
-  $('#manolo-portrait').src = imageUrl(`portrait_manolo_${manoloMood(s)}`);
+  $('#manolo-portrait').src = imageUrl(s.dynasty?.generation?s.dynasty.portrait:`portrait_manolo_${manoloMood(s)}`);
   const b = game.bubble?.month === s.month ? game.bubble.text : null;
   $('#manolo-bubble').textContent = b || s.quote || '';
   $('#manolo-bubble').classList.toggle('action', !!b);
@@ -401,6 +402,13 @@ async function onClick(e) {
       game.tab = 'ciudad';
       game.map.select(game.city);
       game.map.focusCity(game.city);
+      break;
+    case 'housing-open':
+      res=openBusiness(s,'vivienda',el.dataset.city);
+      if(res.ok)toast(`🏘️ Viviendas compradas en ${CITY_BY_ID[el.dataset.city].name}. Ajusta el alquiler en Plantilla.`,'good');
+      break;
+    case 'heir-name':
+      res=nominateHeir(s,el.dataset.heir);
       break;
     case 'open': {
       const t = BUSINESS_TYPES[el.dataset.type];
@@ -547,11 +555,11 @@ async function onClick(e) {
       break;
     }
     case 'retire': {
-      if (!(await confirmModal('Vuelta a Selaya', 'Manolo deja el imperio y vuelve al pueblo. La partida termina ahora, con la puntuación de hoy, y la cláusula del testamento no se cobra. No hay modo infinito.', 'Retirarse', 'Todavía no'))) return;
+      if (!(await confirmModal(s.campaign==='europe'?'Relevo voluntario':'Vuelta a Selaya', s.campaign==='europe'?'Tu sucesor toma el mando. Conservas todas las empresas y continúa la campaña europea.': 'Manolo deja el imperio y vuelve al pueblo. La partida termina ahora, con la puntuación de hoy, y la cláusula del testamento no se cobra. No hay modo infinito.', 'Retirarse', 'Todavía no'))) return;
       res = retire(s);
       if (res.ok) {
         renderAll();
-        await showEnding('selaya');
+        if(res.succession)await processQueue();else await showEnding('selaya');
         return;
       }
       break;

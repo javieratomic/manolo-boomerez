@@ -1,3 +1,6 @@
+import {workforcePlan} from '../core/workforce.js';
+import {leaderAge,successor,europeProgress} from '../core/dynasty.js';
+import {FOREIGN_CITIES} from '../data/foreignCities.js';
 import { FOREIGN_MARKETS, FOREIGN_BY_ID, DEAL_MODES } from '../data/international.js';
 import { agreementTerms, canSignAgreement } from '../core/international.js';
 // Paneles laterales. Cada render devuelve HTML; las acciones van por atributos data-act.
@@ -7,12 +10,12 @@ import { imageUrl, hasArt } from '../render/assets.js';
 
 // Usa el arte si ya está entregado; si no, el emoji.
 const artOr = (id, emoji, cls = 'emoji') => (hasArt(id) ? `<img src="${imageUrl(id)}" alt="" class="art-icon">` : `<span class="${cls}">${emoji}</span>`);
-import { CITY_BY_ID, CITIES, HQ_CITY } from '../data/cities.js';
+import { CITY_BY_ID, CITIES, ALL_CITIES, HQ_CITY } from '../data/cities.js';
 import { BUSINESS_TYPES, PERKS } from '../data/businesses.js';
 import { POLICIES } from '../data/policies.js';
 import { MANOLO_ACTIONS } from '../data/manoloActions.js';
 import { computeEconomy, estimateOpening, obradorCapacity, patrimonio, creditLimit, averageWage, ssOwed } from '../core/economy.js';
-import { canOpen, openingCost, sobaoTypeId, nextUpgrade, saleValue, canRebrand, franchiseFee, needsLicense, LOAN_STEP } from '../core/actions.js';
+import { canOpen, upgradeRequirements, openingCost, sobaoTypeId, nextUpgrade, saleValue, canRebrand, franchiseFee, needsLicense, LOAN_STEP } from '../core/actions.js';
 import { nearestSite, transportCost } from '../core/logistics.js';
 import { advice } from '../core/advice.js';
 import { PARTIES } from '../data/politics.js';
@@ -65,6 +68,9 @@ const LOCK_HINTS = {
   taberna: 'Se desbloquea con 2 tiendas de sobaos o en el mes 6.',
   gimnasio: 'Se desbloquea en el mes 12 o con 5 tiendas de sobaos.',
   coworking: 'Se desbloquea con fama 35 o con la Academy abierta.',
+  banca: 'Investiga Licencia de banca comercial en Mercado.',
+  telecom: 'Investiga Red de telecomunicaciones del grupo.',
+  logistica: 'Investiga Plataforma logística integrada.',
   residencia: 'Se desbloquea en el mes 24 o con 2 millones de patrimonio.',
 };
 
@@ -90,8 +96,8 @@ export function renderCity(s, cityId) {
   const c = CITY_BY_ID[cityId] || CITY_BY_ID[HQ_CITY];
   const here = s.businesses.filter((b) => b.city === c.id);
   const urgent = advice(s).find((t) => t.level === 'alta');
-  const own = CITIES.filter((x) => s.businesses.some((b) => b.city === x.id) || x.hq);
-  const others = CITIES.filter((x) => !own.includes(x));
+  const own = ALL_CITIES.filter((x) => s.businesses.some((b) => b.city === x.id) || x.hq);
+  const others = ALL_CITIES.filter((x) => !own.includes(x));
   const goTo = `<label class="goto small"><span>Ir a…</span><select data-act="goto-select" aria-label="Ir a una ciudad">
       <option value="">${esc(c.name)}</option>
       <optgroup label="Tus ciudades (${own.length})">${own.map((x) => `<option value="${x.id}">${esc(x.name)}</option>`).join('')}</optgroup>
@@ -125,7 +131,7 @@ export function renderCity(s, cityId) {
       html += `<li class="biz">
         <img src="${imageUrl(t.sprite)}" alt="" class="biz-icon">
         <div class="grow">
-          <div><b>${esc(t.name)}</b>${b.mode === 'franquicia' ? ' <span class="tag">Franquicia</span>' : ` <span class="stars" title="Nivel de reforma">${BUSINESS_TYPES[b.type].model === 'production' ? '' : `${'★'.repeat(b.level || 1)}${'☆'.repeat(MAX_LEVEL - (b.level || 1))}`}</span>`}</div>
+          <div><b>${esc(t.name)}</b>${b.mode === 'franquicia' ? ' <span class="tag">Franquicia</span>' : ` <span class="stars" title="Nivel de reforma">Nivel ${b.level||1}/${MAX_LEVEL}</span>`}</div>
           <div class="muted small">${profit == null ? 'Recién abierto' : `${b.mode === 'franquicia' ? 'Central' : 'Último mes'}: <span class="${cls(profit)}">${signed(profit)}</span>`}
           ${l?.franchise ? ` · Franquiciado: <span class="${cls(l.franchiseeProfit)}">${signed(l.franchiseeProfit)}</span>${b.lossMonths ? ` (${b.lossMonths} ${b.lossMonths === 1 ? 'mes' : 'meses'} en pérdidas)` : ''}` : ''}
           ${l?.surplusBonus > 0 ? ` · Sobaos de cortesía: +${(l.surplusBonus * 100).toFixed(1).replace('.', ',')} %` : ''}
@@ -144,8 +150,9 @@ export function renderCity(s, cityId) {
   if (here.some((b) => b.mode !== 'franquicia') || c.hq) html += renderLocalMarketing(s, c);
 
   html += `<div class="card"><h4>Abrir en ${esc(c.name)}</h4><div class="open-list">`;
-  const types = [sobaoTypeId(s), 'vivienda', 'airbnb', 'taberna', 'smash', 'empanadas', 'gimnasio', 'coworking', 'residencia', 'academy', 'obrador_regional'];
+  const types = [sobaoTypeId(s), 'vivienda', 'airbnb', 'taberna', 'smash', 'empanadas', 'gimnasio', 'coworking', 'residencia', 'academy', 'obrador_regional','banca','telecom','logistica'];
   const lockedTypes = [];
+  html += '<p class="small">🏘️ <a href="#" data-act="tab" data-tab="plantilla">Comprar viviendas para empleados: Plantilla → Viviendas para empleados</a></p>';
   for (const id of types) {
     const t = BUSINESS_TYPES[id];
     if (c.hq && t.category !== 'sobaos' && !['vivienda', 'taberna', 'residencia'].includes(id)) continue;
@@ -230,6 +237,7 @@ function renderObrador(s) {
   const r = computeEconomy(s);
   const fill = r.fill;
   const up = nextUpgrade(s);
+  const workforce=workforcePlan(s,'selaya'), nextWorkforce=upgradeRequirements(s);
   const ing = POLICIES.ingredientes;
   return `<div class="card obrador">
     <div class="row gap"><img src="${imageUrl(s.obrador.upgrades.includes('nave') ? 'bld_obrador_3' : s.obrador.upgrades.length ? 'bld_obrador_2' : 'bld_obrador_1')}" class="biz-icon big" alt="">
@@ -238,8 +246,8 @@ function renderObrador(s) {
       ${bar(Math.min(r.totalDemand, cap), cap, fill < 0.999 ? 'danger' : 'ok')}
       <div class="small ${fill < 0.999 ? 'warn' : 'muted'}">${fill < 0.999 ? `⚠️ No das abasto: solo sirves el ${Math.round(fill * 100)} % de la demanda.` : `Hay capacidad libre.${r.bonusUnits > 0 ? ` ${Math.round(r.bonusUnits)} sobaos de cortesía: hasta +5 % de ingresos en otros negocios.` : ''}`}</div></div>
     </div>
-    ${up ? `<div class="upgrade"><div><b>${esc(up.name)}</b> · +${up.capacity.toLocaleString('es-ES')} uds/mes</div><div class="small muted">${esc(up.desc)}</div>
-      <button class="btn small primary" data-act="upgrade" ${s.cash >= up.cost ? '' : 'disabled'}>Comprar (${moneyShort(up.cost)})</button></div>` : '<div class="small muted">El obrador está a tope de mejoras.</div>'}
+    ${up ? `<div class="small">Plantilla para capacidad instalada: ${workforce.required} · Oferta local: ${workforce.available} (${workforce.beds} plazas de vivienda).</div><div class="upgrade"><div><b>${esc(up.name)}</b> · +${up.capacity.toLocaleString('es-ES')} uds/mes</div><div class="small muted">${esc(up.desc)}</div>
+      <button class="btn small primary" data-act="upgrade" ${s.cash >= up.cost && nextWorkforce.missingBeds===0 ? '' : 'disabled'}>Comprar (${moneyShort(up.cost)})</button>${nextWorkforce.missingBeds ? `<p class="small warn">Para esta ampliación faltan ${nextWorkforce.missingBeds} plazas en Selaya. <a href="#" data-act="tab" data-tab="plantilla">Comprar viviendas para empleados</a></p>` : ''}</div>` : '<div class="small muted">El obrador está a tope de mejoras.</div>'}
     ${policyGroup(s, 'ingredientes', ing)}
     ${renderRebrand(s)}
     ${s.contracts.length ? `<div class="small">Contratos: ${s.contracts.map((c) => `${esc(c.label)} (${c.units.toLocaleString('es-ES')} uds/mes, ${c.months > 120 ? 'indefinido' : `${c.months} ${c.months === 1 ? 'mes' : 'meses'}`})`).join(', ')}</div>` : ''}
@@ -398,7 +406,7 @@ export function renderWhy(s, stat) {
 export function renderEmpire(s) {
   const r = s.lastReport;
   const pat = patrimonio(s);
-  let html = `<div class="card kpis">
+  let html = renderEuropeanGoal(s)+`<div class="card kpis">
     <div><span class="muted small">Patrimonio</span><b>${moneyShort(pat)}</b></div>
     <div><span class="muted small">Negocios</span><b>${s.businesses.length + 1}</b></div>
     <div><span class="muted small">Plantilla</span><b>${r ? r.employees : '—'}</b></div>
@@ -458,7 +466,7 @@ function renderInternational(s) {
   const r = computeEconomy(s);
   return `<div class="card"><h4>🌍 Acuerdos internacionales</h4>
     <p class="small">Marca blanca: fabricas tú para la marca del socio. Licencia: fabrican ellos con tu marca y te pagan el 8 % de sus ventas. Acuerdos exclusivos de 24 meses. Los socios y sus cifras son ficticios.</p>
-    <p class="small muted">Imprevistos: lotes defectuosos, impagos y copias de tu receta. Una auditoría cuesta 900 €/mes y reduce un 60 % el riesgo mensual; no lo elimina. Dos meses con menos del 80 % de suministro también abren conflicto.</p>
+    <div class="foreign-territories"><h4>Abrir tus propios negocios en Europa</h4><p class="small">Completa seis meses de marca blanca con al menos el 90 % del pedido servido en el país e investiga Despliegue comercial internacional. Las licencias no cuentan para este acceso. El mapa principal sigue mostrando España; gestiona estas filiales desde aquí.</p>${[...new Set(FOREIGN_CITIES.map(c=>c.market))].map(id=>`<div class="small"><b>${esc(FOREIGN_BY_ID[id].country)}</b> · Marca blanca cumplida: ${s.foreignTrack?.[id]?.successMonths||0}/6 meses<div class="row gap wrap">${FOREIGN_CITIES.filter(c=>c.market===id).map(c=>`<button class="btn small" data-act="goto-city" data-city="${c.id}">${esc(c.name)}</button>`).join('')}</div></div>`).join('')}</div><p class="small muted">Imprevistos: lotes defectuosos, impagos y copias de tu receta. Una auditoría cuesta 900 €/mes y reduce un 60 % el riesgo mensual; no lo elimina. Dos meses con menos del 80 % de suministro también abren conflicto.</p>
     ${(s.foreignDeals || []).map(d => {
       const l = r.lines.find(l => l.dealId === d.id);
       return `<div class="foreign-active"><b>${esc(FOREIGN_BY_ID[d.market].country)} · ${esc(DEAL_MODES[d.mode].name)}</b>
@@ -541,6 +549,17 @@ function renderRD(s) {
     </div></div>`;
 }
 
+function renderHousing(s,r) {
+ const cities=[...new Set(['selaya',...s.businesses.filter(b=>b.mode!=='franquicia').map(b=>b.city)])];
+ return `<div class="card housing-card"><h3>🏘️ Viviendas para empleados</h3><p class="small">Aquí compras viviendas residenciales para tu plantilla. No son pisos turísticos. El alquiler y la presión laboral se ajustan más abajo.</p><p class="small muted">La oferta local cubre parte del empleo; cada plaza de vivienda permite atraer a cuatro trabajadores más. Las grandes ampliaciones necesitan plazas suficientes.</p>
+ ${cities.map(city=>{const p=workforcePlan(s,city),ok=canOpen(s,'vivienda',city),staff=r.lines.filter(l=>l.city===city).reduce((n,l)=>n+l.staff,0);return `<div class="housing-city"><b>${esc(CITY_BY_ID[city].name)}</b><div class="small">${staff} trabajadores hoy · ${p.beds} plazas · Oferta laboral ${p.available} · Plantilla de capacidad instalada ${p.required}</div>${p.missingBeds?`<p class="small warn">Faltan ${p.missingBeds} plazas para la capacidad instalada.</p>`:''}<button class="btn small primary" data-act="housing-open" data-city="${city}" ${ok.ok?'':'disabled'} title="${esc(ok.msg||'')}">Comprar viviendas en ${esc(CITY_BY_ID[city].name)} (${moneyShort(openingCost(s,'vivienda','propia',city))})</button></div>`;}).join('')}
+ </div>`;
+}
+function renderEuropeanGoal(s) {
+ if(s.campaign!=='europe')return '';
+ const p=europeProgress(s,patrimonio(s));return `<div class="card european-goal"><h3>🇪🇺 El imperio económico europeo</h3><p class="small">Campaña continua: la empresa pasa a sus sucesores. Sin límite de ocho años.</p><div class="chips"><span class="chip">Patrimonio ${moneyShort(p.wealth)} / 1.000 M€</span><span class="chip">Países propios ${p.countries}/8</span><span class="chip">Banca, telecom y logística ${p.sectors}/3</span></div></div>`;
+}
+
 // ---------------------------------------------------------------- Plantilla
 export function renderStaff(s) {
   const r = previewCache(s).base.f.r; // la plantilla de ahora (con lo abierto o vendido este mes)
@@ -548,7 +567,7 @@ export function renderStaff(s) {
   const hasHousing = s.businesses.some((b) => b.type === 'vivienda');
   const liq = liquidacion(s);
   const agr = Math.round(s.agravio || 0);
-  return `<div class="card kpis">
+  return `${renderHousing(s,r)}<div class="card kpis">
       <div><span class="muted small">Empleados</span><b>${r.employees}</b></div>
       <div><span class="muted small">Coste medio</span><b>${money(averageWage(s))}</b></div>
       <div><span class="muted small">Moral</span><b>${Math.round(s.moral)}</b></div>
@@ -658,7 +677,7 @@ function renderCartilla(s) {
 export function renderFinance(s) {
   const r = s.lastReport;
   const limit = creditLimit(s);
-  let html = `<div class="card kpis">
+  let html = renderEuropeanGoal(s)+`<div class="card kpis">
     <div><span class="muted small">Caja</span><b class="${cls(s.cash)}">${moneyShort(s.cash)}</b></div>
     <div><span class="muted small">Deuda</span><b>${moneyShort(s.debt)}</b></div>
     <div><span class="muted small">Límite de crédito</span><b>${moneyShort(limit)}</b></div>
@@ -768,8 +787,8 @@ function renderAdvice(s) {
   </ul></div>`;
 }
 
-export const CAT_COLORS = { sobaos: '#e8a33a', hosteleria: '#d4402b', inmobiliario: '#2f8fc4', servicios: '#16a085', formacion: '#7a4fa0' };
-export const CAT_LABELS = { sobaos: 'Sobaos', hosteleria: 'Hostelería', inmobiliario: 'Inmobiliario', servicios: 'Servicios', formacion: 'Formación' };
+export const CAT_COLORS = { finanzas:'#315f7b',infraestructura:'#7163aa',logistica:'#598267', sobaos: '#e8a33a', hosteleria: '#d4402b', inmobiliario: '#2f8fc4', servicios: '#16a085', formacion: '#7a4fa0' };
+export const CAT_LABELS = { finanzas:'Banca',infraestructura:'Telecomunicaciones',logistica:'Logística', sobaos: 'Sobaos', hosteleria: 'Hostelería', inmobiliario: 'Inmobiliario', servicios: 'Servicios', formacion: 'Formación' };
 
 // Áreas apiladas de ingresos por sector y línea de beneficio neto.
 export function drawCategoryChart(canvas, s) {
@@ -875,30 +894,32 @@ export function drawChart(canvas, s) {
 export function renderManolo(s) {
   const mood = manoloMood(s);
   return `<div class="card manolo-card">
-      <img src="${imageUrl(`portrait_manolo_${mood}`)}" alt="Manolo" class="portrait-lg">
+      <img src="${imageUrl(s.dynasty?.generation?s.dynasty.portrait:`portrait_manolo_${mood}`)}" alt="Dirigente" class="portrait-lg">
       <div class="grow">
-        <h3>Manolo Boomerez</h3>
-        <div class="small muted">${55 + Math.floor(s.month / 12)} años · Joven emprendedor · CEO & Founder (heredado)</div>
+        <h3>${esc(s.dynasty?.name||'Manolo Boomerez')}</h3>
+        <div class="small muted">${leaderAge(s)} años · Generación ${(s.dynasty?.generation||0)+1} · Dirección del grupo</div>
         <div class="chips">
           <span class="chip">📣 Fama: <b>${Math.round(s.fama)}</b></span>
           <span class="chip">⚖️ Expedientes: <b>${s.expedientes}/3</b></span>
           <span class="chip" title="Con este código, otra persona puede jugar la misma partida (menú → semilla).">🎲 <b>${seedCode(s.seed)}</b>${s.flags.reto ? ` · reto ${esc(s.flags.reto)}` : ''}</span>
-          <span class="chip" title="Sube con el tamaño del imperio, LinkedIn y el bar; baja con Marbella, la familia, el pádel y un buen equipo directivo. Por encima de 80, susto.">🫀 Estrés: <b class="${(s.estres ?? 20) > 70 ? 'neg' : ''}">${Math.round(s.estres ?? 20)}</b></span>
+          <span class="chip" title="Sube con el tamaño del imperio, LinkedIn y el bar; baja con Marbella, la familia, el pádel y un buen equipo directivo. Por encima de 80, susto. Tres meses por encima de 90 pueden provocar un fallecimiento; el reposo protege. A los 80 años toma el mando un sucesor.">🫀 Estrés: <b class="${(s.estres ?? 20) > 70 ? 'neg' : ''}">${Math.round(s.estres ?? 20)}</b></span>
         </div>
         <blockquote>"${esc(s.quote || 'Yo a vuestra edad ya tenía un Audi.')}"</blockquote>
       </div>
     </div>
     <div class="card"><h4>Acción del mes ${s.actionUsed ? '<span class="tag">Hecha</span>' : ''}${s.restMonths > 0 ? `<span class="tag">Reposo: ${s.restMonths} m</span>` : ''}</h4>
-      <p class="small muted">Manolo puede hacer una cosa al mes. Las demás las hace la plantilla.</p>
+      <p class="small muted">La dirección puede hacer una cosa al mes. Las demás las hace la plantilla.</p>
       <div class="actions">
         ${MANOLO_ACTIONS.map((a) => `<button class="action" data-act="manolo" data-id="${a.id}" ${s.actionUsed || s.restMonths > 0 || (a.cost && s.cash < a.cost) ? 'disabled' : ''}>
           ${artOr(a.icon, a.emoji)}<span><b>${esc(a.name)}</b><small>${esc(a.desc)}</small></span></button>`).join('')}
       </div>
     </div>
+    ${renderEuropeanGoal(s)}
+    ${s.campaign==='europe'?`<div class="card"><h4>📜 Sucesión del imperio</h4><p class="small">Sucesor designado: <b>${esc(successor(s,'designado').name)}</b>. El nombramiento evita improvisar un relevo. La empresa conserva todos sus activos.</p><div class="row gap wrap">${(s.dynasty?.generation?['profesional','familia','plantilla']:['vanessa','kevin','profesional','plantilla']).map(key=>`<button class="btn small" data-act="heir-name" data-heir="${key}">${esc(successor(s,key).name)}</button>`).join('')}</div>${(s.dynasty?.history||[]).map(h=>`<p class="small">${esc(h.name)} · ${h.age} años · ${esc(h.cause)}</p>`).join('')}</div>`:''}
     ${renderRetire(s)}
     ${renderClause(s)}
     ${renderBio(s)}
-    ${renderFamily(s)}
+    ${s.flags.founderGone?'':renderFamily(s)}
     ${renderLujos(s)}
     <div class="card"><h4>Logros (${unlockedCount()}/${ACHIEVEMENTS.length})</h4>
       <p class="small muted">Se guardan en este navegador entre partidas.</p>
@@ -910,8 +931,9 @@ export function renderManolo(s) {
 
 // «Vuelta a Selaya»: aparece a partir del mes 72; el botón explica por qué no se puede todavía.
 function renderRetire(s) {
-  if (s.month < RETIRE_MONTH || s.ending) return '';
+  if ((s.campaign==='europe'?leaderAge(s)<60:s.month<RETIRE_MONTH) || s.ending) return '';
   const ok = canRetire(s);
+  if(s.campaign==='europe')return `<div class="card"><h4>📜 Relevo voluntario</h4><p class="small">Deja la dirección a tu sucesor; la campaña continúa con el mismo imperio.</p><button class="btn small" data-act="retire" ${ok.ok?'':'disabled'} title="${esc(ok.msg||'')}">Ceder el mando</button></div>`;
   return `<div class="card"><h4>🏡 Vuelta a Selaya</h4>
     <p class="small">Deja el imperio y vuelve al obrador de tu padre. La partida termina con la puntuación de hoy; la cláusula del testamento no se cobra.</p>
     <button class="btn small" data-act="retire" ${ok.ok ? '' : `disabled title="${esc(ok.msg)}"`}>Retirarse a Selaya</button>

@@ -59,7 +59,7 @@ function tickStress(s) {
   // Cuanto más grande el imperio, más agobio; un buen equipo directivo lo reparte.
   const execs = Object.keys(s.execs || {}).length;
   addStress(s, 0.4 + Math.min(2.2, s.businesses.length / 25) - 0.35 * execs);
-  if ((s.estres ?? 0) > 80 && !s.pending.some((p) => p.id === 'susto_padel') && s.month - (s.flags.sustoMonth ?? -99) >= 6) {
+  if (!s.flags.founderGone && !s.dynasty?.pendingCause && (s.estres ?? 0) > 80 && !s.pending.some((p) => p.id === 'susto_padel') && s.month - (s.flags.sustoMonth ?? -99) >= 6) {
     s.flags.sustoMonth = s.month;
     hito(s, 'susto');
     s.pending.push({ kind: 'event', id: 'susto_padel' });
@@ -73,7 +73,7 @@ export function tickLife(s) {
     const l = LUJO_BY_ID[x.id];
     x.value *= 1 + (l.realEstate ? Math.max(l.drift, macroFx(s).property) : l.drift);
   }
-  if (s.flags.divorciado) return;
+  if (s.flags.divorciado || s.flags.founderGone) return;
   // Manolo trabaja (o dice que trabaja) demasiado.
   const empire = Math.min(1, s.businesses.length / 30);
   const before = s.familia ?? 60;
@@ -156,7 +156,7 @@ export function canIPO(s, equity) {
   if (s.month < 36) return { ok: false, msg: 'Los bancos de inversión quieren ver al menos tres años de cuentas.' };
   if (equity < 4e6) return { ok: false, msg: 'Necesitas un patrimonio de al menos 4 millones.' };
   if (s.rep < 35) return { ok: false, msg: 'Con esa reputación, ningún banco te saca a Bolsa.' };
-  if (!s.endless && s.month + IPO_LOCKUP > GAME_MONTHS) return { ok: false, msg: 'Los bancos no sacan a Bolsa una empresa a punto de cerrar el ejercicio: el bloqueo no acabaría a tiempo.' };
+  if (s.campaign!=='europe' && !s.endless && s.month + IPO_LOCKUP > GAME_MONTHS) return { ok: false, msg: 'Los bancos no sacan a Bolsa una empresa a punto de cerrar el ejercicio: el bloqueo no acabaría a tiempo.' };
   return { ok: true };
 }
 

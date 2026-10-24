@@ -1,6 +1,6 @@
 import { PRODUCTS } from '../src/data/market.js';
 import { test, assert, assertEq } from './runner.js';
-import { newGame, serialize, deserialize } from '../src/core/state.js';
+import { newGame as createGame, serialize, deserialize } from '../src/core/state.js';
 import { advanceMonth, resolvePending, currentPending, checkEnding, eligibleEvents } from '../src/core/sim.js';
 import { computeEconomy, patrimonio, creditLimit, grossPatrimonio, estimateOpening, obradorCapacity, obradorValue } from '../src/core/economy.js';
 import { openBusiness, canOpen, setPolicy, borrow, repay, buyUpgrade, sellBusiness, doManoloAction, togglePerk, currentGoal, currentGoals, checkGoals, rebrand, dropMonthlyCost, nextUpgrade, openingCost } from '../src/core/actions.js';
@@ -38,6 +38,9 @@ import { endingOf } from '../src/data/endings.js';
 import { cityAlerts } from '../src/core/mapInfo.js';
 import { layoutLabels } from '../src/render/labels.js';
 import { playGame, from } from './bot.js';
+
+// La batería histórica mide la campaña clásica de ocho años.
+const newGame=(seed,difficulty)=>createGame(seed,difficulty,'classic');
 
 const started = (seed = 42, brand = 0) => {
   const s = newGame(seed);
@@ -534,12 +537,12 @@ test('exploit: comprar una cadena y revender sus locales no es rentable', () => 
   }
 });
 
-test('los obradores regionales no se reforman y la guerra exige competir en la ciudad', () => {
+test('los obradores regionales amplían su capacidad y la guerra exige competir en la ciudad', () => {
   const s = started(83);
   s.cash = 2e6;
   s.unlocked.obrador_regional = true;
   openBusiness(s, 'obrador_regional', 'sevilla');
-  assertEq(upgradeCost(s.businesses[0]), null);
+  const cap=obradorCapacity(s);assert(upgradeBusiness(s,s.businesses[0].id).ok);assert(obradorCapacity(s)>cap);
   s.rivals = [{ id: 'dona_rosa', presence: { murcia: 2 }, since: 0, calm: 0, actions: {} }];
   assert(!actOnRival(s, 'dona_rosa', 'murcia', 'guerra').ok, 'sin tienda en Murcia no hay guerra');
 });
@@ -2453,6 +2456,7 @@ test('regresión 0.4: Sanidad encolada no rompe la promesa renovada durante el m
 
 test('expansión: el obrador admite módulos consecutivos de coste creciente', () => {
   const s = started(); s.cash = 1e10;
+  s.businesses.push({id:0,type:'vivienda',city:'selaya',mode:'propia',level:10,value:100000});
   for (let i = 0; i < 3; i++) assert(buyUpgrade(s).ok);
   let price = 0;
   for (let i = 0; i < 12; i++) {

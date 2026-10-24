@@ -1,9 +1,12 @@
+import {PRODUCTS} from '../src/data/market.js';
+import {FOREIGN_MARKETS} from '../src/data/international.js';
+import {MapView} from '../src/render/mapView.js';
 // Regresiones del DOM real: se ejecutan en tests/index.html, sin dependencias.
 import { test, assert, assertEq } from './runner.js';
 import { showModal, isModalOpen } from '../src/ui/dom.js';
 import { newGame } from '../src/core/state.js';
 import { resolvePending } from '../src/core/sim.js';
-import { renderManolo, renderCity, renderEmpire, renderMarket } from '../src/ui/panels.js';
+import { renderManolo, renderCity, renderEmpire, renderMarket, renderStaff } from '../src/ui/panels.js';
 
 test('DOM: la pestaña Manolo muestra la edad del mes actual', () => {
   const s = newGame(42);
@@ -157,10 +160,10 @@ test('DOM: Mercado muestra iconos por innovación y los dos acuerdos extranjeros
   const s = newGame(42); resolvePending(s, 0); s.cash = 1e7;
   const el = document.createElement('div'); el.innerHTML = renderMarket(s);
   const icons = [...el.querySelectorAll('.product img')];
-  assertEq(icons.length, 24);
-  assertEq(new Set(icons.map(i => i.getAttribute('src'))).size, 24);
-  assertEq(el.querySelectorAll('.foreign-offer').length, 6);
-  assertEq(el.querySelectorAll('[data-act="foreign-sign"]').length, 12);
+  assertEq(icons.length, PRODUCTS.length);
+  assertEq(new Set(icons.map(i => i.getAttribute('src'))).size, PRODUCTS.length);
+  assertEq(el.querySelectorAll('.foreign-offer').length, FOREIGN_MARKETS.length);
+  assertEq(el.querySelectorAll('[data-act="foreign-sign"]').length, FOREIGN_MARKETS.length*2);
   assert(el.textContent.includes('fabrican ellos'));
 });
 
@@ -171,4 +174,18 @@ test('DOM: los acuerdos muestran céntimos en precio y transporte por unidad', (
   const portugal=el.querySelector('.foreign-offer[data-market="portugal"]');
   assert(portugal.textContent.includes('2,40'), 'precio de venta de 2,40 €/ud');
   assert(portugal.textContent.includes('0,12'), 'el transporte de 0,12 €/ud no se muestra como gratis');
+});
+
+
+test('DOM 0.6: Plantilla ofrece comprar viviendas directamente',()=>{
+ const s=newGame(42);resolvePending(s,0);s.cash=1e6;
+ const el=document.createElement('div');el.innerHTML=renderStaff(s);
+ const button=el.querySelector('[data-act="housing-open"][data-city="selaya"]');
+ assert(button&&!button.disabled);assert(button.textContent.includes('Comprar viviendas'));
+});
+
+test('DOM 0.6: el mapa no intenta animar beneficios fuera de España',()=>{
+ const view={cityPos:{madrid:{x:1,y:1}},pendingFloaters:[]};
+ MapView.prototype.showProfits.call(view,{lines:[{city:'lisboa',revenue:2000,cost:100},{city:'madrid',revenue:4000,cost:100}]});
+ assertEq(view.pendingFloaters.length,1);assertEq(view.pendingFloaters[0].city,'madrid');
 });

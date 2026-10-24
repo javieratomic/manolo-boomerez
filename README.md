@@ -124,3 +124,14 @@ En **Mercado** se investigan 24 innovaciones y se negocian acuerdos extranjeros.
 El obrador de Selaya admite módulos industriales de coste creciente tras sus tres mejoras iniciales. Abrir un local o comprar un inmueble cuesta según la ciudad. Las viviendas de plantilla se compran como **Residencial Boomerez**, no requieren licencia turística y solo alojan a empleados de la localidad. El alquiler se fija en **Plantilla**; la presión aumenta el control y tiene consecuencias en moral e inspecciones.
 
 Los negocios ajenos a sobaos no necesitan su producción. Si sobra capacidad, pueden recibir sobaos de cortesía: hasta +5 % de ingresos, con las materias, personal y transporte correspondientes. El mapa incluye 50 capitales provinciales, Ceuta, Melilla y los tres destinos adicionales originales. Los índices de población, renta y coste local son valores de juego. La lista de capitales se contrastó con las [Directrices toponímicas del IGN, apartado 6.2](https://www.ign.es/web/resources/acercaDe/libDigPub/Directrices_toponimicas_2023.pdf).
+
+
+### Campaña europea 0.6
+
+**Las viviendas se compran en Plantilla → Viviendas para empleados**, al principio del panel. Cada ciudad con personal tiene un botón de compra. También están en Ciudad → Abrir. Son residenciales; los apartamentos turísticos son otro negocio. La oferta laboral local se amplía con viviendas: antes de comprar una gran ampliación verás cuántas plazas faltan. Si vendes las viviendas, la actividad puede bajar por falta de empleados.
+
+La campaña normal es continua y persigue 1.000 M€ de patrimonio, presencia propia en ocho países europeos y banca, telecomunicaciones y logística. El reto semanal sigue siendo clásico, de ocho años. Desde **Manolo** puedes nombrar sucesor: con estrés de 90 o más durante tres meses aparece riesgo mortal y el reposo lo evita; a los 80 años se produce el relevo. La empresa conserva activos, deuda, contratos, productos y calendario. Los sucesores también envejecen.
+
+En **Mercado** hay 35 proyectos de I+D, incluidos producción, automatización y ahorro. Las licencias de banca, telecomunicaciones y logística desbloquean esos negocios. Una Academy crece con tu fama y con el número de negocios de la red. Los locales se reforman hasta nivel diez y las grandes ciudades soportan más establecimientos del mismo tipo.
+
+Para abrir en el extranjero: cumple **seis meses de marca blanca con al menos el 90 % del pedido servido en ese país**, termina **Despliegue comercial internacional** y entra en **Mercado → Acuerdos internacionales → Abrir tus propios negocios en Europa**. El selector de ciudades también muestra esos destinos; el mapa principal conserva España. Una licencia de fabricación ajena no cuenta como experiencia de marca blanca. Rescinde una licencia exclusiva antes de abrir allí con tu marca.

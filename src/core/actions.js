@@ -1,3 +1,4 @@
+import {workforcePlan} from './workforce.js';
 // Acciones del jugador durante el mes (todas validan y devuelven { ok, msg }).
 import { BUSINESS_TYPES, OBRADOR_UPGRADES, PERKS, SOBAO_TYPE_BY_BRAND, expansionUpgrade } from '../data/businesses.js';
 import { CITY_BY_ID } from '../data/cities.js';
@@ -13,7 +14,8 @@ import { checkClause } from './clauses.js';
 import { breaksPromise } from './cartilla.js';
 
 export const LOAN_STEP = 25000;
-export const MAX_PER_CITY = 6;
+export const MAX_PER_CITY = 6; // compatibilidad con herramientas anteriores
+export const cityBusinessLimit = city => 6+Math.ceil(6*(CITY_BY_ID[city]?.pop||0));
 
 export function sobaoOutlets(s) {
   return s.businesses.filter((b) => BUSINESS_TYPES[b.type].category === 'sobaos').length;
@@ -43,14 +45,24 @@ export function canOpen(s, typeId, cityId, mode = 'propia') {
   const t = BUSINESS_TYPES[typeId];
   const c = CITY_BY_ID[cityId];
   if (!t || !c) return { ok: false, msg: 'Negocio o ciudad desconocidos.' };
+  if(c.foreign) {
+    if(!(s.products||[]).includes('expansion_propia'))return {ok:false,msg:'Investiga Despliegue comercial internacional en Mercado.'};
+    if((s.foreignTrack?.[c.market]?.successMonths||0)<6)return {ok:false,msg:'Necesitas seis meses de marca blanca sirviendo al menos el 90 % en este país.'};
+    if((s.foreignDeals||[]).some(d=>d.market===c.market&&d.mode==='licence'))return {ok:false,msg:'Rescinde la licencia territorial antes de abrir con tu propia marca.'};
+  }
   if (t.category === 'sobaos' && typeId !== sobaoTypeId(s)) return { ok: false, msg: 'Esa no es tu marca.' };
-  if (t.category !== 'sobaos' && !s.unlocked[typeId]) return { ok: false, msg: 'Aún no está desbloqueado.' };
+  if (t.category !== 'sobaos' && typeId !== 'vivienda' && !s.unlocked[typeId]) return { ok: false, msg: 'Aún no está desbloqueado.' };
   if (mode === 'franquicia' && t.category !== 'sobaos') return { ok: false, msg: 'Solo las tiendas de sobaos se franquician.' };
   if (mode === 'ilegal' && !needsLicense(typeId, cityId)) return { ok: false, msg: 'Aquí no hace falta licencia.' };
   if (t.onePerCity && s.businesses.some((b) => b.type === typeId && b.city === cityId)) return { ok: false, msg: 'Ya tienes uno en esta ciudad.' };
   if (t.unique && s.businesses.some((b) => b.type === typeId)) return { ok: false, msg: 'Solo puede haber una.' };
   if (c.hq && t.category !== 'sobaos' && !['vivienda', 'taberna', 'residencia'].includes(typeId)) return { ok: false, msg: typeId === 'obrador_regional' ? 'En Selaya ya está el obrador principal.' : 'En Selaya no hay mercado para eso.' };
-  if (s.businesses.filter((b) => b.city === cityId).length >= MAX_PER_CITY) return { ok: false, msg: 'Ya no caben más negocios en esta ciudad.' };
+  if (typeId!=='vivienda' && s.businesses.filter((b) => b.city === cityId && b.type!=='vivienda').length >= cityBusinessLimit(cityId)) return { ok: false, msg: 'Ya no caben más negocios en esta ciudad.' };
+  if(typeId!=='vivienda' && mode!=='franquicia') {
+    const tmp={id:-2,type:typeId,city:cityId,mode,level:1};s.businesses.push(tmp);
+    let plan;try{plan=workforcePlan(s,cityId);}finally{s.businesses.splice(s.businesses.indexOf(tmp),1);}
+    if(plan.missingBeds>0)return {ok:false,msg:`Faltan ${plan.missingBeds} plazas de vivienda para contratar en ${c.name}. Cómpralas desde Plantilla.`};
+  }
   const cost = openingCost(s, typeId, mode, cityId);
   if (cost > s.cash) return { ok: false, msg: `Necesitas ${money(cost)} en caja.` };
   return { ok: true, cost };
@@ -112,10 +124,20 @@ export function nextUpgrade(s) {
   return OBRADOR_UPGRADES.find((u) => !s.obrador.upgrades.includes(u.id)) || expansionUpgrade(s.obrador.expansions || 0);
 }
 
+export function upgradeRequirements(s) {
+  const u=nextUpgrade(s);
+  const oldExp=s.obrador.expansions||0;
+  if(u.expansion)s.obrador.expansions=oldExp+1;else s.obrador.upgrades.push(u.id);
+  let plan;try{plan=workforcePlan(s,'selaya');}finally{if(u.expansion)s.obrador.expansions=oldExp;else s.obrador.upgrades.pop();}
+  return plan;
+}
+
 export function buyUpgrade(s) {
   const u = nextUpgrade(s);
   if (!Number.isSafeInteger(u.cost)) return { ok: false, msg: 'Esta ampliación supera el importe máximo que puede representar el juego.' };
   if (s.cash < u.cost) return { ok: false, msg: `Necesitas ${money(u.cost)}.` };
+  const plan=upgradeRequirements(s);
+  if(plan.missingBeds>0)return {ok:false,msg:`Antes de ampliar faltan ${plan.missingBeds} plazas de vivienda en Selaya para la nueva plantilla. Ve a Plantilla → Viviendas para empleados.`};
   addCash(s, -u.cost);
   if (u.expansion) s.obrador.expansions = (s.obrador.expansions || 0) + 1;
   else s.obrador.upgrades.push(u.id);

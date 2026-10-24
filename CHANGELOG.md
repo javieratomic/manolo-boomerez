@@ -2,6 +2,7 @@
 
 ## 0.6.0 — Un imperio heredable
 
+- Retratos de candidatos y directivos coherentes con los personajes; familiares con retrato propio y corrección automática al cargar partidas anteriores.
 - Viviendas para empleados visibles al principio de Plantilla, compra por ciudad y desbloqueo inmediato al cargar partidas antiguas.
 - Diez niveles por negocio, obradores regionales ampliables y más locales rentables en ciudades grandes.
 - Mercado laboral local: grandes plantillas requieren viviendas; venderlas puede reducir empleo, actividad y capacidad fabril.

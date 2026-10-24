@@ -1,5 +1,5 @@
 // Directivos: candidatos, fichajes, efectos y rasgos.
-import { POSITIONS, TRAITS, FIRST_NAMES, LAST_NAMES, FAMILY, EXEC_PORTRAITS } from '../data/execs.js';
+import { POSITIONS, TRAITS, FIRST_NAMES, LAST_NAMES, FAMILY, EXEC_PORTRAITS, execPortrait } from '../data/execs.js';
 import { chance, int, pick } from './rng.js';
 import { addCash, log, money } from './helpers.js';
 import { checkClause } from './clauses.js';
@@ -25,7 +25,7 @@ function makeCandidate(s, pos) {
   if (trait === 'tiburon') salary *= 1.5;
   if (trait === 'mba') salary *= 1.25;
   const fam = family ? pick(s, famPool) : null;
-  return {
+  const candidate = {
     id: `c${s.month}_${pos}_${int(s, 100, 999)}`,
     name: fam ? fam.name : `${pick(s, FIRST_NAMES)} ${pick(s, LAST_NAMES)}`,
     note: fam?.note || null,
@@ -33,6 +33,8 @@ function makeCandidate(s, pos) {
     salary: Math.round(salary / 50) * 50,
     portrait: pick(s, EXEC_PORTRAITS),
   };
+  candidate.portrait = execPortrait(candidate.name, candidate.portrait);
+  return candidate;
 }
 
 // Cada 6 meses llega una nueva hornada de currículums (uno o dos por puesto).

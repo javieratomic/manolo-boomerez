@@ -31,3 +31,26 @@ export const FAMILY = [
   { name: 'Merche Gutiérrez', note: 'tu mujer' },
 ];
 export const EXEC_PORTRAITS = ['portrait_exec_1', 'portrait_exec_2', 'portrait_exec_3', 'portrait_exec_4', 'portrait_exec_5', 'portrait_exec_6'];
+
+// Identidad de los personajes del catálogo; no deducirla del orden de generación.
+const WOMEN = new Set(['Lucía', 'Marta', 'Nerea', 'Carmen', 'Ainhoa', 'Rocío', 'Itziar', 'Patricia', 'Begoña', 'Sonia']);
+const PORTRAITS_BY_GENDER = {
+  mujer: ['portrait_exec_1', 'portrait_exec_4', 'portrait_exec_5'],
+  hombre: ['portrait_exec_2', 'portrait_exec_3', 'portrait_exec_6'],
+};
+const FAMILY_PORTRAITS = {
+  'Kevin Boomerez': 'portrait_sobrino_kevin',
+  'Jonathan Fernández': 'portrait_cunado_jonathan',
+  'Merche Gutiérrez': 'portrait_esposa_merche',
+};
+
+export function execPortrait(name, portrait) {
+  if (Object.hasOwn(FAMILY_PORTRAITS, name)) return FAMILY_PORTRAITS[name];
+  const first = name?.split(' ')[0];
+  if (!FIRST_NAMES.includes(first)) return portrait;
+  const pool = PORTRAITS_BY_GENDER[WOMEN.has(first) ? 'mujer' : 'hombre'];
+  if (pool.includes(portrait)) return portrait;
+  // Reasignación estable que conserva la variedad sin consumir azar de la partida.
+  const index = Math.max(0, EXEC_PORTRAITS.indexOf(portrait));
+  return pool[index % pool.length];
+}

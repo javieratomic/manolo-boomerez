@@ -1,3 +1,9 @@
+# Corrección de retratos (24-10-2026)
+
+Los candidatos ya no mezclan nombres y retratos: el catálogo distingue los grupos de retratos, y Kevin, Jonathan y Merche usan su recurso propio. La carga repara candidatos y directivos de partidas anteriores de forma estable y sin consumir RNG. Dos regresiones cubren todos los nombres y la migración. Se conserva la versión 0.6.0.
+
+Validación: 223/223 Node, 12/12 DOM, carga real de los cuatro casos indicados sin errores y smoke del desempaquetado correcto. El portable original estaba abierto por el usuario: la entrega corregida se guarda como `desktop/dist/ManoloBoomerez-0.6.0-retratos-portable.exe`.
+
 # Continuación 0.6.0 — Un imperio heredable (24-10-2026)
 
 El usuario delega implementación y equilibrio por entregas. Terminado:

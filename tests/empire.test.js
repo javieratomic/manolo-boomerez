@@ -11,6 +11,38 @@ import {nominateHeir,leaderAge,tickDynasty,beginSuccession,succeed,europeProgres
 import {workforcePlan} from '../src/core/workforce.js';
 import {signAgreement,tickInternational} from '../src/core/international.js';
 import {CITY_BY_ID} from '../src/data/cities.js';
+import {refreshCandidates} from '../src/core/execs.js';
+import {FIRST_NAMES} from '../src/data/execs.js';
+
+test('Retratos: los candidatos respetan la identidad de cada nombre y familiar',()=>{
+ const women=new Set(['Lucía','Marta','Nerea','Carmen','Ainhoa','Rocío','Itziar','Patricia','Begoña','Sonia']);
+ const family={'Kevin Boomerez':'portrait_sobrino_kevin','Jonathan Fernández':'portrait_cunado_jonathan','Merche Gutiérrez':'portrait_esposa_merche'};
+ const seen=new Set();
+ for(let seed=1;seed<=100;seed++){
+  const s=newGame(seed);refreshCandidates(s,true);
+  for(const c of s.candidates){
+   const first=c.name.split(' ')[0];seen.add(first);
+   if(family[c.name])assertEq(c.portrait,family[c.name],c.name);
+   else assert((women.has(first)?[1,4,5]:[2,3,6]).some(n=>c.portrait===`portrait_exec_${n}`),c.name+' tiene un retrato incompatible');
+  }
+ }
+ for(const name of [...FIRST_NAMES,'Kevin','Jonathan','Merche'])assert(seen.has(name),'Falta cobertura de '+name);
+});
+
+test('Retratos: cargar corrige candidatos y directivos antiguos sin alterar economía ni azar',()=>{
+ const s=newGame(42);
+ const candidate=(name,portrait)=>({id:name,name,portrait,pos:'finanzas',salary:4700,skill:1,trait:'leal'});
+ s.candidates=[candidate('Kevin Boomerez','portrait_exec_1'),candidate('Itziar Etxeberria','portrait_exec_2')];
+ s.execs={finanzas:candidate('Merche Gutiérrez','portrait_exec_3'),marketing:candidate('Unai Ruiz de la Vega','portrait_exec_4')};
+ const loaded=deserialize(serialize(s));
+ assertEq(loaded.candidates[0].portrait,'portrait_sobrino_kevin');
+ assert(['portrait_exec_1','portrait_exec_4','portrait_exec_5'].includes(loaded.candidates[1].portrait));
+ assertEq(loaded.execs.finanzas.portrait,'portrait_esposa_merche');
+ assert(['portrait_exec_2','portrait_exec_3','portrait_exec_6'].includes(loaded.execs.marketing.portrait));
+ assertEq(loaded.cash,s.cash);assertEq(loaded.rng,s.rng);
+ assertEq(loaded.execs.marketing.salary,4700);
+ assertEq(serialize(deserialize(serialize(loaded))),serialize(loaded),'La corrección debe ser estable');
+});
 
 const started=()=>{const s=newGame(42);resolvePending(s,0);s.cash=1e8;s.clausula=null;return s;};
 

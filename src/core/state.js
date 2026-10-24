@@ -1,4 +1,5 @@
 import {newDynasty} from './dynasty.js';
+import {execPortrait} from '../data/execs.js';
 import { FOREIGN_BY_ID, DEAL_MODES, DISPUTES } from '../data/international.js';
 import { DEFAULT_POLICIES, POLICIES } from '../data/policies.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
@@ -150,6 +151,9 @@ export function migrate(s) {
   if(s.brand&&s.unlocked)s.unlocked.vivienda=true;
   s.policies = { ...DEFAULT_POLICIES, ...s.policies };
   s.version = SAVE_VERSION;
+  for (const person of [...Object.values(s.execs || {}), ...(Array.isArray(s.candidates) ? s.candidates : [])]) {
+    if (person && typeof person.name === 'string') person.portrait = execPortrait(person.name, person.portrait);
+  }
   return s;
 }
 

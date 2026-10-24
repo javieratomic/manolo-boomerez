@@ -925,7 +925,7 @@ const BASE_EVENTS = [
         },
       },
       {
-        label: 'Hacerle socio de un negocio de empanadas',
+        label: 'Asociarte: 10 % de ventas y primer local un 30 % más barato',
         effect(s) {
           s.flags.primoSocio = true;
           if (s.unlocked.empanadas) {
@@ -933,7 +933,7 @@ const BASE_EVENTS = [
           }
           s.unlocked.empanadas = true;
           log(s, '🔓 Desbloqueado: Empanadas El Gaucho Pasiego (gracias, primo).', 'good');
-          return '"¡Empanadas, boludo! Mi abuela hacía las mejores de Palermo." Desbloqueas Empanadas El Gaucho Pasiego. Rodrigo se lleva un 10 % de sus ventas.';
+          return '"¡Empanadas, boludo! Mi abuela hacía las mejores de Palermo." Desbloqueas Empanadas El Gaucho Pasiego. Rodrigo aporta contactos y equipamiento: el primer local cuesta un 30 % menos. Se lleva un 10 % de las ventas de todos los locales.';
         },
       },
       {

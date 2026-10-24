@@ -7,6 +7,7 @@
 // Arcos: prensa (Lucía Ferrer), jonathan (Sobaoverso), comite (convenio de Maripili),
 //        hojaldre (corrupción municipal), merche (crisis de los 55), anselmo (la carta del padre).
 import { chance, int } from '../core/rng.js';
+import {hasAbusiveHousing} from '../core/housing.js';
 import { recordSanction } from '../core/inspections.js';
 import { creditAhorro } from '../core/plantilla.js';
 import {
@@ -54,14 +55,14 @@ function trapos(s) {
   if (p.becarios === 'legion') t.push('la legión de becarios a 400 €');
   if (p.contabilidad !== 'limpia') t.push('una contabilidad que haría llorar a un notario');
   if (p.ingredientes === 'misteriosa') t.push('los bidones de grasa sin etiqueta');
-  if (has(s, 'vivienda') && p.alquiler === 'abusivo') t.push('los alquileres abusivos que pagas a tu propia plantilla');
+  if (hasAbusiveHousing(s)) t.push('los alquileres abusivos que cobras a tu propia plantilla');
   return t;
 }
 
 function prensaScore(s) {
   let n = 0;
   for (const [k, table] of Object.entries(POLICY_DIRT)) n += table[s.policies[k]] ?? 0;
-  if (has(s, 'vivienda') && s.policies.alquiler === 'abusivo') n += 1;
+  if (hasAbusiveHousing(s)) n += 1;
   if (s.moral < 30) n += 1;
   n += { abierto: -1, comida: 1, hostil: 1, publicidad: 2 }[s.flags.prensaTrato] ?? 0;
   n += { libre: -1, nda: 2, regulariza: -1, maripili: 1 }[s.flags.prensaPlantilla] ?? 0;

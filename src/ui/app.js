@@ -1,4 +1,5 @@
 import {nominateHeir} from '../core/dynasty.js';
+import {setHousingPolicy} from '../core/housing.js';
 import { signAgreement, endAgreement, agreementTerms } from '../core/international.js';
 import { FOREIGN_BY_ID, DEAL_MODES } from '../data/international.js';
 // Controlador principal de la interfaz.
@@ -385,7 +386,7 @@ function cycleAlerts(dir) {
 
 async function onClick(e) {
   const el = e.target.closest('[data-act]');
-  if (!el || el.disabled || el.tagName === 'INPUT') return;
+  if (!el || el.disabled || el.tagName === 'INPUT' || el.tagName === 'SELECT') return;
   const s = game.s;
   const act = el.dataset.act;
   if (act !== 'menu' && !s) return;
@@ -624,6 +625,11 @@ async function onClick(e) {
 
 function onChange(e) {
   const el = e.target;
+  if(el.dataset.act==='housing-policy'&&game.s) {
+    const res=setHousingPolicy(game.s,el.dataset.city,el.dataset.group,el.value);
+    if(!res.ok)toast(res.msg,'bad');
+    renderAll();return;
+  }
   if (el.dataset.act === 'goto-select' && game.s && el.value) {
     game.city = el.value;
     game.tab = 'ciudad';

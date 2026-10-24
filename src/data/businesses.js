@@ -19,10 +19,10 @@ export const BUSINESS_TYPES = {
   },
   vivienda: {
     id: 'vivienda', category: 'inmobiliario',
-    name: 'Viviendas para empleados', short: 'Viviendas',
+    name: 'Viviendas para empleados y público', short: 'Viviendas',
     cost: 210000, staff: 0, upkeep: 700, beds: 10, realEstate: true,
     sprite: 'bld_vivienda', color: '#9a9183', letter: 'R',
-    desc: 'Pisos para tu plantilla. El alquiler sale directamente de la nómina. Así nadie se va... ni se queja.',
+    desc: 'La plantilla tiene prioridad; las plazas libres se alquilan al público. Tarifas separadas por ciudad en Plantilla.',
   },
   airbnb: {
     id: 'airbnb', category: 'inmobiliario', license: 120000,

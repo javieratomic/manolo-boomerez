@@ -1,4 +1,6 @@
 import {serviceRevenue,serviceStaff} from './serviceModel.js';
+import {businessSynergies} from './synergies.js';
+import {housingTerms} from './housing.js';
 import {workforcePlan,factoryLaborFactor,plannedStaff} from './workforce.js';
 import {researchFactor} from '../data/market.js';
 import { foreignDemand, foreignLines } from './international.js';
@@ -82,7 +84,7 @@ export const conditionFactor = (b) => 0.75 + 0.25 * (b.cond ?? 100) / 100;
 // Todo lo que multiplica la demanda de un negocio concreto.
 export function bizMult(s, b, category, city, month) {
   return modFactor(s, 'revenue', category, b.city, b.type) * rivalFactor(s, b) * levelFactor(b) * productFactor(s, b.type, category, city, month) *
-    (b.mode === 'franquicia' ? 1 : conditionFactor(b));
+    (b.mode === 'franquicia' ? 1 : conditionFactor(b)) * businessSynergies(s,b).factor;
 }
 
 export const hasCondition = (b) => b.mode !== 'franquicia' && BUSINESS_TYPES[b.type].model !== 'production';
@@ -320,7 +322,8 @@ export function computeEconomy(s) {
       cost += shipping;
     }
     revenueByCat[t.category] += revenue;
-    lines.push({ surplusBonus: bonus, id: b.id, type: b.type, city: b.city, label: t.name, revenue, cost, staff: lineStaff });
+    const occupied=t.model==='care'?revenue/(1+bonus)/(1250*Math.pow(c.wealth,1.2)):undefined;
+    lines.push({ surplusBonus: bonus, id: b.id, type: b.type, city: b.city, label: t.name, revenue, cost, staff: lineStaff, ...(occupied===undefined?{}:{occupied}) });
   }
 
   // --- Viviendas para la plantilla (dependen del nº de empleados) ------------
@@ -333,14 +336,36 @@ export function computeEconomy(s) {
   const available = Object.fromEntries(Object.entries(localBeds).map(([city, n]) => [city, Math.min(n, localEmployees[city] || 0)]));
   const housed = Object.values(available).reduce((a, n) => a + n, 0);
   const control = employees > 0 ? housed / employees : 0;
+  const publicAvailable=Object.fromEntries(Object.keys(localBeds).map(city=>[city,Math.min(localBeds[city]-available[city],housingTerms(s,city).publicDemand)]));
+  let publicHoused=0,housingMoral=0,housingInsp=0;
   for (const b of viviendas) {
-    const occ = Math.min(bedsOf(b), available[b.city] || 0);
-    available[b.city] -= occ;
-    const revenue = occ * fx.alq.rent * conditionFactor(b);
+    const terms=housingTerms(s,b.city);
+    const employeeOccupied = Math.min(bedsOf(b), available[b.city] || 0);
+    available[b.city] -= employeeOccupied;
+    const publicOccupied=Math.min(bedsOf(b)-employeeOccupied,publicAvailable[b.city]||0);
+    publicAvailable[b.city]-=publicOccupied;publicHoused+=publicOccupied;
+    housingMoral+=terms.moral*employeeOccupied/Math.max(1,employees);
+    housingInsp+=terms.insp*employeeOccupied/Math.max(1,employees);
+    const occ=employeeOccupied+publicOccupied;
+    const revenue = (employeeOccupied*terms.employeeRent+publicOccupied*terms.publicRent) * conditionFactor(b);
     const cost = BUSINESS_TYPES.vivienda.upkeep;
     costs.otros += cost;
     revenueByCat.inmobiliario += revenue;
-    lines.push({ id: b.id, type: b.type, city: b.city, label: BUSINESS_TYPES.vivienda.name, revenue, cost, staff: 0, occupied: occ });
+    lines.push({ id: b.id, type: b.type, city: b.city, label: BUSINESS_TYPES.vivienda.name, revenue, cost, staff: 0, occupied: occ, employeeOccupied,publicOccupied,employeeRent:terms.employeeRent,publicRent:terms.publicRent });
+  }
+
+  const residenceBenefit={beneficiaries:0,discount:0,moral:0};
+  if(s.policies.residencia==='descuento') {
+    const familySlots=Object.fromEntries(Object.entries(localEmployees).map(([city,n])=>[city,Math.floor(n/10)]));
+    for(const l of lines.filter(l=>l.type==='residencia')) {
+      const count=Math.min(Math.floor(l.occupied||0),familySlots[l.city]||0);
+      familySlots[l.city]-=count;
+      const discount=count*1250*Math.pow(CITY_BY_ID[l.city].wealth,1.2)*0.2;
+      l.revenue-=discount;l.employeeFamilies=count;l.employeeDiscount=discount;
+      revenueByCat.servicios-=discount;
+      residenceBenefit.beneficiaries+=count;residenceBenefit.discount+=discount;
+    }
+    residenceBenefit.moral=Math.min(1.5,15*residenceBenefit.beneficiaries/Math.max(1,employees));
   }
 
   // --- Costes generales ------------------------------------------------------
@@ -387,8 +412,9 @@ export function computeEconomy(s) {
     embargo,
     revenue, revenueByCat, costs, totalCost, profit, tax, evaded,
     net: profit - tax,
-    employees, housed, beds, control,
+    employees, housed, beds, control,publicHoused,housingMoral,housingInsp,residenceBenefit,
     capacity, totalDemand, produced, fill, surplusBonus, bonusUnits,
+    sobaoSales: Object.fromEntries([...new Set(['selaya',...sobaoEntries.map(e=>e.b.city)])].map(city=>[city,(city==='selaya'?shopUnits*fill:0)+sobaoEntries.filter(e=>e.b.city===city).reduce((n,e)=>n+e.demand*fill,0)])),
     lines,
   };
 }

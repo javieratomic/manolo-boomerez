@@ -154,7 +154,7 @@ export const inLockup = (s) => !!s.ipo && s.month < lockupEnd(s);
 export function canIPO(s, equity) {
   if (s.ipo) return { ok: false, msg: 'Ya cotizas en Bolsa.' };
   if (s.month < 36) return { ok: false, msg: 'Los bancos de inversión quieren ver al menos tres años de cuentas.' };
-  if (equity < 4e6) return { ok: false, msg: 'Necesitas un patrimonio de al menos 4 millones.' };
+  if (!Number.isFinite(equity) || companyValuation(s,equity) < 1e9) return { ok: false, msg: 'La empresa necesita una valoración de al menos 1.000 millones de euros para salir a Bolsa.' };
   if (s.rep < 35) return { ok: false, msg: 'Con esa reputación, ningún banco te saca a Bolsa.' };
   if (s.campaign!=='europe' && !s.endless && s.month + IPO_LOCKUP > GAME_MONTHS) return { ok: false, msg: 'Los bancos no sacan a Bolsa una empresa a punto de cerrar el ejercicio: el bloqueo no acabaría a tiempo.' };
   return { ok: true };

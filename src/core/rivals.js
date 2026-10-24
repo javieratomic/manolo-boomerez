@@ -166,6 +166,7 @@ export function acquireRival(s, rivalId) {
   const price = acquisitionPrice(s, rivalId);
   if (s.cash < price) return { ok: false, msg: `La OPA cuesta ${money(price)}.` };
   const def = RIVALS[rivalId];
+  if(def.targets[0]==='empanadas'&&!s.flags.primoSocio)return {ok:false,msg:'Necesitas asociarte con Rodrigo antes de comprar una cadena de empanadas.'};
   addCash(s, -price);
   let typeId = def.targets[0];
   if (BUSINESS_TYPES[typeId].category === 'sobaos') typeId = sobaoTypeId(s);
@@ -182,6 +183,7 @@ export function acquireRival(s, rivalId) {
   s.rivals = s.rivals.filter((x) => x !== r);
   s.flags[`rivalGone_${rivalId}`] = true;
   s.unlocked[typeId] = true;
+  if(typeId==='empanadas'&&gained.length)s.flags.empanadaFirstUsed=true;
   addHeatHacienda(s, 3);
   log(s, `🦈 OPA: compras ${def.name} por ${money(price)}${gained.length ? ` y rebautizas sus locales de ${gained.join(', ')}` : ''}.`, 'good');
   checkClause(s);

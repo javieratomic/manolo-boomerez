@@ -1,5 +1,15 @@
 # Cambios
 
+## 0.7.0 — Sobaos, sinergias y caseros
+
+- Bolsa bloqueada hasta una valoración de empresa de 1.000 M€; se conservan antigüedad, reputación y bloqueo posterior. Las sociedades ya cotizadas siguen cotizando.
+- Academy y coworking en la misma ciudad aumentan mutuamente su demanda un 15 %. Los sobaos vendidos localmente el mes anterior elevan la demanda de gimnasios hasta un 35 %.
+- Empanadas solo tras elegir la sociedad con Rodrigo: 10 % de ventas para él y primera apertura un 30 % más barata, sin repetir el descuento al vender o cargar.
+- Viviendas con prioridad para empleados y alquiler al público de las plazas libres. Tarifas independientes por ciudad y tipo de inquilino, precios locales y demanda pública limitada entre todos los edificios.
+- Descuento asistencial del 20 % para familiares de empleados en residencias propias; plazas reales, ingresos menores y mejora de moral proporcional al uso.
+- Inspecciones y sucesos consideran las tarifas locales efectivas, sin atribuir al público control laboral ni abusos a empleados inexistentes.
+- Conservada la corrección de retratos y migración automática de candidatos y directivos.
+
 ## 0.6.0 — Un imperio heredable
 
 - Retratos de candidatos y directivos coherentes con los personajes; familiares con retrato propio y corrección automática al cargar partidas anteriores.

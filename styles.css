@@ -469,5 +469,7 @@ body.big-text .choice small, body.big-text .opt small, body.big-text .action sma
 
 .housing-city {padding:10px 0;border-top:1px dashed var(--line)}
 .housing-city .btn{margin-top:6px}
+.housing-tariff{display:block;margin:8px 0}
+.housing-tariff select{display:block;max-width:100%;width:100%;margin-top:4px}
 .european-goal{border-left:4px solid #315f7b}
 .foreign-territories>div{padding:8px 0;border-bottom:1px dashed var(--line)}

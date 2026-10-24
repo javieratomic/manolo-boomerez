@@ -34,16 +34,18 @@ pellizco para el zoom (en el móvil, tocar dos ciudades juntas acerca el mapa) �
 
 | Sistema | Resumen |
 |---|---|
-| Turnos | 1 mes por turno, 96 meses (2026-2033) |
+| Turnos | Un mes por turno; campaña europea continua con sucesores. Reto semanal clásico de 96 meses |
 | Marca | Al empezar eliges **Express** (low-cost, volumen) o **Maison** (boutique delicatessen) |
-| Producción | Todo sale del obrador de Selaya; si no da abasto, las tiendas venden menos. Tiene 3 mejoras |
-| Negocios | 11 tipos: tiendas de sobaos (propias o franquicias), pisos para la plantilla, pisos turísticos, taberna, smash burgers, empanadas, gimnasio, coworking, residencia de mayores y la Academy; reformas en 3 niveles |
-| Mapa | 30 ciudades de España (con Canarias en recuadro) |
+| Producción | Selaya y obradores regionales; capacidad y automatización por I+D, ampliaciones industriales sin tope y plantilla que necesita vivienda |
+| Negocios | Sobaos, vivienda, turismo, hostelería, gimnasio, coworking, residencia, Academy, banca, telecom y logística; diez niveles. Empanadas solo al asociarse con Rodrigo |
+| Mapa | 55 destinos españoles y 16 ciudades extranjeras tras experiencia de marca blanca e I+D |
 | Economía | Ciclo de expansión, burbuja, crisis y recuperación; costes de estructura crecientes |
 | Competencia | 9 cadenas rivales con IA que te copian; guerra de precios, reseñas falsas, fichajes y OPA |
-| Mercado | Campañas de marketing locales y nacionales, I+D con 12 productos |
+| Mercado | Campañas, 35 proyectos I+D y diez países para marca blanca o licencias |
 | Equipo | 5 puestos directivos con candidatos que tienen nivel y manías |
-| Vida | Caprichos de nuevo rico, relación con Merche (y divorcio), salida a Bolsa |
+| Vida | Caprichos, familia, sucesión y salida a Bolsa a partir de una valoración de 1.000 M€ |
+| Sinergias | Academy y coworking locales +15 %; vender sobaos aumenta la demanda local de gimnasio el mes siguiente (hasta +35 %) |
+| Vivienda y beneficios | Empleados prioritarios y vacantes para el público, tarifas separadas por ciudad en Plantilla; descuento asistencial del 20 % para familiares con plazas reales |
 | Logística | Transporte por kilómetro desde el obrador más cercano, obradores regionales, licencias de pisos turísticos |
 | Rejugabilidad | Cláusula del testamento (reto opcional por partida), semilla compartible y reto de la semana, balance anual, salón de la fama, logros entre partidas y modo infinito |
 | Información | Previsión de cada política (mes que viene y 6 meses), «¿Por qué?» en cada indicador y parte del mes |

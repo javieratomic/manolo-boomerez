@@ -444,7 +444,7 @@ test('caprichos, familia y divorcio', () => {
 
 test('salir a Bolsa da dinero y diluye el patrimonio', () => {
   const s = started(42);
-  s.cash = 5e6;
+  s.cash = 1e9;
   s.month = 40;
   s.macro.phase = 'burbuja';
   const gross = grossPatrimonio(s);
@@ -1558,8 +1558,12 @@ test('plantilla: las partidas viejas migran sin comité y con el ahorro vacío',
   advanceMonth(back);
 });
 
-test('bot: una partida explotadora acaba pagando una liquidación', () => {
-  const r = playGame(7932, { diversify: true, smart: true, leverage: true, endless: true, policyAt: from(24, { salario: 'minimo', horas: 'gratis' }) });
+test('bot: una visita liquida el ahorro de una partida explotadora', () => {
+  // Fijamos la llegada de Marisa: comprobar el cobro no debe depender del calendario del azar.
+  let queued=false;
+  const r = playGame(7932, { diversify: true, smart: true, leverage: true, endless: true, policyAt: from(24, { salario: 'minimo', horas: 'gratis' }),onMonth(s){
+    if(s.month===36&&!queued){queued=true;const params=laborVisitParams(s);assert(params.liq>0);s.pending.push({kind:'event',id:'inspeccion_trabajo',params});}
+  } });
   assert(r.liquidado > 0, `liquidado ${r.liquidado}`);
 });
 
@@ -2017,7 +2021,7 @@ test('regresión 0.4: nunca dos huelgas generales a la vez y lo firmado para aca
 
 test('regresión 0.4: no se sale a Bolsa sin tiempo para el bloqueo y la revista lo respeta', () => {
   const s = started();
-  s.cash = 6e6;
+  s.cash = 2e9;
   s.month = 92;
   s.rep = 60;
   assert(!canIPO(s, grossPatrimonio(s)).ok);
@@ -2346,7 +2350,7 @@ test('Selaya: buen tono con un año limpio o la receta de la abuela; si no, neut
 test('regresión 0.4: retirarse respeta los seis meses de bloqueo de la OPV', () => {
   const s = started();
   s.month = 72;
-  s.cash = 6e6;
+  s.cash = 2e9;
   s.rep = 60;
   s.seen.velas_3 = 65;
   assert(doIPO(s, grossPatrimonio(s)).ok);

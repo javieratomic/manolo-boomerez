@@ -1,4 +1,6 @@
 import {workforcePlan} from '../core/workforce.js';
+import {housingTerms,PUBLIC_RENTS} from '../core/housing.js';
+import {businessSynergies} from '../core/synergies.js';
 import {leaderAge,successor,europeProgress} from '../core/dynasty.js';
 import {FOREIGN_CITIES} from '../data/foreignCities.js';
 import { FOREIGN_MARKETS, FOREIGN_BY_ID, DEAL_MODES } from '../data/international.js';
@@ -62,7 +64,7 @@ const LOCK_HINTS = {
   vivienda: 'Disponible desde la herencia para alojar a tu plantilla local.',
   airbnb: 'Se desbloquea en el mes 12 o con 250.000 € en caja.',
   smash: 'Se desbloquea con 4 tiendas de sobaos o en el mes 18.',
-  empanadas: 'Se desbloquea con 4 tiendas de sobaos o en el mes 18.',
+  empanadas: 'Rodrigo debe aparecer y debes asociarte con él: 10 % de ventas; primer local −30 %.',
   academy: 'Se desbloquea con fama 25.',
   obrador_regional: 'Se desbloquea con 6 tiendas de sobaos o en el mes 24.',
   taberna: 'Se desbloquea con 2 tiendas de sobaos o en el mes 6.',
@@ -135,7 +137,11 @@ export function renderCity(s, cityId) {
           <div class="muted small">${profit == null ? 'Recién abierto' : `${b.mode === 'franquicia' ? 'Central' : 'Último mes'}: <span class="${cls(profit)}">${signed(profit)}</span>`}
           ${l?.franchise ? ` · Franquiciado: <span class="${cls(l.franchiseeProfit)}">${signed(l.franchiseeProfit)}</span>${b.lossMonths ? ` (${b.lossMonths} ${b.lossMonths === 1 ? 'mes' : 'meses'} en pérdidas)` : ''}` : ''}
           ${l?.surplusBonus > 0 ? ` · Sobaos de cortesía: +${(l.surplusBonus * 100).toFixed(1).replace('.', ',')} %` : ''}
-          ${l?.occupied != null ? ` · ${l.occupied}/${t.beds + 5 * ((b.level || 1) - 1)} plazas ocupadas` : ''}</div>
+          ${l?.occupied != null ? ` · ${Math.floor(l.occupied)}/${t.beds + (t.model==='care'?10:5) * ((b.level || 1) - 1)} plazas ocupadas` : ''}</div>
+          ${businessSynergies(s,b).learning ? '<div class="small pos">🤝 Academy + coworking en esta ciudad: demanda +15 %.</div>' : ''}
+          ${b.type==='gimnasio' ? `<div class="small">🥐 Sobaos vendidos aquí el mes anterior: ${Math.round(s.citySobaoSales?.[b.city]||0).toLocaleString('es-ES')} · demanda del gimnasio +${(businessSynergies(s,b).fitness*100).toFixed(1).replace('.',',')} % (máximo 35 %).</div>` : ''}
+          ${b.type==='vivienda'&&l ? `<div class="small">Empleados: ${l.employeeOccupied} · Público: ${l.publicOccupied}. <a href="#" data-act="tab" data-tab="plantilla">Gestionar tarifas por ciudad</a></div>` : ''}
+          ${l?.employeeFamilies>0 ? `<div class="small">Beneficio asistencial: ${Math.floor(l.employeeFamilies)} familiares · descuentos ${money(l.employeeDiscount)}/mes.</div>` : ''}
           ${b.mode === 'franquicia' ? '' : `<div class="cond" title="Estado de conservación: ${Math.round(b.cond ?? 100)}/100">${bar(b.cond ?? 100, 100, (b.cond ?? 100) < 40 ? 'danger' : 'ok')}</div>`}
         </div>
         <div class="biz-actions">
@@ -551,8 +557,9 @@ function renderRD(s) {
 
 function renderHousing(s,r) {
  const cities=[...new Set(['selaya',...s.businesses.filter(b=>b.mode!=='franquicia').map(b=>b.city)])];
- return `<div class="card housing-card"><h3>🏘️ Viviendas para empleados</h3><p class="small">Aquí compras viviendas residenciales para tu plantilla. No son pisos turísticos. El alquiler y la presión laboral se ajustan más abajo.</p><p class="small muted">La oferta local cubre parte del empleo; cada plaza de vivienda permite atraer a cuatro trabajadores más. Las grandes ampliaciones necesitan plazas suficientes.</p>
- ${cities.map(city=>{const p=workforcePlan(s,city),ok=canOpen(s,'vivienda',city),staff=r.lines.filter(l=>l.city===city).reduce((n,l)=>n+l.staff,0);return `<div class="housing-city"><b>${esc(CITY_BY_ID[city].name)}</b><div class="small">${staff} trabajadores hoy · ${p.beds} plazas · Oferta laboral ${p.available} · Plantilla de capacidad instalada ${p.required}</div>${p.missingBeds?`<p class="small warn">Faltan ${p.missingBeds} plazas para la capacidad instalada.</p>`:''}<button class="btn small primary" data-act="housing-open" data-city="${city}" ${ok.ok?'':'disabled'} title="${esc(ok.msg||'')}">Comprar viviendas en ${esc(CITY_BY_ID[city].name)} (${moneyShort(openingCost(s,'vivienda','propia',city))})</button></div>`;}).join('')}
+ const select=(city,group,terms)=>`<label class="small housing-tariff">${group==='employee'?'Tarifa empleados':'Tarifa público'} <select data-act="housing-policy" data-city="${city}" data-group="${group}" aria-label="${group==='employee'?'Alquiler empleados':'Alquiler público'} en ${esc(CITY_BY_ID[city].name)}">${Object.entries(group==='employee'?POLICIES.alquiler.options:PUBLIC_RENTS).map(([id,opt])=>{const t=housingTerms({...s,housingPolicies:{...s.housingPolicies,[city]:{...s.housingPolicies?.[city],[group]:id}}},city);return `<option value="${id}" ${terms[group]===id?'selected':''}>${esc(opt.label.split(' (')[0])} · ${money(group==='employee'?t.employeeRent:t.publicRent)}/plaza</option>`}).join('')}</select></label>`;
+ return `<div class="card housing-card"><h3>🏘️ Viviendas para empleados y público</h3><p class="small">La plantilla local tiene prioridad. Las plazas libres se alquilan al público; este no cuenta como control laboral. Tarifas por plaza y mes, ajustadas al mercado de cada ciudad. Un alquiler público alto reduce la demanda.</p><p class="small muted">Cada plaza de vivienda permite atraer a cuatro trabajadores más. Las grandes ampliaciones necesitan plazas suficientes.</p>
+ ${cities.map(city=>{const p=workforcePlan(s,city),ok=canOpen(s,'vivienda',city),local=r.lines.filter(l=>l.city===city),staff=local.reduce((n,l)=>n+l.staff,0),homes=local.filter(l=>l.type==='vivienda'),terms=housingTerms(s,city);return `<div class="housing-city"><b>${esc(CITY_BY_ID[city].name)}</b><div class="small">${staff} trabajadores hoy · ${p.beds} plazas · Oferta laboral ${p.available} · Plantilla de capacidad instalada ${p.required}</div>${homes.length?`<p class="small">Alojados: ${homes.reduce((n,l)=>n+l.employeeOccupied,0)} empleados y ${homes.reduce((n,l)=>n+l.publicOccupied,0)} del público.</p>${select(city,'employee',terms)}${select(city,'public',terms)}`:''}${p.missingBeds?`<p class="small warn">Faltan ${p.missingBeds} plazas para la capacidad instalada.</p>`:''}<button class="btn small primary" data-act="housing-open" data-city="${city}" ${ok.ok?'':'disabled'} title="${esc(ok.msg||'')}">Comprar viviendas en ${esc(CITY_BY_ID[city].name)} (${moneyShort(openingCost(s,'vivienda','propia',city))})</button></div>`;}).join('')}
  </div>`;
 }
 function renderEuropeanGoal(s) {
@@ -582,9 +589,11 @@ export function renderStaff(s) {
       ${policyGroup(s, 'salario', POLICIES.salario, locked)}
       ${policyGroup(s, 'horas', POLICIES.horas, locked)}
       ${policyGroup(s, 'becarios', POLICIES.becarios, locked)}
-      ${hasHousing ? policyGroup(s, 'alquiler', POLICIES.alquiler) : `<p class="small muted">🔑 Cuando tengas un Residencial Boomerez podrás alojar a la plantilla y fijar su alquiler.</p>`}
+      ${hasHousing ? `<p class="small muted">🔑 Ajusta los alquileres de empleados y público en el primer bloque, por ciudad.</p>` : `<p class="small muted">🔑 Compra viviendas arriba para alojar a la plantilla y al público.</p>`}
       ${hasHousing ? `<p class="small">Alojados en su ciudad de trabajo: <b>${r.housed}/${r.beds}</b>. Con más control hay menos denuncias y menos huelgas.</p>` : ''}
       ${policyGroup(s, 'reparto', POLICIES.reparto)}
+      ${policyGroup(s,'residencia',POLICIES.residencia,!s.businesses.some(b=>b.type==='residencia'))}
+      <p class="small">Beneficio asistencial usado: <b>${Math.floor(r.residenceBenefit.beneficiaries)}</b> familiares · descuentos ${money(r.residenceBenefit.discount)}/mes · moral +${r.residenceBenefit.moral.toFixed(1).replace('.',',')}/mes. ${s.businesses.some(b=>b.type==='residencia')?'':'Necesitas una residencia propia.'}</p>
       <p class="small muted">El agravio sube con el beneficio por cabeza (en sueldos de lo que cobran), los caprichos y la Bolsa. Resta moral cada mes y, con comité, trae huelgas generales. Repartir lo alivia y es deducible.</p>
       ${pvFootnote(s)}
     </div>
@@ -772,7 +781,7 @@ function renderIPO(s) {
   const val = companyValuation(s, equity);
   return `<div class="card"><h4>🔔 Salir a Bolsa</h4>
     <p class="small">Vendes el ${Math.round(IPO_FLOAT * 100)} % de la empresa a inversores. Valoración estimada hoy: <b>${moneyShort(val)}</b>: mitad lo que hay en libros y mitad 6 veces el beneficio de los últimos 12 meses (${moneyShort(annualProfit(s))}), por la prima de mercado ×${ipoPremium(s).toFixed(2).replace('.', ',')}. Recibirías unos <b>${moneyShort(val * IPO_FLOAT * 0.96)}</b> tras comisiones.</p>
-    <p class="small muted">Después hay ${IPO_LOCKUP} meses de bloqueo: aunque pases de 15 M€, la revista de millonarios espera a que terminen.</p>
+    <p class="small muted">Requiere una valoración de empresa de al menos <b>1.000 M€</b> y tres años de cuentas. Después hay ${IPO_LOCKUP} meses de bloqueo.</p>
     <p class="small muted">Truco de tiburón: en plena burbuja, con mucha fama, los inversores pagan más de lo que vale. Después tendrás que dar explicaciones cada vez que caiga la acción.</p>
     <button class="btn small primary" data-act="ipo" ${ok.ok ? '' : 'disabled'}>Salir a Bolsa</button>
     ${ok.ok ? '' : `<div class="small muted">${esc(ok.msg)}</div>`}

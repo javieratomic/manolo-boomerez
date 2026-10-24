@@ -3,6 +3,7 @@ import { run } from './runner.js';
 import './sim.test.js';
 import './expansion.test.js';
 import './empire.test.js';
+import './synergies.test.js';
 
 const { failures } = await run((line) => console.log(line));
 process.exit(failures.length ? 1 : 0);

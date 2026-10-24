@@ -1,3 +1,19 @@
+# Continuación 0.7.0 — Sinergias y alquileres (24-10-2026)
+
+Implementada la petición completa, con detalles de equilibrio delegados por el usuario:
+- IPO: valoración de empresa mínima 1.000 M€, además de antigüedad/reputación/bloqueo; no se deslistan partidas ya cotizadas.
+- Academy/coworking: +15 % mutuo en la misma ciudad. Gimnasio: hasta +35 % por volumen real local de sobaos del mes anterior (`citySobaoSales`), excluyendo mayorista/exportación y pedidos no servidos.
+- Empanadas solo al asociarse con Rodrigo, que cobra el 10 % existente de ventas; primer local propio −30 % una sola vez (`empanadaFirstUsed`), incluso al vender/cargar. La OPA tampoco elude el pacto; locales antiguos conservados.
+- Viviendas: plantilla local prioritaria, público en plazas libres con demanda compartida limitada. `housingPolicies[city]` separa tarifas employee/public; factor local de alquiler. Solo empleados dan control. Se gestiona al principio de Plantilla y se guarda automáticamente.
+- Beneficio de residencia: 20 % de descuento a familiares de empleados locales, hasta una plaza entera por diez empleados, limitada a ocupación real. Menor ingreso, mismo coste de atención y moral proporcional. Sin residencia no se puede activar.
+- Las tarifas locales afectan inspecciones, prensa y caldera; viviendas solo públicas no imputan alquiler abusivo a empleados inexistentes. Retratos corregidos de 0.6 conservados y migrados.
+
+Verificación: **235/235 Node y 13/13 DOM**, sintaxis correcta, Edge 1365×900 y 375×812 sin errores/desbordamiento, cambio de ambas tarifas, beneficio, recarga, sinergias e IPO bloqueada. Tres partidas de 120 meses y 360 guardados/cargas conservando economía y RNG. Revisión independiente con hallazgos corregidos y cierre sin nuevos importantes. Build y smoke desempaquetado correctos; portable `desktop/dist/ManoloBoomerez-0.7.0-portable.exe` generado. Sin push.
+
+Plan y registro: `docs/superpowers/plans/2026-10-24-sinergias-alquileres.md`. Se hizo determinista la llegada de la inspección en una prueba histórica del bot: el nuevo equilibrio desplazaba su calendario, no fallaba la liquidación. La prueba mantiene deuda real positiva y cobro real.
+
+---
+
 # Corrección de retratos (24-10-2026)
 
 Los candidatos ya no mezclan nombres y retratos: el catálogo distingue los grupos de retratos, y Kevin, Jonathan y Merche usan su recurso propio. La carga repara candidatos y directivos de partidas anteriores de forma estable y sin consumir RNG. Dos regresiones cubren todos los nombres y la migración. Se conserva la versión 0.6.0.

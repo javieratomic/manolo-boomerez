@@ -27,7 +27,7 @@ export const POLICIES = {
     },
   },
   alquiler: {
-    label: 'Alquiler de los pisos de la plantilla',
+    label: 'Tarifa predeterminada de alquiler para empleados',
     options: {
       social: { label: 'Social (350 €)', desc: 'Casi caridad. Casi.', rent: 350, moral: 1, insp: 0 },
       mercado: { label: 'Mercado (600 €)', desc: '"Es lo que hay."', rent: 600, moral: -0.5, insp: 0.2 },
@@ -74,6 +74,14 @@ POLICIES.reparto = {
   },
 };
 
+POLICIES.residencia={
+ label:'Beneficio de residencia para familiares',
+ options:{
+  ninguno:{label:'Sin descuento',desc:'Tarifa general para todas las familias.'},
+  descuento:{label:'Descuento del 20 % para familiares de empleados',desc:'Hasta un familiar por cada diez empleados locales, según plazas ocupadas. Reduce los ingresos de la residencia y mejora la moral según su uso real.'},
+ },
+};
+
 export const DEFAULT_POLICIES = {
   salario: 'convenio',
   horas: 'pagadas',
@@ -83,6 +91,7 @@ export const DEFAULT_POLICIES = {
   ingredientes: 'mantequilla',
   mantenimiento: 'manitas',
   reparto: 'ninguno',
+  residencia: 'ninguno',
 };
 
 export const LEGAL_LABOR = { salario: 'convenio', horas: 'pagadas', becarios: 'ninguno' };

@@ -189,3 +189,14 @@ test('DOM 0.6: el mapa no intenta animar beneficios fuera de España',()=>{
  MapView.prototype.showProfits.call(view,{lines:[{city:'lisboa',revenue:2000,cost:100},{city:'madrid',revenue:4000,cost:100}]});
  assertEq(view.pendingFloaters.length,1);assertEq(view.pendingFloaters[0].city,'madrid');
 });
+
+test('DOM: vivienda muestra dos tarifas por ciudad y beneficio asistencial exige residencia',()=>{
+ const s=newGame(42);resolvePending(s,0);s.cash=1e8;
+ s.businesses.push({id:1,type:'vivienda',city:'madrid',mode:'propia',level:1,value:200000});
+ const el=document.createElement('div');el.innerHTML=renderStaff(s);
+ assert(el.querySelector('[data-act="housing-policy"][data-city="madrid"][data-group="employee"]'));
+ assert(el.querySelector('[data-act="housing-policy"][data-city="madrid"][data-group="public"]'));
+ assert(el.querySelector('[name="pol-residencia"][value="descuento"]').disabled);
+ s.businesses.push({id:2,type:'residencia',city:'madrid',mode:'propia',level:1,value:1e6});
+ el.innerHTML=renderStaff(s);assert(!el.querySelector('[name="pol-residencia"][value="descuento"]').disabled);
+});

@@ -2,6 +2,7 @@
 // Calendario: el suceso se sortea al cerrar el mes m y se juega al empezar el m + 1, así que un modificador
 // de 1 mes afecta al mes siguiente (p. ej., el Black Friday se sortea al cerrar octubre).
 import { chance, int } from '../core/rng.js';
+import {hasAbusiveHousing} from '../core/housing.js';
 import { recordSanction } from '../core/inspections.js';
 import {
   addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addMod, addMonthlyCost, log, money, clamp,
@@ -324,7 +325,7 @@ export const EXTRA_EVENTS = [
     portrait: 'portrait_empleada_maripili', image: 'ev_vivienda_caldera',
     text: (s) =>
       'Hace un frío que pela y se ha roto la caldera central del Residencial Boomerez. Tu plantilla duerme con el abrigo puesto. Maripili te manda una foto del termómetro del pasillo: 9 °C.\n\n' +
-      `"Manolo, aquí viven tus trabajadoras. Y sus críos."${s.policies.alquiler === 'abusivo' ? ' "Y pagan 850 € por una habitación."' : ''}`,
+      `"Manolo, aquí viven tus trabajadoras. Y sus críos."${hasAbusiveHousing(s) ? ' "Y pagan un alquiler abusivo por una habitación."' : ''}`,
     weight: (s) => (has(s, 'vivienda') && [9, 10, 11, 0].includes(moy(s)) ? 2 : 0),
     cooldown: 12,
     choices: [
@@ -341,8 +342,8 @@ export const EXTRA_EVENTS = [
         effect(s) {
           addCash(s, -400);
           addMoral(s, -6);
-          addHeatTrabajo(s, s.policies.alquiler === 'abusivo' ? 6 : 3);
-          return `Mantas polares naranjas con el lema "Boomerez: el calor de una familia". Nadie le ve la gracia. Moral −6, radar de Inspección +${s.policies.alquiler === 'abusivo' ? 6 : 3}.`;
+          addHeatTrabajo(s, hasAbusiveHousing(s) ? 6 : 3);
+          return `Mantas polares naranjas con el lema "Boomerez: el calor de una familia". Nadie le ve la gracia. Moral −6, radar de Inspección +${hasAbusiveHousing(s) ? 6 : 3}.`;
         },
       },
       {

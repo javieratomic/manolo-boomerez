@@ -18,7 +18,7 @@ export const HELP_PAGES = [
         <li>🏘️ <b>Viviendas para empleados:</b> se compran directamente al principio de <b>Plantilla</b>, con un botón por ciudad. Los alquileres se ajustan en esa misma pestaña.</li><li>🤝 Las <b>franquicias</b> dan dinero rápido; si el franquiciado se arruina, viene a pedirte cuentas.</li>
         <li>🔨 <b>Reformas</b>, <b>campañas</b> e <b>I+D</b>: en Mercado y en cada ciudad. Cuantos más negocios, más estructura central.</li>
         <li>🏦 La <b>póliza</b> de la Caja Cantábrica cubre los descubiertos; tres meses sin margen es concurso de acreedores.</li>
-        <li>🔔 Con 3 años de cuentas y 4 M€ puedes <b>salir a Bolsa</b>: luego cada trimestre prometes una cifra a los analistas.</li>
+        <li>🔔 Con 3 años de cuentas y una valoración de empresa de al menos 1.000 M€ puedes <b>salir a Bolsa</b>: luego cada trimestre prometes una cifra a los analistas.</li>
       </ul>`,
   },
   {

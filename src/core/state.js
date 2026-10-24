@@ -1,5 +1,6 @@
 import {newDynasty} from './dynasty.js';
 import {execPortrait} from '../data/execs.js';
+import {PUBLIC_RENTS} from './housing.js';
 import { FOREIGN_BY_ID, DEAL_MODES, DISPUTES } from '../data/international.js';
 import { DEFAULT_POLICIES, POLICIES } from '../data/policies.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
@@ -12,7 +13,7 @@ import { grossPatrimonio, computeEconomy } from './economy.js';
 export const SAVE_KEY = 'manolo-boomerez-save-v1';
 export const SAVE_VERSION = 2;
 // Versión del contenido: una semilla solo reproduce la misma partida con la misma versión.
-export const GAME_VERSION = '0.6.0';
+export const GAME_VERSION = '0.7.0';
 
 export const DIFFICULTIES = {
   cunado: {
@@ -94,6 +95,8 @@ export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal
     rd: null,
     execs: {},
     candidates: [],
+    citySobaoSales: {},
+    housingPolicies: {},
     candidatesMonth: -99,
     lujo: [],
     familia: 60,
@@ -149,6 +152,8 @@ export function migrate(s) {
   s.stats.liquidado ??= 0;
   s.stats.huelgas ??= 0;
   if(s.brand&&s.unlocked)s.unlocked.vivienda=true;
+  if (s.businesses.some(b=>b.type==='empanadas')) s.flags.empanadaFirstUsed=true;
+  s.unlocked.empanadas=!!s.flags.primoSocio;
   s.policies = { ...DEFAULT_POLICIES, ...s.policies };
   s.version = SAVE_VERSION;
   for (const person of [...Object.values(s.execs || {}), ...(Array.isArray(s.candidates) ? s.candidates : [])]) {
@@ -200,6 +205,11 @@ export function deserialize(text) {
     if (!Object.hasOwn(POLICIES, key) || !Object.hasOwn(POLICIES[key].options, value)) invalid();
   }
   if(!['europe','classic'].includes(ready.campaign))invalid();
+  for(const [city,terms] of Object.entries(ready.housingPolicies)) {
+    if(!Object.hasOwn(CITY_BY_ID,city)||!terms||typeof terms!=='object'||Array.isArray(terms))invalid();
+    for(const [key,value] of Object.entries(terms))if(!['employee','public'].includes(key)||!(key==='employee'?Object.hasOwn(POLICIES.alquiler.options,value):Object.hasOwn(PUBLIC_RENTS,value)))invalid();
+  }
+  for(const [city,units] of Object.entries(ready.citySobaoSales))if(!Object.hasOwn(CITY_BY_ID,city)||typeof units!=='number'||!Number.isFinite(units)||units<0)invalid();
   if(!Number.isInteger(ready.dynasty.generation)||ready.dynasty.generation<0||!Number.isFinite(ready.dynasty.birthMonth)||typeof ready.dynasty.name!=='string'||!Array.isArray(ready.dynasty.history))invalid();
   for(const [country,track] of Object.entries(ready.foreignTrack))if(!Object.hasOwn(FOREIGN_BY_ID,country)||!Number.isInteger(track?.successMonths)||track.successMonths<0)invalid();
   const businessIds = new Set();

@@ -34,7 +34,8 @@ export function openingCost(s, typeId, mode = 'propia', cityId = null) {
   const license = mode === 'propia' && needsLicense(typeId, cityId) ? t.license : 0;
   const rent = CITY_BY_ID[cityId]?.rent ?? 0.9;
   const location = t.realEstate ? 0.25 + rent / 1.2 : 0.55 + 0.5 * rent;
-  return Math.round(t.cost * location * (1 - (s.discountNext || 0)) * (1 - execBonus(s, 'expansion')) + license);
+  const cousin=typeId==='empanadas'&&s.flags.primoSocio&&!s.flags.empanadaFirstUsed&&!s.businesses.some(b=>b.type==='empanadas')?0.7:1;
+  return Math.round(t.cost * location * (1 - (s.discountNext || 0)) * (1 - execBonus(s, 'expansion')) * cousin + license);
 }
 
 export function franchiseFee(s, typeId) {
@@ -45,6 +46,7 @@ export function canOpen(s, typeId, cityId, mode = 'propia') {
   const t = BUSINESS_TYPES[typeId];
   const c = CITY_BY_ID[cityId];
   if (!t || !c) return { ok: false, msg: 'Negocio o ciudad desconocidos.' };
+  if(typeId==='empanadas'&&!s.flags.primoSocio)return {ok:false,msg:'Necesitas asociarte con Rodrigo cuando aparezca el primo argentino.'};
   if(c.foreign) {
     if(!(s.products||[]).includes('expansion_propia'))return {ok:false,msg:'Investiga Despliegue comercial internacional en Mercado.'};
     if((s.foreignTrack?.[c.market]?.successMonths||0)<6)return {ok:false,msg:'Necesitas seis meses de marca blanca sirviendo al menos el 90 % en este país.'};
@@ -92,6 +94,7 @@ export function openBusiness(s, typeId, cityId, mode = 'propia') {
     log(s, `🏗️ Abres ${t.name} en ${c.name}.`, 'good');
   }
   s.businesses.push(b);
+  if(typeId==='empanadas')s.flags.empanadaFirstUsed=true;
   s.stats.abiertos++;
   hito(s, mode === 'franquicia' ? 'primera_franquicia' : 'primera_tienda');
   checkUnlocks(s);
@@ -147,6 +150,7 @@ export function buyUpgrade(s) {
 
 export function setPolicy(s, key, value) {
   if (!POLICIES[key]?.options[value]) return { ok: false, msg: 'Política desconocida.' };
+  if(key==='residencia'&&value!=='ninguno'&&!s.businesses.some(b=>b.type==='residencia'&&b.mode!=='franquicia'))return {ok:false,msg:'Necesitas una residencia propia para ofrecer el descuento.'};
   const REPARTO_RANK = { ninguno: 0, paga: 1, participacion: 2 };
   if (key === 'reparto' && s.comite?.paz > 0 && s.comite.repartoMin && REPARTO_RANK[value] < REPARTO_RANK[s.comite.repartoMin]) {
     return { ok: false, msg: `Lo firmaste con el comité para acabar la huelga: no puedes bajarlo durante ${s.comite.paz} meses.` };
@@ -266,7 +270,7 @@ export const UNLOCKS = [
   { id: 'vivienda', test: (s) => !!s.brand, text: '🔓 Desbloqueado: Residencial Boomerez. "¿Y si mis empleados me pagan el alquiler a mí?"' },
   { id: 'airbnb', month: 12, test: (s) => s.month >= 12 || s.cash >= 250000, text: '🔓 Desbloqueado: Apartamentos turísticos "Casa Manolo".' },
   { id: 'smash', month: 18, test: (s) => sobaoOutlets(s) >= 4 || s.month >= 18, text: '🔓 Desbloqueado: Manolo Smash Club. Hay que diversificar.' },
-  { id: 'empanadas', month: 18, test: (s) => sobaoOutlets(s) >= 4 || s.month >= 18 || s.flags.primoSocio, text: '🔓 Desbloqueado: Empanadas El Gaucho Pasiego.' },
+  { id: 'empanadas', test: (s) => !!s.flags.primoSocio, text: '🔓 Desbloqueado: Empanadas El Gaucho Pasiego, en sociedad con Rodrigo.' },
   { id: 'academy', test: (s) => s.fama >= 25, text: '🔓 Desbloqueado: Boomerez Business Academy. Tu fama ya da para vender cursos.' },
   { id: 'obrador_regional', month: 24, test: (s) => sobaoOutlets(s) >= 6 || s.month >= 24, text: '🔓 Desbloqueado: obradores regionales. Fabricar cerca de las tiendas ahorra transporte.' },
   { id: 'taberna', month: 6, test: (s) => sobaoOutlets(s) >= 2 || s.month >= 6, text: '🔓 Desbloqueado: La Taberna del Emprendedor. Donde se cierran los negocios de verdad.' },

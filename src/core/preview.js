@@ -22,6 +22,7 @@ function step(c) {
   c.evaded += r.evaded;
   const before = statsOf(c);
   driftStats(c, r);
+  c.citySobaoSales=r.sobaoSales;
   return { r, d: Object.fromEntries(STATS.map((k) => [k, c[k] - before[k]])) };
 }
 

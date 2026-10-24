@@ -184,6 +184,6 @@ export function tickIPO(s, equity, noise) {
   // La junta salta cuando el mercado pierde la fe (sentimiento 0,90 o menos), como mucho una vez al año.
   if ((s.ipo.sent ?? 1) <= 0.9 && s.month - s.ipo.angryMonth >= 12) {
     s.ipo.angryMonth = s.month;
-    s.pending.push({ kind: 'event', id: 'junta_accionistas' });
+    s.pending.push({ kind: 'event', id: 'junta_accionistas', params: { cause: 'sentimiento', sent: s.ipo.sent ?? 1 } });
   }
 }

@@ -46,6 +46,8 @@ export function showModal(opts) {
     wrap.className = 'modal-backdrop';
     let choices = opts.choices?.length ? opts.choices : [{ label: 'Continuar', primary: true }];
     let picked = null;
+    let closed = false;
+    let openedAt = performance.now();
     wrap.innerHTML = `
       <div class="modal ${opts.wide ? 'wide' : ''} ${opts.className || ''}" role="dialog" aria-modal="true" aria-label="${esc(opts.title)}">
         ${opts.image ? `<div class="modal-image"><img src="${imageUrl(opts.image)}" alt=""></div>` : ''}
@@ -63,6 +65,8 @@ export function showModal(opts) {
       </div>`;
     modalOpen++;
     const finish = (i) => {
+      if (closed) return;
+      closed = true;
       document.removeEventListener('keydown', onKey, true);
       wrap.classList.add('closing');
       setTimeout(() => wrap.remove(), 160);
@@ -71,11 +75,13 @@ export function showModal(opts) {
       resolve(i);
     };
     const close = (i) => {
+      if (closed || performance.now() - openedAt < 350) return;
       if (picked != null) return finish(picked);
+      picked = i;
       const res = opts.followUp && i >= 0 ? opts.followUp(i) : null;
       if (!res?.text) return finish(i);
       // El resultado sustituye al texto y a las opciones, sin otro fondo ni otra animación.
-      picked = i;
+      openedAt = performance.now();
       choices = [{ label: 'Continuar', primary: true }];
       const kicker = wrap.querySelector('.kicker');
       if (kicker) kicker.textContent = 'Resultado';

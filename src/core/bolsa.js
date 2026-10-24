@@ -108,7 +108,7 @@ function judge(s, qi) {
     : `📉 ${qLabel(qi)}: publicas ${money(real)} y no llegas a lo prometido (${money(q.target)}). Credibilidad ${fx.cred}.`, ok ? 'good' : 'bad');
   if (!ok && fx.junta && s.month - (ipo.angryMonth ?? -99) >= 12) {
     ipo.angryMonth = s.month;
-    s.pending.push({ kind: 'event', id: 'junta_accionistas' });
+    s.pending.push({ kind: 'event', id: 'junta_accionistas', params: { cause: 'tiburon' } });
   }
 }
 

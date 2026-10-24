@@ -168,6 +168,7 @@ export function repayMama(s, ctx = 'devolver') {
   s.cash -= a;
   c.saldo += a;
   c.owed = 0;
+  s.pending = s.pending.filter((p) => p.id !== 'cartilla_vence');
   c.due = null;
   c.embargo = null;
   if (c.vetoHasta < s.month + MAMA.RESPIRO) {

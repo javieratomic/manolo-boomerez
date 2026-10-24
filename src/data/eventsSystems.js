@@ -251,9 +251,10 @@ export const SYSTEM_EVENTS = [
     id: 'junta_accionistas',
     title: 'Junta de accionistas furiosa',
     portrait: 'portrait_banquero', image: 'ev_junta',
-    text: (s) => {
+    text: (s, p = {}) => {
       const ipo = s.ipo || {};
-      const cause = (ipo.sent ?? 1) <= 0.9 ? `Los analistas han perdido la fe en Boomerez S.A. (sentimiento ×${(ipo.sent ?? 1).toFixed(2).replace('.', ',')})` : 'Has fallado la promesa en modo tiburón';
+      const sent = p.sent ?? ipo.sent ?? 1;
+      const cause = p.cause === 'sentimiento' || (!p.cause && sent <= 0.9) ? `Los analistas han perdido la fe en Boomerez S.A. (sentimiento ×${sent.toFixed(2).replace('.', ',')})` : 'Has fallado la promesa en modo tiburón';
       const price = (ipo.price ?? 100) < (ipo.peak ?? 100) ? ` y la acción ha caído a ${Math.round(ipo.price)} €` : '';
       return `${cause}${price}. En la junta, un fondo inglés pide tu cabeza y un jubilado de Torrelavega te tira un sobao.`;
     },

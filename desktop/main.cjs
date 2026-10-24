@@ -61,11 +61,19 @@ async function smokeTest(win) {
     for (let i = 0; i < 50 && !document.getElementById('title-portrait').getAttribute('src'); i++) await sleep(100);
     await sleep(300);
     document.getElementById('btn-new').click();
-    await sleep(400);
-    const pick = (i) => [...document.querySelectorAll('#modal-root .modal-backdrop:not(.closing) button.choice')][i]?.click();
-    pick(1); await sleep(400); // dificultad normal
-    pick(0); await sleep(400); // marca Express
-    pick(0); await sleep(400);
+    const pick = async (i) => {
+      const buttons = () => document.querySelectorAll('#modal-root .modal-backdrop:not(.closing) button.choice');
+      for (let n = 0; n < 100 && !buttons().length; n++) await sleep(50);
+      // Cada diálogo protege su apertura frente a pulsaciones arrastradas.
+      await sleep(450);
+      const button = buttons()[i];
+      if (!button) throw new Error('Falta la opción ' + i + ' en el smoke test');
+      button.click();
+    };
+    await pick(1); // dificultad normal
+    await pick(0); // marca Express
+    await pick(0); // resultado de la herencia
+    await sleep(200);
     document.getElementById('end-month').click();
     await sleep(800);
     return {

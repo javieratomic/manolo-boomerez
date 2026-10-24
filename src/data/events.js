@@ -17,7 +17,7 @@ import { sobaoOutlets } from '../core/actions.js';
 import { CLAUSE_BY_ID } from './clauses.js';
 import { PLANTILLA_EVENTS } from './eventsPlantilla.js';
 import { liquidate, credibilidad } from '../core/plantilla.js';
-import { addConfianza } from '../core/cartilla.js';
+import { addConfianza, breaksPromise } from '../core/cartilla.js';
 import { REMEDIOS_EVENTS } from './eventsRemedios.js';
 import { BOLSA_EVENTS } from './eventsBolsa.js';
 import { VELAS_EVENTS } from './eventsVelas.js';
@@ -716,7 +716,7 @@ const BASE_EVENTS = [
       },
       {
         label: 'Pasar a todo el mundo a falso autónomo',
-        available: (s) => !(s.flags.forcedLegal > 0),
+        available: (s) => !(s.flags.forcedLegal > 0) && !(s.cartilla?.firme && breaksPromise(s, 'salario', 'negro')),
         effect(s) {
           s.policies.salario = 'negro';
           addHeatTrabajo(s, 10);
@@ -977,6 +977,7 @@ const BASE_EVENTS = [
     choices: [
       {
         label: '"Es la receta secreta de la abuela"',
+        available: (s) => !(s.cartilla?.firme && breaksPromise(s, 'ingredientes', 'margarina')),
         effect(s) {
           if (chance(s, 0.3)) return 'El técnico tiene una abuela pasiega y se emociona. Te deja ir con un aviso.';
           pay(s, 18000);
@@ -1491,6 +1492,7 @@ const BASE_EVENTS = [
       },
       {
         label: 'Pasarte "temporalmente" a margarina',
+        available: (s) => !(s.cartilla?.firme && breaksPromise(s, 'ingredientes', 'margarina')),
         effect(s) {
           s.policies.ingredientes = 'margarina';
           return 'Temporalmente. Como todo lo temporal en España. (Puedes volver a la mantequilla en el obrador cuando quieras.)';

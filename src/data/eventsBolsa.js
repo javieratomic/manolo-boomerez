@@ -130,8 +130,9 @@ export const BOLSA_EVENTS = [
         label: 'Culpar a Paco',
         hint: (s) => (s.perks.gestor ? `Cuenta como una culpa más (${s.flags.pacoCulpas ?? 0}/3: a la tercera, Paco se va).` : 'No tienes gestor: nadie se lo cree.'),
         effect(s) {
+          const teniaGestor = !!s.perks.gestor;
           const paco = blamePaco(s);
-          return `"Las cuentas las hacía mi gestor." Paco te mira por encima de las gafas y apunta algo en una libreta.${paco}`;
+          return teniaGestor ? `"Las cuentas las hacía mi gestor." Paco te mira por encima de las gafas y apunta algo en una libreta.${paco}` : '"Las cuentas las hacía mi gestor." No tienes gestor: nadie se lo cree.';
         },
       },
     ],

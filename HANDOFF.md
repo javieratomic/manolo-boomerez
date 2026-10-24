@@ -1,5 +1,25 @@
 # Relevo del agente de código
 
+> **Continuación realizada por Codex el 24-10-2026:** A1–A7 corregidos; B1–B8 reproducidos y corregidos.
+> La revisión independiente detectó además la variante B5 de Sanidad encolada tras el enfado, cubierta
+> por una regresión. El worktree temporal de la sección D ya está retirado. La decisión de equilibrado
+> de la sección E sigue pendiente para la 0.5; no se ha cambiado la economía en esta continuación.
+> Las secciones siguientes conservan el diagnóstico original como referencia histórica.
+
+## Validación de la continuación
+
+- 173/173 tests de simulación en Node; 176/176 en `tests/index.html`, incluidos los del DOM real.
+- Playwright con Edge, a 1365×900 y 375×812: elecciones rápidas, contador de diálogos, bocadillo,
+  edad y continuación en modo infinito comprobados. La promesa se muestra y se puede cerrar el mes.
+- Sintaxis de los módulos comprobada. Importación de `src/ui/app.js` en Node con `globalThis.window = {}`
+  para proporcionar el global del navegador; sin errores por ciclos de importación.
+- Smoke de Electron: mes 1, juego visible, sin errores ni pantalla fatal. Espera a que existan las
+  opciones y transcurra la guarda de apertura, en lugar de pulsarlas a tiempo fijo.
+- Ejecutable 0.4.0 regenerado con `npm run dist` en `desktop/`:
+  `desktop/dist/ManoloBoomerez-0.4.0-portable.exe`.
+- El arte se mantiene: 194 terminados, 62 pendientes y 1 bloqueado; `check_assets.py` correcto.
+- Worktree temporal retirado sin forzar ni hacer stash. Sin cambios de equilibrado ni push.
+
 > Para el agente de **código** (Claude u otro). El agente de arte (Codex) puede ignorar este fichero.
 > Escrito el 24-10-2026 sobre `main` en `6dd4109`, más el commit que lo añade.
 

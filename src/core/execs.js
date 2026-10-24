@@ -67,6 +67,11 @@ export function fireExec(s, pos, reason = null) {
   if (!e) return { ok: false, msg: 'No hay nadie en ese puesto.' };
   if (!reason) addCash(s, -severance(e));
   delete s.execs[pos];
+  if (s.sucesion?.heir === 'directivo' && s.sucesion.execName === e.name) {
+    s.sucesion.heir = 'nadie';
+    s.sucesion.execName = null;
+    log(s, `📜 ${e.name} deja de ser el heredero al salir de la empresa.`, 'info');
+  }
   if (e.trait === 'enchufado' && !reason) {
     s.familia = Math.max(0, (s.familia ?? 60) - 15);
     log(s, `🍽️ Despides a ${e.name}. La próxima comida familiar va a ser muy larga (familia −15).`, 'bad');

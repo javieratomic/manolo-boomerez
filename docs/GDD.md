@@ -142,7 +142,7 @@ La saturación reduce la demanda cuando hay varios negocios del mismo tipo en un
 | **Tiburón Pasiego** | Al acabar los 8 años con ≥ 5 M€ |
 | **Pyme con ínfulas** | Al acabar con ≥ 800.000 € |
 | **Ruina lenta** | Al acabar por debajo de eso |
-| **Vuelta a Selaya** | Voluntario, desde el mes 72 y tras «Sesenta velas». Misma puntuación, sin cláusula ni modo infinito; tono bueno con 12 meses en regla o la receta del abuelo |
+| **Vuelta a Selaya** | Voluntario, desde el mes 72 y tras «Sesenta velas». Misma puntuación, sin cláusula ni modo infinito; tono bueno con 12 meses en regla o la receta de la abuela |
 
 ## 10. Sistemas de gestión
 

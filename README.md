@@ -57,7 +57,7 @@ pellizco para el zoom (en el móvil, tocar dos ciudades juntas acerca el mapa) �
 | Sucesos | Más de 130 cartas satíricas con decisiones (el cuñado y su SobaoCoin, la rata viral, la huelga, el jefe infiltrado...) |
 | Objetivos | 18 objetivos en tres carriles (negocio, equipo y dinero) que dan pequeñas recompensas |
 | Dificultad | Modo cuñado (fácil), Emprendedor (normal) y Modo Hacienda (difícil) |
-| Logros | 45 logros que se guardan entre partidas: uno por cada final y uno por cada cláusula, entre otros |
+| Logros | 46 logros que se guardan entre partidas: uno por cada final y uno por cada cláusula, entre otros |
 | Finales | Concurso de acreedores, Soto del Real, la Cooperativa, la Revista de millonarios, Tiburón Pasiego, Pyme con ínfulas, Ruina lenta y, por voluntad propia, Vuelta a Selaya |
 | Sonido | Efectos y música de fondo (pasodoble lo-fi generativo) sintetizados con WebAudio, sin ficheros de audio; se silencian por separado en el menú |
 

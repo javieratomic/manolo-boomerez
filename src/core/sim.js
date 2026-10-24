@@ -15,7 +15,7 @@ import { tickRivals, rivalHit } from './rivals.js';
 import { tickRD } from './market.js';
 import { tickExecs, execBonus, execSkill, execHeat } from './execs.js';
 import { laborSeverity } from './inspections.js';
-import { tickLife, tickIPO, inLockup } from './life.js';
+import { tickLife, tickIPO, inLockup, lockupEnd } from './life.js';
 import { tickPolitics, govFx } from './politics.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
 import { CITY_BY_ID } from '../data/cities.js';
@@ -241,7 +241,7 @@ export function eligibleEvents(s) {
 function rollRandomEvent(s) {
   const eligible = eligibleEvents(s);
   // Los pasos de arcos narrativos salen en cuanto se cumplen sus condiciones (uno por mes).
-  const forced = eligible.find((e) => e.forced);
+  const forced = eligible.find((e) => e.forced && /^velas_/.test(e.id)) || eligible.find((e) => e.forced);
   if (forced) {
     s.pending.push({ kind: 'event', id: forced.id });
     s.seen[forced.id] = s.month;
@@ -293,7 +293,8 @@ export function resolvePending(s, choiceIndex) {
   const result = choice.effect(s, params);
   if (ev.memory && choice.key) remember(s, p.id, choice.key);
   if (p.id === 'auditoria_hacienda') afterAudit(s); // Don Fermín puede tirar del hilo de un maquillaje
-  s.pending.shift();
+  const pendingIndex = s.pending.indexOf(p);
+  if (pendingIndex >= 0) s.pending.splice(pendingIndex, 1);
   s.cash = Math.round(s.cash);
   checkUnlocks(s);
   s.quote = pickQuote(s);
@@ -305,7 +306,8 @@ export function resolvePending(s, choiceIndex) {
 function holdForVelas(s) {
   if (!velasPending(s)) return false;
   s.flags.forbesHoldFrom ??= s.month;
-  return s.month - s.flags.forbesHoldFrom < 4;
+  const from = Math.max(s.flags.forbesHoldFrom, (s.seen?.velas_1 ?? -1) + 1);
+  return s.month - from < 4;
 }
 
 export function checkEnding(s) {
@@ -331,6 +333,7 @@ export const RETIRE_MONTH = 72;
 export function canRetire(s) {
   if (s.ending) return { ok: false, msg: 'La partida ya ha terminado.' };
   if (s.month < RETIRE_MONTH) return { ok: false, msg: `Manolo no se jubila antes de ${dateLabel(RETIRE_MONTH).toLowerCase().replace(' ', ' de ')}.` };
+  if (inLockup(s)) return { ok: false, msg: `El bloqueo de la salida a Bolsa termina en ${dateLabel(lockupEnd(s)).toLowerCase().replace(' ', ' de ')}. Hasta entonces no puedes retirarte.` };
   if (s.seen?.velas_3 == null) return { ok: false, msg: 'Antes tiene que pasar por el notario («Sesenta velas»).' };
   if (s.pending.length) return { ok: false, msg: 'Primero, lo que tienes encima de la mesa.' };
   return { ok: true };

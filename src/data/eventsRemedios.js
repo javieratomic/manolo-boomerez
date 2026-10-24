@@ -10,6 +10,7 @@ import { LEGAL_LABOR } from './policies.js';
 const cart = (s) => (s.cartilla ||= newCartilla(s.difficulty));
 const fecha = (m) => dateLabel(m).toLowerCase().replace(' ', ' de ');
 const legalLabor = (s) => s.policies.salario === 'convenio' && s.policies.horas === 'pagadas' && s.policies.becarios === 'ninguno';
+const rescueConds = (s) => [...new Set([...(s.cartilla?.conds || []), 'ley', 'mantequilla'])].map((id) => COND_TEXT[id].replace(/^./, (c) => c.toLowerCase())).join('; ');
 
 export const REMEDIOS_EVENTS = [
   {
@@ -124,20 +125,20 @@ export const REMEDIOS_EVENTS = [
       {
         key: 'aceptar',
         label: 'Aceptar, con la cabeza baja',
-        hint: (s) => `Te presta hasta ${money(Math.min(Math.max(0, -s.cash) + MAMA.RESCUE_CUSHION, cart(s).saldo))} a ${MAMA.RESCUE_TERM} meses, con dos condiciones: ${COND_TEXT.ley.toLowerCase()} y ${COND_TEXT.mantequilla.toLowerCase()}.`,
+        hint: (s) => `Te presta hasta ${money(Math.min(Math.max(0, -s.cash) + MAMA.RESCUE_CUSHION, cart(s).saldo))} a ${MAMA.RESCUE_TERM} meses. Condiciones: ${rescueConds(s)}.`,
         effect(s) {
           const res = rescue(s, false);
-          return `Firma delante del director, que no se atreve a mirarla. Te presta ${money(res.amount)} y se te acaba el descubierto. Condiciones: ${COND_TEXT.ley.toLowerCase()} y ${COND_TEXT.mantequilla.toLowerCase()}.\n\n«${res.refran}»`;
+          return `Firma delante del director, que no se atreve a mirarla. Te presta ${money(res.amount)} y se te acaba el descubierto. Condiciones: ${rescueConds(s)}.\n\n«${res.refran}»`;
         },
       },
       {
         key: 'casa',
         label: 'Aceptar, y que hipoteque la casa de la calle Mayor',
-        hint: `Solo si la cartilla no llega: ${money(MAMA.CASA)} más. Familia −10.`,
+        hint: (s) => `Solo si la cartilla no llega: ${money(MAMA.CASA)} más. Familia −10. Condiciones: ${rescueConds(s)}.`,
         available: (s) => !cart(s).casa && cart(s).saldo < Math.max(0, -s.cash) + MAMA.RESCUE_CUSHION,
         effect(s) {
           const res = rescue(s, true);
-          return `Tu madre hipoteca la casa donde naciste para salvarte. Te presta ${money(res.amount)}. Merche no te habla en una semana. Familia −10.\n\n«${res.refran}»`;
+          return `Tu madre hipoteca la casa donde naciste para salvarte. Te presta ${money(res.amount)}. Merche no te habla en una semana. Familia −10. Condiciones: ${rescueConds(s)}.\n\n«${res.refran}»`;
         },
       },
       {

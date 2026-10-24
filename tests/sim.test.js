@@ -2292,7 +2292,7 @@ test('Selaya: retirarse desde el mes 72 tras el notario, sin cobrar la cláusula
   assert(ACHIEVEMENTS.some((a) => a.id === 'final_selaya' && a.emoji === '🏡'));
 });
 
-test('Selaya: buen tono con un año limpio o la receta del abuelo; si no, neutro', () => {
+test('Selaya: buen tono con un año limpio o la receta de la abuela; si no, neutro', () => {
   const s = started();
   assertEq(endingOf(s, 'selaya').tone, 'neutral');
   s.flags.legalStreak = 12;
@@ -2302,4 +2302,114 @@ test('Selaya: buen tono con un año limpio o la receta del abuelo; si no, neutro
   assertEq(endingOf(s, 'selaya').tone, 'good');
   assert(endingOf(s, 'selaya').text.includes('mantequilla de verdad'));
   assertEq(endingOf(s, 'forbes').tone, 'good');
+});
+
+test('regresión 0.4: retirarse respeta los seis meses de bloqueo de la OPV', () => {
+  const s = started();
+  s.month = 72;
+  s.cash = 6e6;
+  s.rep = 60;
+  s.seen.velas_3 = 65;
+  assert(doIPO(s, grossPatrimonio(s)).ok);
+  assert(!retire(s).ok, 'no se cobra la prima para retirarse inmediatamente');
+  s.month = 77;
+  assert(!canRetire(s).ok);
+  s.month = 78;
+  assert(retire(s).ok, 'sí al terminar el bloqueo');
+});
+
+test('regresión 0.4: pagar durante el enfado cancela el vencimiento pendiente sin perder otra carta', () => {
+  const s = started();
+  s.month = 20;
+  Object.assign(s.cartilla, { owed: 20000, due: 20, conds: ['mantequilla'] });
+  s.policies.ingredientes = 'margarina';
+  tickCartilla(s, {});
+  assertEq(s.pending[0].id, 'cartilla_enfado');
+  s.pending.push({ kind: 'event', id: 'navidad' });
+  pick(s, currentPending(s), 'Devolvérselo');
+  assertEq(s.cartilla.owed, 0);
+  assertEq(s.pending.length, 1);
+  assertEq(s.pending[0].id, 'navidad');
+});
+
+test('regresión 0.4: la junta conserva la causa aunque cambie el sentimiento', () => {
+  const s = listed();
+  s.ipo.sent = 0.9;
+  tickIPO(s, grossPatrimonio(s), 0);
+  s.ipo.sent = 0.95;
+  const p = currentPending(s);
+  assertEq(p.pending.id, 'junta_accionistas');
+  assert(!p.text.includes('modo tiburón'), p.text);
+  assert(p.text.includes('0,90'), 'explica el sentimiento que convocó la junta');
+});
+
+test('regresión 0.4: los sucesos no rompen una promesa firme a la madre', () => {
+  const s = started();
+  Object.assign(s.cartilla, { owed: 20000, conds: ['ley', 'mantequilla'], firme: true });
+  for (const [id, label] of [['mantequilla_cara', 'margarina'], ['subida_smi', 'falso autónomo']]) {
+    const ev = EVENTS.find((e) => e.id === id || e.choices.some((c) => typeof c.label === 'string' && c.label.includes(label)));
+    const p = visit(s, ev.id, {});
+    assert(!p.choices.some((c) => c.label.includes(label)), `${id}: opción bloqueada`);
+    const i = ev.choices.findIndex((c) => typeof c.label === 'string' && c.label.includes(label));
+    let rejected = false;
+    try { resolvePending(s, i); } catch { rejected = true; }
+    assert(rejected, 'resolver tampoco permite saltarse el bloqueo');
+  }
+});
+
+test('regresión 0.4: el rescate informa también de Kevin y los domingos conservados', () => {
+  const s = started();
+  Object.assign(s.cartilla, { owed: 10000, conds: ['kevin', 'domingos'] });
+  s.cash = -1000;
+  const p = visit(s, 'cartilla_rescate', {});
+  assert(p.choices[0].hint.includes('Kevin') && p.choices[0].hint.includes('domingos'), p.choices[0].hint);
+  const result = pick(s, p, 'cabeza baja');
+  assert(result.includes('Kevin') && result.includes('domingos'), result);
+  assertEq(s.cartilla.conds.length, 4);
+});
+
+test('regresión 0.4: al irse el directivo heredero se revoca su sucesión', () => {
+  for (const reason of [null, 'burnout']) {
+    const s = started();
+    s.cash = 1e6;
+    s.execs.finanzas = { name: 'Elena', skill: 3, salary: 2000, trait: 'normal' };
+    s.sucesion = { heir: 'directivo', execName: 'Elena' };
+    assert(fireExec(s, 'finanzas', reason).ok);
+    assertEq(s.sucesion.heir, 'nadie');
+  }
+});
+
+test('regresión 0.4: sin gestor el informe bajista no inventa la presencia de Paco', () => {
+  const s = listed();
+  s.perks.gestor = false;
+  const result = pick(s, visit(s, 'informe_bajista', { n: 1 }), 'Culpar a Paco');
+  assert(!result.includes('Paco te mira') && !result.includes('libreta'), result);
+});
+
+test('regresión 0.4: las velas tienen prioridad y la revista espera al notario real', () => {
+  const s = started();
+  s.cash = 20e6;
+  s.month = 64;
+  s.flags.forbesHoldFrom = 60;
+  s.seen.velas_1 = 63;
+  assertEq(checkEnding(s), null, 'no corta el arco ya empezado');
+  s.pending = [];
+  advanceMonth(s);
+  assert(s.pending.some((p) => p.id === 'velas_2'), 'el arco no pierde su turno ante otras forzosas');
+});
+
+test('regresión 0.4: Sanidad encolada no rompe la promesa renovada durante el mismo cierre', () => {
+  const s = started(6);
+  s.month = 10;
+  Object.assign(s.cartilla, { owed: 20000, due: 30, conds: ['mantequilla'] });
+  s.policies.ingredientes = 'misteriosa';
+  advanceMonth(s);
+  assertEq(s.pending[0].id, 'cartilla_enfado');
+  assertEq(s.pending[1].id, 'sanidad');
+  resolvePending(s, 0);
+  assert(s.cartilla.firme && s.policies.ingredientes === 'mantequilla');
+  const p = currentPending(s);
+  assert(!p.choices.some((c) => c.index === 0), 'no puede volver a ingredientes que incumplen');
+  pick(s, p, 'Volver a la mantequilla');
+  assertEq(s.policies.ingredientes, 'mantequilla');
 });

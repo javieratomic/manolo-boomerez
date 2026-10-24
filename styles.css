@@ -320,7 +320,7 @@ blockquote { margin: 8px 0 0; font-family: var(--display); font-style: italic; b
   display: grid; place-items: center; padding: 16px;
   animation: fade 0.15s ease-out;
 }
-.modal-backdrop.closing { animation: fade 0.15s ease-in reverse forwards; }
+.modal-backdrop.closing { animation: fade 0.15s ease-in reverse forwards; pointer-events: none; }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes pop { from { transform: translateY(12px) scale(0.98); } to { transform: none; } }
 .modal {
@@ -411,7 +411,7 @@ button.delta { font: inherit; font-size: 12px; border: 1px dashed currentColor; 
   .title-buttons { align-items: stretch; }
 }
 @media (max-width: 420px) {
-  #manolo-bubble { display: none; }
+  #manolo-bubble, #manolo-bubble.action { display: none; }
 }
 
 /* ------------------------------------------------------- Texto grande */

@@ -845,7 +845,7 @@ export function renderManolo(s) {
       <img src="${imageUrl(`portrait_manolo_${mood}`)}" alt="Manolo" class="portrait-lg">
       <div class="grow">
         <h3>Manolo Boomerez</h3>
-        <div class="small muted">55 años · Joven emprendedor · CEO & Founder (heredado)</div>
+        <div class="small muted">${55 + Math.floor(s.month / 12)} años · Joven emprendedor · CEO & Founder (heredado)</div>
         <div class="chips">
           <span class="chip">📣 Fama: <b>${Math.round(s.fama)}</b></span>
           <span class="chip">⚖️ Expedientes: <b>${s.expedientes}/3</b></span>

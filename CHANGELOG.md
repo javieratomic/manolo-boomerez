@@ -46,10 +46,13 @@
 - `tests/balance.mjs`: barrida de equilibrado con 30 variantes en 32 semillas (datos en
   `docs/balance_0.4.md`).
 - Revisiones con agentes de cada tanda (detección y verificación adversaria) y sus correcciones: 14 fallos
-  en las piezas 1, 2 y 4a y 30 en las piezas 3, 4b, 5 y 6. Entre ellos: el sueldo de Kevin se quedaba para
+  en las piezas 1, 2 y 4a, 30 en las piezas 3, 4b, 5 y 6 y 15 en la revisión final de la 0.4. Entre ellos: el sueldo de Kevin se quedaba para
   siempre tras un rescate, un rescate durante el embargo perdonaba la deuda, la guía prudente hundía el
   sentimiento a la larga, «Sesenta velas» salía antes de cumplir los sesenta y los 50 empleados esperaban a
   una inspección limpia.
+- Revisión final: elecciones protegidas frente a dobles clics y teclas arrastradas; el modo infinito
+  procesa sus promesas; la retirada respeta el bloqueo bursátil; las velas tienen prioridad; la cartilla,
+  las causas de juntas y los herederos conservan un estado coherente. Edad actual y bocadillo corregidos.
 - Las semillas de la 0.3 no reproducen las mismas partidas en la 0.4 (`GAME_VERSION`).
 
 ## 0.3.0 — Decisiones con memoria

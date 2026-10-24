@@ -131,6 +131,7 @@ function showTitle() {
 
 function startGame(s) {
   game.s = s;
+  game.bubble = null;
   game.city = HQ_CITY;
   game.tab = 'ciudad';
   if (!s.quote) s.quote = pickQuote(s);
@@ -841,7 +842,10 @@ async function runQueue(s) {
   await showNotices();
   const end = checkEnding(s);
   renderAll();
-  if (end) await showEnding(end);
+  if (end) {
+    await showEnding(end);
+    if (game.s === s && !s.ending && s.pending.length) await runQueue(s);
+  }
 }
 
 async function showEnding(id) {

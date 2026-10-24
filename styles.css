@@ -483,5 +483,9 @@ body.big-text .choice small, body.big-text .opt small, body.big-text .action sma
 .marketing-campaign{flex-wrap:wrap}
 .marketing-campaign>.grow{min-width:180px;flex:1 1 240px}
 .marketing-campaign>.btn{align-self:center;white-space:normal}
+.online-shipping label{display:block;margin:8px 0;font-size:13px}
+.online-shipping input{width:auto}
+.online-channel .tbl{font-size:13px}
+.online-channel .tbl td:last-child{white-space:nowrap}
 .european-goal{border-left:4px solid #315f7b}
 .foreign-territories>div{padding:8px 0;border-bottom:1px dashed var(--line)}

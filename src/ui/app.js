@@ -1,4 +1,5 @@
 import {nominateHeir} from '../core/dynasty.js';
+import {openOnline,upgradeOnline,toggleOnline,setOnlineShipping} from '../core/online.js';
 import {campaignPlan,launchCampaignBatch,marketingTerritories,campaignSelection} from '../core/marketing.js';
 import {setHousingPolicy} from '../core/housing.js';
 import { signAgreement, endAgreement, agreementTerms } from '../core/international.js';
@@ -496,6 +497,15 @@ async function onClick(e) {
         toast(`📢 ${CAMPAIGN_BY_ID[el.dataset.id].name}`, 'good');
       }
       break;
+    case 'online-open':
+      res=openOnline(s);if(res.ok){play('cash');toast('🛒 Tienda online abierta. Solo acepta pedidos con excedente real.','good');}
+      break;
+    case 'online-upgrade':
+      res=upgradeOnline(s);if(res.ok){play('cash');toast('🛒 Canal online ampliado.','good');}
+      break;
+    case 'online-toggle':
+      res=toggleOnline(s);
+      break;
     case 'marketing-select':
       game.marketingSelection||={};game.marketingSelection[el.dataset.scope]=el.dataset.value==='all'?null:[];
       break;
@@ -640,6 +650,7 @@ async function onClick(e) {
 
 function onChange(e) {
   const el = e.target;
+  if(el.dataset.act==='online-shipping'&&game.s){const res=setOnlineShipping(game.s,el.value);if(!res.ok)toast(res.msg,'bad');renderAll();return;}
   if(el.dataset.act==='marketing-target'&&game.s){
     const scope=el.dataset.scope;game.marketingSelection||={};
     const selected=new Set(campaignSelection(game.s,scope,game.marketingSelection[scope]));

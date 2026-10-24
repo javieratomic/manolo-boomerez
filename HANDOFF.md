@@ -1,3 +1,20 @@
+# Continuación 0.11.0 — Venta online (25-10-2026)
+
+Petición completa implementada:
+- Canal virtual `online` en Mercado, sin crear locales. Tres niveles: apertura 15 k€, ampliaciones 45 k€ y 140 k€; cuotas 600/1.800/4.500 €/mes, preparación 1/3/8 empleados y hasta 1.000/3.500/10.000 pedidos mensuales. El tráfico de Maison es menor por su carácter premium.
+- Venta peninsular en cajas de seis: primero tiendas/contratos, luego online con excedente y personal real, finalmente cortesías. Solo pedidos aceptados entran en `totalDemand`; tráfico potencial no servido se informa por separado. `fill` conserva la cobertura de tiendas y contratos. Producción, materias, nóminas y transportes contabilizados una vez.
+- Express 3,80 €/ud, Maison 10,50 €/ud. Paquetería por caja 6,90/12,90 €, embalaje 0,90/2,40 €, cobro 3 %, reserva de incidencias 2 %. Portes incluidos o aportación cliente de 3 €/pedido con demanda ×0,82. Precios por unidad/pedido se muestran con céntimos. Logística operativa de Selaya y rutas reducen portes, aún superiores al suministro peninsular a tiendas.
+- Personal de preparación en Selaya entra en oferta laboral, vivienda, nómina y alojados. Abrir/ampliar/reactivar valida oferta laboral; pausa sin ventas, cuota ni nóminas de preparación. Marketing nacional, I+D, reputación, fama, temporada y tradición impulsan tráfico; campañas locales/extranjeras no lo multiplican directamente.
+- Previsión de apertura y cambio en resultado total de empresa (incluida fabricación común), pedidos/stock, margen variable, desglose y controles en Mercado. Informes reconocen línea online; consejo de pérdidas dirige a Mercado para ajustar portes/stock o pausar, no a vender un local virtual. Estado anterior sin online se migra cerrado y se validan niveles/portes.
+
+Verificación: **271/271 Node y 18/18 DOM**, sintaxis correcta. Edge 1365×900 y 375×812: apertura, política compartida, pausa a cero, reactivación, dos ampliaciones (200 k€ acumulados), cierre idéntico a previsión y recarga; sin errores/desbordamiento. Revisión independiente sin fallos importantes y matriz de 96 combinaciones de marcas/niveles/capacidad/contratos coherente. Consejo menor corregido con regresión roja/verde, y formato de céntimos también verificado con regresión DOM.
+
+Dos simulaciones de 120 meses con caja/capacidad elevadas, Express y Maison: 240 cargas mantienen neto/RNG, 9.494.688 uds online, dos meses de falta de stock, producción siempre dentro de capacidad; incluye ampliaciones, portes, pico mayorista, pausa y reactivación. No es medida de dificultad de una partida inicial normal.
+
+Build, smoke de desempaquetado y smoke portable correctos (salida 0). Ejecutable: `desktop/dist/ManoloBoomerez-0.11.0-portable.exe`. Sin push ni cierre del juego del usuario. Plan: `docs/superpowers/plans/2026-10-25-venta-online.md`.
+
+---
+
 # Continuación 0.10.0 — Central de marketing (25-10-2026)
 
 Petición completa implementada:

@@ -1,4 +1,5 @@
 import {serviceRevenue,serviceStaff} from './serviceModel.js';
+import {calculateOnline,onlineRevenueFactor} from './online.js';
 import {campaignApplies} from './marketing.js';
 import {isOperating,isResidential,renewalDue,renovationCost,businessName} from './construction.js';
 import {housingSpec} from '../data/housing.js';
@@ -181,8 +182,13 @@ export function computeEconomy(s) {
   }
 
   const capacity = productionSites(s).reduce((n,city)=>n+localPlan(city).effective,0) * strike;
-  const totalDemand = shopUnits + wholesaleUnits + contractUnits + foreignDemand(s) + sobaoEntries.reduce((a, e) => a + e.demand, 0);
-  const fill = totalDemand > 0 ? Math.min(1, capacity / totalDemand) : 1;
+  const baseDemand = shopUnits + wholesaleUnits + contractUnits + foreignDemand(s) + sobaoEntries.reduce((a, e) => a + e.demand, 0);
+  const fill = baseDemand > 0 ? Math.min(1, capacity / baseDemand) : 1;
+  const online=calculateOnline(s,{availableUnits:Math.max(0,capacity-baseDemand),staff:localPlan('selaya').onlineStaff,wage,
+    demandFactor:repF*sobaoSeason*service*quality*(0.8+s.fama/100)*productFactor(s,s.brand,'sobaos',hq,m)*onlineRevenueFactor(s),
+    materialFactor:fx.ing.cost*researchFactor(s,'materialFactor')});
+  // La web solo acepta pedidos con stock: no resta suministro a tiendas o contratos.
+  const totalDemand=baseDemand+online.units;
   // El regalo usa solo excedente: nunca compite con tiendas o contratos. No es demanda obligatoria.
   const bonusEligible = businesses.filter(b => ['service', 'care'].includes(BUSINESS_TYPES[b.type].model) || ['academy', 'airbnb'].includes(b.type));
   const bonusUnits = Math.min(Math.max(0, capacity - totalDemand), bonusEligible.length * 250);
@@ -244,6 +250,14 @@ export function computeEconomy(s) {
     costs.materias += line.materials;
     costs.transporte += line.shipping;
     costs.otros += line.audit;
+  }
+
+  if(online.active){
+    revenueByCat.sobaos+=online.revenue;
+    costs.materias+=online.materials;costs.transporte+=online.shipping;costs.salarios+=online.wages;
+    costs.otros+=online.packaging+online.payments+online.returns+online.fixed;
+    employees+=online.staff;
+    lines.push({id:'online',type:'online',city:'selaya',label:'Venta online de sobaos',revenue:online.revenue,cost:online.cost,staff:online.staff,units:online.units,orders:online.orders});
   }
 
   // --- Resto de negocios -----------------------------------------------------
@@ -422,7 +436,7 @@ export function computeEconomy(s) {
     revenue, revenueByCat, costs, totalCost, profit, tax, evaded,
     net: profit - tax,
     employees, housed, beds, control,publicHoused,housingMoral,housingInsp,residenceBenefit,
-    capacity, totalDemand, produced, fill, surplusBonus, bonusUnits,
+    capacity, totalDemand, produced, fill, surplusBonus, bonusUnits,online,
     sobaoSales: Object.fromEntries([...new Set(['selaya',...sobaoEntries.map(e=>e.b.city)])].map(city=>[city,(city==='selaya'?shopUnits*fill:0)+sobaoEntries.filter(e=>e.b.city===city).reduce((n,e)=>n+e.demand*fill,0)])),
     lines,renovations,
   };

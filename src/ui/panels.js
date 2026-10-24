@@ -1,4 +1,6 @@
 import {workforcePlan} from '../core/workforce.js';
+import {ONLINE_LEVELS,ONLINE_SHIPPING} from '../data/online.js';
+import {canOpenOnline,canUpgradeOnline} from '../core/online.js';
 import {campaignPlan,marketingTerritories,campaignSelection} from '../core/marketing.js';
 import {LOCAL_RULES,NEW_YEAR_STAGES} from '../data/localEvents.js';
 import {localState,localMemoryText} from '../core/localEvents.js';
@@ -466,7 +468,7 @@ const pct = (f) => `${f >= 1 ? '+' : '−'}${Math.round(Math.abs(f - 1) * 100)} 
 export function renderMarket(s,marketingSelection={}) {
   const p = macroFx(s);
   const order = ['recuperacion', 'expansion', 'burbuja', 'crisis'];
-  return `${renderMarketingHub(s,marketingSelection)}<div class="card macro macro-${s.macro.phase}">
+  return `${renderOnline(s)}${renderMarketingHub(s,marketingSelection)}<div class="card macro macro-${s.macro.phase}">
       <div class="kicker">Ciclo económico</div>
       <h3>${p.emoji} ${esc(p.label)}</h3>
       <p class="small">${esc(p.desc)}</p>
@@ -486,6 +488,13 @@ export function renderMarket(s,marketingSelection={}) {
     ${renderInternational(s)}`;
 }
 
+function renderOnline(s) {
+ const opened=s.online?.level>0,base=computeEconomy(s);
+ const report=opened?base:computeEconomy({...s,online:{level:1,active:true,shipping:'incluido'}});
+ const o=report.online,level=opened?s.online.level:1,plan=ONLINE_LEVELS[level],check=opened?canUpgradeOnline(s):canOpenOnline(s);
+ const rows=[['Ventas de producto',o.productRevenue],['Portes cobrados al cliente',o.chargedShipping],['Materias primas',-o.materials],['Paquetería a domicilio',-o.shipping],['Cajas y embalaje',-o.packaging],['Comisiones de cobro (3 %)',-o.payments],['Reserva de incidencias (2 % producto)',-o.returns],['Personal de preparación en Selaya',-o.wages],['Plataforma y atención digital',-o.fixed]];
+ return `<div class="card online-channel"><h3>🛒 Venta online de sobaos</h3><p class="small">Tienda propia para la Península, en cajas de seis. Primero se atienden tiendas y contratos; la web solo acepta pedidos con el excedente real, antes de los regalos de cortesía. La paquetería cuesta más por unidad que abastecer tus propias tiendas.</p><p><b>${esc(plan.name)}</b>${opened&&!s.online.active?' · En pausa':''}</p><div class="chips"><span class="chip">Tráfico potencial: ${o.potentialOrders.toLocaleString('es-ES')} pedidos/mes</span><span class="chip">Aceptados: ${o.orders.toLocaleString('es-ES')} · ${o.units.toLocaleString('es-ES')} uds</span><span class="chip">Precio: ${o.unitPrice.toFixed(2).replace('.',',')} €/ud</span><span class="chip">Paquetería: ${o.parcelCost.toFixed(2).replace('.',',')} €/pedido</span><span class="chip">Margen variable: ${(o.contributionMargin*100).toFixed(1).replace('.',',')} %</span></div><p class="small">Personal previsto: ${plan.staff} · Personal disponible: ${o.staff} · Límite del nivel: ${plan.maxOrders.toLocaleString('es-ES')} pedidos/mes. Campañas nacionales, fama, reputación, I+D y temporada atraen demanda; no sustituyen al stock.</p>${opened?`<fieldset class="online-shipping"><legend>Portes al cliente</legend>${Object.entries(ONLINE_SHIPPING).map(([id,p])=>`<label><input type="radio" name="online-shipping" data-act="online-shipping" value="${id}" ${s.online.shipping===id?'checked':''}> ${esc(p.label)}${id==='compartidos'?' (18 % menos demanda)':''}</label>`).join('')}</fieldset>`:''}<details class="online-breakdown" open><summary>${opened?'Previsión mensual del canal':'Previsión mensual si abres ahora'}</summary><table class="tbl">${rows.map(([label,amount])=>`<tr><td>${esc(label)}</td><td class="${cls(amount)}">${signed(amount)}</td></tr>`).join('')}<tr class="total"><td>Resultado del canal antes de impuestos</td><td class="${cls(o.profit)}">${signed(o.profit)}</td></tr></table><p class="small muted">La fabricación y los gastos comunes se cuentan en la empresa. ${!opened?`Cambio previsto en resultado total: <b>${signed(report.net-base.net)}/mes</b>, tras impuestos.`:''}</p></details>${o.active&&o.potentialOrders>o.orders?'<p class="small warn">Parte de la demanda no se acepta por falta de excedente, personal o capacidad de preparación. No se contabiliza como venta.</p>':''}<div class="row gap wrap">${!opened?`<button class="btn small primary" data-act="online-open" ${check.ok?'':'disabled'}>Abrir tienda online (${moneyShort(ONLINE_LEVELS[1].cost)})</button>`:`<button class="btn small" data-act="online-toggle">${s.online.active?'Pausar canal':'Reactivar canal'}</button>${level<3?`<button class="btn small primary" data-act="online-upgrade" ${check.ok?'':'disabled'}>Ampliar: ${esc(ONLINE_LEVELS[level+1].name)} (${moneyShort(ONLINE_LEVELS[level+1].cost)})</button>`:''}`}</div>${!check.ok&&(!opened||level<3)?`<p class="small muted">${esc(check.msg)}</p>`:''}<p class="small muted">Pausado no vende ni cobra cuota o nóminas de preparación. Al reactivarlo se comprueba de nuevo la oferta laboral. Tarifas medias de juego, no precios reales de transporte.</p></div>`;
+}
 function renderMarketingHub(s,selection) {
  const group=(scope,title)=>{
   const territories=marketingTerritories(s,scope),selected=campaignSelection(s,scope,selection[scope]);

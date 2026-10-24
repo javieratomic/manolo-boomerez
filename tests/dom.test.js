@@ -234,3 +234,10 @@ test('DOM: una selección de marketing no queda bloqueada por territorios que ya
  assert(!el.querySelector('[data-act="marketing-target"][value="madrid"]'));
  assert(!el.querySelector('[data-act="campaign-batch"][data-id="buzoneo"]').disabled);
 });
+
+test('DOM: Mercado ofrece venta online con previsión, envíos desglosados y pausa',()=>{
+ const s=newGame(42);resolvePending(s,0);s.cash=1e7;
+ const el=document.createElement('div');el.innerHTML=renderMarket(s);assert(el.querySelector('[data-act="online-open"]'));assert(el.textContent.includes('Paquetería a domicilio'));assert(el.textContent.includes('Cambio previsto en resultado total'));
+ assert(el.textContent.includes('3,80 €'));assert(el.textContent.includes('6,90 €'));
+ s.online={level:1,active:true,shipping:'incluido'};el.innerHTML=renderMarket(s);assert(el.querySelector('[data-act="online-toggle"]'));assert(el.querySelector('[data-act="online-shipping"][value="compartidos"]'));
+});

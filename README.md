@@ -37,6 +37,7 @@ pellizco para el zoom (en el móvil, tocar dos ciudades juntas acerca el mapa) �
 | Turnos | Un mes por turno; campaña europea continua con sucesores. Reto semanal clásico de 96 meses |
 | Marca | Al empezar eliges **Express** (low-cost, volumen) o **Maison** (boutique delicatessen) |
 | Producción | Selaya y obradores regionales; capacidad y automatización por I+D, ampliaciones industriales sin tope y plantilla que necesita vivienda |
+| Venta online | Tienda peninsular en Mercado, tres tamaños y cajas de seis; vende excedentes tras tiendas/contratos, con paquetería cara y costes desglosados, portes incluidos o compartidos |
 | Negocios | Sobaos, vivienda, turismo, hostelería, gimnasio, coworking, residencia, Academy, banca, telecom y logística; diez niveles. Empanadas solo al asociarse con Rodrigo |
 | Mapa | 55 destinos españoles y 16 ciudades extranjeras tras experiencia de marca blanca e I+D |
 | Economía | Ciclo de expansión, burbuja, crisis y recuperación; costes de estructura crecientes |

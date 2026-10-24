@@ -1,5 +1,14 @@
 # Cambios
 
+## 0.11.0 — Sobaos a domicilio
+
+- Canal de venta online en Mercado: tres tamaños, previsión económica de apertura, ampliación, pausa y reactivación.
+- Pedidos peninsulares en cajas de seis, servidos solo con excedente real después de tiendas y contratos. La producción incluye el online una sola vez; los regalos de cortesía usan el excedente restante.
+- Precio, paquetería, embalaje, comisiones, incidencias, personal y plataforma desglosados. El coste de envío por unidad es mayor que abastecer tiendas y el margen variable menor.
+- Portes incluidos o aportación del cliente de 3 € por pedido a cambio de una demanda un 18 % menor. Logística y rutas reducen la paquetería; campañas nacionales, I+D, fama y reputación atraen tráfico.
+- Plantilla de preparación real en Selaya y validación de vivienda al abrir, ampliar o reactivar. Pausado no vende ni paga cuota o nóminas de preparación.
+- Canal reconocido en informes y consejos del gestor; guardados anteriores empiezan con el online cerrado.
+
 ## 0.10.0 — Central de marketing
 
 - 22 campañas: ocho locales, ocho nacionales y seis internacionales; buscadores, redes, degustaciones, acuerdos comerciales, podcasts, prensa, patrocinios, Navidad y acciones adaptadas a otros países.

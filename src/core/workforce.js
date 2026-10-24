@@ -1,4 +1,5 @@
 import {serviceStaff} from './serviceModel.js';
+import {onlineStaff} from '../data/online.js';
 import {housingSpec} from '../data/housing.js';
 import {isOperating} from './construction.js';
 // Oferta laboral local y viviendas: funciones puras, sin caja ni simulador.
@@ -28,12 +29,13 @@ export function workforcePlan(s,city='selaya') {
  const beds=s.businesses.filter(b=>b.type==='vivienda'&&b.city===city&&isOperating(s,b)).reduce((n,b)=>n+housingBeds(b),0);
  const base=Math.round(24+16*Math.sqrt(c.pop));
  const jobs=s.businesses.filter(b=>b.city===city&&BUSINESS_TYPES[b.type].model!=='production').map(b=>({b,n:plannedStaff(b,s)}));
- const other=jobs.reduce((n,x)=>n+x.n,0);
+ const online=city==='selaya'?onlineStaff(s):0;
+ const other=jobs.reduce((n,x)=>n+x.n,0)+online;
  const service=jobs.filter(x=>BUSINESS_TYPES[x.b.type].model==='service').reduce((n,x)=>n+x.n,0);
  const installed=factoryInstalled(s,city),labor=factoryLaborFactor(s,city);
  const factory=installed>0?(city==='selaya'?3+Math.ceil(installed*labor/3000):Math.ceil(8*installed*labor/15000)):0;
  const required=other+factory,available=base+4*beds;
  const maxFactory=Math.max(0,available-other);
  const effective=Math.min(installed,Math.max(0,city==='selaya'?(maxFactory-3)*3000/labor:maxFactory*15000/(8*labor)));
- return {city,beds,base,other,service,nonService:other-service,factory,required,available,installed,effective,requiredBeds:Math.ceil(Math.max(0,required-base)/4),missingBeds:Math.ceil(Math.max(0,required-available)/4)};
+ return {city,beds,base,other,service,nonService:other-service,onlineStaff:Math.floor(online*Math.min(1,available/Math.max(1,other))),factory,required,available,installed,effective,requiredBeds:Math.ceil(Math.max(0,required-base)/4),missingBeds:Math.ceil(Math.max(0,required-available)/4)};
 }

@@ -1,6 +1,7 @@
 import {newDynasty} from './dynasty.js';
 import {LOCAL_RULES} from '../data/localEvents.js';
 import {CAMPAIGNS} from '../data/market.js';
+import {ONLINE_LEVELS,ONLINE_SHIPPING} from '../data/online.js';
 import {HOUSING_FORMS} from '../data/housing.js';
 import {isResidential} from './construction.js';
 import {execPortrait} from '../data/execs.js';
@@ -17,7 +18,7 @@ import { grossPatrimonio, computeEconomy } from './economy.js';
 export const SAVE_KEY = 'manolo-boomerez-save-v1';
 export const SAVE_VERSION = 2;
 // Versión del contenido: una semilla solo reproduce la misma partida con la misma versión.
-export const GAME_VERSION = '0.10.0';
+export const GAME_VERSION = '0.11.0';
 
 export const DIFFICULTIES = {
   cunado: {
@@ -66,6 +67,7 @@ export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal
     perks: { gestor: false, abogado: false, comunicacion: false, fundacion: false, andorra: false },
     andorraPaid: false,
     obrador: { upgrades: [], expansions: 0 },
+    online:{level:0,active:false,shipping:'incluido'},
     businesses: [],
     nextId: 1,
     trends: { smash: 1.25, empanadas: 1.0 },
@@ -214,6 +216,7 @@ export function deserialize(text) {
     if (!Object.hasOwn(POLICIES, key) || !Object.hasOwn(POLICIES[key].options, value)) invalid();
   }
   if(!['europe','classic'].includes(ready.campaign))invalid();
+  if(!Number.isInteger(ready.online.level)||!ONLINE_LEVELS[ready.online.level]||typeof ready.online.active!=='boolean'||!Object.hasOwn(ONLINE_SHIPPING,ready.online.shipping)||ready.online.level===0&&ready.online.active)invalid();
   for(const [city,terms] of Object.entries(ready.housingPolicies)) {
     if(!Object.hasOwn(CITY_BY_ID,city)||!terms||typeof terms!=='object'||Array.isArray(terms))invalid();
     for(const [key,value] of Object.entries(terms))if(!['employee','public'].includes(key)||!(key==='employee'?Object.hasOwn(POLICIES.alquiler.options,value):Object.hasOwn(PUBLIC_RENTS,value)))invalid();

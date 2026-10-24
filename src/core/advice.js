@@ -36,7 +36,8 @@ export function advice(s) {
   if (s.expedientes >= 2) out.push({ level: 'alta', text: `Llevas ${s.expedientes} expedientes penales. Uno más y vas a Soto del Real.`, tab: 'finanzas' });
 
   // Negocios que pierden dinero.
-  const losers = r.lines.filter((l) => l.id !== 'obrador' && l.type !== 'obrador_regional' && !l.franchise && l.revenue - l.cost < -1500).sort((a, b) => (a.revenue - a.cost) - (b.revenue - b.cost));
+  if(r.online?.active&&r.online.profit<0)out.push({level:'media',text:`El canal online pierde ${money(-r.online.profit)} al mes. Revisa el excedente, ajusta los portes o pausa el canal para detener su cuota y nóminas de preparación.`,tab:'mercado'});
+  const losers = r.lines.filter((l) => l.id !== 'obrador' && l.id!=='online' && l.type !== 'obrador_regional' && !l.franchise && l.revenue - l.cost < -1500).sort((a, b) => (a.revenue - a.cost) - (b.revenue - b.cost));
   if (losers.length) {
     const l = losers[0];
     out.push({ level: 'media', text: `${l.label} de ${CITY_BY_ID[l.city]?.name} pierde ${money(-(l.revenue - l.cost))} al mes${losers.length > 1 ? ` (y hay ${losers.length - 1} más en pérdidas)` : ''}. ¿Reformar, hacer campaña o vender?`, tab: 'imperio' });

@@ -1,6 +1,7 @@
 // Previsiones: «¿qué pasaría si...?» sin tocar la partida. Todo se calcula sobre copias del estado con las
 // mismas funciones del cierre de mes (computeEconomy y driftStats), así que no hay fórmulas duplicadas.
 import { computeEconomy, moralFactor, repFactor, policyFx, hasCondition } from './economy.js';
+import {applyRenovations,isOperating} from './construction.js';
 import { driftStats } from './sim.js';
 import { laborVisitParams, haciendaDebt, inspectionChance, auditChance, tickLaborHistory, recidivism, DELITO_FISCAL } from './inspections.js';
 import { clamp, unclamped } from './helpers.js';
@@ -19,6 +20,7 @@ function step(c) {
   const r = computeEconomy(c);
   c.lastReport = r;
   c.cash += r.net;
+  applyRenovations(c,r,true);
   c.evaded += r.evaded;
   const before = statsOf(c);
   driftStats(c, r);
@@ -53,7 +55,7 @@ export function horizonNet(s, mutate, months = HORIZON) {
   for (let i = 0; i < months; i++) {
     const { r } = step(c);
     total += r.net;
-    for (const b of c.businesses) if (b.mode !== 'franquicia' && hasCondition(b)) b.cond = clamp((b.cond ?? 100) + man.drift);
+    for (const b of c.businesses) if (isOperating(c,b)&&b.mode !== 'franquicia' && hasCondition(b)) b.cond = clamp((b.cond ?? 100) + man.drift);
     c.cooldowns.trabajo--;
     c.cooldowns.hacienda--;
     tickLaborHistory(c);
@@ -62,6 +64,7 @@ export function horizonNet(s, mutate, months = HORIZON) {
     const pCatch = 1 - (1 - inspectionChance(c.heatTrabajo)) ** PK.LIQ_WINDOW;
     total -= monthlySaving(c, r.employees) * PK.LIQ_K * difficultyOf(c).fines * pCatch;
     if (c.cooldowns.hacienda <= 0) total -= auditChance(c.heatHacienda) * haciendaDebt(c) * 1.2;
+    c.month++;
   }
   return total;
 }

@@ -1,4 +1,5 @@
 import {tickDynasty,beginSuccession,europeProgress,leaderAge} from './dynasty.js';
+import {applyRenovations,announceCompletions,isOperating} from './construction.js';
 import { tickInternational } from './international.js';
 // Avance mensual de la simulación y resolución de sucesos.
 import { computeEconomy, policyFx, creditLimit, patrimonio, grossPatrimonio, hasCondition } from './economy.js';
@@ -35,6 +36,7 @@ export function advanceMonth(s) {
   s.citySobaoSales = r.sobaoSales;
   tickAhorro(s, r);
   s.cash += r.net;
+  applyRenovations(s,r);
   s.evaded += r.evaded;
 
   franchiseUpdates(s, r);
@@ -76,6 +78,7 @@ export function advanceMonth(s) {
   checkClause(s);
 
   s.month++;
+  announceCompletions(s);
   s.actionUsed = false;
   // Domingo de cocido en casa de tu madre: la acción del mes ya tiene dueña.
   if (isDomingo(s)) {
@@ -129,7 +132,7 @@ export function driftStats(s, r) {
 
   const hacGain = fx.sal.hac + fx.con.hac * Math.min(3, 0.5 + r.revenue / 150000) +
     (s.businesses.some((b) => b.type === 'academy') ? 0.6 : 0) + (s.perks.andorra ? 0.8 : 0) + 0.3 * (s.lujo?.length || 0) +
-    0.5 * s.businesses.filter((b) => b.ilegal && b.type === 'airbnb').length;
+    0.5 * s.businesses.filter((b) => b.ilegal && b.type === 'airbnb'&&isOperating(s,b)).length;
   addHeatHacienda(s, hacGain * (1 - execBonus(s, 'finanzas')) + execHeat(s));
   addHeatHacienda(s, -1.2);
 
@@ -163,6 +166,7 @@ function ageAssets(s) {
   const man = policyFx(s).man;
   for (const b of s.businesses) {
     const t = BUSINESS_TYPES[b.type];
+    if(!isOperating(s,b))continue;
     if (b.mode === 'franquicia') continue;
     if (hasCondition(b)) b.cond = clamp((b.cond ?? 100) + man.drift);
     if (b.cond < 30 && !b.brokenMonth && chance(s, 0.06)) {
@@ -213,11 +217,12 @@ function rollVisits(s, r) {
   if (!striking && st.p > 0 && chance(s, st.p)) s.pending.push({ kind: 'event', id: st.card });
   for (const b of s.businesses) {
     const strict = { estricto: 1.5, laxo: 0.5 }[govFx(s).tourism] ?? 1;
+    if(!isOperating(s,b))continue;
     if (b.ilegal && b.type !== 'airbnb') b.ilegal = false; // reconvertido en vivienda: ya no es un piso turístico
     if (b.ilegal && chance(s, 0.04 * strict)) s.pending.push({ kind: 'event', id: 'piso_ilegal', params: { businessId: b.id, city: b.city } });
   }
   for (const b of s.businesses) {
-    if (b.type !== 'airbnb' || b.banned) continue;
+    if (b.type !== 'airbnb' || b.banned || !isOperating(s,b)) continue;
     const c = CITY_BY_ID[b.city];
     if (c.tourism < 0.75) continue;
     if (c.touristLicense && !b.ilegal) continue; // con licencia pagada, la moratoria no les afecta

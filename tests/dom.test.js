@@ -178,10 +178,12 @@ test('DOM: los acuerdos muestran céntimos en precio y transporte por unidad', (
 
 
 test('DOM 0.6: Plantilla ofrece comprar viviendas directamente',()=>{
- const s=newGame(42);resolvePending(s,0);s.cash=1e6;
+ const s=newGame(42);resolvePending(s,0);s.cash=1e8;
  const el=document.createElement('div');el.innerHTML=renderStaff(s);
  const button=el.querySelector('[data-act="housing-open"][data-city="selaya"]');
- assert(button&&!button.disabled);assert(button.textContent.includes('Comprar viviendas'));
+ assert(button&&!button.disabled);assert(button.textContent.includes('Construir'));
+ assertEq(el.querySelectorAll('[data-act="housing-open"][data-city="selaya"]').length,2);
+ assert(el.textContent.includes('25 apartamentos'));assert(el.textContent.includes('10 chalets'));
 });
 
 test('DOM 0.6: el mapa no intenta animar beneficios fuera de España',()=>{
@@ -199,4 +201,14 @@ test('DOM: vivienda muestra dos tarifas por ciudad y beneficio asistencial exige
  assert(el.querySelector('[name="pol-residencia"][value="descuento"]').disabled);
  s.businesses.push({id:2,type:'residencia',city:'madrid',mode:'propia',level:1,value:1e6});
  el.innerHTML=renderStaff(s);assert(!el.querySelector('[name="pol-residencia"][value="descuento"]').disabled);
+});
+
+test('DOM: las obras muestran plazo, bloquean reforma y se entregan con su capacidad',()=>{
+ const s=newGame(42);resolvePending(s,0);s.cash=1e8;
+ s.businesses.push({id:1,type:'vivienda',housingForm:'apartamentos',city:'selaya',mode:'propia',level:1,value:1e6,readyMonth:12,renewalMonth:192});
+ const el=document.createElement('div');el.innerHTML=renderCity(s,'selaya');
+ assert(el.textContent.includes('En construcción: quedan 12 meses'));
+ assert(el.querySelector('[data-act="upgrade-biz"][data-id="1"]').disabled);
+ s.month=12;el.innerHTML=renderStaff(s);assert(el.textContent.includes('25 viviendas disponibles'));
+ assert(el.textContent.includes('renovación en 180 meses'));
 });

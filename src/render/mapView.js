@@ -3,6 +3,7 @@ import { WORLD, project } from './projection.js';
 import { SPAIN, PORTUGAL, FRANCE, BALEARES, CANARIAS, CANARIAS_BOX } from '../data/geo.js';
 import { CITIES } from '../data/cities.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
+import {businessSprite} from '../core/construction.js';
 import { getImage, hasArt } from './assets.js';
 import { moneyShort } from '../core/helpers.js';
 import { RIVALS } from '../data/rivals.js';
@@ -473,7 +474,7 @@ export class MapView {
       }
       list.slice(0, SLOTS.length).forEach((b, i) => {
         const slot = SLOTS[(i + (c.hq ? 1 : 0)) % SLOTS.length];
-        items.push({ sprite: BUSINESS_TYPES[b.type].sprite, dx: slot[0], dy: slot[1], size: BUILDING_SIZE, franchise: b.mode === 'franquicia' });
+          items.push({ sprite: businessSprite(b), dx: slot[0], dy: slot[1], size: BUILDING_SIZE, franchise: b.mode === 'franquicia' });
       });
       items.sort((a, b) => a.dy - b.dy);
       for (const it of items) {

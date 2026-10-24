@@ -1,4 +1,5 @@
 import {workforcePlan} from './workforce.js';
+import {isOperating} from './construction.js';
 // Marketing, I+D y reformas de negocios.
 import { CAMPAIGNS, PRODUCTS, UPGRADE_COST, MAX_LEVEL, LEVEL_BONUS } from '../data/market.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
@@ -101,7 +102,7 @@ export function productFactor(s, type, category, city, month) {
 export const levelFactor = (b) => 1 + LEVEL_BONUS * ((b.level || 1) - 1);
 
 export function upgradeEffect(b) {
-  return { obrador_regional: '+5.250 uds/mes de capacidad instalada', vivienda: '+5 plazas', airbnb: '+2 pisos turísticos', residencia: '+10 plazas' }[b.type] || `+${Math.round(LEVEL_BONUS * 100)} % de clientela`;
+  return { obrador_regional: '+5.250 uds/mes de capacidad instalada', vivienda: b.housingForm&&b.housingForm!=='legacy'?'+3 % de renta y mejor calidad':'+5 plazas', airbnb: '+2 pisos turísticos', residencia: '+10 plazas' }[b.type] || `+${Math.round(LEVEL_BONUS * 100)} % de clientela`;
 }
 
 export function upgradeCost(b) {
@@ -113,6 +114,7 @@ export function upgradeCost(b) {
 export function upgradeBusiness(s, id) {
   const b = s.businesses.find((x) => x.id === id);
   if (!b) return { ok: false, msg: 'No existe.' };
+  if(!isOperating(s,b))return {ok:false,msg:'La construcción debe terminar antes de reformar.'};
   const cost = upgradeCost(b);
   if (cost == null) return { ok: false, msg: b.mode === 'franquicia' ? 'Las franquicias las reforma el franquiciado (o nadie).' : 'Ya está al máximo.' };
   if (s.cash < cost) return { ok: false, msg: `Necesitas ${money(cost)}.` };

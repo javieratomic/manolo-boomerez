@@ -1,4 +1,6 @@
 import {serviceRevenue,serviceStaff} from './serviceModel.js';
+import {isOperating,isResidential,renewalDue,renovationCost,businessName} from './construction.js';
+import {housingSpec} from '../data/housing.js';
 import {businessSynergies} from './synergies.js';
 import {housingTerms} from './housing.js';
 import {workforcePlan,factoryLaborFactor,plannedStaff} from './workforce.js';
@@ -87,11 +89,11 @@ export function bizMult(s, b, category, city, month) {
     (b.mode === 'franquicia' ? 1 : conditionFactor(b)) * businessSynergies(s,b).factor;
 }
 
-export const hasCondition = (b) => b.mode !== 'franquicia' && BUSINESS_TYPES[b.type].model !== 'production';
+export const hasCondition = (b) => b.mode !== 'franquicia' && BUSINESS_TYPES[b.type].model !== 'production'&&!isResidential(b);
 
 export function maintenanceCost(s) {
   const pct = policyFx(s).man.costPct;
-  return s.businesses.reduce((a, b) => a + (hasCondition(b) ? (b.value || 0) * pct : 0), 0);
+  return s.businesses.reduce((a, b) => a + (isOperating(s,b)&&hasCondition(b) ? (b.value || 0) * pct : 0), 0);
 }
 
 // Todo lo que vale la empresa (y los caprichos de Manolo), antes de descontar a los accionistas.
@@ -107,8 +109,9 @@ export function grossPatrimonio(s) {
 // Lo que es de Manolo: si cotiza en Bolsa, descuenta la parte de los accionistas.
 // Oficinas centrales, gestorías y abogados: crece más deprisa que el número de negocios.
 export function structureCost(s) {
-  const n = s.businesses.filter((b) => b.mode !== 'franquicia').length + 0.3 * s.businesses.filter((b) => b.mode === 'franquicia').length;
-  return Math.round(STRUCTURE_BASE * Math.pow(n, STRUCTURE_EXP) * (1 - 2 * execBonus(s, 'operaciones')) * researchFactor(s,'structureFactor') * (1-Math.min(0.18,0.03*s.businesses.filter(b=>b.type==='telecom'&&b.mode!=='franquicia').length)));
+  const active=s.businesses.filter(b=>isOperating(s,b));
+  const n = active.filter((b) => b.mode !== 'franquicia').length + 0.3 * active.filter((b) => b.mode === 'franquicia').length;
+  return Math.round(STRUCTURE_BASE * Math.pow(n, STRUCTURE_EXP) * (1 - 2 * execBonus(s, 'operaciones')) * researchFactor(s,'structureFactor') * (1-Math.min(0.18,0.03*active.filter(b=>b.type==='telecom'&&b.mode!=='franquicia').length)));
 }
 
 // Cotizando, tu parte vale lo que diga el mercado: el sentimiento (0,85-1,05) de la promesa del trimestre.
@@ -122,6 +125,7 @@ export function creditLimit(s) {
 }
 
 export function computeEconomy(s) {
+  const businesses=s.businesses.filter(b=>isOperating(s,b));
   const fx = policyFx(s);
   const workforceCache=new Map();
   const localPlan=city=>{if(!workforceCache.has(city))workforceCache.set(city,workforcePlan(s,city));return workforceCache.get(city);};
@@ -138,14 +142,14 @@ export function computeEconomy(s) {
 
   // Saturación: nº de negocios del mismo tipo por ciudad.
   const counts = {};
-  for (const b of s.businesses) {
+  for (const b of businesses) {
     const k = `${b.city}:${b.type}`;
     counts[k] = (counts[k] || 0) + 1;
   }
   const sat = (b) => 1 / (1 + (0.5 / (0.75 + CITY_BY_ID[b.city].pop)) * ((counts[`${b.city}:${b.type}`] || 1) - 1));
 
   const lines = [];
-  const costs = { salarios: 0, directivos: 0, estructura: 0, mantenimiento: 0, alquileres: 0, materias: 0, transporte: 0, otros: 0, intereses: 0, asesores: 0, personales: 0, reparto: 0, impuestos: 0 };
+  const costs = { salarios: 0, directivos: 0, estructura: 0, mantenimiento: 0, renovaciones:0, alquileres: 0, materias: 0, transporte: 0, otros: 0, intereses: 0, asesores: 0, personales: 0, reparto: 0, impuestos: 0 };
   const revenueByCat = { sobaos: 0, inmobiliario: 0, hosteleria: 0, formacion: 0, servicios: 0, produccion: 0, finanzas:0, infraestructura:0, logistica:0 };
   let employees = 0;
 
@@ -157,7 +161,7 @@ export function computeEconomy(s) {
 
   const staffFor=b=>{const p=localPlan(b.city);return Math.floor(plannedStaff(b,s)*Math.min(1,p.available/Math.max(1,p.other)));};
   const sobaoEntries = [];
-  for (const b of s.businesses) {
+  for (const b of businesses) {
     const t = BUSINESS_TYPES[b.type];
     if (t.category !== 'sobaos') continue;
     const c = CITY_BY_ID[b.city];
@@ -178,7 +182,7 @@ export function computeEconomy(s) {
   const totalDemand = shopUnits + wholesaleUnits + contractUnits + foreignDemand(s) + sobaoEntries.reduce((a, e) => a + e.demand, 0);
   const fill = totalDemand > 0 ? Math.min(1, capacity / totalDemand) : 1;
   // El regalo usa solo excedente: nunca compite con tiendas o contratos. No es demanda obligatoria.
-  const bonusEligible = s.businesses.filter(b => ['service', 'care'].includes(BUSINESS_TYPES[b.type].model) || ['academy', 'airbnb'].includes(b.type));
+  const bonusEligible = businesses.filter(b => ['service', 'care'].includes(BUSINESS_TYPES[b.type].model) || ['academy', 'airbnb'].includes(b.type));
   const bonusUnits = Math.min(Math.max(0, capacity - totalDemand), bonusEligible.length * 250);
   const bonusPerBusiness = bonusEligible.length ? bonusUnits / bonusEligible.length : 0;
   const surplusBonus = 0.05 * bonusPerBusiness / 250;
@@ -242,7 +246,7 @@ export function computeEconomy(s) {
 
   // --- Resto de negocios -----------------------------------------------------
   const viviendas = [];
-  for (const b of s.businesses) {
+  for (const b of businesses) {
     const t = BUSINESS_TYPES[b.type];
     if (t.category === 'sobaos') continue;
     const c = CITY_BY_ID[b.city];
@@ -301,7 +305,7 @@ export function computeEconomy(s) {
       const wages=lineStaff*wage;
       costs.salarios+=wages;costs.otros+=t.upkeep;cost=wages+t.upkeep;employees+=lineStaff;
     } else if (b.type === 'academy') {
-      revenue = (1500 + 3.5 * s.fama * s.fama) * (1+0.22*Math.sqrt(s.businesses.filter(x=>x.id!==b.id).reduce((n,x)=>n+(x.mode==='franquicia'?0.5:1),0))) * (0.6 + 0.4 * repF) * bizMult(s, b, 'formacion', c, m);
+      revenue = (1500 + 3.5 * s.fama * s.fama) * (1+0.22*Math.sqrt(businesses.filter(x=>x.id!==b.id).reduce((n,x)=>n+(x.mode==='franquicia'?0.5:1),0))) * (0.6 + 0.4 * repF) * bizMult(s, b, 'formacion', c, m);
       revenue*=lineStaff/Math.max(1,plannedStaff(b,s));
       const wages = lineStaff * wage;
       const rent = t.rentBase * c.rent;
@@ -327,7 +331,7 @@ export function computeEconomy(s) {
   }
 
   // --- Viviendas para la plantilla (dependen del nº de empleados) ------------
-  const bedsOf = (b) => BUSINESS_TYPES.vivienda.beds + 5 * ((b.level || 1) - 1);
+  const bedsOf = (b) => housingSpec(b).units;
   const beds = viviendas.reduce((a, b) => a + bedsOf(b), 0);
   const localEmployees = {};
   for (const l of lines) localEmployees[l.city] = (localEmployees[l.city] || 0) + l.staff;
@@ -344,14 +348,15 @@ export function computeEconomy(s) {
     available[b.city] -= employeeOccupied;
     const publicOccupied=Math.min(bedsOf(b)-employeeOccupied,publicAvailable[b.city]||0);
     publicAvailable[b.city]-=publicOccupied;publicHoused+=publicOccupied;
-    housingMoral+=terms.moral*employeeOccupied/Math.max(1,employees);
+    const spec=housingSpec(b);
+    housingMoral+=(terms.moral+spec.moral)*employeeOccupied/Math.max(1,employees);
     housingInsp+=terms.insp*employeeOccupied/Math.max(1,employees);
     const occ=employeeOccupied+publicOccupied;
-    const revenue = (employeeOccupied*terms.employeeRent+publicOccupied*terms.publicRent) * conditionFactor(b);
-    const cost = BUSINESS_TYPES.vivienda.upkeep;
+    const revenue = (employeeOccupied*terms.employeeRent+publicOccupied*terms.publicRent) * spec.rentFactor * conditionFactor(b);
+    const cost = spec.upkeep;
     costs.otros += cost;
     revenueByCat.inmobiliario += revenue;
-    lines.push({ id: b.id, type: b.type, city: b.city, label: BUSINESS_TYPES.vivienda.name, revenue, cost, staff: 0, occupied: occ, employeeOccupied,publicOccupied,employeeRent:terms.employeeRent,publicRent:terms.publicRent });
+    lines.push({ id: b.id, type: b.type, city: b.city, label: businessName(b), revenue, cost, staff: 0, occupied: occ, employeeOccupied,publicOccupied,employeeRent:terms.employeeRent*spec.rentFactor,publicRent:terms.publicRent*spec.rentFactor });
   }
 
   const residenceBenefit={beneficiaries:0,discount:0,moral:0};
@@ -376,9 +381,11 @@ export function computeEconomy(s) {
   costs.estructura = structureCost(s);
   costs.personales = lujoUpkeep(s);
   costs.mantenimiento = maintenanceCost(s);
+  const renovations=businesses.filter(b=>renewalDue(s,b)).map(b=>({id:b.id,cost:renovationCost(b)}));
+  for(const x of renovations){costs.renovaciones+=x.cost;const l=lines.find(l=>l.id===x.id);if(l)l.cost+=x.cost;}
 
   const revenue = Object.values(revenueByCat).reduce((a, b) => a + b, 0);
-  let totalCost = costs.salarios + costs.directivos + costs.alquileres + costs.materias + costs.otros + costs.intereses + costs.asesores + costs.personales + costs.estructura + costs.transporte + costs.mantenimiento;
+  let totalCost = costs.salarios + costs.directivos + costs.alquileres + costs.materias + costs.otros + costs.intereses + costs.asesores + costs.personales + costs.estructura + costs.transporte + costs.mantenimiento + costs.renovaciones;
   // Reparto con la plantilla: un porcentaje del beneficio antes de impuestos (deducible).
   costs.reparto = Math.max(0, revenue - totalCost) * (fx.rep?.share || 0);
   totalCost += costs.reparto;
@@ -415,7 +422,7 @@ export function computeEconomy(s) {
     employees, housed, beds, control,publicHoused,housingMoral,housingInsp,residenceBenefit,
     capacity, totalDemand, produced, fill, surplusBonus, bonusUnits,
     sobaoSales: Object.fromEntries([...new Set(['selaya',...sobaoEntries.map(e=>e.b.city)])].map(city=>[city,(city==='selaya'?shopUnits*fill:0)+sobaoEntries.filter(e=>e.b.city===city).reduce((n,e)=>n+e.demand*fill,0)])),
-    lines,
+    lines,renovations,
   };
 }
 
@@ -423,7 +430,7 @@ export function computeEconomy(s) {
 export function estimateOpening(s, typeId, cityId, mode = 'propia') {
   const base = computeEconomy(s);
   // Sin clonar (el clon era casi todo el coste del bot): un negocio de prueba que se quita siempre.
-  const tmp = { id: -1, type: typeId, city: cityId, mode, value: 0, level: 1 };
+  const tmp = { id: -1, type: typeId, city: cityId, mode, value: 0, level: 1, ...(typeId==='vivienda'?{housingForm:'apartamentos'}:{}) };
   s.businesses.push(tmp);
   try {
     const after = computeEconomy(s);

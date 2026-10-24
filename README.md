@@ -45,7 +45,9 @@ pellizco para el zoom (en el móvil, tocar dos ciudades juntas acerca el mapa) �
 | Equipo | 5 puestos directivos con candidatos que tienen nivel y manías |
 | Vida | Caprichos, familia, sucesión y salida a Bolsa a partir de una valoración de 1.000 M€ |
 | Sinergias | Academy y coworking locales +15 %; vender sobaos aumenta la demanda local de gimnasio el mes siguiente (hasta +35 %) |
-| Vivienda y beneficios | Empleados prioritarios y vacantes para el público, tarifas separadas por ciudad en Plantilla; descuento asistencial del 20 % para familiares con plazas reales |
+| Vivienda y beneficios | Edificios de 25 apartamentos o urbanizaciones de 10 chalets, empleados prioritarios y vacantes para el público, tarifas por ciudad y beneficio asistencial |
+| Construcción | Viviendas y turísticos en 12 meses; nuevos obradores y Telecom en seis. Sin actividad mientras están en obras |
+| Ciclo inmobiliario | Inversión inicial mayor, mantenimiento mensual reducido y renovación del 20 % del coste de reposición cada 15 años, con aviso anticipado |
 | Logística | Transporte por kilómetro desde el obrador más cercano, obradores regionales, licencias de pisos turísticos |
 | Rejugabilidad | Cláusula del testamento (reto opcional por partida), semilla compartible y reto de la semana, balance anual, salón de la fama, logros entre partidas y modo infinito |
 | Información | Previsión de cada política (mes que viene y 6 meses), «¿Por qué?» en cada indicador y parte del mes |

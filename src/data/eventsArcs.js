@@ -15,7 +15,7 @@ import {
 } from '../core/helpers.js';
 
 const employees = (s) => s.lastReport?.employees ?? 10;
-const has = (s, type) => s.businesses.some((b) => b.type === type);
+const has = (s, type) => s.businesses.some((b) => b.type === type&&(b.readyMonth==null||s.month>=b.readyMonth));
 const fine = (s, amount) => {
   addCash(s, -amount);
   s.stats.multas += amount;

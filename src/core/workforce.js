@@ -1,13 +1,16 @@
 import {serviceStaff} from './serviceModel.js';
+import {housingSpec} from '../data/housing.js';
+import {isOperating} from './construction.js';
 // Oferta laboral local y viviendas: funciones puras, sin caja ni simulador.
 import {BUSINESS_TYPES,OBRADOR_BASE,OBRADOR_UPGRADES} from '../data/businesses.js';
 import {CITY_BY_ID} from '../data/cities.js';
 import {researchFactor} from '../data/market.js';
 import {execBonus} from './execs.js';
 
-export const housingBeds = b => BUSINESS_TYPES.vivienda.beds + 5*((b.level||1)-1);
+export const housingBeds = b => housingSpec(b).units;
 export const plannedStaff = (b,s) => {
  const t=BUSINESS_TYPES[b.type];
+ if(s&&!isOperating(s,b))return 0;
  if(b.mode==='franquicia'||b.type==='vivienda')return 0;
  if(t.model==='service'&&s)return serviceStaff(s,b);
  if(t.model==='care')return Math.ceil(t.staff*(1+10*((b.level||1)-1)/t.beds));
@@ -16,13 +19,13 @@ export const plannedStaff = (b,s) => {
 export function factoryInstalled(s,city='selaya') {
  let units=0;
  if(city==='selaya')units=OBRADOR_BASE.capacity+25000*(s.obrador.expansions||0)+s.obrador.upgrades.reduce((n,id)=>n+(OBRADOR_UPGRADES.find(u=>u.id===id)?.capacity||0),0);
- else units=s.businesses.filter(b=>b.type==='obrador_regional'&&b.city===city).reduce((n,b)=>n+15000*(1+0.35*((b.level||1)-1)),0);
+ else units=s.businesses.filter(b=>b.type==='obrador_regional'&&b.city===city&&isOperating(s,b)).reduce((n,b)=>n+15000*(1+0.35*((b.level||1)-1)),0);
  return units*researchFactor(s,'production')*(1+execBonus(s,'operaciones'));
 }
 export const factoryLaborFactor = (s,city='selaya') => researchFactor(s,'laborFactor')*(city==='selaya'&&s.obrador.upgrades.includes('robot')?0.85:1);
 export function workforcePlan(s,city='selaya') {
  const c=CITY_BY_ID[city];
- const beds=s.businesses.filter(b=>b.type==='vivienda'&&b.city===city).reduce((n,b)=>n+housingBeds(b),0);
+ const beds=s.businesses.filter(b=>b.type==='vivienda'&&b.city===city&&isOperating(s,b)).reduce((n,b)=>n+housingBeds(b),0);
  const base=Math.round(24+16*Math.sqrt(c.pop));
  const jobs=s.businesses.filter(b=>b.city===city&&BUSINESS_TYPES[b.type].model!=='production').map(b=>({b,n:plannedStaff(b,s)}));
  const other=jobs.reduce((n,x)=>n+x.n,0);

@@ -1,4 +1,6 @@
 import {workforcePlan} from './workforce.js';
+import {HOUSING_FORMS} from '../data/housing.js';
+import {buildMonths,businessName} from './construction.js';
 // Acciones del jugador durante el mes (todas validan y devuelven { ok, msg }).
 import { BUSINESS_TYPES, OBRADOR_UPGRADES, PERKS, SOBAO_TYPE_BY_BRAND, expansionUpgrade } from '../data/businesses.js';
 import { CITY_BY_ID } from '../data/cities.js';
@@ -28,24 +30,26 @@ export function sobaoTypeId(s) {
 // Pisos turísticos: en las ciudades saturadas hay que comprar licencia (o arriesgarse sin ella).
 export const needsLicense = (typeId, cityId) => !!(BUSINESS_TYPES[typeId]?.license && CITY_BY_ID[cityId]?.touristLicense);
 
-export function openingCost(s, typeId, mode = 'propia', cityId = null) {
+export function openingCost(s, typeId, mode = 'propia', cityId = null, housingForm='apartamentos') {
   const t = BUSINESS_TYPES[typeId];
   if (mode === 'franquicia') return 0;
   const license = mode === 'propia' && needsLicense(typeId, cityId) ? t.license : 0;
   const rent = CITY_BY_ID[cityId]?.rent ?? 0.9;
   const location = t.realEstate ? 0.25 + rent / 1.2 : 0.55 + 0.5 * rent;
   const cousin=typeId==='empanadas'&&s.flags.primoSocio&&!s.flags.empanadaFirstUsed&&!s.businesses.some(b=>b.type==='empanadas')?0.7:1;
-  return Math.round(t.cost * location * (1 - (s.discountNext || 0)) * (1 - execBonus(s, 'expansion')) * cousin + license);
+  const cost=typeId==='vivienda'?(HOUSING_FORMS[housingForm]?.cost??t.cost):t.cost;
+  return Math.round(cost * location * (1 - (s.discountNext || 0)) * (1 - execBonus(s, 'expansion')) * cousin + license);
 }
 
 export function franchiseFee(s, typeId) {
   return Math.round(BUSINESS_TYPES[typeId].franchiseFee * (1 + 0.1 * execSkill(s, 'expansion')));
 }
 
-export function canOpen(s, typeId, cityId, mode = 'propia') {
+export function canOpen(s, typeId, cityId, mode = 'propia', housingForm='apartamentos') {
   const t = BUSINESS_TYPES[typeId];
   const c = CITY_BY_ID[cityId];
   if (!t || !c) return { ok: false, msg: 'Negocio o ciudad desconocidos.' };
+  if(typeId==='vivienda'&&!['apartamentos','chalets'].includes(housingForm))return {ok:false,msg:'Promoción residencial desconocida.'};
   if(typeId==='empanadas'&&!s.flags.primoSocio)return {ok:false,msg:'Necesitas asociarte con Rodrigo cuando aparezca el primo argentino.'};
   if(c.foreign) {
     if(!(s.products||[]).includes('expansion_propia'))return {ok:false,msg:'Investiga Despliegue comercial internacional en Mercado.'};
@@ -65,17 +69,21 @@ export function canOpen(s, typeId, cityId, mode = 'propia') {
     let plan;try{plan=workforcePlan(s,cityId);}finally{s.businesses.splice(s.businesses.indexOf(tmp),1);}
     if(plan.missingBeds>0)return {ok:false,msg:`Faltan ${plan.missingBeds} plazas de vivienda para contratar en ${c.name}. Cómpralas desde Plantilla.`};
   }
-  const cost = openingCost(s, typeId, mode, cityId);
+  const cost = openingCost(s, typeId, mode, cityId,housingForm);
   if (cost > s.cash) return { ok: false, msg: `Necesitas ${money(cost)} en caja.` };
   return { ok: true, cost };
 }
 
-export function openBusiness(s, typeId, cityId, mode = 'propia') {
-  const check = canOpen(s, typeId, cityId, mode);
+export function openBusiness(s, typeId, cityId, mode = 'propia',housingForm='apartamentos') {
+  const check = canOpen(s, typeId, cityId, mode,housingForm);
   if (!check.ok) return check;
   const t = BUSINESS_TYPES[typeId];
   const c = CITY_BY_ID[cityId];
   const b = { id: s.nextId++, type: typeId, city: cityId, mode, openedMonth: s.month, value: 0, lossMonths: 0, level: 1 };
+  if(typeId==='vivienda')b.housingForm=housingForm;
+  const wait=buildMonths(typeId);
+  if(wait){b.readyMonth=s.month+wait;b.delivered=false;}
+  if(['vivienda','airbnb'].includes(typeId))b.renewalMonth=b.readyMonth+180;
   if (mode === 'franquicia') {
     const fee = franchiseFee(s, typeId);
     b.fee = fee;
@@ -91,7 +99,7 @@ export function openBusiness(s, typeId, cityId, mode = 'propia') {
       log(s, `🙈 Los pisos de ${c.name} funcionan sin licencia turística. "Son de alquiler de temporada", dices.`, 'bad');
     }
     s.discountNext = 0;
-    log(s, `🏗️ Abres ${t.name} en ${c.name}.`, 'good');
+    log(s, wait?`🏗️ Empieza la obra de ${businessName(b)} en ${c.name}. Entrega en ${wait} meses.`:`🏗️ Abres ${t.name} en ${c.name}.`, 'good');
   }
   s.businesses.push(b);
   if(typeId==='empanadas')s.flags.empanadaFirstUsed=true;

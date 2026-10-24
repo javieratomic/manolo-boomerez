@@ -1,6 +1,8 @@
 // Tarifas por plaza residencial, con prioridad de acceso para empleados locales.
 import {CITY_BY_ID} from '../data/cities.js';
 import {POLICIES} from '../data/policies.js';
+import {isOperating} from './construction.js';
+import {housingSpec} from '../data/housing.js';
 
 export const PUBLIC_RENTS={
  cerrado:{label:'Solo empleados',factor:0,demand:0},
@@ -23,7 +25,7 @@ export function setHousingPolicy(s,city,group,value) {
 }
 
 export const hasAbusiveHousing=s=>s.businesses.some(b=>{
- if(b.type!=='vivienda'||housingTerms(s,b.city).employee!=='abusivo')return false;
+ if(b.type!=='vivienda'||!isOperating(s,b)||housingTerms(s,b.city).employee!=='abusivo')return false;
  const lines=s.lastReport?.lines||[];
  const local=lines.find(l=>l.id===b.id&&l.type==='vivienda');
  if(typeof local?.employeeOccupied==='number')return local.employeeOccupied>0;
@@ -31,12 +33,12 @@ export const hasAbusiveHousing=s=>s.businesses.some(b=>{
 });
 export function housingLaborSeverity(s) {
  const r=s.lastReport;
- const homes=s.businesses.filter(b=>b.type==='vivienda');
+ const homes=s.businesses.filter(b=>b.type==='vivienda'&&isOperating(s,b));
  if(!homes.length||!r?.control)return 0;
  const rate=city=>({social:0,mercado:0.2,abusivo:1.5})[housingTerms(s,city).employee];
  const lines=(r.lines||[]).filter(l=>l.type==='vivienda'&&typeof l.employeeOccupied==='number');
  if(lines.length)return lines.reduce((n,l)=>n+(homes.some(b=>b.id===l.id)?rate(l.city)*l.employeeOccupied:0),0)/Math.max(1,r.employees);
  // Informes de partidas antiguas sin desglose: reparto por plazas, manteniendo su control.
- const beds=b=>10+5*((b.level||1)-1),total=homes.reduce((n,b)=>n+beds(b),0);
+ const beds=b=>housingSpec(b).units,total=homes.reduce((n,b)=>n+beds(b),0);
  return homes.reduce((n,b)=>n+rate(b.city)*beds(b),0)/total*r.control;
 }

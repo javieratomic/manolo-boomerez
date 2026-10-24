@@ -1,3 +1,19 @@
+# Continuación 0.8.0 — Promociones y obras (25-10-2026)
+
+Petición completa implementada, con equilibrio delegado por el usuario:
+- `vivienda` conserva id y añade `housingForm`: apartamentos (25, coste base2M€, mantenimiento100€/mes, moral+1) o chalets (10,3M€,200€/mes,moral+3,rentas×1,5). Nuevas promociones mantienen unidades fijas; reformas mejoran renta. Antiguas: legacy y capacidad histórica por niveles.
+- Turismo sube a1,2M€ base y baja mantenimiento a200€/mes. Viviendas/turísticos no pagan además el mantenimiento porcentual genérico.
+- `readyMonth`: viviendas y turismo12meses; obradores regionales y Telecom6. Obras sin ingresos, personal, oferta laboral, producción, descuento de transporte ni bonus Telecom hasta entrega; se mantiene su inversión patrimonial. Reformas bloqueadas durante obras. La meta europea solo cuenta sectores/países entregados.
+- `renewalMonth`:180meses desde entrega, renovación automática del20% del coste de reposición local. En economía/informe, cobro una sola vez por simulación y previsión; restauración de condición y siguiente plazo. Inmuebles previos conservan actividad/capacidad, con primera renovación180meses desde migración. OPA compra edificios ya terminados, con renovación programada.
+- Ciudad/Plantilla: ambos proyectos, precios y mantenimiento, moral, tiempo de entrega y renovación estimada; parte mensual avisa renovación12meses antes y entregas próximas. Tarifas base por vivienda y multiplicador de chalet explicados.
+- Nuevo sprite `bld_urbanizacion`, diez chalets,256×256 transparente,79.792bytes. Catálogo198done/62requested/1blocked. Commit arte `18a1950`.
+
+Verificación final: **243/243 Node y14/14 DOM**. Edge1365×900 y375×812: botones de ambas promociones, recarga, mes6 con0viviendas y mes12 con35, tarifas y sprite, sin errores/desbordamiento. Tres simulaciones de240meses con caja alta para aislar ciclo inmobiliario:720guardados/cargas conservan neto y RNG,6renovaciones cobradas, sin final inesperado. Sintaxis y checker de arte correctos. Revisión independiente, dos fallos prematuros de Airbnb detectados y corregidos con regresión; cierre sin hallazgos importantes. Build, smoke desempaquetado y portable0.8.0 correctos.
+
+Ejecutable: `desktop/dist/ManoloBoomerez-0.8.0-portable.exe`. Sin push ni cierre del juego abierto del usuario. Plan/registro: `docs/superpowers/plans/2026-10-24-construccion-inmuebles.md`. Las pruebas históricas ajenas a plazos usan fixtures de edificios ya entregados; las nuevas y la simulación usan construcción real. Dos presupuestos de tests se ajustaron a precios nuevos.
+
+---
+
 # Continuación 0.7.0 — Sinergias y alquileres (24-10-2026)
 
 Implementada la petición completa, con detalles de equilibrio delegados por el usuario:

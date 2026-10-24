@@ -2,7 +2,8 @@ import {test,assert,assertEq} from './runner.js';
 import {newGame,serialize,deserialize} from '../src/core/state.js';
 import {resolvePending,advanceMonth} from '../src/core/sim.js';
 import {canIPO,doIPO,companyValuation} from '../src/core/life.js';
-import {canOpen,openBusiness,sellBusiness,openingCost,checkUnlocks,setPolicy} from '../src/core/actions.js';
+import {canOpen,sellBusiness,openingCost,checkUnlocks,setPolicy} from '../src/core/actions.js';
+import {openBusiness} from './fixtures.js';
 import {computeEconomy,grossPatrimonio} from '../src/core/economy.js';
 import {EVENT_BY_ID} from '../src/data/events.js';
 import {driftStats} from '../src/core/sim.js';
@@ -76,7 +77,7 @@ test('Viviendas: varios edificios comparten demanda pública y solo residentes e
  const base=computeEconomy(s),a=structuredClone(s);driftStats(a,base);
  s.housingPolicies.selaya.public='premium';const r=computeEconomy(s),b=structuredClone(s);driftStats(b,r);
  assert(r.lines.filter(x=>x.type==='vivienda').reduce((n,l)=>n+l.publicOccupied,0)<base.beds-base.housed,'Demanda limitada, no ocupación infinita');
- assertEq(a.moral,b.moral);assertEq(a.heatTrabajo,b.heatTrabajo);assertEq(base.control,r.control);
+ assertEq(base.housingMoral,r.housingMoral);assertEq(base.housingInsp,r.housingInsp);assertEq(base.control,r.control);
 });
 
 test('Residencia: beneficio real limitado a plazas ocupadas y plantilla local, coste y moral visibles',()=>{

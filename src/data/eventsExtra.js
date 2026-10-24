@@ -9,8 +9,8 @@ import {
 } from '../core/helpers.js';
 
 const employees = (s) => s.lastReport?.employees ?? 10;
-const has = (s, type) => s.businesses.some((b) => b.type === type);
-const count = (s, type) => s.businesses.filter((b) => b.type === type).length;
+const has = (s, type) => s.businesses.some((b) => b.type === type&&(b.readyMonth==null||s.month>=b.readyMonth));
+const count = (s, type) => s.businesses.filter((b) => b.type === type&&(b.readyMonth==null||s.month>=b.readyMonth)).length;
 const ownCount = (s, type) => s.businesses.filter((b) => b.type === type && b.mode !== 'franquicia').length;
 const moy = (s) => s.month % 12;
 const fine = (s, amount) => {
@@ -23,7 +23,7 @@ const addFamilia = (s, d) => {
 
 // Inmueble que le interesa al fondo de inversión (primero los turísticos; nunca uno que ya le hayas vendido).
 const fondoTarget = (s) => {
-  const ok = (b, type) => b.type === type && b.mode !== 'franquicia' && !b.leased && b.value > 0;
+  const ok = (b, type) => b.type === type && b.mode !== 'franquicia' && !b.leased && b.value > 0&&(b.readyMonth==null||s.month>=b.readyMonth);
   return s.businesses.find((b) => ok(b, 'airbnb')) || s.businesses.find((b) => ok(b, 'vivienda')) || null;
 };
 const fondoOffer = (b) => Math.round((b?.value ?? 0) * 1.35);

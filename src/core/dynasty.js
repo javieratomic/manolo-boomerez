@@ -1,5 +1,6 @@
 // Continuidad generacional de la campaña europea; no reinicia el estado empresarial.
 import {CITY_BY_ID} from '../data/cities.js';
+import {isOperating} from './construction.js';
 import {log,addRep,addMoral} from './helpers.js';
 import {chance} from './rng.js';
 
@@ -55,7 +56,7 @@ export function succeed(s,key='designado') {
 }
 export function europeProgress(s,wealth=0) {
  const countries=new Set(['es']);
- for(const b of s.businesses)if(b.mode!=='franquicia'){const c=CITY_BY_ID[b.city];if(c&&!c.foreign) countries.add('es');else if(c?.europe)countries.add(c.country);}
- const sectors=['banca','telecom','logistica'].filter(type=>s.businesses.some(b=>b.type===type&&b.mode!=='franquicia'));
+ for(const b of s.businesses)if(b.mode!=='franquicia'&&isOperating(s,b)){const c=CITY_BY_ID[b.city];if(c&&!c.foreign) countries.add('es');else if(c?.europe)countries.add(c.country);}
+ const sectors=['banca','telecom','logistica'].filter(type=>s.businesses.some(b=>b.type===type&&b.mode!=='franquicia'&&isOperating(s,b)));
  return {countries:countries.size,targetCountries:8,wealth,targetWealth:1e9,sectors:sectors.length,targetSectors:3,complete:wealth>=1e9&&countries.size>=8&&sectors.length===3};
 }

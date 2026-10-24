@@ -1,4 +1,6 @@
 import {workforcePlan} from '../core/workforce.js';
+import {HOUSING_FORMS,housingSpec} from '../data/housing.js';
+import {isOperating,buildMonths,businessName,businessSprite,renovationCost,isResidential} from '../core/construction.js';
 import {housingTerms,PUBLIC_RENTS} from '../core/housing.js';
 import {businessSynergies} from '../core/synergies.js';
 import {leaderAge,successor,europeProgress} from '../core/dynasty.js';
@@ -131,13 +133,15 @@ export function renderCity(s, cityId) {
       const l = lineFor(s, b.id);
       const profit = l ? l.revenue - l.cost : null;
       html += `<li class="biz">
-        <img src="${imageUrl(t.sprite)}" alt="" class="biz-icon">
+        <img src="${imageUrl(businessSprite(b))}" alt="" class="biz-icon">
         <div class="grow">
-          <div><b>${esc(t.name)}</b>${b.mode === 'franquicia' ? ' <span class="tag">Franquicia</span>' : ` <span class="stars" title="Nivel de reforma">Nivel ${b.level||1}/${MAX_LEVEL}</span>`}</div>
+          <div><b>${esc(businessName(b))}</b>${b.mode === 'franquicia' ? ' <span class="tag">Franquicia</span>' : ` <span class="stars" title="Nivel de reforma">Nivel ${b.level||1}/${MAX_LEVEL}</span>`}</div>
+          ${!isOperating(s,b)?`<p class="small construction-status">🏗️ En construcción: quedan ${b.readyMonth-s.month} meses. Sin actividad hasta la entrega.</p>`:''}
+          ${isResidential(b)&&isOperating(s,b)?`<p class="small">🔧 Renovación en ${Math.max(0,(b.renewalMonth??s.month+180)-s.month)} meses · estimación ${moneyShort(renovationCost(b))}. Cada 15 años.</p>`:''}
           <div class="muted small">${profit == null ? 'Recién abierto' : `${b.mode === 'franquicia' ? 'Central' : 'Último mes'}: <span class="${cls(profit)}">${signed(profit)}</span>`}
           ${l?.franchise ? ` · Franquiciado: <span class="${cls(l.franchiseeProfit)}">${signed(l.franchiseeProfit)}</span>${b.lossMonths ? ` (${b.lossMonths} ${b.lossMonths === 1 ? 'mes' : 'meses'} en pérdidas)` : ''}` : ''}
           ${l?.surplusBonus > 0 ? ` · Sobaos de cortesía: +${(l.surplusBonus * 100).toFixed(1).replace('.', ',')} %` : ''}
-          ${l?.occupied != null ? ` · ${Math.floor(l.occupied)}/${t.beds + (t.model==='care'?10:5) * ((b.level || 1) - 1)} plazas ocupadas` : ''}</div>
+          ${l?.occupied != null ? ` · ${Math.floor(l.occupied)}/${b.type==='vivienda'?housingSpec(b).units:t.beds + (t.model==='care'?10:5) * ((b.level || 1) - 1)} plazas ocupadas` : ''}</div>
           ${businessSynergies(s,b).learning ? '<div class="small pos">🤝 Academy + coworking en esta ciudad: demanda +15 %.</div>' : ''}
           ${b.type==='gimnasio' ? `<div class="small">🥐 Sobaos vendidos aquí el mes anterior: ${Math.round(s.citySobaoSales?.[b.city]||0).toLocaleString('es-ES')} · demanda del gimnasio +${(businessSynergies(s,b).fitness*100).toFixed(1).replace('.',',')} % (máximo 35 %).</div>` : ''}
           ${b.type==='vivienda'&&l ? `<div class="small">Empleados: ${l.employeeOccupied} · Público: ${l.publicOccupied}. <a href="#" data-act="tab" data-tab="plantilla">Gestionar tarifas por ciudad</a></div>` : ''}
@@ -145,7 +149,7 @@ export function renderCity(s, cityId) {
           ${b.mode === 'franquicia' ? '' : `<div class="cond" title="Estado de conservación: ${Math.round(b.cond ?? 100)}/100">${bar(b.cond ?? 100, 100, (b.cond ?? 100) < 40 ? 'danger' : 'ok')}</div>`}
         </div>
         <div class="biz-actions">
-          ${upgradeCost(b) != null ? `<button class="btn small" data-act="upgrade-biz" data-id="${b.id}" ${s.cash >= upgradeCost(b) ? '' : 'disabled'} title="Reforma: ${upgradeEffect(b)}">Reformar ${moneyShort(upgradeCost(b))}</button>` : ''}
+          ${upgradeCost(b) != null ? `<button class="btn small" data-act="upgrade-biz" data-id="${b.id}" ${s.cash >= upgradeCost(b)&&isOperating(s,b) ? '' : 'disabled'} title="Reforma: ${upgradeEffect(b)}">Reformar ${moneyShort(upgradeCost(b))}</button>` : ''}
           <button class="btn small ghost" data-act="sell" data-id="${b.id}">${b.mode === 'franquicia' ? `Rescindir (−${moneyShort(-saleValue(b))})` : `Vender ${moneyShort(saleValue(b))}`}</button>
         </div>
       </li>`;
@@ -173,10 +177,11 @@ export function renderCity(s, cityId) {
       <img src="${imageUrl(t.sprite)}" alt="" class="biz-icon">
       <div class="grow">
         <div><b>${esc(t.name)}</b></div>
+        ${buildMonths(id)?`<div class="small construction-status">🏗️ Obra: ${buildMonths(id)} meses. Se paga al iniciar; sin ingresos hasta la entrega.</div>`:''}
         <div class="small muted">${esc(t.desc)}</div>
         ${locked ? `<div class="small lock">🔒 ${esc(LOCK_HINTS[id])}</div>` : `<div class="small">Estimación: <b class="${cls(est.delta)}">${signed(est.delta)}/mes</b> antes de impuestos${t.category === 'sobaos' && est.fillAfter < 0.999 ? ` · <span class="warn">el obrador solo cubrirá el ${Math.round(est.fillAfter * 100)} % de la demanda</span>` : ''}</div>`}
         ${!locked ? `<div class="row gap wrap">
-          <button class="btn small primary" data-act="open" data-type="${id}" data-mode="propia" ${own.ok ? '' : 'disabled'} title="${esc(own.msg || '')}">${needsLicense(id, c.id) ? 'Abrir con licencia' : 'Abrir'} (${moneyShort(openingCost(s, id, 'propia', c.id))})</button>
+          ${id==='vivienda'?housingBuildButtons(s,c.id):`<button class="btn small primary" data-act="open" data-type="${id}" data-mode="propia" ${own.ok ? '' : 'disabled'} title="${esc(own.msg || '')}">${buildMonths(id)?'Construir':needsLicense(id, c.id) ? 'Abrir con licencia' : 'Abrir'} (${moneyShort(openingCost(s, id, 'propia', c.id))})</button>`}
           ${needsLicense(id, c.id) ? `<button class="btn small ghost" data-act="open" data-type="${id}" data-mode="ilegal" ${canOpen(s, id, c.id, 'ilegal').ok ? '' : 'disabled'} title="Sin licencia: más barato, pero el ayuntamiento puede multarte y Hacienda se fija.">Sin licencia (${moneyShort(openingCost(s, id, 'ilegal', c.id))})</button>` : ''}
           ${t.category === 'sobaos' ? renderFranchiseButton(s, id, c.id) : ''}
         </div>${!own.ok && own.msg ? `<div class="small muted">${esc(own.msg)}</div>` : ''}` : ''}
@@ -557,10 +562,13 @@ function renderRD(s) {
 
 function renderHousing(s,r) {
  const cities=[...new Set(['selaya',...s.businesses.filter(b=>b.mode!=='franquicia').map(b=>b.city)])];
- const select=(city,group,terms)=>`<label class="small housing-tariff">${group==='employee'?'Tarifa empleados':'Tarifa público'} <select data-act="housing-policy" data-city="${city}" data-group="${group}" aria-label="${group==='employee'?'Alquiler empleados':'Alquiler público'} en ${esc(CITY_BY_ID[city].name)}">${Object.entries(group==='employee'?POLICIES.alquiler.options:PUBLIC_RENTS).map(([id,opt])=>{const t=housingTerms({...s,housingPolicies:{...s.housingPolicies,[city]:{...s.housingPolicies?.[city],[group]:id}}},city);return `<option value="${id}" ${terms[group]===id?'selected':''}>${esc(opt.label.split(' (')[0])} · ${money(group==='employee'?t.employeeRent:t.publicRent)}/plaza</option>`}).join('')}</select></label>`;
- return `<div class="card housing-card"><h3>🏘️ Viviendas para empleados y público</h3><p class="small">La plantilla local tiene prioridad. Las plazas libres se alquilan al público; este no cuenta como control laboral. Tarifas por plaza y mes, ajustadas al mercado de cada ciudad. Un alquiler público alto reduce la demanda.</p><p class="small muted">Cada plaza de vivienda permite atraer a cuatro trabajadores más. Las grandes ampliaciones necesitan plazas suficientes.</p>
- ${cities.map(city=>{const p=workforcePlan(s,city),ok=canOpen(s,'vivienda',city),local=r.lines.filter(l=>l.city===city),staff=local.reduce((n,l)=>n+l.staff,0),homes=local.filter(l=>l.type==='vivienda'),terms=housingTerms(s,city);return `<div class="housing-city"><b>${esc(CITY_BY_ID[city].name)}</b><div class="small">${staff} trabajadores hoy · ${p.beds} plazas · Oferta laboral ${p.available} · Plantilla de capacidad instalada ${p.required}</div>${homes.length?`<p class="small">Alojados: ${homes.reduce((n,l)=>n+l.employeeOccupied,0)} empleados y ${homes.reduce((n,l)=>n+l.publicOccupied,0)} del público.</p>${select(city,'employee',terms)}${select(city,'public',terms)}`:''}${p.missingBeds?`<p class="small warn">Faltan ${p.missingBeds} plazas para la capacidad instalada.</p>`:''}<button class="btn small primary" data-act="housing-open" data-city="${city}" ${ok.ok?'':'disabled'} title="${esc(ok.msg||'')}">Comprar viviendas en ${esc(CITY_BY_ID[city].name)} (${moneyShort(openingCost(s,'vivienda','propia',city))})</button></div>`;}).join('')}
+ const select=(city,group,terms)=>`<label class="small housing-tariff">${group==='employee'?'Tarifa empleados':'Tarifa público'} <select data-act="housing-policy" data-city="${city}" data-group="${group}" aria-label="${group==='employee'?'Alquiler empleados':'Alquiler público'} en ${esc(CITY_BY_ID[city].name)}">${Object.entries(group==='employee'?POLICIES.alquiler.options:PUBLIC_RENTS).map(([id,opt])=>{const t=housingTerms({...s,housingPolicies:{...s.housingPolicies,[city]:{...s.housingPolicies?.[city],[group]:id}}},city);return `<option value="${id}" ${terms[group]===id?'selected':''}>${esc(opt.label.split(' (')[0])} · ${money(group==='employee'?t.employeeRent:t.publicRent)}/vivienda</option>`}).join('')}</select></label>`;
+ return `<div class="card housing-card"><h3>🏘️ Viviendas para empleados y público</h3><p class="small">La plantilla local tiene prioridad. Las plazas libres se alquilan al público; este no cuenta como control laboral. Tarifas base por vivienda y mes, ajustadas al mercado de cada ciudad. Los chalets multiplican la tarifa por 1,5; las reformas la mejoran un 3 % por nivel. Un alquiler público alto reduce la demanda.</p><p class="small muted">Cada plaza de vivienda permite atraer a cuatro trabajadores más. Las grandes ampliaciones necesitan plazas suficientes.</p>
+ ${cities.map(city=>{const p=workforcePlan(s,city),local=r.lines.filter(l=>l.city===city),staff=local.reduce((n,l)=>n+l.staff,0),homes=local.filter(l=>l.type==='vivienda'),terms=housingTerms(s,city),properties=s.businesses.filter(b=>b.type==='vivienda'&&b.city===city);return `<div class="housing-city"><b>${esc(CITY_BY_ID[city].name)}</b><div class="small">${staff} trabajadores hoy · ${p.beds} viviendas disponibles · Oferta laboral ${p.available} · Plantilla de capacidad instalada ${p.required}</div>${homes.length?`<p class="small">Alojados: ${homes.reduce((n,l)=>n+l.employeeOccupied,0)} empleados y ${homes.reduce((n,l)=>n+l.publicOccupied,0)} del público.</p>${select(city,'employee',terms)}${select(city,'public',terms)}`:''}${properties.map(b=>`<p class="small">${esc(businessName(b))}: ${isOperating(s,b)?`${housingSpec(b).units} viviendas · mantenimiento ${money(housingSpec(b).upkeep)}/mes · renovación en ${Math.max(0,(b.renewalMonth??s.month+180)-s.month)} meses (${moneyShort(renovationCost(b))} estimados)`:`🏗️ entrega en ${b.readyMonth-s.month} meses`}</p>`).join('')}${p.missingBeds?`<p class="small warn">Faltan ${p.missingBeds} viviendas para la capacidad instalada.</p>`:''}${housingBuildButtons(s,city,'housing-open')}</div>`;}).join('')}
  </div>`;
+}
+function housingBuildButtons(s,city,act='open') {
+ return Object.entries(HOUSING_FORMS).filter(([id])=>id!=='legacy').map(([id,f])=>{const ok=canOpen(s,'vivienda',city,'propia',id);return `<div class="housing-project"><img class="biz-icon" src="${imageUrl(f.sprite)}" alt=""><div><b>${esc(f.name)}</b><p class="small">12 meses de obra · ${money(f.upkeep)}/mes de mantenimiento · moral +${f.moral} con toda la plantilla alojada aquí · renovación del 20 % cada 15 años.${id==='chalets'?' Alquiler por vivienda ×1,5.':''}</p><button class="btn small primary" data-act="${act}" data-type="vivienda" data-mode="propia" data-form="${id}" data-city="${city}" ${ok.ok?'':'disabled'} title="${esc(ok.msg||'')}">Construir (${moneyShort(openingCost(s,'vivienda','propia',city,id))})</button></div></div>`}).join('');
 }
 function renderEuropeanGoal(s) {
  if(s.campaign!=='europe')return '';
@@ -714,6 +722,7 @@ export function renderFinance(s) {
       ${r.revenueByCat.servicios ? `<tr><td>&nbsp;· Servicios</td><td>${money(r.revenueByCat.servicios)}</td></tr>` : ''}
       <tr><td>Salarios</td><td class="neg">−${money(c.salarios)}</td></tr>
       ${c.mantenimiento ? `<tr><td>Mantenimiento</td><td class="neg">−${money(c.mantenimiento)}</td></tr>` : ''}
+      ${c.renovaciones ? `<tr><td>Renovaciones inmobiliarias (ciclo de 15 años)</td><td class="neg">−${money(c.renovaciones)}</td></tr>` : ''}
       ${c.directivos ? `<tr><td>Directivos</td><td class="neg">−${money(c.directivos)}</td></tr>` : ''}
       ${c.estructura ? `<tr><td title="Oficinas, gestorías y abogados: crece más deprisa que el número de negocios. Operaciones lo reduce.">Estructura central</td><td class="neg">−${money(c.estructura)}</td></tr>` : ''}
       <tr><td>Materias primas</td><td class="neg">−${money(c.materias)}</td></tr>

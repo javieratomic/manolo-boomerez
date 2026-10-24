@@ -1,5 +1,6 @@
 // Cadenas rivales: aparición, expansión imitando a Manolo y acciones contra ellas.
 import { RIVALS, RIVAL_LEVEL_PENALTY, RIVAL_MAX_LEVEL } from '../data/rivals.js';
+import {isResidential} from './construction.js';
 import { CITY_BY_ID, CITIES } from '../data/cities.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
 import { chance, random, weightedPick } from './rng.js';
@@ -177,7 +178,9 @@ export function acquireRival(s, rivalId) {
   // Cada local vale lo que se pagó por él (como mucho, el 70 % de abrirlo nuevo).
   const each = slots.length ? Math.min(t.cost * 0.7, price / rivalTotal(r)) : 0;
   for (const city of slots) {
-    s.businesses.push({ id: s.nextId++, type: typeId, city, mode: 'propia', openedMonth: s.month, value: each, lossMonths: 0, level: 1, acquired: rivalId });
+    const b={ id: s.nextId++, type: typeId, city, mode: 'propia', openedMonth: s.month, value: each, lossMonths: 0, level: 1, acquired: rivalId };
+    if(isResidential(b))b.renewalMonth=s.month+180;
+    s.businesses.push(b);
     gained.push(CITY_BY_ID[city].name);
   }
   s.rivals = s.rivals.filter((x) => x !== r);

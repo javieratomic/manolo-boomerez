@@ -14,9 +14,11 @@ import { convenioDemand, isConvenioMonth } from './plantilla.js';
 import { MAMA, hasCond } from './cartilla.js';
 import { quarterProgress, qLabel } from './bolsa.js';
 import { forecast } from './preview.js';
+import {isOperating,isResidential,businessName,renovationCost} from './construction.js';
 
 export const CAT_NAMES = { finanzas:'Banca',infraestructura:'Telecomunicaciones',logistica:'Logística', sobaos: 'Sobaos', inmobiliario: 'Inmobiliario', hosteleria: 'Hostelería', formacion: 'Formación', servicios: 'Servicios', produccion: 'Producción' };
 export const COST_NAMES = {
+  renovaciones:'Renovaciones inmobiliarias',
   salarios: 'Salarios', directivos: 'Directivos', estructura: 'Estructura central', mantenimiento: 'Mantenimiento', alquileres: 'Alquileres',
   materias: 'Materias primas', transporte: 'Transporte', otros: 'Otros gastos', intereses: 'Intereses', asesores: 'Asesores', personales: 'Caprichos de Manolo', reparto: 'Reparto con la plantilla', impuestos: 'Impuestos',
 };
@@ -159,7 +161,11 @@ export function upcoming(s) {
     if (u.month == null || s.unlocked[u.id]) continue;
     if (u.month > s.month && u.month <= s.month + 2) out.push(`🔓 ${BUSINESS_TYPES[u.id]?.name ?? u.id} se desbloquea en ${dateLabel(u.month).toLowerCase().replace(' ', ' de ')}.`);
   }
-  if (!s.ipo && s.month + 1 >= 36 && s.month < 36) out.push('🔔 Desde el mes que viene se puede salir a Bolsa (con al menos 4 M€ de patrimonio).');
+  for(const b of s.businesses){
+    if(!isOperating(s,b)&&b.readyMonth-s.month<=2)out.push(`🏗️ Entrega de ${businessName(b)} en ${CITY_BY_ID[b.city].name} dentro de ${b.readyMonth-s.month} meses.`);
+    if(isResidential(b)&&isOperating(s,b)&&b.renewalMonth-s.month<=12)out.push(`🔧 Renovación de ${businessName(b)} en ${CITY_BY_ID[b.city].name}: dentro de ${Math.max(0,b.renewalMonth-s.month)} meses, ${moneyShort(renovationCost(b))} estimados.`);
+  }
+  if (!s.ipo && s.month + 1 >= 36 && s.month < 36) out.push('🔔 Desde el mes que viene se puede salir a Bolsa con una valoración de empresa de al menos 1.000 M€.');
   return out;
 }
 

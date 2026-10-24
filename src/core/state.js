@@ -1,4 +1,6 @@
 import {newDynasty} from './dynasty.js';
+import {HOUSING_FORMS} from '../data/housing.js';
+import {isResidential} from './construction.js';
 import {execPortrait} from '../data/execs.js';
 import {PUBLIC_RENTS} from './housing.js';
 import { FOREIGN_BY_ID, DEAL_MODES, DISPUTES } from '../data/international.js';
@@ -13,7 +15,7 @@ import { grossPatrimonio, computeEconomy } from './economy.js';
 export const SAVE_KEY = 'manolo-boomerez-save-v1';
 export const SAVE_VERSION = 2;
 // Versión del contenido: una semilla solo reproduce la misma partida con la misma versión.
-export const GAME_VERSION = '0.7.0';
+export const GAME_VERSION = '0.8.0';
 
 export const DIFFICULTIES = {
   cunado: {
@@ -153,6 +155,10 @@ export function migrate(s) {
   s.stats.huelgas ??= 0;
   if(s.brand&&s.unlocked)s.unlocked.vivienda=true;
   if (s.businesses.some(b=>b.type==='empanadas')) s.flags.empanadaFirstUsed=true;
+  for(const b of s.businesses) {
+    if(b.type==='vivienda'&&!('housingForm' in b))b.housingForm='legacy';
+    if(isResidential(b)&&!('renewalMonth' in b))b.renewalMonth=(b.readyMonth??s.month)+180;
+  }
   s.unlocked.empanadas=!!s.flags.primoSocio;
   s.policies = { ...DEFAULT_POLICIES, ...s.policies };
   s.version = SAVE_VERSION;
@@ -214,6 +220,9 @@ export function deserialize(text) {
   for(const [country,track] of Object.entries(ready.foreignTrack))if(!Object.hasOwn(FOREIGN_BY_ID,country)||!Number.isInteger(track?.successMonths)||track.successMonths<0)invalid();
   const businessIds = new Set();
   for (const business of ready.businesses) {
+    if(business.type==='vivienda'&&!Object.hasOwn(HOUSING_FORMS,business.housingForm))invalid();
+    if(business.readyMonth!=null&&(!Number.isSafeInteger(business.readyMonth)||business.readyMonth<0||business.readyMonth<(business.openedMonth||0)))invalid();
+    if(business.renewalMonth!=null&&(!Number.isSafeInteger(business.renewalMonth)||business.renewalMonth<0||business.renewalMonth<(business.readyMonth||0)))invalid();
     if (!business || !Object.hasOwn(BUSINESS_TYPES, business.type) || !Object.hasOwn(CITY_BY_ID, business.city) ||
       !Number.isFinite(business.value) || !Number.isInteger(business.id) || businessIds.has(business.id) ||
       (business.mode != null && !['propia', 'franquicia'].includes(business.mode))) invalid();

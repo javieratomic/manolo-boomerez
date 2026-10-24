@@ -3,7 +3,8 @@ import { test, assert, assertEq } from './runner.js';
 import { newGame as createGame, serialize, deserialize } from '../src/core/state.js';
 import { advanceMonth, resolvePending, currentPending, checkEnding, eligibleEvents } from '../src/core/sim.js';
 import { computeEconomy, patrimonio, creditLimit, grossPatrimonio, estimateOpening, obradorCapacity, obradorValue } from '../src/core/economy.js';
-import { openBusiness, canOpen, setPolicy, borrow, repay, buyUpgrade, sellBusiness, doManoloAction, togglePerk, currentGoal, currentGoals, checkGoals, rebrand, dropMonthlyCost, nextUpgrade, openingCost } from '../src/core/actions.js';
+import { canOpen, setPolicy, borrow, repay, buyUpgrade, sellBusiness, doManoloAction, togglePerk, currentGoal, currentGoals, checkGoals, rebrand, dropMonthlyCost, nextUpgrade, openingCost } from '../src/core/actions.js';
+import {openBusiness} from './fixtures.js';
 import { laborFine, trickOdds, recordTrick, recidivism, tickLaborHistory, clearRecord, laborVisitParams } from '../src/core/inspections.js';
 import { dateLabel, money } from '../src/core/helpers.js';
 import { EVENTS } from '../src/data/events.js';
@@ -335,7 +336,7 @@ test('los logros se evalúan sin errores durante una partida', () => {
 
 test('el ciclo económico rota de fase y mueve el ladrillo', () => {
   const s = started(21);
-  s.cash = 1e6;
+  s.cash = 5e6;
   s.unlocked.vivienda = true;
   openBusiness(s, 'vivienda', 'madrid');
   const seen = new Set([s.macro.phase]);
@@ -477,7 +478,7 @@ test('logística: el transporte cuesta y un obrador regional lo abarata', () => 
 
 test('pisos turísticos con licencia o sin ella', () => {
   const s = started(52);
-  s.cash = 2e6;
+  s.cash = 1e7;
   s.unlocked.airbnb = true;
   const legal = s.cash;
   assert(openBusiness(s, 'airbnb', 'barcelona').ok);
@@ -1356,7 +1357,7 @@ test('estimación rápida: igual que con un clon y sin tocar la partida', () => 
   const ref = (s, type, city, mode = 'propia') => {
     const base = computeEconomy(s);
     const c = JSON.parse(JSON.stringify(s));
-    c.businesses.push({ id: -1, type, city, mode, value: 0, level: 1 });
+    c.businesses.push({ id: -1, type, city, mode, value: 0, level: 1,...(type==='vivienda'?{housingForm:'apartamentos'}:{}) });
     const after = computeEconomy(c);
     return { delta: after.profit - base.profit, fillAfter: after.fill, fillBefore: base.fill };
   };

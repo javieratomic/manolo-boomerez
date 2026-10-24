@@ -1,5 +1,15 @@
 # Cambios
 
+## 0.8.0 — Promociones y obras
+
+- Edificios de 25 apartamentos y urbanizaciones de 10 chalets: costes base de 2 y 3 M€, ajustados por ciudad; los chalets tienen mejor efecto sobre la moral y alquiler ×1,5.
+- Viviendas nuevas con 12 meses de construcción, sin rentas ni oferta laboral antes de entrega. Nuevos pisos turísticos: 1,2 M€ de coste base y también 12 meses de obra.
+- Obradores regionales y centros de telecomunicaciones tardan seis meses; capacidad, transporte y bonus solo desde su apertura.
+- Mantenimiento residencial mucho menor (100 €/mes apartamentos, 200 € chalets y turísticos), sin cuota porcentual genérica añadida.
+- Renovación inmobiliaria cada 15 años por el 20 % del coste de reposición local, con gasto en informe, previsión y aviso anticipado. La primera renovación de inmuebles antiguos llega 15 años después de migrar.
+- Promociones nuevas de tamaño fijo: reformarlas mejora las rentas sin inventar más viviendas. Los inmuebles previos conservan su capacidad.
+- Sprite transparente de urbanización con diez chalets y avisos de obra, entrega y renovación en Ciudad y Plantilla. Guardado compatible durante la construcción.
+
 ## 0.7.0 — Sobaos, sinergias y caseros
 
 - Bolsa bloqueada hasta una valoración de empresa de 1.000 M€; se conservan antigüedad, reputación y bloqueo posterior. Las sociedades ya cotizadas siguen cotizando.

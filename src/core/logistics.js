@@ -1,4 +1,5 @@
 import {researchFactor} from '../data/market.js';
+import {isOperating} from './construction.js';
 // Logística: los sobaos viajan desde el obrador más cercano y el transporte cuesta por kilómetro.
 import { CITY_BY_ID } from '../data/cities.js';
 
@@ -25,7 +26,7 @@ export function km(a, b) {
 }
 
 export function productionSites(s) {
-  return ['selaya', ...s.businesses.filter((b) => b.type === 'obrador_regional').map((b) => b.city)];
+  return ['selaya', ...s.businesses.filter((b) => b.type === 'obrador_regional'&&isOperating(s,b)).map((b) => b.city)];
 }
 
 export function nearestSite(s, cityId) {
@@ -47,5 +48,5 @@ export function transportCost(s, cityId) {
 }
 
 export function regionalCount(s) {
-  return s.businesses.filter((b) => b.type === 'obrador_regional').length;
+  return s.businesses.filter((b) => b.type === 'obrador_regional'&&isOperating(s,b)).length;
 }

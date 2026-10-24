@@ -405,8 +405,8 @@ async function onClick(e) {
       game.map.focusCity(game.city);
       break;
     case 'housing-open':
-      res=openBusiness(s,'vivienda',el.dataset.city);
-      if(res.ok)toast(`🏘️ Viviendas compradas en ${CITY_BY_ID[el.dataset.city].name}. Ajusta el alquiler en Plantilla.`,'good');
+      res=openBusiness(s,'vivienda',el.dataset.city,'propia',el.dataset.form);
+      if(res.ok)toast(`🏗️ Obra iniciada en ${CITY_BY_ID[el.dataset.city].name}. Entrega en 12 meses.`,'good');
       break;
     case 'heir-name':
       res=nominateHeir(s,el.dataset.heir);
@@ -421,7 +421,7 @@ async function onClick(e) {
       }
       if (el.dataset.mode === 'ilegal' && !(await confirmModal('Pisos sin licencia', 'Abres los pisos turísticos sin licencia. Te ahorras 120.000 €, pero cada mes hay una probabilidad de que el ayuntamiento te pille (multa de 40.000 € o más) y el radar de Hacienda sube.', 'Arriesgarse'))) return;
       if (!(await clauseOk(s, (c) => openBusiness(c, el.dataset.type, game.city, el.dataset.mode)))) return;
-      res = openBusiness(s, el.dataset.type, game.city, el.dataset.mode);
+      res = openBusiness(s, el.dataset.type, game.city, el.dataset.mode,el.dataset.form);
       if (res.ok) play(el.dataset.mode === 'franquicia' ? 'cash' : 'build');
       if (res.ok && el.dataset.mode === 'ilegal') toast(`🙈 Pisos "de temporada" abiertos en ${CITY_BY_ID[game.city].name}`, 'bad');
       else if (res.ok) toast(el.dataset.mode === 'franquicia' ? `🤝 Franquicia vendida en ${CITY_BY_ID[game.city].name}` : `🏗️ Abres ${t.name} en ${CITY_BY_ID[game.city].name}`, 'good');

@@ -20,14 +20,14 @@ export const BUSINESS_TYPES = {
   vivienda: {
     id: 'vivienda', category: 'inmobiliario',
     name: 'Viviendas para empleados y público', short: 'Viviendas',
-    cost: 210000, staff: 0, upkeep: 700, beds: 10, realEstate: true,
+    cost: 2000000, staff: 0, upkeep: 100, beds: 25, realEstate: true,
     sprite: 'bld_vivienda', color: '#9a9183', letter: 'R',
-    desc: 'La plantilla tiene prioridad; las plazas libres se alquilan al público. Tarifas separadas por ciudad en Plantilla.',
+    desc: 'Edificio de 25 apartamentos o urbanización de 10 chalets. Doce meses de obra, mantenimiento reducido y renovación importante cada 15 años.',
   },
   airbnb: {
     id: 'airbnb', category: 'inmobiliario', license: 120000,
     name: 'Apartamentos Turísticos "Casa Manolo"', short: 'Casa Manolo',
-    cost: 260000, staff: 1, upkeep: 1500, flats: 6, realEstate: true,
+    cost: 1200000, staff: 1, upkeep: 200, flats: 6, realEstate: true,
     sprite: 'bld_airbnb', color: '#2f8fc4', letter: 'A',
     desc: 'Seis pisos turísticos con candado de llaves en la farola. Los vecinos encantados.',
   },

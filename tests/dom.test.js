@@ -3,7 +3,7 @@ import { test, assert, assertEq } from './runner.js';
 import { showModal, isModalOpen } from '../src/ui/dom.js';
 import { newGame } from '../src/core/state.js';
 import { resolvePending } from '../src/core/sim.js';
-import { renderManolo } from '../src/ui/panels.js';
+import { renderManolo, renderCity, renderEmpire, renderMarket } from '../src/ui/panels.js';
 
 test('DOM: la pestaña Manolo muestra la edad del mes actual', () => {
   const s = newGame(42);
@@ -132,4 +132,22 @@ test('DOM: al cerrar se devuelve el foco al control que abrió el diálogo', asy
     origin.remove();
     await wait(180);
   }
+});
+
+
+test('DOM: solo la apertura de sobaos avisa de falta de producción', () => {
+  const s = newGame(42); resolvePending(s, 0); s.cash = 1e7;
+  s.unlocked.smash = true;
+  s.contracts.push({id:'test', label:'Gran pedido', units:1e6, price:2, months:12});
+  const el = document.createElement('div'); el.innerHTML = renderCity(s, 'madrid');
+  const item = el.querySelector('[data-type="smash"]').closest('.open-item');
+  assert(!item.textContent.includes('solo cubrirá'), 'un restaurante no depende de esos sobaos');
+});
+
+test('DOM: las franquicias muestran las dos cuentas y su riesgo antes de firmar', () => {
+  const s = newGame(42); resolvePending(s, 0); s.cash = 1e7;
+  const el = document.createElement('div'); el.innerHTML = renderCity(s, 'santander');
+  const button = el.querySelector('[data-mode="franquicia"]');
+  assert(button.closest('.franchise-offer').textContent.includes('Franquiciado:'));
+  assert(button.closest('.franchise-offer').textContent.includes('Central:'));
 });

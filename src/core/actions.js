@@ -1,5 +1,5 @@
 // Acciones del jugador durante el mes (todas validan y devuelven { ok, msg }).
-import { BUSINESS_TYPES, OBRADOR_UPGRADES, PERKS, SOBAO_TYPE_BY_BRAND } from '../data/businesses.js';
+import { BUSINESS_TYPES, OBRADOR_UPGRADES, PERKS, SOBAO_TYPE_BY_BRAND, expansionUpgrade } from '../data/businesses.js';
 import { CITY_BY_ID } from '../data/cities.js';
 import { POLICIES } from '../data/policies.js';
 import { ACTION_BY_ID } from '../data/manoloActions.js';
@@ -30,7 +30,9 @@ export function openingCost(s, typeId, mode = 'propia', cityId = null) {
   const t = BUSINESS_TYPES[typeId];
   if (mode === 'franquicia') return 0;
   const license = mode === 'propia' && needsLicense(typeId, cityId) ? t.license : 0;
-  return Math.round(t.cost * (1 - (s.discountNext || 0)) * (1 - execBonus(s, 'expansion')) + license);
+  const rent = CITY_BY_ID[cityId]?.rent ?? 0.9;
+  const location = t.realEstate ? 0.25 + rent / 1.2 : 0.55 + 0.5 * rent;
+  return Math.round(t.cost * location * (1 - (s.discountNext || 0)) * (1 - execBonus(s, 'expansion')) + license);
 }
 
 export function franchiseFee(s, typeId) {
@@ -107,15 +109,16 @@ export function sellBusiness(s, businessId) {
 }
 
 export function nextUpgrade(s) {
-  return OBRADOR_UPGRADES.find((u) => !s.obrador.upgrades.includes(u.id)) || null;
+  return OBRADOR_UPGRADES.find((u) => !s.obrador.upgrades.includes(u.id)) || expansionUpgrade(s.obrador.expansions || 0);
 }
 
 export function buyUpgrade(s) {
   const u = nextUpgrade(s);
-  if (!u) return { ok: false, msg: 'El obrador ya está a tope.' };
+  if (!Number.isSafeInteger(u.cost)) return { ok: false, msg: 'Esta ampliación supera el importe máximo que puede representar el juego.' };
   if (s.cash < u.cost) return { ok: false, msg: `Necesitas ${money(u.cost)}.` };
   addCash(s, -u.cost);
-  s.obrador.upgrades.push(u.id);
+  if (u.expansion) s.obrador.expansions = (s.obrador.expansions || 0) + 1;
+  else s.obrador.upgrades.push(u.id);
   log(s, `🏭 Obrador mejorado: ${u.name}.`, 'good');
   return { ok: true, upgrade: u };
 }
@@ -238,7 +241,7 @@ export function doManoloAction(s, id) {
 
 // month: mes en que se desbloquea por calendario (lo usa el parte del mes para avisar).
 export const UNLOCKS = [
-  { id: 'vivienda', test: (s) => sobaoOutlets(s) >= 3, text: '🔓 Desbloqueado: Residencial Boomerez. "¿Y si mis empleados me pagan el alquiler a mí?"' },
+  { id: 'vivienda', test: (s) => !!s.brand, text: '🔓 Desbloqueado: Residencial Boomerez. "¿Y si mis empleados me pagan el alquiler a mí?"' },
   { id: 'airbnb', month: 12, test: (s) => s.month >= 12 || s.cash >= 250000, text: '🔓 Desbloqueado: Apartamentos turísticos "Casa Manolo".' },
   { id: 'smash', month: 18, test: (s) => sobaoOutlets(s) >= 4 || s.month >= 18, text: '🔓 Desbloqueado: Manolo Smash Club. Hay que diversificar.' },
   { id: 'empanadas', month: 18, test: (s) => sobaoOutlets(s) >= 4 || s.month >= 18 || s.flags.primoSocio, text: '🔓 Desbloqueado: Empanadas El Gaucho Pasiego.' },

@@ -140,3 +140,16 @@ export const PERKS = {
     desc: 'Declaras todavía menos (−30 %). Si Hacienda te pilla, la auditoría es un 50 % más dura.',
   },
 };
+
+
+// Tras las tres mejoras históricas, se pueden añadir módulos industriales sin un tope de niveles.
+export const expansionUpgrade = (n = 0) => ({
+  id: `modulo_${n + 1}`, expansion: true, name: `Módulo industrial ${n + 1}`,
+  cost: Math.round(650000 * 1.32 ** n), capacity: 25000,
+  desc: 'Otra nave, otra línea y más permisos. +25.000 uds/mes; mantenimiento +1.500 €/mes. La siguiente cuesta un 32 % más.',
+});
+export const expansionValue = (n = 0) => {
+  let sum = 0;
+  for (let i = 0; i < n; i++) sum += expansionUpgrade(i).cost * 0.8;
+  return sum;
+};

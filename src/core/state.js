@@ -54,7 +54,7 @@ export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal
     policies: { ...DEFAULT_POLICIES },
     perks: { gestor: false, abogado: false, comunicacion: false, fundacion: false, andorra: false },
     andorraPaid: false,
-    obrador: { upgrades: [] },
+    obrador: { upgrades: [], expansions: 0 },
     businesses: [],
     nextId: 1,
     trends: { smash: 1.25, empanadas: 1.0 },
@@ -134,6 +134,7 @@ export function migrate(s) {
   // 0.4: claves anidadas que el bucle de abajo no rellena.
   if (s.dossier) s.dossier.ahorro ||= [];
   if (s.flags?.bancoNo === true) delete s.flags.bancoNo; // antes era para siempre
+  if (s.obrador && !('expansions' in s.obrador)) s.obrador.expansions = 0;
   s.stats.liquidado ??= 0;
   s.stats.huelgas ??= 0;
   s.policies = { ...DEFAULT_POLICIES, ...s.policies };
@@ -179,6 +180,7 @@ export function deserialize(text) {
   };
   checkData(ready);
   if (!Number.isInteger(ready.month) || ready.month < 0) invalid();
+  if (!Number.isSafeInteger(ready.obrador.expansions) || ready.obrador.expansions < 0 || ready.obrador.expansions > 100) invalid();
   for (const [key, value] of Object.entries(ready.policies)) {
     if (!Object.hasOwn(POLICIES, key) || !Object.hasOwn(POLICIES[key].options, value)) invalid();
   }

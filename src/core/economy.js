@@ -1,5 +1,5 @@
 // Cálculo económico mensual. Función pura: no muta el estado (salvo lo que haga quien la llama).
-import { BUSINESS_TYPES, OBRADOR_BASE, OBRADOR_UPGRADES, PERKS } from '../data/businesses.js';
+import { BUSINESS_TYPES, OBRADOR_BASE, OBRADOR_UPGRADES, PERKS, expansionValue } from '../data/businesses.js';
 import { POLICIES, BECARIO_WAGE } from '../data/policies.js';
 import { CITY_BY_ID } from '../data/cities.js';
 import { difficultyOf } from './state.js';
@@ -38,12 +38,12 @@ export const moralFactor = (moral) => 0.8 + (0.4 * moral) / 100;
 export const repFactor = (rep) => 0.55 + (0.9 * rep) / 100;
 
 export function obradorCapacity(s) {
-  const base = OBRADOR_BASE.capacity + s.obrador.upgrades.reduce((a, id) => a + (OBRADOR_UPGRADES.find((u) => u.id === id)?.capacity || 0), 0);
+  const base = OBRADOR_BASE.capacity + 25000 * (s.obrador.expansions || 0) + s.obrador.upgrades.reduce((a, id) => a + (OBRADOR_UPGRADES.find((u) => u.id === id)?.capacity || 0), 0);
   return (base + REGIONAL_CAPACITY * regionalCount(s)) * (1 + execBonus(s, 'operaciones'));
 }
 
 export function obradorValue(s) {
-  return OBRADOR_BASE.baseValue + s.obrador.upgrades.reduce((a, id) => a + (OBRADOR_UPGRADES.find((u) => u.id === id)?.cost || 0) * 0.8, 0);
+  return OBRADOR_BASE.baseValue + expansionValue(s.obrador.expansions || 0) + s.obrador.upgrades.reduce((a, id) => a + (OBRADOR_UPGRADES.find((u) => u.id === id)?.cost || 0) * 0.8, 0);
 }
 
 // Sueldo de convenio (con el plus del convenio de empresa) y el que sale de las políticas. Los pactos
@@ -167,7 +167,12 @@ export function computeEconomy(s) {
   const capacity = obradorCapacity(s) * strike;
   const totalDemand = shopUnits + wholesaleUnits + contractUnits + sobaoEntries.reduce((a, e) => a + e.demand, 0);
   const fill = totalDemand > 0 ? Math.min(1, capacity / totalDemand) : 1;
-  const produced = totalDemand * fill;
+  // El regalo usa solo excedente: nunca compite con tiendas o contratos. No es demanda obligatoria.
+  const bonusEligible = s.businesses.filter(b => ['service', 'care'].includes(BUSINESS_TYPES[b.type].model) || ['academy', 'airbnb'].includes(b.type));
+  const bonusUnits = Math.min(Math.max(0, capacity - totalDemand), bonusEligible.length * 250);
+  const bonusPerBusiness = bonusEligible.length ? bonusUnits / bonusEligible.length : 0;
+  const surplusBonus = 0.05 * bonusPerBusiness / 250;
+  const produced = totalDemand * fill + bonusUnits;
 
   // --- Obrador ---------------------------------------------------------------
   const robot = s.obrador.upgrades.includes('robot') ? (OBRADOR_UPGRADES.find((u) => u.id === 'robot')?.laborSave ?? 1) : 1;
@@ -180,9 +185,9 @@ export function computeEconomy(s) {
     shopUnits * fill * OBRADOR_BASE.shopPrice +
     wholesaleUnits * fill * OBRADOR_BASE.wholesalePrice +
     s.contracts.reduce((a, c) => a + c.units * fill * c.price, 0);
-  const obMaterials = (shopUnits + wholesaleUnits + contractUnits) * fill * localUnitCost;
+  const obMaterials = ((shopUnits + wholesaleUnits + contractUnits) * fill + bonusUnits) * localUnitCost;
   const obWages = obradorStaff * wage;
-  const obFixed = OBRADOR_BASE.fixedCost + OBRADOR_BASE.upgradeUpkeep * s.obrador.upgrades.length;
+  const obFixed = OBRADOR_BASE.fixedCost + OBRADOR_BASE.upgradeUpkeep * (s.obrador.upgrades.length + (s.obrador.expansions || 0));
   costs.salarios += obWages;
   costs.materias += obMaterials;
   costs.otros += obFixed;
@@ -295,19 +300,30 @@ export function computeEconomy(s) {
       viviendas.push(b);
       continue;
     }
+    const bonus = bonusEligible.includes(b) ? surplusBonus : 0;
+    if (bonus > 0) {
+      revenue *= 1 + bonus;
+      const shipping = bonusPerBusiness * transportCost(s, b.city);
+      costs.transporte += shipping;
+      cost += shipping;
+    }
     revenueByCat[t.category] += revenue;
-    lines.push({ id: b.id, type: b.type, city: b.city, label: t.name, revenue, cost, staff: lineStaff });
+    lines.push({ surplusBonus: bonus, id: b.id, type: b.type, city: b.city, label: t.name, revenue, cost, staff: lineStaff });
   }
 
   // --- Viviendas para la plantilla (dependen del nº de empleados) ------------
   const bedsOf = (b) => BUSINESS_TYPES.vivienda.beds + 5 * ((b.level || 1) - 1);
   const beds = viviendas.reduce((a, b) => a + bedsOf(b), 0);
-  const housed = Math.min(employees, beds);
+  const localEmployees = {};
+  for (const l of lines) localEmployees[l.city] = (localEmployees[l.city] || 0) + l.staff;
+  const localBeds = {};
+  for (const b of viviendas) localBeds[b.city] = (localBeds[b.city] || 0) + bedsOf(b);
+  const available = Object.fromEntries(Object.entries(localBeds).map(([city, n]) => [city, Math.min(n, localEmployees[city] || 0)]));
+  const housed = Object.values(available).reduce((a, n) => a + n, 0);
   const control = employees > 0 ? housed / employees : 0;
-  let remaining = housed;
   for (const b of viviendas) {
-    const occ = Math.min(bedsOf(b), remaining);
-    remaining -= occ;
+    const occ = Math.min(bedsOf(b), available[b.city] || 0);
+    available[b.city] -= occ;
     const revenue = occ * fx.alq.rent * conditionFactor(b);
     const cost = BUSINESS_TYPES.vivienda.upkeep;
     costs.otros += cost;
@@ -360,7 +376,7 @@ export function computeEconomy(s) {
     revenue, revenueByCat, costs, totalCost, profit, tax, evaded,
     net: profit - tax,
     employees, housed, beds, control,
-    capacity, totalDemand, produced, fill,
+    capacity, totalDemand, produced, fill, surplusBonus, bonusUnits,
     lines,
   };
 }
@@ -373,7 +389,8 @@ export function estimateOpening(s, typeId, cityId, mode = 'propia') {
   s.businesses.push(tmp);
   try {
     const after = computeEconomy(s);
-    return { delta: after.profit - base.profit, fillAfter: after.fill, fillBefore: base.fill };
+    return { delta: after.profit - base.profit, fillAfter: after.fill, fillBefore: base.fill,
+      ...(mode === 'franquicia' ? { franchiseeProfit: after.lines.find(l => l.id === -1).franchiseeProfit } : {}) };
   } finally {
     s.businesses.splice(s.businesses.indexOf(tmp), 1);
   }

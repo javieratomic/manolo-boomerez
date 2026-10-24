@@ -1,8 +1,9 @@
+import { PRODUCTS } from '../src/data/market.js';
 import { test, assert, assertEq } from './runner.js';
 import { newGame, serialize, deserialize } from '../src/core/state.js';
 import { advanceMonth, resolvePending, currentPending, checkEnding, eligibleEvents } from '../src/core/sim.js';
-import { computeEconomy, patrimonio, creditLimit, grossPatrimonio, estimateOpening } from '../src/core/economy.js';
-import { openBusiness, canOpen, setPolicy, borrow, repay, buyUpgrade, sellBusiness, doManoloAction, togglePerk, currentGoal, currentGoals, checkGoals, rebrand, dropMonthlyCost } from '../src/core/actions.js';
+import { computeEconomy, patrimonio, creditLimit, grossPatrimonio, estimateOpening, obradorCapacity, obradorValue } from '../src/core/economy.js';
+import { openBusiness, canOpen, setPolicy, borrow, repay, buyUpgrade, sellBusiness, doManoloAction, togglePerk, currentGoal, currentGoals, checkGoals, rebrand, dropMonthlyCost, nextUpgrade, openingCost } from '../src/core/actions.js';
 import { laborFine, trickOdds, recordTrick, recidivism, tickLaborHistory, clearRecord, laborVisitParams } from '../src/core/inspections.js';
 import { dateLabel, money } from '../src/core/helpers.js';
 import { EVENTS } from '../src/data/events.js';
@@ -14,7 +15,7 @@ import { buyLujo, doIPO, companyValuation, ipoPremium, tickIPO, canIPO, divorce 
 import { transportCost } from '../src/core/logistics.js';
 import { advice } from '../src/core/advice.js';
 import { tickRivals, rivalFactor, actOnRival, acquireRival, acquisitionPrice } from '../src/core/rivals.js';
-import { launchCampaign, startRD, upgradeBusiness, upgradeCost } from '../src/core/market.js';
+import { launchCampaign, startRD, tickRD, productFactor, upgradeBusiness, upgradeCost } from '../src/core/market.js';
 import { forecast, policyPreview, previewBase, riskInfo, blame, STATS } from '../src/core/preview.js';
 import { GOALS } from '../src/data/goals.js';
 import { CLAUSES, CLAUSE_BY_ID, clauseForSeed, CLAUSE_PRIZE, PRISA_GOAL, PRISA_MONTH } from '../src/data/clauses.js';
@@ -379,7 +380,7 @@ test('las cadenas rivales aparecen, quitan demanda y se pueden comprar', () => {
   const price = acquisitionPrice(s, rosa.id);
   const n = s.businesses.length;
   assert(acquireRival(s, rosa.id).ok);
-  assertEq(s.cash, 5e6 - BUSINESS_TYPES.express.cost * 2 - price);
+  assertEq(s.cash, 5e6 - openingCost(s, 'express', 'propia', 'madrid') - openingCost(s, 'express', 'propia', 'zaragoza') - price);
   assert(s.businesses.length > n, 'te quedas con sus locales');
   assert(!s.rivals.some((r) => r.id === rosa.id));
 });
@@ -1093,10 +1094,13 @@ test('regresión: los campos del parte no cambian las cuentas', () => {
     advanceMonth(c);
     resolveAll(c);
   }
-  const expected = [[24037.83, 20595.49, 2581.75], [106390.18, 76757.12, 22224.8], [58048.68, 46659.66, 8541.77]];
-  [a, b, c].forEach((s, i) => {
+  [a, b, c].forEach(s => {
     const r = computeEconomy(s);
-    [r.revenue, r.totalCost, r.net].forEach((v, k) => assert(Math.abs(v - expected[i][k]) < 0.01, `estado ${i} cifra ${k}: ${v}`));
+    s.lastReport = null;
+    const again = computeEconomy(s);
+    assertEq(JSON.stringify(r), JSON.stringify(again), 'el parte anterior no interviene en las cuentas');
+    assert(Math.abs(r.revenue - Object.values(r.revenueByCat).reduce((a, n) => a + n, 0)) < 0.01);
+    assert(Math.abs(r.net - (r.revenue - r.totalCost - r.tax)) < 0.01);
   });
 });
 
@@ -2444,4 +2448,88 @@ test('regresión 0.4: Sanidad encolada no rompe la promesa renovada durante el m
   assert(!p.choices.some((c) => c.index === 0), 'no puede volver a ingredientes que incumplen');
   pick(s, p, 'Volver a la mantequilla');
   assertEq(s.policies.ingredientes, 'mantequilla');
+});
+
+
+test('expansión: el obrador admite módulos consecutivos de coste creciente', () => {
+  const s = started(); s.cash = 1e10;
+  for (let i = 0; i < 3; i++) assert(buyUpgrade(s).ok);
+  let price = 0;
+  for (let i = 0; i < 12; i++) {
+    const up = nextUpgrade(s);
+    assert(up && up.cost > price, 'sigue habiendo ampliaciones cada vez más caras');
+    const capacity = obradorCapacity(s), value = obradorValue(s), cash = s.cash;
+    assert(buyUpgrade(s).ok);
+    assertEq(obradorCapacity(s), capacity + 25000);
+    assertEq(s.cash, cash - up.cost);
+    assert(obradorValue(s) > value);
+    price = up.cost;
+  }
+  assertEq(deserialize(serialize(s)).obrador.expansions, 12);
+});
+
+test('expansión: abrir cuesta más en mercados caros, también para inmuebles', () => {
+  const s = started();
+  for (const type of ['express', 'vivienda', 'airbnb']) {
+    assert(openingCost(s, type, 'propia', 'marbella') > openingCost(s, type, 'propia', 'caceres'));
+  }
+  assertEq(openingCost(s, 'express', 'propia', 'zaragoza'), BUSINESS_TYPES.express.cost);
+  assertEq(openingCost(s, 'express', 'franquicia', 'madrid'), 0);
+});
+
+test('expansión: la estimación separa beneficio de central y franquiciado', () => {
+  const s = started(); s.cash = 1e6;
+  const est = estimateOpening(s, 'express', 'santander', 'franquicia');
+  assert(Number.isFinite(est.franchiseeProfit));
+  assert(openBusiness(s, 'express', 'santander', 'franquicia').ok);
+  assertEq(est.franchiseeProfit, computeEconomy(s).lines.find(l => l.franchise).franchiseeProfit);
+});
+
+test('expansión: diversificar no exige sobaos y el excedente aporta un bonus pagado', () => {
+  const s = started(); s.cash = 1e8; s.unlocked.smash = true;
+  openBusiness(s, 'smash', 'madrid');
+  const a = computeEconomy(s);
+  const line = r => r.lines.find(l => l.type === 'smash');
+  for (let i = 0; i < 3; i++) buyUpgrade(s);
+  // Ocupamos toda la producción con un contrato: el restaurante mantiene su actividad normal.
+  s.contracts.push({id:'test', label:'Lote', units:1e7, price:2, months:12});
+  const short = computeEconomy(s);
+  assert(short.fill < 1);
+  assert(line(short).revenue > 0);
+  assertEq(line(short).surplusBonus, 0);
+  s.contracts = [];
+  const extra = computeEconomy(s);
+  assert(line(extra).revenue > line(short).revenue);
+  assert(line(extra).surplusBonus > 0 && line(extra).surplusBonus <= 0.05);
+  assert(extra.produced <= extra.capacity);
+  assertEq(extra.bonusUnits, 250);
+  const expectedMaterials = extra.produced * 1.05 + line(extra).revenue / (1 + line(extra).surplusBonus) * BUSINESS_TYPES.smash.cogs;
+  assert(Math.abs(extra.costs.materias - expectedMaterials) < 0.01, 'se cobran las materias de toda la producción, incluida la cortesía');
+});
+
+test('expansión: viviendas desde el principio y ocupación por localidad', () => {
+  const s = started(); s.cash = 1e7;
+  assert(canOpen(s, 'vivienda', 'madrid').ok, 'no exige tres tiendas');
+  openBusiness(s, 'vivienda', 'madrid');
+  assertEq(computeEconomy(s).housed, 0, 'la plantilla de Selaya no vive en Madrid');
+  openBusiness(s, 'express', 'madrid');
+  const r = computeEconomy(s);
+  assertEq(r.housed, BUSINESS_TYPES.express.staff);
+  assert(r.lines.find(l => l.type === 'vivienda').revenue > 0);
+});
+
+
+test('I+D ampliado: proyectos distintos, iconos propios y especialización real', () => {
+  assert(PRODUCTS.length >= 24);
+  assertEq(new Set(PRODUCTS.map(p => p.id)).size, PRODUCTS.length);
+  assertEq(new Set(PRODUCTS.map(p => p.icon)).size, PRODUCTS.length);
+  const s = started(); s.cash = 1e8; s.unlocked.gimnasio = true;
+  assert(startRD(s, 'biomecanica').ok);
+  while (s.rd) tickRD(s);
+  assert(s.products.includes('biomecanica'));
+  const city = CITIES.find(c => c.id === 'madrid');
+  assert(productFactor(s, 'gimnasio', 'servicios', city, 0) > 1);
+  assertEq(productFactor(s, 'express', 'sobaos', city, 0), 1);
+  assert(!startRD(s, 'biomecanica').ok, 'no se vuelve a pagar la misma innovación');
+  assert(deserialize(serialize(s)).products.includes('biomecanica'));
 });

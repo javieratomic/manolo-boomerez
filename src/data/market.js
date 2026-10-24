@@ -53,7 +53,22 @@ export const PRODUCTS = [
   { id: 'teleasistencia', name: 'Pulsera de teleasistencia "Golden"', cost: 45000, months: 3, requires: 'residencia',
     effects: [{ types: ['residencia'], factor: 1.1 }],
     desc: 'Una pulsera que avisa si el abuelo se cae. Y si sale sin pagar. Residencias +10 %.' },
+  {"id": "integral", "name": "Sobao integral de espelta", "cost": 32000, "months": 2, "effects": [{"category": "sobaos", "factor": 1.05}], "desc": "El desayuno de quien lee etiquetas. Sobaos +5 %."},
+  {"id": "cafe", "name": "Café de especialidad pasiego", "cost": 48000, "months": 3, "effects": [{"types": ["taberna"], "factor": 1.09}, {"category": "sobaos", "factor": 1.03}], "desc": "Café con nombre de finca y un sobao al lado. Tabernas +9 % y sobaos +3 %.", "requires": "taberna"},
+  {"id": "vegano", "name": "Receta vegetal de avena", "cost": 55000, "months": 4, "effects": [{"category": "sobaos", "factor": 1.07, "minPop": 0.6}], "desc": "Otra clientela, otra receta. Sobaos +7 % en mercados medianos y grandes."},
+  {"id": "cacao", "name": "Sobao de cacao de origen", "cost": 42000, "months": 3, "effects": [{"category": "sobaos", "factor": 1.06}], "desc": "Ahora también mancha los dedos. Sobaos +6 %."},
+  {"id": "helado", "name": "Helado de sobao pasiego", "cost": 65000, "months": 4, "effects": [{"types": ["taberna", "smash", "empanadas"], "factor": 1.13, "months": [4, 5, 6, 7, 8]}], "desc": "El verano ya tiene postre: hostelería +13 % de mayo a septiembre.", "requires": "taberna"},
+  {"id": "menu_verde", "name": "Menú vegetal de temporada", "cost": 52000, "months": 3, "effects": [{"types": ["smash", "empanadas", "taberna"], "factor": 1.07}], "desc": "La ensalada deja de ser decoración. Hostelería +7 %.", "requires": "smash"},
+  {"id": "biomecanica", "name": "Circuito de biomecánica", "cost": 85000, "months": 5, "effects": [{"types": ["gimnasio"], "factor": 1.14}], "desc": "Máquinas ajustables y programas para espaldas de oficina. Gimnasios +14 %.", "requires": "gimnasio"},
+  {"id": "salas", "name": "Salas insonorizadas y reserva digital", "cost": 72000, "months": 4, "effects": [{"types": ["coworking"], "factor": 1.12}], "desc": "Las reuniones ya no se escuchan desde recepción. Coworking +12 %.", "requires": "coworking"},
+  {"id": "domotica", "name": "Domótica y llegada sin esperas", "cost": 80000, "months": 4, "effects": [{"types": ["airbnb"], "factor": 1.08}], "desc": "Climatización y acceso que funcionan. Pisos turísticos +8 %.", "requires": "airbnb"},
+  {"id": "rehabilitacion", "name": "Programa de rehabilitación sénior", "cost": 95000, "months": 5, "effects": [{"types": ["residencia"], "factor": 1.09}], "desc": "Fisioterapia y seguimiento real. Aumenta el atractivo de la residencia un 9 %, respetando sus plazas.", "requires": "residencia"},
+  {"id": "simulador", "name": "Simulador de gestión para la Academy", "cost": 60000, "months": 4, "effects": [{"types": ["academy"], "factor": 1.13}], "desc": "Los alumnos practican sin hipotecar a su madre. Academy +13 %.", "requires": "academy"},
+  {"id": "desayunos", "name": "Desayunos corporativos por reserva", "cost": 110000, "months": 5, "effects": [{"category": "sobaos", "factor": 1.06}, {"types": ["coworking", "taberna"], "factor": 1.06}], "desc": "Reuniones con menos diapositivas y más desayuno. Sobaos, coworking y tabernas +6 %."},
 ];
+
+// Iconos vectoriales propios de la interfaz: cada proyecto tiene una ilustración distinta.
+for (const product of PRODUCTS) product.icon = `assets/ui/rd_${product.id}.svg`;
 
 export const UPGRADE_COST = [0.6, 1.0]; // coste de pasar a nivel 2 y a nivel 3 (fracción del coste del negocio)
 export const MAX_LEVEL = 3;

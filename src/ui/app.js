@@ -7,7 +7,7 @@ import { initAssets, imageUrl, hasArt } from '../render/assets.js';
 import { newGame, saveToStorage, loadFromStorage, clearStorage, serialize, deserialize, DIFFICULTIES, GAME_VERSION } from '../core/state.js';
 import { seedCode, parseSeed, isoWeekKey, weekSeed } from '../core/seed.js';
 import { advanceMonth, currentPending, resolvePending, checkEnding, score, pickQuote, retire } from '../core/sim.js';
-import { patrimonio } from '../core/economy.js';
+import { patrimonio, estimateOpening } from '../core/economy.js';
 import { openBusiness, sellBusiness, buyUpgrade, setPolicy, togglePerk, borrow, repay, doManoloAction, dropMonthlyCost, currentGoal, currentGoals, goalNumber, checkGoals, rebrand, canRebrand, franchiseFee, LOAN_STEP } from '../core/actions.js';
 import { GOALS, LANES } from '../data/goals.js';
 import { HELP_PAGES, helpChoices } from '../data/help.js';
@@ -403,8 +403,9 @@ async function onClick(e) {
     case 'open': {
       const t = BUSINESS_TYPES[el.dataset.type];
       if (el.dataset.mode === 'franquicia') {
+        const est = estimateOpening(s, el.dataset.type, game.city, 'franquicia');
         const ok = await confirmModal(`Vender una franquicia de ${t.name}`,
-          `Un emprendedor local te paga ${money(franchiseFee(s, el.dataset.type))} de canon y monta la tienda con su dinero. Tú le vendes los sobaos a precio mayorista y cobras un 5 % de royalties.\n\nSi pierde dinero 4 meses seguidos, quebrará... y vendrá a pedirte explicaciones.`, 'Firmar');
+          `Un emprendedor local te paga ${money(franchiseFee(s, el.dataset.type))} de canon y monta la tienda con su dinero. Tú le vendes los sobaos a precio mayorista y cobras un 5 % de royalties.\n\nEstimación mensual de la central: ${money(est.delta)}. Del franquiciado: ${money(est.franchiseeProfit)}.${est.franchiseeProfit < 0 ? ' Ya empieza perdiendo dinero.' : ''}\n\nSi el franquiciado pierde dinero 4 meses seguidos, quebrará... y vendrá a pedirte explicaciones.`, 'Firmar');
         if (!ok) return;
       }
       if (el.dataset.mode === 'ilegal' && !(await confirmModal('Pisos sin licencia', 'Abres los pisos turísticos sin licencia. Te ahorras 120.000 €, pero cada mes hay una probabilidad de que el ayuntamiento te pille (multa de 40.000 € o más) y el radar de Hacienda sube.', 'Arriesgarse'))) return;

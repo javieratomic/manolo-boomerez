@@ -8,7 +8,7 @@
 
 ## Validación de la continuación
 
-- 173/173 tests de simulación en Node; 176/176 en `tests/index.html`, incluidos los del DOM real.
+- 173/173 tests de simulación en Node; 177/177 en `tests/index.html`, incluidos los del DOM real.
 - Playwright con Edge, a 1365×900 y 375×812: elecciones rápidas, contador de diálogos, bocadillo,
   edad y continuación en modo infinito comprobados. La promesa se muestra y se puede cerrar el mes.
 - Sintaxis de los módulos comprobada. Importación de `src/ui/app.js` en Node con `globalThis.window = {}`
@@ -19,6 +19,16 @@
   `desktop/dist/ManoloBoomerez-0.4.0-portable.exe`.
 - El arte se mantiene: 194 terminados, 62 pendientes y 1 bloqueado; `check_assets.py` correcto.
 - Worktree temporal retirado sin forzar ni hacer stash. Sin cambios de equilibrado ni push.
+
+### Comprobación de una partida completa
+
+- Partida real en navegador, semilla 3, dificultad normal y Express: final pyme en el mes 96,
+  220 diálogos y cero errores JavaScript. Recarga en el mes 24: mismo mes, caja y estado del azar.
+- Doce partidas simuladas (semillas 1–12, gestión y decisiones variadas): 1.066 comprobaciones de
+  serializar/deserializar, conservando mes, caja, RNG y resultado económico.
+- Detectada y corregida la repetición automática de teclas: mantener `1` o Intro podía descartar el
+  resultado y seguir eligiendo cartas. Regresión DOM para ambas teclas, resultado y carta siguiente;
+  falló antes de la corrección. Revisión independiente sin hallazgos importantes.
 
 > Para el agente de **código** (Claude u otro). El agente de arte (Codex) puede ignorar este fichero.
 > Escrito el 24-10-2026 sobre `main` en `6dd4109`, más el commit que lo añade.

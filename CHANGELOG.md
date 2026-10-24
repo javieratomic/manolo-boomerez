@@ -40,6 +40,8 @@
   cartilla y lo que mueva la caja siempre se enseñan. La acción de Manolo va a su bocadillo hasta el cierre.
 - Teclas `,` y `.` para recorrer las ciudades con alerta; en el móvil, tocar dos ciudades juntas acerca el
   mapa; la pulsación que cierra un diálogo ya no cierra también el mes.
+- Mantener pulsado un número o Intro no descarta el resultado de una carta ni elige en la siguiente:
+  hace falta una pulsación nueva.
 
 ### Técnica y calidad
 - La estimación de aperturas ya no clona la partida: el bot va 3,8 veces más rápido, con las mismas partidas.

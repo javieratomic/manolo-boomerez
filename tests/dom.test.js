@@ -62,3 +62,38 @@ test('DOM: el doble clic y Intro no pasan de una carta a la siguiente', async ()
   assert(!isModalOpen());
   await wait(180);
 });
+
+test('DOM: mantener una tecla no cierra el resultado ni elige en la carta siguiente', async () => {
+  const el = root();
+  for (const key of ['1', 'Enter']) {
+    let calls = 0;
+    const done = showModal({ title: 'Tecla mantenida', choices: [{ label: 'Elegir' }], followUp: () => {
+      calls++;
+      return { text: 'Este resultado debe esperar una nueva pulsación.' };
+    } });
+    try {
+      await wait(380);
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+      await wait(380);
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key, repeat: true, bubbles: true }));
+      assert(isModalOpen(), `${key}: la repetición no cierra el resultado`);
+      assertEq(calls, 1);
+    } finally {
+      el.querySelector('.modal-backdrop:not(.closing) button')?.click();
+      await done;
+      await wait(180);
+    }
+    let nextCalls = 0;
+    const next = showModal({ title: 'Carta siguiente', choices: [{ label: 'Elegir' }], followUp: () => { nextCalls++; } });
+    try {
+      await wait(380);
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key, repeat: true, bubbles: true }));
+      assertEq(nextCalls, 0, `${key}: la repetición tampoco elige en la carta siguiente`);
+      assert(isModalOpen());
+    } finally {
+      el.querySelector('.modal-backdrop:not(.closing) button')?.click();
+      await next;
+      await wait(180);
+    }
+  }
+});

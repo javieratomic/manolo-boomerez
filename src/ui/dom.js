@@ -96,6 +96,12 @@ export function showModal(opts) {
     const onKey = (e) => {
       if (wrap !== root.lastElementChild) return;
       const n = parseInt(e.key, 10);
+      // Una tecla mantenida puede seguir repitiéndose tras cambiar de resultado o de carta.
+      if (e.repeat && ((n >= 1 && n <= choices.length) || e.key === 'Enter' || e.key === 'Escape')) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
       if (n >= 1 && n <= choices.length) {
         e.preventDefault();
         e.stopPropagation();

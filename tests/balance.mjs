@@ -53,6 +53,8 @@ export const VARIANTS = {
   M_ctl_mix: { ...SMART, brand: 'maison', policyAt: from(24, MG), control: { hi: 15, lo: 5 }, choose: chooser('mixto') },
   M_rep_paga: { ...SMART, brand: 'maison', choose: chooser('mixto'), reparto: withComite('paga') },
   M_rep_part: { ...SMART, brand: 'maison', choose: chooser('mixto'), reparto: withComite('participacion') },
+  M_tiburon: { ...SMART, brand: 'maison', guia: 'tiburon' },
+  E_tiburon: { ...SMART, guia: 'tiburon' },
   B_mama: { mama: true },
   D_mama: { diversify: true, mama: true },
   E_mama: { ...SMART, mama: true },

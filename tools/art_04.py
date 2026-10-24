@@ -50,6 +50,13 @@ ART = [
        "la mesa, mirando el reloj de pared; Manolo entra por la puerta con un sobre en la mano.", 3),
     ev("ev_cartilla_enfado", "Doña Remedios al teléfono fijo de cable rizado, con la mano en la cadera, en su salón con tapetes de ganchillo; "
        "por la ventana se ve a la vecina cotilla en su balcón, también al teléfono.", 3),
+    # ------------------------------------------------------------------ La Bolsa tiene memoria
+    ev("ev_promesa_trimestre", "Manolo, con traje y zapatillas deportivas, en videollamada con una cuadrícula de analistas genéricos en "
+       "pantallas pequeñas; detrás de él, una pizarra con un gráfico de barras que sube.", 2),
+    ev("ev_informe_bajista", "Sala de bolsa con una pantalla gigante y un gráfico que cae en rojo; delante, un sobao partido por la mitad, "
+       "hueco por dentro; Manolo con las manos en la cabeza.", 2),
+    ev("ev_cierre_trimestre", "Paco el gestor (60 años, bigote, chaleco de punto), de noche, con una hoja de cálculo impresa kilométrica que "
+       "cae del escritorio, un flexo encendido y un purito apagado; Manolo le trae un café.", 3),
     ev("ev_remedios_domingo", "Comedor de domingo en una casa de pueblo cántabra: una olla de cocido montañés humeante, nóminas extendidas "
        "junto al pan y la berza; Doña Remedios las lee con las gafas en la punta de la nariz mientras Manolo suda.", 3),
 ]

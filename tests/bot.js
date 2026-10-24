@@ -34,6 +34,7 @@ const DIVERSIFY = ['smash', 'empanadas', 'airbnb', 'vivienda', 'academy', 'taber
  *    a explotar cuando baja de lo
  *  choose(s, p): índice de la opción para una carta (null = la regla por defecto)
  *  hook(s), onMonth(s, r, eventos): ganchos para scripts de medida
+ *  guia: guía de la promesa del trimestre cotizando ('prudente' por defecto, 'en_linea', 'optimista', 'tiburon')
  *  mama: pide a Doña Remedios «lo que pueda» cuando se deja (y resuelve sus cartas con la primera opción)
  */
 export const LEGAL = { salario: 'convenio', horas: 'pagadas', becarios: 'ninguno' };
@@ -89,6 +90,7 @@ export function playGame(seed, strategy = {}) {
       const p = currentPending(s);
       evs.push(p.pending.id);
       let idx = strategy.choose ? strategy.choose(s, p) : null;
+      if (idx == null && strategy.guia && p.pending.id === 'promesa_trimestre') idx = p.choices.find((c) => c.key === strategy.guia)?.index ?? null;
       if (idx == null) idx = p.choices[strategy.choice === 'random' ? Math.floor(random(s) * p.choices.length) : 0].index;
       resolvePending(s, idx);
     }

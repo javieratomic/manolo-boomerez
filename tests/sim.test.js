@@ -10,7 +10,7 @@ import { BUSINESS_TYPES, OBRADOR_UPGRADES } from '../src/data/businesses.js';
 import { MANOLO_ACTIONS } from '../src/data/manoloActions.js';
 import { ACHIEVEMENTS } from '../src/data/achievements.js';
 import { refreshCandidates, hireExec, execBonus, fireExec } from '../src/core/execs.js';
-import { buyLujo, doIPO, companyValuation, ipoPremium } from '../src/core/life.js';
+import { buyLujo, doIPO, companyValuation, ipoPremium, tickIPO } from '../src/core/life.js';
 import { transportCost } from '../src/core/logistics.js';
 import { advice } from '../src/core/advice.js';
 import { tickRivals, rivalFactor, actOnRival, acquireRival, acquisitionPrice } from '../src/core/rivals.js';
@@ -25,6 +25,7 @@ import { netDrivers, freshEntries, upcoming, monthDigest, MAX_DRIVERS } from '..
 import { seedCode, parseSeed, isoWeekKey, weekSeed } from '../src/core/seed.js';
 import { tickAhorro, liquidacion, liquidate, strikeChance, tickComite, rollConvenio, K as PK } from '../src/core/plantilla.js';
 import { askLoan, repayEarly, canAsk, tickCartilla, refran } from '../src/core/cartilla.js';
+import { bolsaState, tickBolsa, moveSent, reportedQuarter, discover } from '../src/core/bolsa.js';
 import { playGame, from } from './bot.js';
 
 const started = (seed = 42, brand = 0) => {
@@ -1682,4 +1683,103 @@ test('cartilla: migrate crea la cartilla y las cartas aguantan sin ella', () => 
   delete back.cartilla;
   back.pending = [{ kind: 'event', id: 'cartilla_vence', params: {} }];
   assert(typeof currentPending(back).text === 'string');
+});
+
+// ------------------------------------------------------------- 0.4 · La promesa del trimestre (4b)
+const listed = (netPerMonth = 100000, months = 48) => {
+  const s = started();
+  s.history = Array.from({ length: months }, (_, m) => ({ month: m, net: netPerMonth, revenue: 500000, cash: 0, patrimonio: 0, cat: {} }));
+  s.month = months - 1;
+  s.ipo = { month: 30, float: 0.25, valuation: 1e7, price: 100, peak: 100, angryMonth: -99 };
+  bolsaState(s);
+  return s;
+};
+
+test('bolsa: sin base positiva no hay promesa', () => {
+  const s = listed(-1000);
+  s.month = 47; // último mes de un trimestre
+  tickBolsa(s);
+  assert(!s.pending.some((p) => p.id === 'promesa_trimestre'));
+  const t = listed(100000);
+  tickBolsa(t);
+  const p = t.pending.find((x) => x.id === 'promesa_trimestre');
+  assert(p && p.params.base === 300000 && p.params.qi === 16, JSON.stringify(p));
+});
+
+test('bolsa: cumplir y fallar mueven credibilidad y sentimiento según la guía', () => {
+  const s = listed();
+  pick(s, visit(s, 'promesa_trimestre', { qi: 16, base: 300000, g: 0 }), 'Modo tiburón');
+  assertEq(s.ipo.q.target, 375000);
+  for (let m = 48; m <= 50; m++) s.history.push({ month: m, net: 100000, revenue: 0, cash: 0, patrimonio: 0, cat: {} });
+  s.month = 50;
+  tickBolsa(s);
+  assertEq(s.ipo.lastResult.ok, false);
+  assertEq(s.ipo.cred, 25);
+  assert(Math.abs(s.ipo.sent - 0.95) < 1e-9, `sentimiento ${s.ipo.sent}`);
+  assert(s.pending.some((p) => p.id === 'junta_accionistas'), 'el modo tiburón fallido trae junta');
+  const t = listed();
+  t.ipo.sent = 1.04;
+  pick(t, visit(t, 'promesa_trimestre', { qi: 16, base: 300000, g: 0 }), 'Prudente');
+  for (let m = 48; m <= 50; m++) t.history.push({ month: m, net: 100000, revenue: 0, cash: 0, patrimonio: 0, cat: {} });
+  t.month = 50;
+  tickBolsa(t);
+  assert(t.ipo.lastResult.ok && t.ipo.cred === 52);
+  assert(t.ipo.sent <= 1.05 && t.ipo.sent >= 0.85);
+  moveSent(t, -0.2);
+  assert(t.ipo.sent >= 1.03 - 0.05 - 1e-9, 'como mucho ±0,05 por trimestre');
+});
+
+test('bolsa: el cierre solo sale si vas a fallar', () => {
+  const s = listed();
+  s.ipo.q = { qi: 16, guia: 'en_linea', target: 10, base: 10 };
+  s.history.push({ month: 48, net: 100000, revenue: 0, cash: 0, patrimonio: 0, cat: {} }, { month: 49, net: 100000, revenue: 0, cash: 0, patrimonio: 0, cat: {} });
+  s.month = 49;
+  tickBolsa(s);
+  assert(!s.pending.some((p) => p.id === 'cierre_trimestre'), 'vas sobrado');
+  s.ipo.q.target = 1e9;
+  tickBolsa(s);
+  assert(s.pending.some((p) => p.id === 'cierre_trimestre'));
+});
+
+test('bolsa: maquillar cambia lo publicado, no la caja, y se revierte el trimestre siguiente', () => {
+  const s = listed();
+  s.ipo.q = { qi: 16, guia: 'en_linea', target: 1e9, base: 1 };
+  s.lastReport = { costs: { mantenimiento: 10000, estructura: 20000 }, lines: [] };
+  const cash = s.cash;
+  s.month = 49;
+  pick(s, visit(s, 'cierre_trimestre', { gap: 1e9 }), 'gastos');
+  assertEq(s.cash, cash, 'la caja no cambia');
+  assertEq(s.ipo.maquillajes[0].importe, 45000);
+  for (let m = 48; m <= 53; m++) s.history.push({ month: m, net: 100000, revenue: 0, cash: 0, patrimonio: 0, cat: {} });
+  assertEq(reportedQuarter(s, 16), 345000);
+  assertEq(reportedQuarter(s, 17), 255000, 'se revierte');
+});
+
+test('bolsa: el descubrimiento se salta el tope del trimestre y al tercero abre expediente', () => {
+  const s = listed();
+  s.ipo.sent = 1;
+  s.ipo.maquillajes = [{ qi: 16, tipo: 'gastos', importe: 1, descubierto: false }];
+  discover(s);
+  assert(Math.abs(s.ipo.sent - 0.9) < 1e-9, 'baja 0,10 de golpe');
+  assert(s.pending.some((p) => p.id === 'informe_bajista'));
+  const exp = s.expedientes;
+  for (let i = 0; i < 2; i++) {
+    s.ipo.maquillajes.push({ qi: 17 + i, tipo: 'gastos', importe: 1, descubierto: false });
+    discover(s);
+  }
+  assertEq(s.expedientes, exp + 1, 'al tercero, expediente');
+  assertEq(s.ipo.sent, 0.85, 'nunca por debajo de 0,85');
+});
+
+test('bolsa: la junta salta con sentimiento de 0,90 o menos y el patrimonio se multiplica por él', () => {
+  const s = listed();
+  s.ipo.sent = 0.9;
+  s.month = 60;
+  tickIPO(s, grossPatrimonio(s), 0);
+  assert(s.pending.some((p) => p.id === 'junta_accionistas'));
+  const before = patrimonio(s);
+  s.ipo.sent = 0.95;
+  assert(Math.abs(patrimonio(s) - (before / 0.9) * 0.95) < 1e-6);
+  const t = started();
+  assertEq(patrimonio(t), grossPatrimonio(t), 'sin cotizar, sin sentimiento');
 });

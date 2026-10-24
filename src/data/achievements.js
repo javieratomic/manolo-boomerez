@@ -40,4 +40,6 @@ export const ACHIEVEMENTS = [
   { id: 'hijo_de_tu_madre', emoji: '🧓', name: 'Hijo de tu madre', desc: 'Devuelve a tiempo 3 préstamos de la cartilla de Doña Remedios.', test: (s) => (s.cartilla?.devueltos ?? 0) >= 3 },
   { id: 'embargo_materno', emoji: '🥘', name: 'Embargo materno', desc: 'Dile a tu madre "No tengo, mamá" y deja que te embargue.', test: (s) => !!s.flags.embargado },
   { id: 'refranero', emoji: '📖', name: 'Refranero completo', desc: `Colecciona los ${REFRAN_COUNT} refranes de la cartilla (entre partidas).`, test: (s) => (s.flags.refranero ?? 0) >= REFRAN_COUNT },
+  { id: 'hombre_de_palabra', emoji: '🎤', name: 'Hombre de palabra', desc: 'Cumple 8 promesas del trimestre seguidas cotizando en Bolsa.', test: (s) => (s.ipo?.racha ?? 0) >= 8 },
+  { id: 'sobao_hueco', emoji: '🥐', name: 'El sobao está hueco', desc: 'Que un fondo bajista descubra que has maquillado las cuentas.', test: (s) => (s.ipo?.descubiertos ?? 0) >= 1 },
 ];

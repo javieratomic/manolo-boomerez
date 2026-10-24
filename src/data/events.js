@@ -19,6 +19,7 @@ import { PLANTILLA_EVENTS } from './eventsPlantilla.js';
 import { liquidate, credibilidad } from '../core/plantilla.js';
 import { addConfianza } from '../core/cartilla.js';
 import { REMEDIOS_EVENTS } from './eventsRemedios.js';
+import { BOLSA_EVENTS } from './eventsBolsa.js';
 import { MACRO_EVENTS } from './eventsMacro.js';
 import { ARC_EVENTS } from './eventsArcs.js';
 import { EXTRA_EVENTS } from './eventsExtra.js';
@@ -1560,6 +1561,6 @@ const BASE_EVENTS = [
   },
 ];
 
-export const EVENTS = [...BASE_EVENTS, ...MACRO_EVENTS, ...SYSTEM_EVENTS, ...ARC_EVENTS, ...EXTRA_EVENTS, ...CITY_EVENTS, ...PLANTILLA_EVENTS, ...REMEDIOS_EVENTS];
+export const EVENTS = [...BASE_EVENTS, ...MACRO_EVENTS, ...SYSTEM_EVENTS, ...ARC_EVENTS, ...EXTRA_EVENTS, ...CITY_EVENTS, ...PLANTILLA_EVENTS, ...REMEDIOS_EVENTS, ...BOLSA_EVENTS];
 
 export const EVENT_BY_ID = Object.fromEntries(EVENTS.map((e) => [e.id, e]));

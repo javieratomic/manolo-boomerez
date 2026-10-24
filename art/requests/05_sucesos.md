@@ -1052,6 +1052,30 @@ Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal des
 
 Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Doña Remedios al teléfono fijo de cable rizado, con la mano en la cadera, en su salón con tapetes de ganchillo; por la ventana se ve a la vecina cotilla en su balcón, también al teléfono. Sin texto legible.
 
+## ev_promesa_trimestre
+
+- **Archivo:** `assets/events/ev_promesa_trimestre.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Manolo, con traje y zapatillas deportivas, en videollamada con una cuadrícula de analistas genéricos en pantallas pequeñas; detrás de él, una pizarra con un gráfico de barras que sube. Sin texto legible.
+
+## ev_informe_bajista
+
+- **Archivo:** `assets/events/ev_informe_bajista.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Sala de bolsa con una pantalla gigante y un gráfico que cae en rojo; delante, un sobao partido por la mitad, hueco por dentro; Manolo con las manos en la cabeza. Sin texto legible.
+
+## ev_cierre_trimestre
+
+- **Archivo:** `assets/events/ev_cierre_trimestre.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Paco el gestor (60 años, bigote, chaleco de punto), de noche, con una hoja de cálculo impresa kilométrica que cae del escritorio, un flexo encendido y un purito apagado; Manolo le trae un café. Sin texto legible.
+
 ## ev_remedios_domingo
 
 - **Archivo:** `assets/events/ev_remedios_domingo.png`

@@ -160,7 +160,7 @@ export function doIPO(s, equity) {
   const raised = valuation * IPO_FLOAT;
   const fee = raised * IPO_FEE;
   addCash(s, raised - fee);
-  s.ipo = { month: s.month, float: IPO_FLOAT, valuation, price: 100, peak: 100, angryMonth: -99 };
+  s.ipo = { month: s.month, float: IPO_FLOAT, valuation, price: 100, peak: 100, angryMonth: -99, sent: 1, cred: 50, q: null, publicados: {}, maquillajes: [], descubiertos: 0, racha: 0 };
   addFama(s, 12);
   addRep(s, 3);
   log(s, `🔔 Boomerez S.A. sale a Bolsa: vende el ${Math.round(IPO_FLOAT * 100)} % por ${money(raised)} (comisiones: ${money(fee)}). Manolo toca la campana con las gafas de sol puestas.`, 'good');
@@ -170,10 +170,11 @@ export function doIPO(s, equity) {
 // Cotización mensual: sigue a la valoración con algo de ruido y de euforia.
 export function tickIPO(s, equity, noise) {
   if (!s.ipo) return;
-  const fair = (companyValuation(s, equity) / s.ipo.valuation) * 100;
+  const fair = (companyValuation(s, equity) / s.ipo.valuation) * 100 * (s.ipo.sent ?? 1);
   s.ipo.price = Math.max(5, s.ipo.price * 0.6 + fair * 0.4 + noise);
   s.ipo.peak = Math.max(s.ipo.peak, s.ipo.price);
-  if (s.ipo.price < s.ipo.peak * 0.7 && s.month - s.ipo.angryMonth >= 12) {
+  // La junta salta cuando el mercado pierde la fe (sentimiento 0,90 o menos), como mucho una vez al año.
+  if ((s.ipo.sent ?? 1) <= 0.9 && s.month - s.ipo.angryMonth >= 12) {
     s.ipo.angryMonth = s.month;
     s.pending.push({ kind: 'event', id: 'junta_accionistas' });
   }

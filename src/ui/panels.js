@@ -28,6 +28,7 @@ import { haciendaDebt } from '../core/inspections.js';
 import { clauseStatus } from '../core/clauses.js';
 import { liquidacion, convenioDemand, credibilidad, profitRatio, K as PK } from '../core/plantilla.js';
 import { canAsk, maxLoan, breaksPromise, COND_TEXT, condDesc, MAMA } from '../core/cartilla.js';
+import { bolsaState, quarterProgress, qLabel, GUIAS } from '../core/bolsa.js';
 import { collectRefranes, REFRAN_COUNT } from './refranero.js';
 import { seedCode } from '../core/seed.js';
 import { CLAUSE_PRIZE } from '../data/clauses.js';
@@ -672,6 +673,23 @@ export function renderFinance(s) {
   return html;
 }
 
+function renderPromesa(s) {
+  const ipo = bolsaState(s);
+  if (!ipo) return '';
+  const pr = quarterProgress(s);
+  const mine = grossPatrimonio(s) * (1 - ipo.float);
+  const sent = (ipo.sent ?? 1).toFixed(2).replace('.', ',');
+  const last = ipo.lastResult ? `<p class="small ${ipo.lastResult.ok ? 'pos' : 'neg'}">Último trimestre (${qLabel(ipo.lastResult.qi)}): ${ipo.lastResult.ok ? 'cumpliste' : 'no llegaste'} (${moneyShort(ipo.lastResult.real)} de ${moneyShort(ipo.lastResult.target)}).</p>` : '';
+  const pend = (ipo.maquillajes || []).filter((x) => !x.descubierto).length;
+  return `<div class="promesa"><h4>📈 La promesa del trimestre</h4>
+    ${pr ? `<div class="small">${qLabel(pr.qi)} · guía «${esc(GUIAS[ipo.q.guia]?.label ?? ipo.q.guia)}»: objetivo <b>${moneyShort(pr.target)}</b>. Llevas ${moneyShort(pr.closed)} y con lo que se espera irías al <b class="${pr.ratio >= 1 ? 'pos' : 'neg'}">${Math.round(pr.ratio * 100)} %</b>.</div>${bar(Math.min(pr.est, pr.target), Math.max(1, pr.target), pr.ratio >= 1 ? 'ok' : 'danger')}` : '<p class="small muted">Al cerrar cada trimestre darás una guía para el siguiente.</p>'}
+    ${last}
+    <div class="small">Credibilidad ante los analistas: <b>${Math.round(ipo.cred ?? 50)}</b>/100 · Sentimiento del mercado: <b>×${sent}</b>${ipo.racha >= 2 ? ` · ${ipo.racha} promesas cumplidas seguidas` : ''}</div>
+    <div class="small">Tu ${Math.round((1 - ipo.float) * 100)} % vale hoy <b>${moneyShort(mine * (ipo.sent ?? 1))}</b> (sentimiento ×${sent}).</div>
+    ${pend ? `<p class="small warn">🧟 Cadáveres en el armario: ${pend}. Cada cierre de trimestre (y cada auditoría) pueden salir a la luz.</p>` : ''}
+  </div>`;
+}
+
 function renderIPO(s) {
   const equity = grossPatrimonio(s);
   if (s.ipo) {
@@ -679,7 +697,8 @@ function renderIPO(s) {
     return `<div class="card"><h4>🔔 Boomerez S.A. en Bolsa</h4>
       <div class="kpis"><div><span class="muted small">Cotización</span><b class="${p >= 100 ? 'pos' : 'neg'}">${p.toFixed(1).replace('.', ',')} €</b></div>
       <div><span class="muted small">Máximo</span><b>${s.ipo.peak.toFixed(1).replace('.', ',')} €</b></div></div>
-      <p class="small muted">Salió a 100 €. Los accionistas tienen el ${Math.round(s.ipo.float * 100)} % de la empresa, así que tu patrimonio es el ${Math.round((1 - s.ipo.float) * 100)} % del total. Si la acción cae un 30 % desde su máximo, habrá junta de accionistas furiosa.</p>
+      <p class="small muted">Salió a 100 €. Los accionistas tienen el ${Math.round(s.ipo.float * 100)} % de la empresa, así que tu patrimonio es el ${Math.round((1 - s.ipo.float) * 100)} % del total, al precio que diga el mercado. Si el sentimiento baja a 0,90, habrá junta de accionistas furiosa.</p>
+      ${renderPromesa(s)}
       ${inLockup(s) ? `<p class="small warn">🔒 Periodo de bloqueo: la revista de millonarios no te saca hasta ${dateLabel(lockupEnd(s)).toLowerCase().replace(' ', ' de ')}.</p>` : ''}
     </div>`;
   }

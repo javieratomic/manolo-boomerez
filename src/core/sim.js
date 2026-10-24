@@ -7,6 +7,7 @@ import { checkUnlocks } from './actions.js';
 import { settleClause, clauseMult, checkClause } from './clauses.js';
 import { tickAhorro, driftAgravio, tickComite, rollConvenio, strikeChance } from './plantilla.js';
 import { tickCartilla, maybeRescue, isDomingo } from './cartilla.js';
+import { tickBolsa, afterAudit } from './bolsa.js';
 import { addStress } from './life.js';
 import { tickMacro, macroFx } from './macro.js';
 import { tickRivals, rivalHit } from './rivals.js';
@@ -61,6 +62,7 @@ export function advanceMonth(s) {
     cat: Object.fromEntries(Object.entries(r.revenueByCat).map(([k, v]) => [k, Math.round(v)])),
   });
   if (s.history.length > GAME_MONTHS + 12) s.history.shift();
+  tickBolsa(s); // con el mes ya en el historial, por si cierra un trimestre
   // La cláusula se juzga con el resultado del mes cerrado, antes de que avance el calendario.
   checkClause(s);
 
@@ -281,6 +283,7 @@ export function resolvePending(s, choiceIndex) {
   s.seen[p.id] = s.month;
   const result = choice.effect(s, params);
   if (ev.memory && choice.key) remember(s, p.id, choice.key);
+  if (p.id === 'auditoria_hacienda') afterAudit(s); // Don Fermín puede tirar del hilo de un maquillaje
   s.pending.shift();
   s.cash = Math.round(s.cash);
   checkUnlocks(s);

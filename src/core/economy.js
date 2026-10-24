@@ -103,8 +103,9 @@ export function structureCost(s) {
   return Math.round(STRUCTURE_BASE * Math.pow(n, STRUCTURE_EXP) * (1 - 2 * execBonus(s, 'operaciones')));
 }
 
+// Cotizando, tu parte vale lo que diga el mercado: el sentimiento (0,85-1,05) de la promesa del trimestre.
 export function patrimonio(s) {
-  return grossPatrimonio(s) * (1 - (s.ipo?.float || 0));
+  return grossPatrimonio(s) * (1 - (s.ipo?.float || 0)) * (s.ipo ? s.ipo.sent ?? 1 : 1);
 }
 
 export function creditLimit(s) {

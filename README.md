@@ -115,3 +115,12 @@ El contrato detallado está en [`AGENTS.md`](AGENTS.md).
 
 Es una sátira. Manolo es un personaje de ficción y cualquier parecido con un empresario real es pura
 coincidencia (o no). Las marcas, los personajes y las instituciones que aparecen son inventados o genéricos.
+
+
+### Expansión 0.5
+
+En **Mercado** se investigan 24 innovaciones y se negocian acuerdos extranjeros. Marca blanca exige sobaos del obrador; una licencia deja que el socio fabrique con tu marca y te pague royalties. Las auditorías reducen el riesgo, pero no evitan todos los impagos, defectos o copias de receta. Los contratos duran 24 meses y su rescisión anticipada cuesta 5.000 €.
+
+El obrador de Selaya admite módulos industriales de coste creciente tras sus tres mejoras iniciales. Abrir un local o comprar un inmueble cuesta según la ciudad. Las viviendas de plantilla se compran como **Residencial Boomerez**, no requieren licencia turística y solo alojan a empleados de la localidad. El alquiler se fija en **Plantilla**; la presión aumenta el control y tiene consecuencias en moral e inspecciones.
+
+Los negocios ajenos a sobaos no necesitan su producción. Si sobra capacidad, pueden recibir sobaos de cortesía: hasta +5 % de ingresos, con las materias, personal y transporte correspondientes. El mapa incluye 50 capitales provinciales, Ceuta, Melilla y los tres destinos adicionales originales. Los índices de población, renta y coste local son valores de juego. La lista de capitales se contrastó con las [Directrices toponímicas del IGN, apartado 6.2](https://www.ign.es/web/resources/acercaDe/libDigPub/Directrices_toponimicas_2023.pdf).

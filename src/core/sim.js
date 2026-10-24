@@ -1,3 +1,4 @@
+import { tickInternational } from './international.js';
 // Avance mensual de la simulación y resolución de sucesos.
 import { computeEconomy, policyFx, creditLimit, patrimonio, grossPatrimonio, hasCondition } from './economy.js';
 import { chance, weightedPick, pick, range } from './rng.js';
@@ -35,6 +36,7 @@ export function advanceMonth(s) {
   s.evaded += r.evaded;
 
   franchiseUpdates(s, r);
+  tickInternational(s, r);
   driftStats(s, r);
   tickTimers(s);
   tickMacro(s);

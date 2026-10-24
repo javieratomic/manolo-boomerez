@@ -5,8 +5,8 @@ export const TRANSPORT_PER_100KM = 0.025; // € por sobao y cada 100 km
 export const REGIONAL_CAPACITY = 15000;
 
 // Coordenadas reales (Canarias se dibuja en un recuadro) y sobrecoste por cruzar el mar.
-const REAL = { laspalmas: { lat: 28.12, lon: -15.43 } };
-const ISLAND = { laspalmas: 2.2, palma: 1.5, ibiza: 1.5 };
+const REAL = { laspalmas: { lat: 28.12, lon: -15.43 }, santacruz: { lat: 28.46, lon: -16.25 } };
+const ISLAND = { laspalmas: 2.2, santacruz: 2.2, ceuta: 1.4, melilla: 1.7, palma: 1.5, ibiza: 1.5 };
 
 function coords(id) {
   const c = CITY_BY_ID[id];

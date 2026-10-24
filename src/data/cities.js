@@ -1,4 +1,6 @@
 // Ciudades donde Manolo puede plantar su imperio.
+// Capitales contrastadas con IGN, Directrices toponímicas 2023, apartado 6.2:
+// https://www.ign.es/web/resources/acercaDe/libDigPub/Directrices_toponimicas_2023.pdf
 // pop, wealth, tourism y rent son índices relativos (1 = ciudad media española).
 // lon/lat se proyectan al mapa 2.5D (ver src/render/projection.js). Las Palmas usa
 // coordenadas "de recuadro" porque Canarias se dibuja como inserto, como en los mapas del tiempo.
@@ -66,6 +68,35 @@ export const CITIES = [
     blurb: 'Sol, invernaderos y rodajes de películas del oeste. El sobao, a 40 grados, se vuelve galleta.' },
   { id: 'laspalmas', name: 'Las Palmas', region: 'Canarias', lon: -7.55, lat: 35.72, pop: 0.6, wealth: 0.9, tourism: 0.9, rent: 1.05, inset: true,
     blurb: 'Primavera eterna. El sobao llega en avión y algo aplastado.' },
+  // Capitales restantes; índices de juego, no precios reales.
+  {"id": "albacete", "name": "Albacete", "region": "Castilla-La Mancha", "lon": -1.86, "lat": 38.99, "pop": 0.38, "wealth": 0.88, "tourism": 0.2, "rent": 0.65, "blurb": "Navajas, feria y desayunos tempranos. El polígono pide café con algo."},
+  {"id": "avila", "name": "Ávila", "region": "Castilla y León", "lon": -4.7, "lat": 40.66, "pop": 0.16, "wealth": 0.87, "tourism": 0.55, "rent": 0.68, "blurb": "Murallas y yemas. Aquí el sobao entra por una puerta vigilada."},
+  {"id": "badajoz", "name": "Badajoz", "region": "Extremadura", "lon": -6.97, "lat": 38.88, "pop": 0.32, "wealth": 0.8, "tourism": 0.25, "rent": 0.62, "blurb": "Frontera con Portugal y alquileres contenidos. La expansión empieza por cruzar la calle."},
+  {"id": "cadiz", "name": "Cádiz", "region": "Andalucía", "lon": -6.29, "lat": 36.53, "pop": 0.28, "wealth": 0.86, "tourism": 0.8, "rent": 0.95, "blurb": "Poco suelo, mucho ingenio y un carnaval que te pone letra enseguida."},
+  {"id": "castellon", "name": "Castelló de la Plana", "region": "Comunidad Valenciana", "lon": -0.05, "lat": 39.99, "pop": 0.38, "wealth": 0.93, "tourism": 0.4, "rent": 0.78, "blurb": "Azulejos, costa y desayunos de turno. La demanda no vive solo del turista."},
+  {"id": "ciudadreal", "name": "Ciudad Real", "region": "Castilla-La Mancha", "lon": -3.93, "lat": 38.99, "pop": 0.19, "wealth": 0.88, "tourism": 0.25, "rent": 0.65, "blurb": "Llanura, AVE y un local que sí puedes pagar sin llamar a tu madre."},
+  {"id": "cuenca", "name": "Cuenca", "region": "Castilla-La Mancha", "lon": -2.14, "lat": 40.07, "pop": 0.15, "wealth": 0.86, "tourism": 0.6, "rent": 0.65, "blurb": "Casas colgadas y tickets que conviene sujetar bien cuando sopla el aire."},
+  {"id": "girona", "name": "Girona", "region": "Cataluña", "lon": 2.82, "lat": 41.98, "pop": 0.27, "wealth": 1.08, "tourism": 0.7, "rent": 0.98, "blurb": "Turistas, ciclistas y buen paladar. El desayuno puede llevar cuestas."},
+  {"id": "guadalajara", "name": "Guadalajara", "region": "Castilla-La Mancha", "lon": -3.17, "lat": 40.63, "pop": 0.24, "wealth": 1.02, "tourism": 0.2, "rent": 0.85, "blurb": "La logística de Madrid busca espacio por aquí. Tu local también."},
+  {"id": "huelva", "name": "Huelva", "region": "Andalucía", "lon": -6.94, "lat": 37.26, "pop": 0.32, "wealth": 0.81, "tourism": 0.4, "rent": 0.7, "blurb": "Gambas, fresas y un sobao para quien necesita merendar algo distinto."},
+  {"id": "huesca", "name": "Huesca", "region": "Aragón", "lon": -0.41, "lat": 42.14, "pop": 0.15, "wealth": 1.0, "tourism": 0.38, "rent": 0.72, "blurb": "Puerta del Pirineo. El desayuno del excursionista cabe en la mochila."},
+  {"id": "jaen", "name": "Jaén", "region": "Andalucía", "lon": -3.79, "lat": 37.77, "pop": 0.25, "wealth": 0.8, "tourism": 0.35, "rent": 0.62, "blurb": "Capital del aceite. Convencerlos de usar mantequilla va a requerir conversación."},
+  {"id": "lleida", "name": "Lleida", "region": "Cataluña", "lon": 0.62, "lat": 41.62, "pop": 0.32, "wealth": 0.98, "tourism": 0.2, "rent": 0.72, "blurb": "Niebla en invierno, calor en verano y clientes que pagan por desayunar sin teatro."},
+  {"id": "logrono", "name": "Logroño", "region": "La Rioja", "lon": -2.45, "lat": 42.47, "pop": 0.34, "wealth": 1.0, "tourism": 0.5, "rent": 0.8, "blurb": "El vino tiene su calle. Tú buscas un hueco entre tanto pincho."},
+  {"id": "lugo", "name": "Lugo", "region": "Galicia", "lon": -7.56, "lat": 43.01, "pop": 0.23, "wealth": 0.87, "tourism": 0.38, "rent": 0.65, "blurb": "La muralla no deja salir a nadie sin haber comido bien."},
+  {"id": "ourense", "name": "Ourense", "region": "Galicia", "lon": -7.86, "lat": 42.34, "pop": 0.24, "wealth": 0.84, "tourism": 0.4, "rent": 0.65, "blurb": "Termas y clientela de toda la vida. El café con sobao aún se pide sin aplicación."},
+  {"id": "palencia", "name": "Palencia", "region": "Castilla y León", "lon": -4.53, "lat": 42.01, "pop": 0.18, "wealth": 0.92, "tourism": 0.2, "rent": 0.62, "blurb": "Desayunos tranquilos y alquileres que no necesitan una ronda de inversión."},
+  {"id": "pontevedra", "name": "Pontevedra", "region": "Galicia", "lon": -8.64, "lat": 42.43, "pop": 0.21, "wealth": 0.93, "tourism": 0.5, "rent": 0.8, "blurb": "Centro peatonal: tus clientes pasean; las cajas de sobaos hay que descargarlas a tiempo."},
+  {"id": "segovia", "name": "Segovia", "region": "Castilla y León", "lon": -4.12, "lat": 40.95, "pop": 0.15, "wealth": 0.97, "tourism": 0.75, "rent": 0.83, "blurb": "Acueducto, cochinillo y turistas con hueco para un recuerdo dulce."},
+  {"id": "soria", "name": "Soria", "region": "Castilla y León", "lon": -2.47, "lat": 41.76, "pop": 0.12, "wealth": 0.98, "tourism": 0.28, "rent": 0.63, "blurb": "Pocos clientes, fieles y con frío. El alquiler compensa el tamaño del mercado."},
+  {"id": "teruel", "name": "Teruel", "region": "Aragón", "lon": -1.11, "lat": 40.34, "pop": 0.1, "wealth": 0.9, "tourism": 0.4, "rent": 0.6, "blurb": "Existe. También existen locales baratos y clientes a los que aprenderse el nombre."},
+  {"id": "zamora", "name": "Zamora", "region": "Castilla y León", "lon": -5.75, "lat": 41.5, "pop": 0.14, "wealth": 0.81, "tourism": 0.4, "rent": 0.58, "blurb": "Románico y persianas que se abren despacio. El coste fijo no tiene que ser madrileño."},
+  {"id": "santacruz", "name": "Santa Cruz de Tenerife", "region": "Canarias", "lon": -8.25, "lat": 35.72, "pop": 0.46, "wealth": 0.91, "tourism": 0.85, "rent": 1.0, "blurb": "El Teide queda lejos del obrador. La marca puede viajar, pero el transporte se paga.", "inset": true},
+  {"id": "ceuta", "name": "Ceuta", "region": "Ciudad autónoma de Ceuta", "lon": -5.32, "lat": 35.89, "pop": 0.2, "wealth": 0.9, "tourism": 0.35, "rent": 0.88, "blurb": "Un mercado al otro lado del Estrecho. La furgoneta necesita billete de barco."},
+  {"id": "melilla", "name": "Melilla", "region": "Ciudad autónoma de Melilla", "lon": -2.94, "lat": 35.29, "pop": 0.2, "wealth": 0.86, "tourism": 0.3, "rent": 0.82, "blurb": "Otra orilla y otro puerto. Abrir es fácil; llegar con el producto fresco tiene su coste."},
 ];
 
 export const CITY_BY_ID = Object.fromEntries(CITIES.map((c) => [c.id, c]));
+
+// Las 50 capitales provinciales; Ceuta y Melilla son ciudades autónomas.
+export const PROVINCIAL_CAPITALS = CITIES.filter(c => !['selaya','marbella','ibiza','ceuta','melilla'].includes(c.id));

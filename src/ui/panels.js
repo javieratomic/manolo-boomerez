@@ -1,3 +1,5 @@
+import { FOREIGN_MARKETS, FOREIGN_BY_ID, DEAL_MODES } from '../data/international.js';
+import { agreementTerms, canSignAgreement } from '../core/international.js';
 // Paneles laterales. Cada render devuelve HTML; las acciones van por atributos data-act.
 import { canRetire, RETIRE_MONTH } from '../core/sim.js';
 import { esc } from './dom.js';
@@ -424,6 +426,7 @@ export function renderEmpire(s) {
 }
 
 // ------------------------------------------------------------------ Mercado
+const unitMoney = n => n.toLocaleString('es-ES', {style:'currency',currency:'EUR',minimumFractionDigits:2,maximumFractionDigits:2});
 const pct = (f) => `${f >= 1 ? '+' : '−'}${Math.round(Math.abs(f - 1) * 100)} %`;
 
 export function renderMarket(s) {
@@ -447,7 +450,33 @@ export function renderMarket(s) {
     <div class="card"><h4>Campañas nacionales</h4><div class="campaigns">
       ${CAMPAIGNS.filter((x) => x.scope === 'national').map((x) => campaignRow(s, x)).join('')}
     </div>${execOf(s, 'marketing') ? '<p class="small muted">Tu responsable de Marketing hace que las campañas rindan más.</p>' : ''}</div>
-    ${renderRD(s)}`;
+    ${renderRD(s)}
+    ${renderInternational(s)}`;
+}
+
+function renderInternational(s) {
+  const r = computeEconomy(s);
+  return `<div class="card"><h4>🌍 Acuerdos internacionales</h4>
+    <p class="small">Marca blanca: fabricas tú para la marca del socio. Licencia: fabrican ellos con tu marca y te pagan el 8 % de sus ventas. Acuerdos exclusivos de 24 meses. Los socios y sus cifras son ficticios.</p>
+    <p class="small muted">Imprevistos: lotes defectuosos, impagos y copias de tu receta. Una auditoría cuesta 900 €/mes y reduce un 60 % el riesgo mensual; no lo elimina. Dos meses con menos del 80 % de suministro también abren conflicto.</p>
+    ${(s.foreignDeals || []).map(d => {
+      const l = r.lines.find(l => l.dealId === d.id);
+      return `<div class="foreign-active"><b>${esc(FOREIGN_BY_ID[d.market].country)} · ${esc(DEAL_MODES[d.mode].name)}</b>
+        <div class="small">${d.months} meses restantes · ${d.brand === 'maison' ? 'Maison Boomerez' : 'Sobaos Manolo Express'} · ${d.audit ? 'Con auditoría' : 'Sin auditoría'}${d.dispute ? ' · ⚠️ Suspendido por conflicto' : ` · Ingresos previstos: ${money(l?.revenue || 0)}/mes · Costes directos: ${money(l?.cost || 0)}/mes`}</div>
+        <button class="btn small ghost" data-act="foreign-end" data-id="${d.id}" ${s.cash < 5000 ? 'disabled' : ''}>Rescindir (5.000 €)</button></div>`;
+    }).join('')}
+    ${FOREIGN_MARKETS.filter(m => !(s.foreignDeals || []).some(d => d.market === m.id)).map(m => `<details class="foreign-offer" data-market="${m.id}"><summary><b>${esc(m.country)}</b> · ${esc(m.partner)}</summary>
+      <label class="small"><input type="checkbox" class="foreign-audit" checked> Auditoría independiente: 900 €/mes</label>
+      ${Object.entries(DEAL_MODES).map(([mode,def]) => {
+        const terms = agreementTerms(m.id,mode,false), audited = agreementTerms(m.id,mode,true);
+        const ok = canSignAgreement(s,m.id,mode,true);
+        return `<div class="foreign-mode"><b>${esc(def.name)}</b><p class="small muted">${esc(def.desc)}</p>
+          <div class="small">${mode === 'private_label' ? `${terms.units.toLocaleString('es-ES')} uds/mes a ${unitMoney(m.price)}/ud; transporte ${unitMoney(m.shipping)}/ud.` : `Ventas estimadas del socio: ${money(m.turnover)}/mes (varían con tu reputación).`}</div>
+          <div class="small">Riesgo mensual: ${(audited.risk*100).toFixed(1)} % con auditoría / ${(terms.risk*100).toFixed(1)} % sin ella.</div>
+          <button class="btn small" data-act="foreign-sign" data-market="${m.id}" data-mode="${mode}" ${ok.ok ? '' : 'disabled'} title="${esc(ok.msg || '')}">Firmar (${moneyShort(terms.setup)})</button></div>`;
+      }).join('')}
+    </details>`).join('')}
+  </div>`;
 }
 
 function renderGov(s) {

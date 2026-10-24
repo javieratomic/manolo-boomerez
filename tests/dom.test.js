@@ -151,3 +151,24 @@ test('DOM: las franquicias muestran las dos cuentas y su riesgo antes de firmar'
   assert(button.closest('.franchise-offer').textContent.includes('Franquiciado:'));
   assert(button.closest('.franchise-offer').textContent.includes('Central:'));
 });
+
+
+test('DOM: Mercado muestra iconos por innovación y los dos acuerdos extranjeros', () => {
+  const s = newGame(42); resolvePending(s, 0); s.cash = 1e7;
+  const el = document.createElement('div'); el.innerHTML = renderMarket(s);
+  const icons = [...el.querySelectorAll('.product img')];
+  assertEq(icons.length, 24);
+  assertEq(new Set(icons.map(i => i.getAttribute('src'))).size, 24);
+  assertEq(el.querySelectorAll('.foreign-offer').length, 6);
+  assertEq(el.querySelectorAll('[data-act="foreign-sign"]').length, 12);
+  assert(el.textContent.includes('fabrican ellos'));
+});
+
+
+test('DOM: los acuerdos muestran céntimos en precio y transporte por unidad', () => {
+  const s = newGame(42); resolvePending(s,0); s.cash=1e7;
+  const el=document.createElement('div');el.innerHTML=renderMarket(s);
+  const portugal=el.querySelector('.foreign-offer[data-market="portugal"]');
+  assert(portugal.textContent.includes('2,40'), 'precio de venta de 2,40 €/ud');
+  assert(portugal.textContent.includes('0,12'), 'el transporte de 0,12 €/ud no se muestra como gratis');
+});

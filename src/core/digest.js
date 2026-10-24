@@ -22,7 +22,7 @@ export const COST_NAMES = {
 };
 export const MAX_DRIVERS = 3;
 
-const catOf = (l) => (l.type === 'obrador' ? 'sobaos' : BUSINESS_TYPES[l.type]?.category);
+const catOf = (l) => (['obrador', 'international'].includes(l.type) ? 'sobaos' : BUSINESS_TYPES[l.type]?.category);
 
 // Estacionalidad media de una categoría (ponderada por ingresos de sus líneas) en un mes del año.
 function seasonOf(lines, cat, m) {
@@ -31,7 +31,7 @@ function seasonOf(lines, cat, m) {
   for (const l of lines) {
     if (catOf(l) !== cat || !l.revenue) continue;
     const t = BUSINESS_TYPES[l.type];
-    const k = cat === 'sobaos' ? SOBAO_SEASON[m] : t?.season ? t.season[m] : l.type === 'airbnb' ? TOURISM_SEASON[m] : 1;
+    const k = l.foreign ? 1 : cat === 'sobaos' ? SOBAO_SEASON[m] : t?.season ? t.season[m] : l.type === 'airbnb' ? TOURISM_SEASON[m] : 1;
     w += l.revenue;
     f += l.revenue * k;
   }

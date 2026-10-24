@@ -1,6 +1,7 @@
 // Ejecuta los tests en Node 18+ (opcional): node tests/run-node.mjs
 import { run } from './runner.js';
 import './sim.test.js';
+import './expansion.test.js';
 
 const { failures } = await run((line) => console.log(line));
 process.exit(failures.length ? 1 : 0);

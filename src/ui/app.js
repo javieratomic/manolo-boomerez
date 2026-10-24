@@ -1,3 +1,5 @@
+import { signAgreement, endAgreement, agreementTerms } from '../core/international.js';
+import { FOREIGN_BY_ID, DEAL_MODES } from '../data/international.js';
 // Controlador principal de la interfaz.
 import { $, esc, showModal, toast, confirmModal, isModalOpen, msSinceModal } from './dom.js';
 import { TABS, renderCity, renderEmpire, renderMarket, renderStaff, renderFinance, renderManolo, renderNews, drawChart, drawCategoryChart, manoloMood, renderWhy, whyTitle, renderEpilogue, setArchivoOpen } from './panels.js';
@@ -482,6 +484,21 @@ async function onClick(e) {
         play('cash');
         toast(`📢 ${CAMPAIGN_BY_ID[el.dataset.id].name}`, 'good');
       }
+      break;
+    case 'foreign-sign': {
+      const market = el.dataset.market, mode = el.dataset.mode;
+      const audit = el.closest('.foreign-offer').querySelector('.foreign-audit').checked;
+      const terms = agreementTerms(market, mode, audit);
+      const text = `${DEAL_MODES[mode].desc}\n\nInversión: ${money(terms.setup)}. Duración: 24 meses. Auditorías: ${money(terms.monthly)}/mes. Riesgo de incidente: ${(terms.risk * 100).toFixed(1)} % cada mes. Rescindir antes de plazo cuesta 5.000 €. Los incidentes pueden costar dinero y reputación.${mode === 'private_label' ? '\n\nEl pedido compite con tus tiendas por la capacidad del obrador. Dos meses por debajo del 80 % provocan conflicto.' : '\n\nEl socio recibe tu marca y receta; puede incumplir la calidad o copiarla.'}`;
+      if (!(await confirmModal(`Acuerdo en ${FOREIGN_BY_ID[market].country}`, text, 'Firmar'))) return;
+      if (!(await clauseOk(s, c => signAgreement(c,market,mode,audit)))) return;
+      res = signAgreement(s,market,mode,audit);
+      if (res.ok) toast(`🌍 Acuerdo firmado en ${FOREIGN_BY_ID[market].country}`, 'good');
+      break;
+    }
+    case 'foreign-end':
+      if (!(await confirmModal('Rescindir acuerdo extranjero', 'Pagas 5.000 €. Se detienen las ventas o royalties y se cancela cualquier conflicto pendiente de este acuerdo.', 'Rescindir'))) return;
+      res = endAgreement(s,Number(el.dataset.id));
       break;
     case 'rd':
       res = startRD(s, el.dataset.id);

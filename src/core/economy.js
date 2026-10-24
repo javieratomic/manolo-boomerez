@@ -1,3 +1,4 @@
+import { foreignDemand, foreignLines } from './international.js';
 // Cálculo económico mensual. Función pura: no muta el estado (salvo lo que haga quien la llama).
 import { BUSINESS_TYPES, OBRADOR_BASE, OBRADOR_UPGRADES, PERKS, expansionValue } from '../data/businesses.js';
 import { POLICIES, BECARIO_WAGE } from '../data/policies.js';
@@ -165,7 +166,7 @@ export function computeEconomy(s) {
   }
 
   const capacity = obradorCapacity(s) * strike;
-  const totalDemand = shopUnits + wholesaleUnits + contractUnits + sobaoEntries.reduce((a, e) => a + e.demand, 0);
+  const totalDemand = shopUnits + wholesaleUnits + contractUnits + foreignDemand(s) + sobaoEntries.reduce((a, e) => a + e.demand, 0);
   const fill = totalDemand > 0 ? Math.min(1, capacity / totalDemand) : 1;
   // El regalo usa solo excedente: nunca compite con tiendas o contratos. No es demanda obligatoria.
   const bonusEligible = s.businesses.filter(b => ['service', 'care'].includes(BUSINESS_TYPES[b.type].model) || ['academy', 'airbnb'].includes(b.type));
@@ -220,6 +221,14 @@ export function computeEconomy(s) {
       revenueByCat.sobaos += revenue;
       lines.push({ id: b.id, type: b.type, city: b.city, label: t.name, revenue, cost: materials + wages + rent, staff: t.staff, units });
     }
+  }
+
+  for (const line of foreignLines(s, fill, localUnitCost)) {
+    lines.push(line);
+    revenueByCat.sobaos += line.revenue;
+    costs.materias += line.materials;
+    costs.transporte += line.shipping;
+    costs.otros += line.audit;
   }
 
   // --- Resto de negocios -----------------------------------------------------

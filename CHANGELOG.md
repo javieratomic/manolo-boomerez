@@ -1,5 +1,18 @@
 # Cambios
 
+## 0.5.0 — De Selaya al mundo
+
+- Obrador ampliable tras las tres mejoras iniciales: módulos de +25.000 uds/mes, desde 650.000 €, cada vez un 32 % más caros, con mantenimiento y valor patrimonial.
+- Abrir cuesta según la ciudad, con más diferencia en inmuebles. Los índices son parámetros de juego.
+- Franquicias: previsión y cierre distinguen resultado de la central y del franquiciado. Una central rentable puede convivir con un dueño insolvente; cuatro meses de pérdidas suyas disparan la reclamación.
+- Otros negocios funcionan sin suministro de sobaos. Un excedente real permite cortesías de hasta 250 unidades por negocio y hasta +5 % de ingresos, pagando fabricación y transporte. Sin falsos avisos de falta de producción en restaurantes.
+- Vivienda de plantilla accesible desde la herencia; se ocupa con empleados de esa ciudad. Las políticas de alquiler y sus consecuencias laborales siguen disponibles en Plantilla.
+- I+D pasa de 12 a 24 innovaciones especializadas, todas con icono SVG propio. Incluye recetas vegetales, cacao, helados, biomecánica, domótica, rehabilitación y desayunos corporativos.
+- Acuerdos en seis países: marca blanca que consume capacidad o licencia de la marca elegida con fabricación externa y royalties. Exclusividad territorial, 24 meses, auditorías opcionales, impagos, calidad, copias, suspensión, renegociación y rescisión.
+- Mapa con las 50 capitales provinciales, Ceuta y Melilla (55 destinos contando Selaya, Marbella e Ibiza). Tenerife y las ciudades autónomas pagan transporte marítimo; Canarias conserva coordenadas reales para calcular distancias.
+- Las partidas anteriores se cargan con las reglas nuevas; se conserva su versión de origen y se identifica la continuación como 0.5.0 para comparar semillas correctamente.
+
+
 ## 0.4.0 — Cuentas claras
 
 > «Cuentas claras, amistades largas» (refrán de Doña Remedios). Lo que antes salía gratis ahora pasa

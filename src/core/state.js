@@ -1,3 +1,4 @@
+import { FOREIGN_BY_ID, DEAL_MODES, DISPUTES } from '../data/international.js';
 import { DEFAULT_POLICIES, POLICIES } from '../data/policies.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
 import { CITY_BY_ID } from '../data/cities.js';
@@ -9,7 +10,7 @@ import { grossPatrimonio, computeEconomy } from './economy.js';
 export const SAVE_KEY = 'manolo-boomerez-save-v1';
 export const SAVE_VERSION = 2;
 // Versión del contenido: una semilla solo reproduce la misma partida con la misma versión.
-export const GAME_VERSION = '0.4.0';
+export const GAME_VERSION = '0.5.0';
 
 export const DIFFICULTIES = {
   cunado: {
@@ -72,6 +73,7 @@ export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal
     discountNext: 0,
     extraMonthly: [],
     contracts: [],
+    foreignDeals: [],
     pending: [{ kind: 'event', id: 'intro_herencia' }],
     log: [],
     history: [],
@@ -116,6 +118,10 @@ export function migrate(s) {
   // Las partidas empezadas sin cláusula no heredan una a mitad.
   if (!('clausula' in s)) s.clausula = null;
   if (!('gameVersion' in s)) s.gameVersion = '0.2';
+  if (s.gameVersion !== GAME_VERSION) {
+    s.originalGameVersion ||= s.gameVersion;
+    s.gameVersion = GAME_VERSION;
+  }
   const d = newGame(s.seed, s.difficulty || 'normal');
   for (const [k, v] of Object.entries(d)) if (!(k in s)) s[k] = v;
   // En modo infinito la partida ya terminó: una cláusula sin cumplir queda cerrada.
@@ -180,7 +186,7 @@ export function deserialize(text) {
   };
   checkData(ready);
   if (!Number.isInteger(ready.month) || ready.month < 0) invalid();
-  if (!Number.isSafeInteger(ready.obrador.expansions) || ready.obrador.expansions < 0 || ready.obrador.expansions > 100) invalid();
+  if (!Number.isSafeInteger(ready.obrador.expansions) || ready.obrador.expansions < 0 || !Number.isFinite(650000 * 1.32 ** ready.obrador.expansions)) invalid();
   for (const [key, value] of Object.entries(ready.policies)) {
     if (!Object.hasOwn(POLICIES, key) || !Object.hasOwn(POLICIES[key].options, value)) invalid();
   }
@@ -190,6 +196,13 @@ export function deserialize(text) {
       !Number.isFinite(business.value) || !Number.isInteger(business.id) || businessIds.has(business.id) ||
       (business.mode != null && !['propia', 'franquicia'].includes(business.mode))) invalid();
     businessIds.add(business.id);
+  }
+  const countries = new Set();
+  for (const deal of ready.foreignDeals) {
+    if (!Object.hasOwn(FOREIGN_BY_ID,deal.market) || !Object.hasOwn(DEAL_MODES,deal.mode) || typeof deal.audit !== 'boolean' ||
+      !Number.isInteger(deal.id) || businessIds.has(deal.id) || countries.has(deal.market) || !Number.isInteger(deal.months) || deal.months < 1 || deal.months > 24 ||
+      !Number.isInteger(deal.shortMonths) || deal.shortMonths < 0 || (deal.dispute !== null && !Object.hasOwn(DISPUTES,deal.dispute))) invalid();
+    countries.add(deal.market); businessIds.add(deal.id);
   }
   for (const pending of ready.pending) {
     if (!pending || !Object.hasOwn(EVENT_BY_ID, pending.id)) invalid();

@@ -1,3 +1,17 @@
+# Continuación 0.5.0 — De Selaya al mundo (24-10-2026)
+
+El usuario ha autorizado código y equilibrio por entregas. Implementado: ampliaciones industriales sin tope de niveles (coste creciente), precios locales de apertura, bonus de cortesía con excedentes reales, vivienda y plantilla local desde el inicio, 24 innovaciones con SVG propios, contratos exteriores en seis países (marca blanca/licencia, auditoría, disputas, rescisión y vencimiento) y 50 capitales provinciales más Ceuta/Melilla. Se mantienen Selaya, Marbella e Ibiza: 55 destinos.
+
+Franquicias: no se confirmó una quiebra con beneficio del franquiciado. El problema era confundir el resultado de la central con el de su dueño; ahora se muestran ambos antes de firmar y en el informe. Regresiones para cuatro meses positivos/negativos.
+
+Validación: 202/202 pruebas Node, 10/10 DOM en navegador; flujo real de firma, rescisión, conflicto, recarga y viaje a Tenerife en Edge 1365×900 y 375×812, sin errores ni desbordamiento. Doce partidas simuladas, 1.111 guardados/cargas conservando cifras y RNG. Revisión independiente sin fallos importantes. Iconos SVG de interfaz (24) decodificados e inspeccionados; el catálogo PNG conserva 194 done, 62 requested, 1 blocked. `check_assets.py` correcto.
+
+Ejecutable: `desktop/dist/ManoloBoomerez-0.5.0-portable.exe`. No hay push. Plan y decisiones: `docs/superpowers/plans/2026-10-24-expansion.md`. Las partidas 0.4 se migran a reglas 0.5 conservando su versión original. Los importes de las ciudades son índices de juego, no precios inmobiliarios reales.
+
+La sección E histórica de abajo describía una decisión de equilibrio de la 0.4; no se ha aplicado su aumento porcentual general de Express/Maison. Los nuevos precios y sistemas sí cambian la economía de la 0.5.
+
+---
+
 # Relevo del agente de código
 
 > **Continuación realizada por Codex el 24-10-2026:** A1–A7 corregidos; B1–B8 reproducidos y corregidos.

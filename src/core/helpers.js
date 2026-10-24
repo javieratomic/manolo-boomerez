@@ -46,6 +46,7 @@ export function addHeatHacienda(s, d) {
 
 export function addExpediente(s, n = 1, reason = '') {
   s.expedientes += n;
+  if (s.cartilla) s.cartilla.confianza = Math.max(0, s.cartilla.confianza - 15 * n); // «un hijo mío en los papeles»
   log(s, `⚖️ Se abre expediente penal${reason ? ': ' + reason : ''}. Llevas ${s.expedientes} de 3.`, 'bad');
 }
 

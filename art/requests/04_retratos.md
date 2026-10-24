@@ -291,3 +291,11 @@ Lucía Ferrer, periodista de 'El Confidencial Pasiego': unos 35 años, melena co
 - **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
 
 Doña Remedios, la madre de Manolo: 81 años, pelo blanco cardado, rebeca gris, collar de perlas pequeño, bastón de aluminio y un táper de croquetas en la mano. Pequeñita pero temible; mirada de 'a mí no me engañas, que te he parido'. Fondo de color #6b8e9e.
+
+## portrait_sobrino_kevin
+
+- **Archivo:** `assets/portraits/portrait_sobrino_kevin.png`
+- **Tamaño:** 512×512 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Kevin Boomerez, el sobrino de Manolo: 24 años, gorra hacia atrás, sudadera de gimnasio, un rollo de cinta americana colgado del cinturón como un revólver, sonrisa de 'yo me encargo, tío'. Fondo de color #9ccc65.

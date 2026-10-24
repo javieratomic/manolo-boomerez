@@ -36,4 +36,20 @@ ART = [
        "larguísimo cae al suelo y llega hasta los zapatos de Manolo; carpetas llenas de pósits.", 2),
     icon("icon_agravio", "una balanza: en un platillo, una bolsa de dinero grande; en el otro, un gorro de panadera pequeño.", 2),
     icon("icon_reparto", "un sobao cortado en porciones, como un gráfico de tarta.", 3),
+
+    # ------------------------------------------------------------------ La cartilla de Doña Remedios
+    dict(id="portrait_sobrino_kevin", file="assets/portraits/portrait_sobrino_kevin.png", w=512, h=512, priority=2, prompt=(
+        "Kevin Boomerez, el sobrino de Manolo: 24 años, gorra hacia atrás, sudadera de gimnasio, un rollo de cinta americana "
+        "colgado del cinturón como un revólver, sonrisa de 'yo me encargo, tío'. Fondo de color #9ccc65.")),
+    ev("ev_cartilla", "Mesa camilla con mantel de hule: una libreta de ahorros antigua forrada de plástico, gafas de leer, un bolígrafo "
+       "de propaganda de una caja de ahorros y un plato de croquetas; Doña Remedios (81 años, pelo blanco cardado, rebeca gris) apunta "
+       "una cifra y Manolo, de pie, mira al suelo.", 2),
+    ev("ev_cartilla_rescate", "Sucursal bancaria de pueblo: Doña Remedios golpea el mostrador con su bastón de aluminio delante del "
+       "director, que se encoge en su silla; Manolo se esconde detrás de ella.", 2),
+    ev("ev_cartilla_vence", "Cocina de pueblo: Doña Remedios con la libreta de ahorros abierta por la última página y el bastón apoyado en "
+       "la mesa, mirando el reloj de pared; Manolo entra por la puerta con un sobre en la mano.", 3),
+    ev("ev_cartilla_enfado", "Doña Remedios al teléfono fijo de cable rizado, con la mano en la cadera, en su salón con tapetes de ganchillo; "
+       "por la ventana se ve a la vecina cotilla en su balcón, también al teléfono.", 3),
+    ev("ev_remedios_domingo", "Comedor de domingo en una casa de pueblo cántabra: una olla de cocido montañés humeante, nóminas extendidas "
+       "junto al pan y la berza; Doña Remedios las lee con las gafas en la punta de la nariz mientras Manolo suda.", 3),
 ]

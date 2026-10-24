@@ -1,5 +1,6 @@
 import { DEFAULT_POLICIES } from '../data/policies.js';
 import { clauseForSeed } from '../data/clauses.js';
+import { newCartilla } from './cartilla.js';
 
 export const SAVE_KEY = 'manolo-boomerez-save-v1';
 export const SAVE_VERSION = 2;
@@ -93,6 +94,7 @@ export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal
     agravio: 0,
     plantilla: { ratio: 0 },
     comite: null,
+    cartilla: newCartilla(difficulty),
     customs: {},
     clausula: { id: clauseForSeed(seed), broken: false, done: false },
   };

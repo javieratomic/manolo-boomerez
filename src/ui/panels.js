@@ -27,6 +27,8 @@ import { money, moneyShort, dateLabel } from '../core/helpers.js';
 import { haciendaDebt } from '../core/inspections.js';
 import { clauseStatus } from '../core/clauses.js';
 import { liquidacion, convenioDemand, credibilidad, profitRatio, K as PK } from '../core/plantilla.js';
+import { canAsk, maxLoan, breaksPromise, COND_TEXT, condDesc, MAMA } from '../core/cartilla.js';
+import { collectRefranes, REFRAN_COUNT } from './refranero.js';
 import { seedCode } from '../core/seed.js';
 import { CLAUSE_PRIZE } from '../data/clauses.js';
 import { policyPreview, previewBase, riskInfo, blame, HORIZON } from '../core/preview.js';
@@ -268,7 +270,8 @@ function policyChips(s, key, id) {
   const debt = LABOR_KEYS.includes(key) && Math.abs(p.saving) >= 50 ? (p.saving > 0 ? ['neg', `+${moneyShort(p.saving)}/mes de deuda con la Seguridad Social`] : ['pos', `${signMoney(p.saving)}/mes de deuda con la Seguridad Social`]) : null;
   // La multa siempre se ve: es justo lo que más importa en las opciones más tentadoras.
   const fine = LABOR_KEYS.includes(key) && (p.fine > 0 || p.liq > 0) ? ['neg', `Multa si viene: ${moneyShort(p.fine)}${p.liq > 0 ? ` + liquidación ${moneyShort(p.liq)}` : ''}`] : null;
-  const extra = [debt, fine].filter(Boolean);
+  const mama = breaksPromise(s, key, id) ? ['neg', '⚠️ Rompe la promesa a tu madre'] : null;
+  const extra = [mama, debt, fine].filter(Boolean);
   const shown = [...chips.slice(0, 4 - extra.length), ...extra];
   let html = shown.length ? `<span class="pv-chips">${shown.map(([c, t]) => `<span class="pv-chip ${c}">${esc(t)}</span>`).join('')}</span>` : '';
   if (key === 'contabilidad' && id !== 'limpia' && previewCache(s).base.f.r.profit <= 0 && p.heatHacienda > 0) html += '<span class="pv-note">Este mes no hay beneficio: no te ahorrarías impuestos, solo subiría el radar.</span>';
@@ -572,6 +575,38 @@ function execRow(e, button) {
 }
 
 // ---------------------------------------------------------------- Finanzas
+function renderCartilla(s) {
+  const c = s.cartilla;
+  if (!c) return '';
+  const fecha = (m) => dateLabel(m).toLowerCase().replace(' ', ' de ');
+  const n = collectRefranes(c.entradas.map((e) => e.refran));
+  s.flags.refranero = n;
+  const ask = canAsk(s);
+  const max = ask.ok ? maxLoan(s) : 0;
+  const rows = c.entradas.slice(-6).reverse().map((e) => `<tr><td>${esc(dateLabel(e.m).slice(0, 3))} ${String(dateLabel(e.m)).slice(-2)}</td><td>${esc(e.concepto)}<div class="refran">«${esc(e.refran)}»</div></td><td class="${e.haber ? 'pos' : e.debe ? 'neg' : ''}">${e.haber ? `+${moneyShort(e.haber)}` : e.debe ? `−${moneyShort(e.debe)}` : '—'}</td></tr>`).join('');
+  const state = c.embargo
+    ? `<p class="small warn">🥘 Embargo materno: tu madre se queda lo que vende el mostrador de Selaya (${c.embargo.months} ${c.embargo.months === 1 ? 'mes' : 'meses'} más). Le debes ${money(c.owed)}.</p>`
+    : c.owed > 0
+      ? `<p class="small">Le debes <b>${money(c.owed)}</b>, sin intereses. Vence en ${fecha(c.due)}.</p>
+         <div class="pv-chips">${(c.conds || []).map((k) => `<span class="pv-chip" title="${esc(condDesc(k))}">🤝 ${esc(COND_TEXT[k])}</span>`).join('')}</div>`
+      : '';
+  return `<div class="card cartilla"><h4>${artOr('portrait_madre', '👵', 'emoji')} La cartilla de Doña Remedios</h4>
+    <div class="libreta-head small">Caja Cantábrica · Titular: Remedios Boomerez · Saldo: <b>${money(c.saldo)}</b></div>
+    <div class="small">Confianza en su hijo: <b>${Math.round(c.confianza)}</b>/100</div>
+    ${bar(c.confianza, 100, c.confianza < MAMA.MIN_CONF ? 'danger' : 'ok')}
+    ${state}
+    ${rows ? `<table class="tbl libreta small"><tbody>${rows}</tbody></table>` : '<p class="small muted">Sin movimientos. Tu madre presta sin intereses, pero siempre con una condición.</p>'}
+    <div class="row gap wrap">
+      ${c.owed > 0 ? `<button class="btn small" data-act="mama-repay" ${c.embargo ? 'disabled' : ''}>Devolverle ${moneyShort(c.owed)}</button>` : `
+      <button class="btn small" data-act="mama-ask" data-amount="20000" ${ask.ok && max >= 20000 ? '' : 'disabled'}>Pedirle 20 k€</button>
+      <button class="btn small" data-act="mama-ask" data-amount="50000" ${ask.ok && max >= 50000 ? '' : 'disabled'}>Pedirle 50 k€</button>
+      <button class="btn small" data-act="mama-ask" data-amount="max" ${ask.ok ? '' : 'disabled'}>Lo que pueda${ask.ok ? ` (${moneyShort(max)})` : ''}</button>`}
+    </div>
+    ${!c.owed && !ask.ok ? `<p class="small muted">${esc(ask.msg)}</p>` : ''}
+    <p class="small muted">📖 Refranero: ${n}/${REFRAN_COUNT}</p>
+  </div>`;
+}
+
 export function renderFinance(s) {
   const r = s.lastReport;
   const limit = creditLimit(s);
@@ -590,7 +625,8 @@ export function renderFinance(s) {
       <button class="btn small ghost" data-act="repay" ${s.debt <= 0 || s.cash <= 0 ? 'disabled' : ''}>Devolver ${moneyShort(LOAN_STEP)}</button>
       <button class="btn small ghost" data-act="repay" data-amount="all" ${s.debt <= 0 || s.cash <= 0 ? 'disabled' : ''}>Devolver todo</button>
     </div>
-  </div>`;
+  </div>
+  ${renderCartilla(s)}`;
   if (r) {
     const c = r.costs;
     html += `<div class="card"><h4>Cuenta de resultados · ${dateLabel(r.month)}</h4><table class="tbl pl">

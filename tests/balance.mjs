@@ -53,6 +53,11 @@ export const VARIANTS = {
   M_ctl_mix: { ...SMART, brand: 'maison', policyAt: from(24, MG), control: { hi: 15, lo: 5 }, choose: chooser('mixto') },
   M_rep_paga: { ...SMART, brand: 'maison', choose: chooser('mixto'), reparto: withComite('paga') },
   M_rep_part: { ...SMART, brand: 'maison', choose: chooser('mixto'), reparto: withComite('participacion') },
+  B_mama: { mama: true },
+  D_mama: { diversify: true, mama: true },
+  E_mama: { ...SMART, mama: true },
+  H_mama: { diversify: true, leverage: true, difficulty: 'hacienda', mama: true },
+  R_mama: { diversify: true, choice: 'random', mama: true },
 };
 
 const med = (a) => {

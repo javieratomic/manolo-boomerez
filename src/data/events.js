@@ -17,6 +17,8 @@ import { sobaoOutlets } from '../core/actions.js';
 import { CLAUSE_BY_ID } from './clauses.js';
 import { PLANTILLA_EVENTS } from './eventsPlantilla.js';
 import { liquidate, credibilidad } from '../core/plantilla.js';
+import { addConfianza } from '../core/cartilla.js';
+import { REMEDIOS_EVENTS } from './eventsRemedios.js';
 import { MACRO_EVENTS } from './eventsMacro.js';
 import { ARC_EVENTS } from './eventsArcs.js';
 import { EXTRA_EVENTS } from './eventsExtra.js';
@@ -128,6 +130,7 @@ const BASE_EVENTS = [
           const mo = Math.round(6 * cred);
           addCash(s, -c);
           addMoral(s, mo);
+          addConfianza(s, 3); // tu madre se entera de todo
           const dudas = cred < 1 ? ' (Maripili ya no se cree nada)' : '';
           if (prev.last === 'cesta') return `Turrón, embutido y el Rioja de siempre. ${money(c)}. Ya nadie se imagina una Navidad sin cesta Boomerez. Moral +${mo}${dudas}.`;
           return `Turrón, embutido y un Rioja decente. ${money(c)}. La plantilla se acuerda de tu padre con cariño, y un poco de ti. Moral +${mo}${dudas}.`;
@@ -139,6 +142,7 @@ const BASE_EVENTS = [
         effect(s) {
           const prev = custom(s, 'navidad');
           addCash(s, -employees(s) * 5);
+          addConfianza(s, -3);
           if (prev.last === 'cesta' && prev.streak >= 2) {
             addMoral(s, -10);
             addFama(s, 1);
@@ -1556,6 +1560,6 @@ const BASE_EVENTS = [
   },
 ];
 
-export const EVENTS = [...BASE_EVENTS, ...MACRO_EVENTS, ...SYSTEM_EVENTS, ...ARC_EVENTS, ...EXTRA_EVENTS, ...CITY_EVENTS, ...PLANTILLA_EVENTS];
+export const EVENTS = [...BASE_EVENTS, ...MACRO_EVENTS, ...SYSTEM_EVENTS, ...ARC_EVENTS, ...EXTRA_EVENTS, ...CITY_EVENTS, ...PLANTILLA_EVENTS, ...REMEDIOS_EVENTS];
 
 export const EVENT_BY_ID = Object.fromEntries(EVENTS.map((e) => [e.id, e]));

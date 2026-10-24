@@ -656,6 +656,15 @@
       "notes": "Ilustracion 2.5D opaca; dimensiones y peso verificados."
     },
     {
+      "id": "portrait_sobrino_kevin",
+      "file": "assets/portraits/portrait_sobrino_kevin.png",
+      "w": 512,
+      "h": 512,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/04_retratos.md#portrait_sobrino_kevin"
+    },
+    {
       "id": "ev_intro_herencia",
       "file": "assets/events/ev_intro_herencia.png",
       "w": 768,
@@ -2042,6 +2051,51 @@
       "status": "requested",
       "priority": 2,
       "request": "art/requests/05_sucesos.md#ev_liquidacion"
+    },
+    {
+      "id": "ev_cartilla",
+      "file": "assets/events/ev_cartilla.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_cartilla"
+    },
+    {
+      "id": "ev_cartilla_rescate",
+      "file": "assets/events/ev_cartilla_rescate.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 2,
+      "request": "art/requests/05_sucesos.md#ev_cartilla_rescate"
+    },
+    {
+      "id": "ev_cartilla_vence",
+      "file": "assets/events/ev_cartilla_vence.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_cartilla_vence"
+    },
+    {
+      "id": "ev_cartilla_enfado",
+      "file": "assets/events/ev_cartilla_enfado.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_cartilla_enfado"
+    },
+    {
+      "id": "ev_remedios_domingo",
+      "file": "assets/events/ev_remedios_domingo.png",
+      "w": 768,
+      "h": 432,
+      "status": "requested",
+      "priority": 3,
+      "request": "art/requests/05_sucesos.md#ev_remedios_domingo"
     },
     {
       "id": "end_bancarrota",

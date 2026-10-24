@@ -1019,3 +1019,43 @@ Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal des
 - **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
 
 Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Despacho del obrador: la inspectora de Trabajo (traje azul marino, gafas, carpeta gruesa) con una calculadora de rollo cuyo tique larguísimo cae al suelo y llega hasta los zapatos de Manolo; carpetas llenas de pósits. Sin texto legible.
+
+## ev_cartilla
+
+- **Archivo:** `assets/events/ev_cartilla.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Mesa camilla con mantel de hule: una libreta de ahorros antigua forrada de plástico, gafas de leer, un bolígrafo de propaganda de una caja de ahorros y un plato de croquetas; Doña Remedios (81 años, pelo blanco cardado, rebeca gris) apunta una cifra y Manolo, de pie, mira al suelo. Sin texto legible.
+
+## ev_cartilla_rescate
+
+- **Archivo:** `assets/events/ev_cartilla_rescate.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Sucursal bancaria de pueblo: Doña Remedios golpea el mostrador con su bastón de aluminio delante del director, que se encoge en su silla; Manolo se esconde detrás de ella. Sin texto legible.
+
+## ev_cartilla_vence
+
+- **Archivo:** `assets/events/ev_cartilla_vence.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Cocina de pueblo: Doña Remedios con la libreta de ahorros abierta por la última página y el bastón apoyado en la mesa, mirando el reloj de pared; Manolo entra por la puerta con un sobre en la mano. Sin texto legible.
+
+## ev_cartilla_enfado
+
+- **Archivo:** `assets/events/ev_cartilla_enfado.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Doña Remedios al teléfono fijo de cable rizado, con la mano en la cadera, en su salón con tapetes de ganchillo; por la ventana se ve a la vecina cotilla en su balcón, también al teléfono. Sin texto legible.
+
+## ev_remedios_domingo
+
+- **Archivo:** `assets/events/ev_remedios_domingo.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Comedor de domingo en una casa de pueblo cántabra: una olla de cocido montañés humeante, nóminas extendidas junto al pan y la berza; Doña Remedios las lee con las gafas en la punta de la nariz mientras Manolo suda. Sin texto legible.

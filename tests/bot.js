@@ -10,6 +10,7 @@ import { canIPO, doIPO } from '../src/core/life.js';
 import { PRODUCTS } from '../src/data/market.js';
 import { CITIES } from '../src/data/cities.js';
 import { random } from '../src/core/rng.js';
+import { canAsk, askLoan } from '../src/core/cartilla.js';
 
 const CITY_IDS = CITIES.filter((c) => !c.hq).map((c) => c.id);
 const DIVERSIFY = ['smash', 'empanadas', 'airbnb', 'vivienda', 'academy', 'taberna', 'gimnasio', 'coworking', 'residencia', 'obrador_regional'];
@@ -33,6 +34,7 @@ const DIVERSIFY = ['smash', 'empanadas', 'airbnb', 'vivienda', 'academy', 'taber
  *    a explotar cuando baja de lo
  *  choose(s, p): índice de la opción para una carta (null = la regla por defecto)
  *  hook(s), onMonth(s, r, eventos): ganchos para scripts de medida
+ *  mama: pide a Doña Remedios «lo que pueda» cuando se deja (y resuelve sus cartas con la primera opción)
  */
 export const LEGAL = { salario: 'convenio', horas: 'pagadas', becarios: 'ninguno' };
 export const from = (m, pol) => (s) => (s.month >= m ? pol : null);
@@ -57,6 +59,7 @@ export function playGame(seed, strategy = {}) {
     if (pol) for (const [k, v] of Object.entries(pol)) setPolicy(s, k, v);
     if (strategy.reparto) setPolicy(s, 'reparto', typeof strategy.reparto === 'function' ? strategy.reparto(s) : strategy.reparto);
     strategy.hook?.(s);
+    if (strategy.mama && canAsk(s).ok) askLoan(s, 'max');
     if (s.lastReport && s.lastReport.fill < 0.97) buyUpgrade(s);
     if (strategy.leverage && s.debt < creditLimit(s) * 0.5 && s.cash < 150000) borrow(s, 50000);
     if (strategy.smart) manage(s, strategy.off || []);

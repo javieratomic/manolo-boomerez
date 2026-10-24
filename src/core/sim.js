@@ -6,6 +6,8 @@ import { haciendaDebt, inspectionChance, auditChance, tickLaborHistory, laborVis
 import { checkUnlocks } from './actions.js';
 import { settleClause, clauseMult, checkClause } from './clauses.js';
 import { tickAhorro, driftAgravio, tickComite, rollConvenio, strikeChance } from './plantilla.js';
+import { tickCartilla, maybeRescue, isDomingo } from './cartilla.js';
+import { addStress } from './life.js';
 import { tickMacro, macroFx } from './macro.js';
 import { tickRivals, rivalHit } from './rivals.js';
 import { tickRD } from './market.js';
@@ -41,6 +43,8 @@ export function advanceMonth(s) {
   ageAssets(s);
   tickIPO(s, grossPatrimonio(s), range(s, -8, 8));
   handleOverdraft(s);
+  tickCartilla(s, r);
+  maybeRescue(s);
   tickLaborHistory(s);
   rollVisits(s, r);
   rollScheduled(s);
@@ -62,6 +66,14 @@ export function advanceMonth(s) {
 
   s.month++;
   s.actionUsed = false;
+  // Domingo de cocido en casa de tu madre: la acción del mes ya tiene dueña.
+  if (isDomingo(s)) {
+    s.actionUsed = true;
+    s.flags.domingo = s.month;
+    s.familia = clamp((s.familia ?? 60) + 6);
+    addStress(s, -4);
+    log(s, '🍲 Domingo de cocido en casa de tu madre: la acción de este mes se va en la sobremesa. Familia +6, estrés −4.', 'info');
+  }
   checkUnlocks(s);
   s.quote = pickQuote(s);
   return r;

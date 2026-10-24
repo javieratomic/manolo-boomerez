@@ -215,6 +215,10 @@ button.hud-item:focus-visible { outline: 2px solid #ffd36b; outline-offset: 1px;
 .kpi-btn .meter { margin-top: 3px; background: var(--line); }
 .kpi-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .portrait-sm { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+.libreta-head { font-family: var(--display); border-bottom: 1px dashed var(--line); padding-bottom: 4px; margin-bottom: 6px; }
+.libreta td { vertical-align: top; }
+.libreta .refran { font-style: italic; color: var(--muted); font-size: 11px; }
+.cartilla h4 .emoji, .cartilla h4 img { width: 22px; height: 22px; vertical-align: -5px; border-radius: 50%; }
 .pv-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
 .pv-chip { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #f6efe2; border: 1px solid var(--line); white-space: nowrap; }
 .pv-note { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; }

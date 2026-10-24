@@ -96,6 +96,7 @@ export function tickLife(s) {
 
 // Divorcio: Merche se queda con una parte de la caja y de los caprichos (régimen de gananciales).
 export function divorce(s, share) {
+  if (s.cartilla) s.cartilla.confianza = Math.max(0, s.cartilla.confianza - 30); // «Merche era como una hija para mí»
   const cashPart = Math.max(0, s.cash) * share;
   addCash(s, -cashPart);
   const kept = [];

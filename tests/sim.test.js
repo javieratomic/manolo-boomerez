@@ -24,6 +24,7 @@ import { score } from '../src/core/sim.js';
 import { netDrivers, freshEntries, upcoming, monthDigest, MAX_DRIVERS } from '../src/core/digest.js';
 import { seedCode, parseSeed, isoWeekKey, weekSeed } from '../src/core/seed.js';
 import { tickAhorro, liquidacion, liquidate, strikeChance, tickComite, rollConvenio, K as PK } from '../src/core/plantilla.js';
+import { askLoan, repayEarly, canAsk, tickCartilla, refran } from '../src/core/cartilla.js';
 import { playGame, from } from './bot.js';
 
 const started = (seed = 42, brand = 0) => {
@@ -1533,4 +1534,152 @@ test('bolsa: la valoración mezcla libros y 6 veces el beneficio al 50 %', () =>
   const prem = ipoPremium(s);
   assert(Math.abs(companyValuation(s, 2e6) - (0.5 * 2e6 + 0.5 * 6 * 1.2e6) * prem) < 1e-6);
   assert(Math.abs(companyValuation(s, 10e6) - 10e6 * prem) < 1e-6, 'nunca por debajo de los libros');
+});
+
+// ------------------------------------------------------------- 0.4 · La cartilla de Doña Remedios
+const needy = (seed = 42) => {
+  const s = started(seed);
+  s.month = 6;
+  s.cash = 10000;
+  return s;
+};
+
+test('cartilla: pedir no sube el patrimonio y devolver no lo baja', () => {
+  const s = needy();
+  const p0 = patrimonio(s);
+  const r = askLoan(s, 'max');
+  assert(r.ok && r.amount === 70000, JSON.stringify(r));
+  assert(Math.abs(patrimonio(s) - p0) < 1e-6, 'pedir no sube el patrimonio');
+  assertEq(creditLimit(s), creditLimit(needy()), 'el banco no se entera');
+  repayEarly(s);
+  assert(Math.abs(patrimonio(s) - p0) < 1e-6, 'devolver no lo baja');
+  assertEq(s.cartilla.devueltos, 1);
+});
+
+test('cartilla: la condición sigue el orden ley → mantequilla → domingos → kevin sin gastar generador', () => {
+  const cases = [
+    [{ salario: 'minimo' }, 60, 'ley'],
+    [{ ingredientes: 'margarina' }, 60, 'mantequilla'],
+    [{}, 40, 'domingos'],
+    [{}, 60, 'kevin'],
+  ];
+  for (const [pol, familia, cond] of cases) {
+    const s = needy();
+    Object.assign(s.policies, pol);
+    s.familia = familia;
+    const rng = s.rng;
+    askLoan(s, 20000);
+    assertEq(s.cartilla.conds[0], cond);
+    assertEq(s.rng, rng, 'sin azar');
+  }
+});
+
+test('cartilla: Kevin fija el mantenimiento y su sueldo hasta devolver', () => {
+  const s = needy();
+  askLoan(s, 20000);
+  assertEq(s.policies.mantenimiento, 'kevin');
+  assert(s.extraMonthly.some((x) => x.kevin && x.locked));
+  assert(!setPolicy(s, 'mantenimiento', 'profesional').ok);
+  s.cash = 100000;
+  repayEarly(s);
+  assert(!s.extraMonthly.some((x) => x.kevin));
+  assert(setPolicy(s, 'mantenimiento', 'profesional').ok);
+});
+
+test('cartilla: los domingos se comen la acción cada 3 meses', () => {
+  const s = needy();
+  s.familia = 40;
+  askLoan(s, 20000);
+  const start = s.month;
+  s.cooldowns.trabajo = s.cooldowns.hacienda = 99;
+  const used = [];
+  for (let i = 0; i < 6; i++) {
+    s.cash = Math.max(s.cash, 50000);
+    advanceMonth(s);
+    resolveAll(s);
+    used.push(s.actionUsed);
+  }
+  assertEq(used.join(), [false, false, true, false, false, true].join(), `desde el mes ${start}`);
+  assert(doManoloAction(s, 'linkedin').msg.includes('cocido'));
+});
+
+test('cartilla: vence con carta; prórroga una vez y embargo del capricho o del mostrador', () => {
+  const s = needy();
+  askLoan(s, 50000);
+  s.month = s.cartilla.due;
+  tickCartilla(s, computeEconomy(s));
+  assertEq(s.pending.at(-1).id, 'cartilla_vence');
+  let p = visit(s, 'cartilla_vence', {});
+  pick(s, p, 'seis meses');
+  assert(s.cartilla.prorroga && s.cartilla.due === s.month + 6);
+  p = visit(s, 'cartilla_vence', {});
+  assert(!p.choices.some((c) => c.label.includes('seis meses')), 'solo una prórroga');
+  s.lujo = [{ id: 'yate', value: 400000, since: 0 }];
+  pick(s, p, 'No tengo');
+  assertEq(s.cartilla.owed, 0, 'el yate cubre la deuda');
+  assertEq(s.lujo.length, 0);
+  assertEq(s.cartilla.confianza, 0);
+  assert(!canAsk(s).ok, 'no presta en dos años');
+  const t = needy();
+  askLoan(t, 50000);
+  pick(t, visit(t, 'cartilla_vence', {}), 'No tengo');
+  assert(t.cartilla.embargo && t.cartilla.owed === 50000, 'embargo del mostrador');
+  const r = computeEconomy(t);
+  assert(r.embargo > 0, 'el mostrador paga a mamá');
+  tickCartilla(t, r);
+  assert(t.cartilla.owed < 50000 && t.cartilla.embargo.months === 11);
+});
+
+test('cartilla: el rescate sale una vez con 2 meses de descubierto y salva del concurso', () => {
+  const s = started();
+  s.month = 20;
+  s.cash = -80000;
+  s.debt = creditLimit(s) + 1;
+  s.insolvencyMonths = 1;
+  s.cooldowns.trabajo = s.cooldowns.hacienda = 99;
+  advanceMonth(s);
+  assert(s.pending.some((p) => p.id === 'cartilla_rescate'), 'llega mamá');
+  s.pending = [];
+  const p = visit(s, 'cartilla_rescate', {});
+  pick(s, p, 'Aceptar, con la cabeza baja');
+  assertEq(s.insolvencyMonths, 0);
+  assert(s.cash > 0 && s.cartilla.owed > 0);
+  assertEq(s.cartilla.conds.join(), 'ley,mantequilla');
+  s.cash = -80000;
+  s.insolvencyMonths = 1;
+  advanceMonth(s);
+  assert(!s.pending.some((p) => p.id === 'cartilla_rescate'), 'una vez por partida');
+});
+
+test('cartilla: «Ni un duro de los bancos» exige no deber a tu madre', () => {
+  const s = withClause('sin_bancos');
+  s.month = 6;
+  s.cash = 10000;
+  const r = askLoan(s, 20000);
+  assert(r.ok && r.text.includes('notario'));
+  assert(!s.clausula.broken, 'pedirle a tu madre no la rompe');
+  s.month = 96;
+  s.cash = 6e6;
+  assertEq(checkEnding(s), 'tiburon');
+  assert(!s.clausula.done, 'pero hay que acabar sin deber nada');
+});
+
+test('cartilla: los refranes no repiten el último', () => {
+  const s = needy();
+  for (let i = 0; i < 12; i++) {
+    s.cartilla.entradas.push({ m: i, concepto: 'x', debe: 0, haber: 0, saldo: 0, refran: refran(s, 'devolver') });
+    const e = s.cartilla.entradas;
+    if (e.length > 1) assert(e.at(-1).refran !== e.at(-2).refran, `repite en ${i}`);
+  }
+});
+
+test('cartilla: migrate crea la cartilla y las cartas aguantan sin ella', () => {
+  const s = started();
+  const old = JSON.parse(serialize(s));
+  delete old.cartilla;
+  const back = deserialize(JSON.stringify(old));
+  assertEq(back.cartilla.saldo, 120000);
+  delete back.cartilla;
+  back.pending = [{ kind: 'event', id: 'cartilla_vence', params: {} }];
+  assert(typeof currentPending(back).text === 'string');
 });

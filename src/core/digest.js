@@ -11,6 +11,7 @@ import { CANDIDATE_REFRESH } from './execs.js';
 import { UNLOCKS } from './actions.js';
 import { dateLabel, moneyShort } from './helpers.js';
 import { convenioDemand, isConvenioMonth } from './plantilla.js';
+import { MAMA, hasCond } from './cartilla.js';
 
 export const CAT_NAMES = { sobaos: 'Sobaos', inmobiliario: 'Inmobiliario', hosteleria: 'Hostelería', formacion: 'Formación', servicios: 'Servicios', produccion: 'Producción' };
 export const COST_NAMES = {
@@ -138,6 +139,9 @@ export function upcoming(s) {
       out.push(d > 0 || s.comite.prometido != null ? `🤝 Revisión del convenio ${when(m)}: Maripili pediría un ${(d * 100).toFixed(1).replace('.0', '').replace('.', ',')} %.` : `🤝 Revisión del convenio ${when(m)}: con el agravio así de bajo, Maripili no pediría subida.`);
     }
   }
+  const c = s.cartilla;
+  if (c?.owed > 0 && !c.embargo && c.due != null && c.due <= s.month + 1) out.push(`👵 Vence la cartilla de tu madre ${when(Math.max(s.month, c.due))} (le debes ${moneyShort(c.owed)}).`);
+  if (hasCond(s, 'domingos') && (s.month + 1 - c.condFrom) % MAMA.DOMINGO_EVERY === 0) out.push('🍲 El mes que viene toca cocido en casa de tu madre: no habrá acción de Manolo.');
   const el = nextElectionMonth(s.month);
   if (el - s.month <= 2) out.push(`🗳️ Elecciones generales ${when(el)}.`);
   for (const mod of s.mods) if (mod.campaign && mod.months <= 1) out.push(`📢 Termina la campaña «${mod.label}»${mod.city ? ` en ${CITY_BY_ID[mod.city]?.name ?? mod.city}` : ''}.`);

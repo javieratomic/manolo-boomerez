@@ -19,6 +19,7 @@ import { hireExec, fireExec, refreshCandidates, execOf, severance } from '../cor
 import { RIVALS } from '../data/rivals.js';
 import { clauseStatus, clauseWarn } from '../core/clauses.js';
 import { monthDigest, fmtDelta } from '../core/digest.js';
+import { askLoan, repayEarly } from '../core/cartilla.js';
 import { buyLujo, sellLujo, doIPO, IPO_FLOAT } from '../core/life.js';
 import { LUJO_BY_ID } from '../data/lujo.js';
 import { grossPatrimonio } from '../core/economy.js';
@@ -185,7 +186,7 @@ function renderHUD(s) {
     <div class="hud-brand">${esc(s.brand === 'maison' ? 'Maison Boomerez' : 'Boomerez S.L.')}</div>
     ${hudItem('icon_calendar', '📅', 'Fecha', `<span class="long">${dateLabel(s.month)}</span><span class="short">${dateLabel(s.month).slice(0, 3)} ${String(dateLabel(s.month)).slice(-2)}</span>`, `<span class="hud-sub">${s.endless ? `Mes ${s.month + 1} · ♾️` : `Mes ${Math.min(s.month + 1, GAME_MONTHS)}/${GAME_MONTHS}`}</span>`)}
     ${hudItem('icon_cash', '💶', 'Caja', `<span class="${s.cash < 0 ? 'neg' : ''}">${moneyShort(s.cash)}</span>`, '', 'Dinero disponible. Si baja de cero, el banco tira de la póliza.')}
-    ${hudItem('icon_debt', '🏦', 'Deuda', moneyShort(s.debt), '', 'Lo que debes a la Caja Cantábrica. Genera intereses cada mes.')}
+    ${hudItem('icon_debt', '🏦', 'Deuda', moneyShort(s.debt), '', `Lo que debes a la Caja Cantábrica. Genera intereses cada mes.${s.cartilla?.owed > 0 ? ` Además debes ${money(s.cartilla.owed)} a tu madre.` : ''}`)}
     ${hudItem('icon_patrimonio', '🏰', 'Patrimonio', moneyShort(pat), '', 'Caja − deuda + valor del obrador, los negocios y los caprichos. Es lo que cuenta para los finales.')}
     ${hudItem('icon_macro', macroFx(s).emoji, 'Economía', macroFx(s).label, '', macroFx(s).desc)}
     ${hudItem('icon_rep', '⭐', 'Reputación', Math.round(s.rep), meter(s.rep), 'Imagen pública. Multiplica la demanda de todos tus negocios.', 'rep')}
@@ -359,6 +360,21 @@ async function onClick(e) {
       res = borrow(s, Number(el.dataset.amount) || LOAN_STEP);
       if (res.ok) toast(`🏦 +${money(res.amount)} de la póliza`, 'info');
       break;
+    case 'mama-ask':
+      res = askLoan(s, el.dataset.amount === 'max' ? 'max' : Number(el.dataset.amount));
+      if (res.ok) {
+        play('cash');
+        renderAll();
+        await showModal({ title: 'La cartilla de Doña Remedios', kicker: 'Préstamo', portrait: 'portrait_madre', image: 'ev_cartilla', text: res.text });
+      }
+      break;
+    case 'mama-repay': {
+      const owed = s.cartilla?.owed || 0;
+      if (!(await confirmModal('Devolverle el dinero a tu madre', `Le devuelves ${money(owed)}${s.cash < owed ? ': la caja no llega, así que la póliza cubrirá el descubierto al cerrar el mes' : ''}. Se acaban las condiciones.`, 'Devolver'))) return;
+      res = repayEarly(s);
+      if (res.ok) toast(`👵 «${res.refran}»`, 'good', 4000);
+      break;
+    }
     case 'repay':
       res = repay(s, el.dataset.amount === 'all' ? Infinity : LOAN_STEP);
       if (res.ok) toast(`Devueltos ${money(res.amount)}`, 'info');
@@ -734,7 +750,8 @@ async function showEnding(id) {
   const e = ENDINGS[id];
   play('ending');
   const cl = clauseStatus(s);
-  const html = `${e.text.split('\n').map((t) => `<p>${esc(t)}</p>`).join('')}
+  const etext = e.text + (id === 'bancarrota' && s.cartilla?.rescatado ? '\nEsta vez tu madre no abre la puerta.' : '');
+  const html = `${etext.split('\n').map((t) => `<p>${esc(t)}</p>`).join('')}
     <table class="tbl pl">
       <tr><td>Meses al frente</td><td>${s.month}</td></tr>
       <tr><td>Patrimonio final</td><td>${money(patrimonio(s))}</td></tr>

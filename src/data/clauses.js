@@ -103,10 +103,10 @@ export const CLAUSES = [
     title: 'Ni un duro de los bancos',
     mult: 1.15,
     notary: 'Que no le pida un duro a los bancos. Los Boomerez pagamos al contado.',
-    rule: 'No pedir nunca un préstamo y acabar sin deuda. La póliza automática por un descubierto no cuenta, pero hay que devolverla.',
-    short: (s) => `Ni un duro de los bancos${s.debt > 0 ? ' · debes' : ''}`,
+    rule: 'No pedir nunca un préstamo y acabar sin deuda con nadie (tampoco con tu madre). La póliza automática por un descubierto no cuenta, pero hay que devolverla.',
+    short: (s) => `Ni un duro de los bancos${s.debt > 0 || (s.cartilla?.owed || 0) > 0 ? ' · debes' : ''}`,
     broken: (s) => !!s.flags.prestamoPedido,
-    met: (s) => s.debt <= 0,
+    met: (s) => s.debt <= 0 && (s.cartilla?.owed || 0) <= 0,
   },
 ];
 

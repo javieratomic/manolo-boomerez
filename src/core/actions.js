@@ -120,6 +120,9 @@ export function buyUpgrade(s) {
 
 export function setPolicy(s, key, value) {
   if (!POLICIES[key]?.options[value]) return { ok: false, msg: 'Política desconocida.' };
+  if (key === 'mantenimiento' && (s.cartilla?.owed || 0) > 0 && (s.cartilla.conds || []).includes('kevin') && value !== 'kevin') {
+    return { ok: false, msg: 'Tu madre: "Kevin se queda hasta que me devuelvas lo mío."' };
+  }
   if (s.flags.forcedLegal > 0 && isIllegalChoice(key, value)) {
     const who = s.flags.forcedBy === 'convenio' ? 'Lo firmaste en el convenio' : 'La Inspección te vigila';
     return { ok: false, msg: `${who}: no puedes cambiar esto durante ${s.flags.forcedLegal} meses.` };
@@ -152,7 +155,10 @@ export function togglePerk(s, id) {
 export function borrow(s, amount = LOAN_STEP) {
   const limit = creditLimit(s);
   const room = limit - s.debt;
-  if (room <= 0) return { ok: false, msg: 'El banco dice que no. Ni con un sobao de regalo.' };
+  if (room <= 0) {
+    s.flags.bancoNo = true; // ahora tu madre sí presta
+    return { ok: false, msg: 'El banco dice que no. Ni con un sobao de regalo. (Tu madre tiene una cartilla...)' };
+  }
   const a = Math.min(amount, room);
   s.debt += a;
   addCash(s, a);
@@ -209,6 +215,7 @@ export function dropMonthlyCost(s, index) {
 }
 
 export function doManoloAction(s, id) {
+  if (s.actionUsed && s.flags.domingo === s.month) return { ok: false, msg: 'Hoy no, Manolo: es domingo de cocido en casa de tu madre.' };
   if (s.actionUsed) return { ok: false, msg: 'Manolo ya ha hecho bastante este mes. Necesita su siesta.' };
   if (s.restMonths > 0) return { ok: false, msg: `Reposo médico: ${s.restMonths} ${s.restMonths === 1 ? 'mes' : 'meses'} más sin hacer nada. Órdenes de la cardióloga (y de Merche).` };
   const a = ACTION_BY_ID[id];

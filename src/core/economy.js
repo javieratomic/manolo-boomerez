@@ -92,7 +92,8 @@ export function maintenanceCost(s) {
 // Todo lo que vale la empresa (y los caprichos de Manolo), antes de descontar a los accionistas.
 export function grossPatrimonio(s) {
   const assets = s.businesses.reduce((a, b) => a + (b.value || 0), 0);
-  return s.cash - s.debt + obradorValue(s) + assets + lujoValue(s);
+  // Lo que se debe a Doña Remedios también resta (el banco no se entera, el patrimonio sí).
+  return s.cash - s.debt - (s.cartilla?.owed || 0) + obradorValue(s) + assets + lujoValue(s);
 }
 
 // Lo que es de Manolo: si cotiza en Bolsa, descuenta la parte de los accionistas.
@@ -181,6 +182,9 @@ export function computeEconomy(s) {
   costs.salarios += obWages;
   costs.materias += obMaterials;
   costs.otros += obFixed;
+  // Embargo materno: lo que se vende en el mostrador de Selaya se lo queda Doña Remedios.
+  const embargo = s.cartilla?.embargo ? Math.min(shopUnits * fill * OBRADOR_BASE.shopPrice, s.cartilla.owed || 0) : 0;
+  costs.otros += embargo;
   revenueByCat.sobaos += obRevenue;
   lines.push({ id: 'obrador', type: 'obrador', city: 'selaya', label: 'Obrador Boomerez', revenue: obRevenue, cost: obMaterials + obWages + obFixed, staff: obradorStaff, units: produced });
 
@@ -348,6 +352,7 @@ export function computeEconomy(s) {
     phase: s.macro?.phase ?? null,
     strike,
     debt: s.debt,
+    embargo,
     revenue, revenueByCat, costs, totalCost, profit, tax, evaded,
     net: profit - tax,
     employees, housed, beds, control,

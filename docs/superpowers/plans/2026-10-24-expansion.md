@@ -24,7 +24,7 @@ Conservar arte terminado y campos ajenos del manifiesto. No hacer push. Textos e
 - [x] 2. Catálogo I+D de 24+ productos e iconos propios: efectos especializados, límites y guardado. Verificar catálogo y UI móvil. Commit local.
 - [x] 3. Acuerdos exteriores: firma, cuentas, capacidad, incidentes, resolución, vencimiento y carga antigua. Probar semillas y botones reales. Commit local.
 - [x] 4. Capitales completas, logística insular, mapa y etiquetas. Probar todas las ciudades y partidas completas. Commit local.
-- [ ] 5. Revisión independiente, regresiones, balance con bots sin fijar objetivos monetarios antiguos, documentación y portable actualizado con smoke.
+- [x] 5. Revisión independiente, regresiones, balance con bots sin fijar objetivos monetarios antiguos, documentación y portable actualizado con smoke.
 
 
 ## Registro de ejecución
@@ -38,5 +38,7 @@ Conservar arte terminado y campos ajenos del manifiesto. No hacer push. Textos e
 
 - QA final: 202/202 Node y 10/10 DOM. Antes de añadir las tres últimas regresiones, suite completa 209/209; después 211/211 antes del caso de céntimos, cubierto en el DOM final.
 - Clics reales a 1365×900 y 375×812: marca blanca sin auditoría, licencia con auditoría, rescisión, incidente provocado con RNG reproducible, resolución y viaje a Tenerife tras recargar. 24 SVG cargados, cero errores o desbordamiento.
-- Doce partidas hasta su final, 1.111 comprobaciones de serialización. Finales: seis Tiburón, tres Pyme, dos Forbes y una bancarrota; no son objetivos de equilibrado, sino evidencia de recorridos completos y guardados válidos.
+- Doce partidas hasta su final, 1.111 comprobaciones de serialización. Finales: cinco Tiburón, cuatro Pyme, dos Forbes y una bancarrota; no son objetivos de equilibrado, sino evidencia de recorridos completos y guardados válidos.
 - Inspección visual: detectado precio unitario redondeado sin céntimos en acuerdos; prueba DOM roja y corrección para mostrar 2,40 €/ud y transporte 0,12 €/ud. Portable regenerado tras corregirlo.
+
+- Ejecutable final 0.5.0 reconstruido tras el ajuste de céntimos: smoke del desempaquetado (mes 1, visible, sin errores) y del portable (salida 0) correctos.

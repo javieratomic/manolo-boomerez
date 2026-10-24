@@ -1814,54 +1814,66 @@
       "file": "assets/events/ev_ciudad_madrid.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_madrid"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_madrid",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_palma",
       "file": "assets/events/ev_ciudad_palma.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_palma"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_palma",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_zaragoza",
       "file": "assets/events/ev_ciudad_zaragoza.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_zaragoza"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_zaragoza",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_santander",
       "file": "assets/events/ev_ciudad_santander.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_santander"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_santander",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_coruna",
       "file": "assets/events/ev_ciudad_coruna.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_coruna"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_coruna",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_valladolid",
       "file": "assets/events/ev_ciudad_valladolid.png",
       "w": 768,
       "h": 432,
-      "status": "requested",
+      "status": "done",
       "priority": 3,
-      "request": "art/requests/05_sucesos.md#ev_ciudad_valladolid"
+      "request": "art/requests/05_sucesos.md#ev_ciudad_valladolid",
+      "version": 1,
+      "notes": "Escena 2.5D opaca 16:9, inspeccionada y optimizada a menos de 300 KB."
     },
     {
       "id": "ev_ciudad_cordoba",

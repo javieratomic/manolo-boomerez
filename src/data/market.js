@@ -13,6 +13,22 @@ export const CAMPAIGNS = [
     desc: 'Veinte influencers comiendo sobaos con cara de éxtasis. Tres de ellos dicen que son veganos.' },
   { id: 'tele', scope: 'national', name: 'Anuncio en la tele autonómica', cost: 70000, months: 6, factor: 1.12, rep: 3,
     desc: 'Un anuncio con prados, vacas, una abuela y música de violines. La abuela es actriz.' },
+  {id:'busqueda_local',scope:'city',name:'Buscadores y mapas locales',cost:4500,months:3,factor:1.1,desc:'Apareces cuando alguien busca un negocio como el tuyo en esa ciudad.'},
+  {id:'redes_barrio',scope:'city',name:'Publicidad en redes del barrio',cost:3500,months:2,factor:1.09,desc:'Anuncios de proximidad, con presupuesto y público de cada ciudad.'},
+  {id:'degustaciones',scope:'city',name:'Degustaciones y muestras',cost:6000,months:2,factor:1.14,types:['obrador','express','maison','smash','empanadas','taberna'],desc:'Pruebas de producto con promotores pagados. Solo alimentación y hostelería.'},
+  {id:'hoteles_locales',scope:'city',name:'Acuerdos con hoteles y oficinas',cost:12000,months:6,factor:1.12,types:['obrador','express','maison','smash','empanadas','taberna'],desc:'Desayunos y recomendaciones de recepción. Solo alimentación y hostelería.'},
+  {id:'jornadas_locales',scope:'city',name:'Jornadas de puertas abiertas',cost:8000,months:4,factor:1.11,rep:1,desc:'Conoce al equipo, visita el negocio y prueba su oferta. Sin visitas a edificios en obras.'},
+  {id:'podcasts',scope:'national',name:'Patrocinio de podcasts',cost:18000,months:4,factor:1.06,fama:2,desc:'Menciones en programas españoles de cocina, empresas y vida cotidiana.'},
+  {id:'video_nacional',scope:'national',name:'Vídeo y buscadores en España',cost:60000,months:5,factor:1.1,desc:'Una campaña digital nacional con piezas y audiencias distintas por sector.'},
+  {id:'liga_nacional',scope:'national',name:'Patrocinio de una liga nacional',cost:250000,months:12,factor:1.15,fama:5,rep:2,desc:'Presencia de marca durante toda la temporada en España.'},
+  {id:'prensa_nacional',scope:'national',name:'Prensa y revistas nacionales',cost:45000,months:4,factor:1.08,rep:1,desc:'Reportajes comerciales identificados como publicidad, del suplemento al quiosco.'},
+  {id:'navidad',scope:'national',name:'Campaña de regalos de Navidad',cost:150000,months:3,factor:1.2,launchMonths:[8,9,10],activeMonths:[10,11],types:['obrador','express','maison','empanadas','taberna'],desc:'Se contrata de septiembre a noviembre; impulsa alimentación solo en noviembre y diciembre mientras siga activa.'},
+  {id:'ferias_exterior',scope:'international',name:'Ferias comerciales en el país',cost:40000,months:6,factor:1.15,desc:'Contactos profesionales y promoción conjunta con tus socios y filiales.'},
+  {id:'redes_exterior',scope:'international',name:'Redes y buscadores adaptados',cost:22000,months:4,factor:1.1,desc:'Anuncios en el idioma local y bajo la marca con la que vende cada socio.'},
+  {id:'retail_exterior',scope:'international',name:'Promoción con distribuidores',cost:35000,months:6,factor:1.13,desc:'Visibilidad comercial para productos y servicios del grupo y sus socios.'},
+  {id:'prensa_exterior',scope:'international',name:'Prensa y relaciones públicas locales',cost:18000,months:4,factor:1.08,desc:'Presentaciones y publicidad identificada en medios del país.'},
+  {id:'turismo_exterior',scope:'international',name:'Sabores de España en el exterior',cost:28000,months:3,factor:1.16,types:['express','maison','taberna','empanadas','airbnb'],desc:'Promoción gastronómica y turística, también con la marca de tu socio.'},
+  {id:'streaming_exterior',scope:'international',name:'Vídeo y creadores del país',cost:65000,months:6,factor:1.18,desc:'Creadores locales y piezas audiovisuales adaptadas al público del país.'},
 ];
 
 // effects: [{ category?, types?, factor, minWealth?, minPop?, months?: [meses 0-11] }]

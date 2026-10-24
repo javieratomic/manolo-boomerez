@@ -41,7 +41,7 @@ pellizco para el zoom (en el móvil, tocar dos ciudades juntas acerca el mapa) �
 | Mapa | 55 destinos españoles y 16 ciudades extranjeras tras experiencia de marca blanca e I+D |
 | Economía | Ciclo de expansión, burbuja, crisis y recuperación; costes de estructura crecientes |
 | Competencia | 9 cadenas rivales con IA que te copian; guerra de precios, reseñas falsas, fichajes y OPA |
-| Mercado | Campañas, 35 proyectos I+D y diez países para marca blanca o licencias |
+| Mercado | Central de marketing: 22 campañas locales, nacionales e internacionales, selección de ciudades/países y contratación conjunta; 35 proyectos I+D y diez mercados para acuerdos |
 | Equipo | 5 puestos directivos con candidatos que tienen nivel y manías |
 | Vida | Caprichos, familia, sucesión y salida a Bolsa a partir de una valoración de 1.000 M€ |
 | Sinergias | Academy y coworking locales +15 %; vender sobaos aumenta la demanda local de gimnasio el mes siguiente (hasta +35 %) |

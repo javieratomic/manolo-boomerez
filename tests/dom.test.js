@@ -218,3 +218,19 @@ test('DOM: reputación local y etapas de las campanadas son visibles',()=>{
  const el=document.createElement('div');el.innerHTML=renderCity(s,'salamanca');assert(el.querySelector('.local-relations'));assert(el.textContent.includes('Reputación:'));
  el.innerHTML=renderMarket(s);assert(el.querySelector('.new-year-tradition'));assert(el.textContent.includes('0/4'));assert(el.textContent.includes('patrocinios exitosos'));
 });
+
+test('DOM: Mercado centraliza marketing por ciudades y países con presupuesto de lote',()=>{
+ const s=newGame(42);resolvePending(s,0);s.cash=1e7;s.businesses.push({id:1,type:'express',city:'madrid',mode:'propia',level:1,value:30000});
+ const el=document.createElement('div');el.innerHTML=renderMarket(s);
+ assert(el.querySelector('.marketing-hub'));assertEq(el.querySelectorAll('.marketing-scope').length,3);
+ assert(el.querySelector('[data-act="marketing-target"][value="madrid"]').checked);
+ assert(el.querySelector('[data-act="campaign-batch"][data-id="buzoneo"]'));assert(el.textContent.includes('Lote:'));
+ el.innerHTML=renderMarket(s,{city:[],international:[]});assert(el.querySelector('[data-act="campaign-batch"][data-id="buzoneo"]').disabled);
+});
+
+test('DOM: una selección de marketing no queda bloqueada por territorios que ya no tienes',()=>{
+ const s=newGame(42);resolvePending(s,0);s.cash=1e7;s.businesses.push({id:1,type:'express',city:'barcelona',mode:'propia',level:1,value:30000});
+ const el=document.createElement('div');el.innerHTML=renderMarket(s,{city:['madrid','barcelona']});
+ assert(!el.querySelector('[data-act="marketing-target"][value="madrid"]'));
+ assert(!el.querySelector('[data-act="campaign-batch"][data-id="buzoneo"]').disabled);
+});

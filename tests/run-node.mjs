@@ -6,6 +6,7 @@ import './empire.test.js';
 import './synergies.test.js';
 import './construction.test.js';
 import './local-events.test.js';
+import './marketing.test.js';
 
 const { failures } = await run((line) => console.log(line));
 process.exit(failures.length ? 1 : 0);

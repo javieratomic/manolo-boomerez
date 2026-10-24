@@ -1,5 +1,6 @@
 import {newDynasty} from './dynasty.js';
 import {LOCAL_RULES} from '../data/localEvents.js';
+import {CAMPAIGNS} from '../data/market.js';
 import {HOUSING_FORMS} from '../data/housing.js';
 import {isResidential} from './construction.js';
 import {execPortrait} from '../data/execs.js';
@@ -16,7 +17,7 @@ import { grossPatrimonio, computeEconomy } from './economy.js';
 export const SAVE_KEY = 'manolo-boomerez-save-v1';
 export const SAVE_VERSION = 2;
 // Versión del contenido: una semilla solo reproduce la misma partida con la misma versión.
-export const GAME_VERSION = '0.9.0';
+export const GAME_VERSION = '0.10.0';
 
 export const DIFFICULTIES = {
   cunado: {
@@ -218,6 +219,13 @@ export function deserialize(text) {
     for(const [key,value] of Object.entries(terms))if(!['employee','public'].includes(key)||!(key==='employee'?Object.hasOwn(POLICIES.alquiler.options,value):Object.hasOwn(PUBLIC_RENTS,value)))invalid();
   }
   for(const [city,units] of Object.entries(ready.citySobaoSales))if(!Object.hasOwn(CITY_BY_ID,city)||typeof units!=='number'||!Number.isFinite(units)||units<0)invalid();
+  for(const m of ready.mods)if(m.campaign!=null){
+    const c=CAMPAIGNS.find(c=>c.id===m.campaign);
+    if(!c||m.kind!=='revenue'||!Number.isFinite(m.factor)||m.factor<=0||!Number.isInteger(m.months)||m.months<=0||m.scope!=null&&m.scope!==c.scope)invalid();
+    if(c.scope==='city'&&(!Object.hasOwn(CITY_BY_ID,m.city)||m.market!=null))invalid();
+    if(c.scope==='national'&&(m.city!=null||m.market!=null))invalid();
+    if(c.scope==='international'&&(!Object.hasOwn(FOREIGN_BY_ID,m.market)||m.city!=null))invalid();
+  }
   for(const [id,p] of Object.entries(ready.localEvents)) {
     if(!Object.hasOwn(LOCAL_RULES,id)||!p||typeof p!=='object'||Array.isArray(p))invalid();
     for(const k of ['visits','successes','failures','level'])if(!Number.isSafeInteger(p[k])||p[k]<0)invalid();

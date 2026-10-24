@@ -1,4 +1,5 @@
 import {serviceRevenue,serviceStaff} from './serviceModel.js';
+import {campaignApplies} from './marketing.js';
 import {isOperating,isResidential,renewalDue,renovationCost,businessName} from './construction.js';
 import {housingSpec} from '../data/housing.js';
 import {businessSynergies} from './synergies.js';
@@ -72,6 +73,7 @@ export function modFactor(s, kind, category, city, type) {
   let f = 1;
   for (const m of s.mods) {
     if (m.kind !== kind) continue;
+    if(m.campaign&&!campaignApplies(s,m,category,city,type))continue;
     if (m.category && m.category !== category) continue;
     if (m.city && m.city !== city) continue;
     if (m.types && !m.types.includes(type)) continue;

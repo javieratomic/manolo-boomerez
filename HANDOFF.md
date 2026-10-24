@@ -1,3 +1,18 @@
+# Continuación 0.10.0 — Central de marketing (25-10-2026)
+
+Petición completa implementada:
+- Catálogo de 22 campañas: ocho locales, ocho nacionales y seis internacionales. Se conservan los seis ids anteriores. Nuevas opciones de buscadores, redes, degustaciones, hoteles/oficinas, puertas abiertas, podcasts, prensa, liga, regalos de Navidad y promoción exterior.
+- Mercado empieza con Central de marketing: ciudades/países, todos/ninguno, selección múltiple, coste total y revisión antes de contratar. Campañas activas y destinos sin negocios afines se omiten; duplicados se deduplican. Fondos insuficientes o destinos inválidos bloquean el lote sin cobros parciales. Contratación local individual desde Ciudad preservada.
+- Ámbito correcto: nacional afecta España; local una ciudad; internacional un país con locales/franquicias operativos o acuerdos activos sin conflicto. Obras no habilitan campañas. El país se cuenta una vez aunque tenga varios locales y un socio. Alimentación/hostelería se filtran cuando corresponde.
+- Marca blanca: publicidad exterior aumenta pedidos, fabricación, materias y transporte según suministro real. Licencia: aumenta regalías sin consumir producción. Bonificaciones de Marketing aplicadas una sola vez y campañas caducan con los modificadores existentes.
+- Núcleo en `core/marketing.js`, reexportado desde `core/market.js`. Planificación pura, mismos efectos individuales y en lote, validación de ámbito al cargar; campañas antiguas sin `scope` se interpretan por catálogo. UI normaliza selección tras vender locales o vencer contratos; núcleo sigue rechazando ids inválidos.
+
+Verificación final: **261/261 Node y 17/17 DOM**, sintaxis correcta. Edge 1365×900 y 375×812: cinco ciudades con una campaña previa (lote cobra 10.000 € por las otras cuatro), tres países (120.000 €, Portugal con dos locales cuenta una vez), todos/ninguno/selección, confirmación y recarga; sin errores/desbordamiento. Simulación de 96 meses con caja/capacidad altas: 48 lotes, 2.272.000 € gastados, 96 cargas mantienen economía y RNG, sin campañas duplicadas ni final inesperado. Revisión independiente detectó selección invisible obsoleta, corregida con regresión DOM roja/verde; cierre sin nuevos hallazgos importantes.
+
+Build y smoke desempaquetado correctos. Portable: `desktop/dist/ManoloBoomerez-0.10.0-portable.exe`. Sin push ni cierre del juego del usuario. Plan: `docs/superpowers/plans/2026-10-25-marketing-territorial.md`.
+
+---
+
 # Continuación 0.9.0 — Fiestas con memoria (25-10-2026)
 
 Petición completa implementada, con equilibrio delegado:

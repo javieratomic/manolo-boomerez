@@ -1,4 +1,5 @@
 import {workforcePlan} from '../core/workforce.js';
+import {campaignPlan,marketingTerritories,campaignSelection} from '../core/marketing.js';
 import {LOCAL_RULES,NEW_YEAR_STAGES} from '../data/localEvents.js';
 import {localState,localMemoryText} from '../core/localEvents.js';
 import {sponsorshipTerms} from '../data/eventsNewYear.js';
@@ -462,10 +463,10 @@ export function renderEmpire(s) {
 const unitMoney = n => n.toLocaleString('es-ES', {style:'currency',currency:'EUR',minimumFractionDigits:2,maximumFractionDigits:2});
 const pct = (f) => `${f >= 1 ? '+' : '−'}${Math.round(Math.abs(f - 1) * 100)} %`;
 
-export function renderMarket(s) {
+export function renderMarket(s,marketingSelection={}) {
   const p = macroFx(s);
   const order = ['recuperacion', 'expansion', 'burbuja', 'crisis'];
-  return `<div class="card macro macro-${s.macro.phase}">
+  return `${renderMarketingHub(s,marketingSelection)}<div class="card macro macro-${s.macro.phase}">
       <div class="kicker">Ciclo económico</div>
       <h3>${p.emoji} ${esc(p.label)}</h3>
       <p class="small">${esc(p.desc)}</p>
@@ -481,11 +482,20 @@ export function renderMarket(s) {
     ${renderNewYearTradition(s)}
     ${renderGov(s)}
     ${renderRivals(s)}
-    <div class="card"><h4>Campañas nacionales</h4><div class="campaigns">
-      ${CAMPAIGNS.filter((x) => x.scope === 'national').map((x) => campaignRow(s, x)).join('')}
-    </div>${execOf(s, 'marketing') ? '<p class="small muted">Tu responsable de Marketing hace que las campañas rindan más.</p>' : ''}</div>
     ${renderRD(s)}
     ${renderInternational(s)}`;
+}
+
+function renderMarketingHub(s,selection) {
+ const group=(scope,title)=>{
+  const territories=marketingTerritories(s,scope),selected=campaignSelection(s,scope,selection[scope]);
+  return `<details class="marketing-scope" data-scope="${scope}" open><summary><b>${title}</b></summary>${scope==='national'?'<p class="small">Un único presupuesto para España. No promociona directamente negocios extranjeros.</p>':`<p class="small">${scope==='city'?'Presupuesto por ciudad operativa, incluyendo franquicias.':'Presupuesto por país con locales operativos o acuerdos activos. Un país se cuenta una sola vez.'}</p><div class="row gap wrap"><button class="btn small ghost" data-act="marketing-select" data-scope="${scope}" data-value="all">Todos</button><button class="btn small ghost" data-act="marketing-select" data-scope="${scope}" data-value="none">Ninguno</button></div><fieldset class="marketing-targets"><legend>${scope==='city'?'Ciudades seleccionadas':'Países seleccionados'}</legend>${territories.length?territories.map(t=>`<label><input type="checkbox" data-act="marketing-target" data-scope="${scope}" value="${t.id}" ${selected.includes(t.id)?'checked':''}> ${esc(t.name)}</label>`).join(''):'<p class="small muted">Todavía no tienes presencia operativa para este ámbito.</p>'}</fieldset>`}<div class="campaigns">${CAMPAIGNS.filter(c=>c.scope===scope).map(c=>{
+    if(scope==='national')return campaignRow(s,c);
+    const plan=campaignPlan(s,c.id,selected),noun=scope==='city'?'ciudades':'países';
+    return `<div class="campaign marketing-campaign"><div class="grow"><b>${esc(c.name)}</b><div class="small">${money(c.cost)} por ${scope==='city'?'ciudad':'país'} · ${c.months} meses · demanda +${Math.round((c.factor-1)*100)} %</div><p class="small muted">${esc(c.desc)}</p><div class="small batch-quote">Lote: <b>${plan.targets.length} ${noun} · ${money(plan.cost)}</b>${plan.skipped.length?` · ${plan.skipped.length} omitidos (ya activos o sin negocios afines)`:''}</div>${!plan.ok?`<div class="small muted">${esc(plan.msg)}</div>`:''}</div><button class="btn small primary" data-act="campaign-batch" data-id="${c.id}" data-scope="${scope}" ${plan.ok?'':'disabled'}>Revisar y lanzar en ${plan.targets.length} ${noun}</button></div>`;
+   }).join('')}</div></details>`;
+ };
+ return `<div class="card marketing-hub"><h3>📢 Central de marketing</h3><p class="small">Selecciona territorios y contrata cada campaña en todos ellos desde aquí. El lote omite campañas ya activas y destinos sin negocios afines. Se cobra el total completo al contratar; elevar la demanda requiere capacidad para atenderla.</p>${execOf(s,'marketing')?'<p class="small">Tu responsable de Marketing mejora la eficacia de cada campaña.</p>':''}${group('national','🇪🇸 Campañas nacionales')}${group('city','📍 Campañas locales en lote')}${group('international','🌍 Campañas internacionales')}</div>`;
 }
 
 function renderInternational(s) {

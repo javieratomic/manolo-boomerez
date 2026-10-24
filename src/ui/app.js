@@ -1,4 +1,5 @@
 import {nominateHeir} from '../core/dynasty.js';
+import {campaignPlan,launchCampaignBatch,marketingTerritories,campaignSelection} from '../core/marketing.js';
 import {setHousingPolicy} from '../core/housing.js';
 import { signAgreement, endAgreement, agreementTerms } from '../core/international.js';
 import { FOREIGN_BY_ID, DEAL_MODES } from '../data/international.js';
@@ -135,6 +136,7 @@ function showTitle() {
 
 function startGame(s) {
   game.s = s;
+  game.marketingSelection={};
   game.bubble = null;
   game.city = HQ_CITY;
   game.tab = 'ciudad';
@@ -241,7 +243,7 @@ function renderPanel(s) {
   const map = {
     ciudad: () => renderCity(s, game.city),
     imperio: () => renderEmpire(s),
-    mercado: () => renderMarket(s),
+    mercado: () => renderMarket(s,game.marketingSelection),
     plantilla: () => renderStaff(s),
     finanzas: () => renderFinance(s),
     manolo: () => renderManolo(s),
@@ -494,6 +496,19 @@ async function onClick(e) {
         toast(`📢 ${CAMPAIGN_BY_ID[el.dataset.id].name}`, 'good');
       }
       break;
+    case 'marketing-select':
+      game.marketingSelection||={};game.marketingSelection[el.dataset.scope]=el.dataset.value==='all'?null:[];
+      break;
+    case 'campaign-batch': {
+      const c=CAMPAIGN_BY_ID[el.dataset.id],targets=campaignSelection(s,c.scope,game.marketingSelection?.[c.scope]);
+      const plan=campaignPlan(s,c.id,targets);
+      if(!plan.ok){toast(plan.msg,'bad');return;}
+      const text=`${plan.targets.length} territorios: ${plan.targets.map(t=>t.name).join(', ')}.\n\nCoste total: ${money(plan.cost)}. Duración: ${c.months} meses por territorio.\n\n${plan.skipped.length?`Se omiten ${plan.skipped.length} destinos ya activos o sin negocios afines.\n\n`:''}El lote se contrata completo o no se cobra nada. Las campañas elevan la demanda; comprueba la capacidad del obrador.`;
+      if(!await confirmModal(c.name,text,'Contratar lote'))return;
+      res=launchCampaignBatch(s,c.id,targets);
+      if(res.ok){play('cash');toast(`📢 ${res.count} territorios · ${money(res.cost)}`,'good');}
+      break;
+    }
     case 'foreign-sign': {
       const market = el.dataset.market, mode = el.dataset.mode;
       const audit = el.closest('.foreign-offer').querySelector('.foreign-audit').checked;
@@ -625,6 +640,12 @@ async function onClick(e) {
 
 function onChange(e) {
   const el = e.target;
+  if(el.dataset.act==='marketing-target'&&game.s){
+    const scope=el.dataset.scope;game.marketingSelection||={};
+    const selected=new Set(campaignSelection(game.s,scope,game.marketingSelection[scope]));
+    if(el.checked)selected.add(el.value);else selected.delete(el.value);
+    game.marketingSelection[scope]=[...selected];renderAll();return;
+  }
   if(el.dataset.act==='housing-policy'&&game.s) {
     const res=setHousingPolicy(game.s,el.dataset.city,el.dataset.group,el.value);
     if(!res.ok)toast(res.msg,'bad');

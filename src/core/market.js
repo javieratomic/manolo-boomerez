@@ -8,38 +8,8 @@ import { CITY_BY_ID } from '../data/cities.js';
 import { addCash, addRep, addFama, addHeatHacienda, addMod, log, money } from './helpers.js';
 import { execBonus } from './execs.js';
 
-export const CAMPAIGN_BY_ID = Object.fromEntries(CAMPAIGNS.map((c) => [c.id, c]));
+export {CAMPAIGN_BY_ID,campaignRunning,canLaunchCampaign,launchCampaign,campaignPlan,launchCampaignBatch,marketingTerritories} from './marketing.js';
 export const PRODUCT_BY_ID = Object.fromEntries(PRODUCTS.map((p) => [p.id, p]));
-
-// ---------------------------------------------------------------- Campañas
-export function campaignRunning(s, id, city = null) {
-  return s.mods.find((m) => m.campaign === id && (m.city || null) === city) || null;
-}
-
-export function canLaunchCampaign(s, id, city = null) {
-  const c = CAMPAIGN_BY_ID[id];
-  if (!c) return { ok: false, msg: 'Campaña desconocida.' };
-  if ((c.scope === 'city') !== !!city) return { ok: false, msg: 'Ámbito incorrecto.' };
-  if (city && !s.businesses.some((b) => b.city === city && b.mode !== 'franquicia') && !CITY_BY_ID[city]?.hq) return { ok: false, msg: 'No tienes negocios propios aquí.' };
-  const running = campaignRunning(s, id, city);
-  if (running) return { ok: false, msg: `Ya está en marcha (${running.months} meses más).` };
-  if (s.cash < c.cost) return { ok: false, msg: `Necesitas ${money(c.cost)}.` };
-  return { ok: true, cost: c.cost };
-}
-
-export function launchCampaign(s, id, city = null) {
-  const check = canLaunchCampaign(s, id, city);
-  if (!check.ok) return check;
-  const c = CAMPAIGN_BY_ID[id];
-  addCash(s, -c.cost);
-  const boost = 1 + (c.factor - 1) * (1 + execBonus(s, 'marketing'));
-  addMod(s, { kind: 'revenue', city: city || undefined, factor: boost, months: c.months, label: c.name, campaign: id });
-  s.flags.campaignDone = true;
-  if (c.rep) addRep(s, c.rep);
-  if (c.fama) addFama(s, c.fama);
-  log(s, `📢 Campaña: ${c.name}${city ? ` en ${CITY_BY_ID[city].name}` : ' en toda España'}.`, 'info');
-  return { ok: true };
-}
 
 // ---------------------------------------------------------------------- I+D
 export function canStartRD(s, id) {

@@ -1,5 +1,14 @@
 # Cambios
 
+## 0.10.0 — Central de marketing
+
+- 22 campañas: ocho locales, ocho nacionales y seis internacionales; buscadores, redes, degustaciones, acuerdos comerciales, podcasts, prensa, patrocinios, Navidad y acciones adaptadas a otros países.
+- Central de marketing al principio de Mercado: seleccionar ciudades/países, todos/ninguno, presupuesto actualizado y revisión antes de contratar en lote.
+- Lotes completos o nada; destinos únicos, campañas ya activas y negocios no afines omitidos. No se vuelve a cobrar una campaña activa ni se contrata parcialmente por falta de dinero.
+- Las campañas locales admiten franquicias operativas; las obras no habilitan campañas. Los destinos vendidos o acuerdos vencidos desaparecen de la selección sin bloquear las restantes ciudades o países.
+- Nacional significa España. Internacional actúa por país sobre locales, pedidos de marca blanca o regalías de licencia; cada país se cobra una vez aunque tenga varios locales y un socio. Las licencias siguen sin consumir producción del obrador.
+- Campaña navideña con ventana de contratación y meses de efecto explícitos; las degustaciones solo actúan sobre alimentación y hostelería. Modificadores guardados mantienen su duración y alcance al cargar.
+
 ## 0.9.0 — Las ciudades tienen memoria
 
 - Invitaciones y conflictos locales dependen de reputación y confianza acumulada. Las cartas recuerdan la elección anterior; cuidar acuerdos mejora próximas campañas y repetir abusos cuesta más reputación.

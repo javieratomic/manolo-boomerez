@@ -475,5 +475,13 @@ body.big-text .choice small, body.big-text .opt small, body.big-text .action sma
 .housing-project>div{min-width:0}
 .housing-project .biz-icon{width:48px;height:48px;flex-shrink:0}
 .construction-status{color:#8a5915}
+.marketing-scope{padding:12px 0;border-top:1px dashed var(--line)}
+.marketing-scope summary{cursor:pointer;margin-bottom:8px}
+.marketing-targets{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;min-width:0}
+.marketing-targets label{font-size:13px;display:flex;align-items:center;gap:4px}
+.marketing-targets input{width:auto;flex-shrink:0}
+.marketing-campaign{flex-wrap:wrap}
+.marketing-campaign>.grow{min-width:180px;flex:1 1 240px}
+.marketing-campaign>.btn{align-self:center;white-space:normal}
 .european-goal{border-left:4px solid #315f7b}
 .foreign-territories>div{padding:8px 0;border-bottom:1px dashed var(--line)}

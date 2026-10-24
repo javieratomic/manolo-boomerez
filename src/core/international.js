@@ -1,4 +1,5 @@
 import {addStress} from './life.js';
+import {countryCampaignFactor} from './marketing.js';
 // Acuerdos territoriales: estado serializable y riesgos con el RNG de la partida.
 import { FOREIGN_BY_ID, DEAL_MODES, DISPUTES } from '../data/international.js';
 import { addCash, addRep, addMod, log, money } from './helpers.js';
@@ -35,14 +36,15 @@ export function signAgreement(s, marketId, mode, audit = false) {
 }
 
 export const activeDeals = s => (s.foreignDeals || []).filter(d => d.months > 0 && !d.dispute);
-export const foreignDemand = s => activeDeals(s).reduce((sum,d) => sum + agreementTerms(d.market,d.mode,d.audit).units,0);
+export const foreignDemand = s => activeDeals(s).reduce((sum,d) => sum + agreementTerms(d.market,d.mode,d.audit).units*countryCampaignFactor(s,d.market,d.brand),0);
 
 // Costes directos; los salarios del obrador se calculan una sola vez en economy.js.
 export function foreignLines(s, fill, unitCost) {
   return activeDeals(s).map(d => {
     const m = FOREIGN_BY_ID[d.market], terms = agreementTerms(d.market,d.mode,d.audit);
-    const units = terms.units * fill;
-    const revenue = d.mode === 'private_label' ? units * m.price : m.turnover * terms.royalty * (0.75 + s.rep / 200);
+    const campaignFactor=countryCampaignFactor(s,d.market,d.brand);
+    const units = terms.units * campaignFactor * fill;
+    const revenue = d.mode === 'private_label' ? units * m.price : m.turnover * terms.royalty * (0.75 + s.rep / 200)*campaignFactor;
     const materials = units * unitCost, shipping = units * m.shipping;
     return {id:`foreign_${d.id}`, dealId:d.id, type:'international', city:'selaya', label:`${m.country} · ${DEAL_MODES[d.mode].name}`, foreign:true,
       revenue, cost:materials + shipping + terms.monthly, staff:0, units, materials, shipping, audit:terms.monthly};

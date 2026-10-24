@@ -26,6 +26,8 @@ import { seedCode, parseSeed, isoWeekKey, weekSeed } from '../src/core/seed.js';
 import { tickAhorro, liquidacion, liquidate, strikeChance, tickComite, rollConvenio, K as PK } from '../src/core/plantilla.js';
 import { askLoan, repayEarly, canAsk, tickCartilla, refran } from '../src/core/cartilla.js';
 import { bolsaState, tickBolsa, moveSent, reportedQuarter, discover } from '../src/core/bolsa.js';
+import { epilogue, carta, cronica, MAX_VISIBLE } from '../src/core/epilogue.js';
+import { EPILOGUE, ARC_HITOS } from '../src/data/epilogues.js';
 import { playGame, from } from './bot.js';
 
 const started = (seed = 42, brand = 0) => {
@@ -1782,4 +1784,77 @@ test('bolsa: la junta salta con sentimiento de 0,90 o menos y el patrimonio se m
   assert(Math.abs(patrimonio(s) - (before / 0.9) * 0.95) < 1e-6);
   const t = started();
   assertEq(patrimonio(t), grossPatrimonio(t), 'sin cotizar, sin sentimiento');
+});
+
+// ------------------------------------------------------------- 0.4 · ¿Qué fue de...? y Sesenta velas
+async function readSrc(path) {
+  const url = new URL(`../${path}`, import.meta.url);
+  if (typeof process !== 'undefined' && process.versions?.node) return (await import('node:fs')).readFileSync(url, 'utf8');
+  return (await fetch(url)).text();
+}
+
+test('epílogo: cada bandera que lee la escribe algún suceso', async () => {
+  const files = ['src/data/events.js', 'src/data/eventsArcs.js', 'src/data/eventsExtra.js', 'src/data/eventsSystems.js', 'src/data/eventsCities.js', 'src/data/eventsMacro.js',
+    'src/data/eventsPlantilla.js', 'src/data/eventsRemedios.js', 'src/data/eventsBolsa.js', 'src/data/eventsVelas.js', 'src/core/actions.js', 'src/core/life.js', 'src/core/plantilla.js',
+    'src/core/cartilla.js', 'src/core/sim.js', 'src/core/execs.js', 'src/core/rivals.js', 'src/core/bolsa.js', 'src/ui/panels.js'];
+  const all = (await Promise.all(files.map(readSrc))).join('\n');
+  const written = new Set([...all.matchAll(/flags\.(\w+)\s*(?:=[^=]|\?\?=|\+\+)/g)].map((m) => m[1]));
+  const epi = await readSrc('src/data/epilogues.js');
+  const velas = await readSrc('src/data/eventsVelas.js');
+  const read = new Set([...`${epi}\n${velas}`.matchAll(/f\(s\)\.(\w+)/g)].map((m) => m[1]));
+  for (const def of Object.values(ARC_HITOS)) read.add(def.flag);
+  for (const k of read) assert(written.has(k), `nadie escribe s.flags.${k}`);
+});
+
+test('epílogo: partidas al azar dan una línea para cada personaje y como mucho 6 a la vista', () => {
+  for (let seed = 1; seed <= 6; seed++) {
+    const r = playGame(seed * 31, { choice: 'random', diversify: true, mama: seed % 2 === 0 });
+    const e = epilogue(r.state);
+    assertEq(e.length, EPILOGUE.length);
+    for (const p of e) assert(typeof p.text === 'string' && p.text.length > 10, `${p.who} sin texto`);
+    assert(e.slice(0, MAX_VISIBLE).filter((p) => p.always).length === 3, 'Merche, Maripili y Doña Remedios siempre');
+    assert(carta(r.state).length >= 3);
+  }
+});
+
+test('velas: el cumpleaños sale a los 48 meses (o con 8 M€ desde el 36) y la revista espera como mucho 2 cierres', () => {
+  const ev = EVENTS.find((e) => e.id === 'velas_1');
+  const s = started();
+  s.month = 47;
+  assert(!(ev.weight(s) > 0));
+  s.month = 48;
+  assert(ev.weight(s) > 0);
+  const t = started();
+  t.month = 40;
+  t.cash = 9e6;
+  assert(ev.weight(t) > 0, 'rico a los 40');
+  const u = started();
+  u.month = 60;
+  u.cash = 20e6;
+  u.seen.velas_1 = 59;
+  assertEq(checkEnding(u), null, 'espera al notario');
+  u.month = 61;
+  assertEq(checkEnding(u), null);
+  u.month = 62;
+  assertEq(checkEnding(u), 'forbes', 'no espera más de 2 cierres');
+});
+
+test('velas: elegir heredero y cláusula quedan en la sucesión', () => {
+  const s = started();
+  s.comite = { since: 0, plus: 0, paz: 0, nextConvenio: 99, prometido: null, rotas: [], extra: 0, huelgas: 0, firmas: 2 };
+  pick(s, visit(s, 'velas_2', {}), 'que madrugan');
+  assertEq(s.sucesion.heir, 'plantilla');
+  pick(s, visit(s, 'velas_3', {}), 'tonterías');
+  assertEq(s.sucesion.clausula, 'tonterias');
+  assert(epilogue(s).find((p) => p.who === 'maripili').text.includes('dueña'));
+});
+
+test('hitos: únicos y en orden', () => {
+  const r = playGame(77, { diversify: true, smart: true, leverage: true });
+  const h = r.state.hitos;
+  assertEq(new Set(h.map((x) => x.id)).size, h.length, 'sin repetidos');
+  for (let i = 1; i < h.length; i++) assert(h[i].m >= h[i - 1].m, 'en orden');
+  assert(h.some((x) => x.id === 'primera_tienda') && h.some((x) => x.id === 'millon'));
+  const c = cronica(r.state);
+  assert(c.length <= 5 && c.every((x, i) => i === 0 || x.m >= c[i - 1].m));
 });

@@ -95,6 +95,8 @@ export function newGame(seed = (Date.now() ^ 0x5eed) >>> 0, difficulty = 'normal
     plantilla: { ratio: 0 },
     comite: null,
     cartilla: newCartilla(difficulty),
+    hitos: [],
+    sucesion: { heir: null, execName: null, clausula: null, m: null },
     customs: {},
     clausula: { id: clauseForSeed(seed), broken: false, done: false },
   };

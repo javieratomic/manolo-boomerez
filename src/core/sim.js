@@ -1,7 +1,8 @@
 // Avance mensual de la simulación y resolución de sucesos.
 import { computeEconomy, policyFx, creditLimit, patrimonio, grossPatrimonio, hasCondition } from './economy.js';
 import { chance, weightedPick, pick, range } from './rng.js';
-import { addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, log, money, GAME_MONTHS, clamp, custom, remember } from './helpers.js';
+import { addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, log, money, GAME_MONTHS, clamp, custom, remember, hito } from './helpers.js';
+import { velasPending } from '../data/eventsVelas.js';
 import { haciendaDebt, inspectionChance, auditChance, tickLaborHistory, laborVisitParams } from './inspections.js';
 import { checkUnlocks } from './actions.js';
 import { settleClause, clauseMult, checkClause } from './clauses.js';
@@ -57,6 +58,8 @@ export function advanceMonth(s) {
 
   const pat = patrimonio(s);
   s.stats.maxPatrimonio = Math.max(s.stats.maxPatrimonio, pat);
+  if (pat >= 1e6) hito(s, 'millon');
+  if (pat >= 5e6) hito(s, 'cinco_millones');
   s.history.push({
     month: s.month, cash: Math.round(s.cash), patrimonio: Math.round(pat), revenue: Math.round(r.revenue), net: Math.round(r.net),
     cat: Object.fromEntries(Object.entries(r.revenueByCat).map(([k, v]) => [k, Math.round(v)])),
@@ -291,6 +294,13 @@ export function resolvePending(s, choiceIndex) {
   return result;
 }
 
+// La revista espera como mucho 2 cierres a que acabe «Sesenta velas» (cumpleaños, notario, cláusula).
+function holdForVelas(s) {
+  if (!velasPending(s)) return false;
+  s.flags.forbesHoldFrom ??= s.month;
+  return s.month - s.flags.forbesHoldFrom < 2;
+}
+
 export function checkEnding(s) {
   if (s.ending) return s.ending;
   let id = null;
@@ -298,7 +308,7 @@ export function checkEnding(s) {
   if (s.expedientes >= 3) id = 'carcel';
   else if (s.insolvencyMonths >= 3) id = 'bancarrota';
   else if (s.zeroMoralMonths >= 2) id = 'cooperativa';
-  else if (pat >= 15e6 && !s.endless && !inLockup(s)) id = 'forbes'; // con bloqueo bursátil, espera
+  else if (pat >= 15e6 && !s.endless && (s.month >= GAME_MONTHS || (!inLockup(s) && !holdForVelas(s)))) id = 'forbes';
   else if (s.month >= GAME_MONTHS && !s.endless) id = pat >= 5e6 ? 'tiburon' : pat >= 800000 ? 'pyme' : 'ruina_lenta';
   if (id) s.ending = id;
   // El premio de la cláusula no cambia el final: se decide antes y se paga una sola vez.

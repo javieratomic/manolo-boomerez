@@ -6,7 +6,7 @@
 //  forced: true -> si es elegible, sale ese mismo mes sin pasar por el azar (pasos de arcos narrativos).
 import { chance, int } from '../core/rng.js';
 import {
-  addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addExpediente, addMod, addMonthlyCost, log, money, custom, clamp,
+  addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addExpediente, addMod, addMonthlyCost, log, money, custom, clamp, hito,
 } from '../core/helpers.js';
 import { addStress } from '../core/life.js';
 import { laborVisitParams, DELITO_FISCAL, dossier, trickOdds, trickCount, recordTrick, recordSanction, recidivism, recentSanctions, clearRecord } from '../core/inspections.js';
@@ -20,6 +20,7 @@ import { liquidate, credibilidad } from '../core/plantilla.js';
 import { addConfianza } from '../core/cartilla.js';
 import { REMEDIOS_EVENTS } from './eventsRemedios.js';
 import { BOLSA_EVENTS } from './eventsBolsa.js';
+import { VELAS_EVENTS } from './eventsVelas.js';
 import { MACRO_EVENTS } from './eventsMacro.js';
 import { ARC_EVENTS } from './eventsArcs.js';
 import { EXTRA_EVENTS } from './eventsExtra.js';
@@ -132,6 +133,7 @@ const BASE_EVENTS = [
           addCash(s, -c);
           addMoral(s, mo);
           addConfianza(s, 3); // tu madre se entera de todo
+          if (prev.last === 'cesta' && prev.streak >= 4) hito(s, 'navidad5');
           const dudas = cred < 1 ? ' (Maripili ya no se cree nada)' : '';
           if (prev.last === 'cesta') return `Turrón, embutido y el Rioja de siempre. ${money(c)}. Ya nadie se imagina una Navidad sin cesta Boomerez. Moral +${mo}${dudas}.`;
           return `Turrón, embutido y un Rioja decente. ${money(c)}. La plantilla se acuerda de tu padre con cariño, y un poco de ti. Moral +${mo}${dudas}.`;
@@ -247,6 +249,7 @@ const BASE_EVENTS = [
         available: (s) => (s.flags.agostoLibre ?? 0) >= 2,
         effect(s) {
           addMod(s, { kind: 'revenue', factor: 0.8, months: 1, label: 'Cerrado por vacaciones' });
+          hito(s, 'francia');
           addMoral(s, 12);
           addStress(s, -10);
           s.flags.agostoLibre = (s.flags.agostoLibre ?? 0) + 1;
@@ -1561,6 +1564,6 @@ const BASE_EVENTS = [
   },
 ];
 
-export const EVENTS = [...BASE_EVENTS, ...MACRO_EVENTS, ...SYSTEM_EVENTS, ...ARC_EVENTS, ...EXTRA_EVENTS, ...CITY_EVENTS, ...PLANTILLA_EVENTS, ...REMEDIOS_EVENTS, ...BOLSA_EVENTS];
+export const EVENTS = [...BASE_EVENTS, ...MACRO_EVENTS, ...SYSTEM_EVENTS, ...ARC_EVENTS, ...EXTRA_EVENTS, ...CITY_EVENTS, ...PLANTILLA_EVENTS, ...REMEDIOS_EVENTS, ...BOLSA_EVENTS, ...VELAS_EVENTS];
 
 export const EVENT_BY_ID = Object.fromEntries(EVENTS.map((e) => [e.id, e]));

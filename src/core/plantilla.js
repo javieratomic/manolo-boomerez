@@ -2,7 +2,7 @@
 // el beneficio por cabeza genera agravio y, con más de 50 personas, hay comité, convenio cada marzo y
 // huelga general. Todo determinista salvo las tiradas con s.rng.
 import { legalWage, policyWage, policyFx } from './economy.js';
-import { addMoral, addRep, clamp, log, addMonthlyCost, money } from './helpers.js';
+import { addMoral, addRep, clamp, log, addMonthlyCost, money, hito } from './helpers.js';
 import { difficultyOf } from './state.js';
 
 export const K = {
@@ -55,6 +55,7 @@ export function liquidate(s, amount) {
   s.cash -= now;
   s.stats.liquidado = (s.stats.liquidado || 0) + amount;
   s.stats.maxLiquidacion = Math.max(s.stats.maxLiquidacion || 0, amount);
+  if (amount >= 100000) hito(s, 'liquidacion');
   const rest = amount - now;
   if (rest <= 0) return ` Liquidación de cuotas y diferencias salariales: ${money(amount)}, pagada al momento.`;
   const total = Math.round(rest * (1 + K.LIQ_SURCHARGE));
@@ -107,6 +108,7 @@ export function tickComite(s, r) {
       const t0 = { firmado: -10, roto: 10, huelga: 10, esquiroles: 20 }[s.flags.comiteFin] ?? 0;
       s.agravio = clamp((s.agravio || 0) + t0);
       s.comite = newComite(s);
+      hito(s, 'comite');
       s.pending.push({ kind: 'event', id: 'comite_nace' });
     }
     return;

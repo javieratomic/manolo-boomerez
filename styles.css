@@ -219,6 +219,13 @@ button.hud-item:focus-visible { outline: 2px solid #ffd36b; outline-offset: 1px;
 .libreta td { vertical-align: top; }
 .libreta .refran { font-style: italic; color: var(--muted); font-size: 11px; }
 .cartilla h4 .emoji, .cartilla h4 img { width: 22px; height: 22px; vertical-align: -5px; border-radius: 50%; }
+.epilogue { list-style: none; padding: 0; margin: 4px 0 8px; }
+.epilogue li { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+.epi-portrait { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex: none; }
+.carta { font-style: italic; background: #fff8ea; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; }
+.carta p { margin: 4px 0; }
+.timeline { list-style: none; padding: 0; margin: 4px 0; }
+.timeline li { padding: 2px 0; }
 .pv-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
 .pv-chip { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #f6efe2; border: 1px solid var(--line); white-space: nowrap; }
 .pv-note { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; }

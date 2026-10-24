@@ -1,6 +1,6 @@
 // La cartilla de Doña Remedios: la madre de Manolo, 81 años, le presta de su libreta de ahorros. Sin
 // intereses, pero con condiciones (lo que Manolo hace mal) y con un refrán en cada apunte. Sin azar.
-import { addMonthlyCost, addRep, addFama, clamp, log, money } from './helpers.js';
+import { addMonthlyCost, addRep, addFama, clamp, log, money, hito } from './helpers.js';
 import { REFRANES } from '../data/refranes.js';
 
 export const MAMA = {
@@ -103,6 +103,7 @@ function entry(s, concepto, debe, haber, ctx) {
 function applyConds(s) {
   if (!hasCond(s, 'kevin')) return;
   s.policies.mantenimiento = 'kevin';
+  s.flags.kevinJefe = true;
   addMonthlyCost(s, KEVIN_LABEL, MAMA.KEVIN_WAGE);
   Object.assign(s.extraMonthly[s.extraMonthly.length - 1], { locked: true, kevin: true });
 }
@@ -133,6 +134,7 @@ export function askLoan(s, amount) {
   s.cash += a;
   applyConds(s);
   const r = entry(s, 'Préstamo a Manolo', a, 0, 'pedir');
+  hito(s, 'mama_presta');
   let aviso = '';
   if (s.clausula?.id === 'sin_bancos' && !s.clausula.broken && !s.clausula.done && !c.aviso) {
     c.aviso = true;
@@ -196,6 +198,7 @@ export function embargar(s) {
   c.vetoHasta = s.month + MAMA.VETO;
   c.vetoMotivo = 'embargo';
   s.flags.embargado = true;
+  hito(s, 'embargo');
   s.familia = clamp((s.familia ?? 60) - 15);
   addRep(s, -3);
   addFama(s, -3);
@@ -257,6 +260,7 @@ export function rescue(s, casa = false) {
   c.condFrom = s.month;
   c.prestamos++;
   c.rescatado = true;
+  hito(s, 'rescate');
   c.enfado = false;
   s.cash += a;
   s.insolvencyMonths = 0;

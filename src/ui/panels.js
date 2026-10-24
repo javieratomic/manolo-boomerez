@@ -29,6 +29,8 @@ import { clauseStatus } from '../core/clauses.js';
 import { liquidacion, convenioDemand, credibilidad, profitRatio, K as PK } from '../core/plantilla.js';
 import { canAsk, maxLoan, breaksPromise, COND_TEXT, condDesc, MAMA } from '../core/cartilla.js';
 import { bolsaState, quarterProgress, qLabel, GUIAS } from '../core/bolsa.js';
+import { epilogue, cronica, carta, allHitos, MAX_VISIBLE } from '../core/epilogue.js';
+import { HEIR_LABEL } from '../data/eventsVelas.js';
 import { collectRefranes, REFRAN_COUNT } from './refranero.js';
 import { seedCode } from '../core/seed.js';
 import { CLAUSE_PRIZE } from '../data/clauses.js';
@@ -849,6 +851,7 @@ export function renderManolo(s) {
       </div>
     </div>
     ${renderClause(s)}
+    ${renderBio(s)}
     ${renderFamily(s)}
     ${renderLujos(s)}
     <div class="card"><h4>Logros (${unlockedCount()}/${ACHIEVEMENTS.length})</h4>
@@ -857,6 +860,32 @@ export function renderManolo(s) {
         ${ACHIEVEMENTS.map((a) => `<div class="ach ${isUnlocked(a.id) ? 'on' : ''}" title="${esc(a.desc)}"><span class="emoji">${isUnlocked(a.id) ? a.emoji : '🔒'}</span><span><b>${esc(a.name)}</b><small>${esc(a.desc)}</small></span></div>`).join('')}
       </div>
     </div>`;
+}
+
+// Biografía no autorizada: los hitos de la partida en orden.
+function renderBio(s) {
+  const hs = allHitos(s).sort((a, b) => a.m - b.m);
+  if (!hs.length) return '';
+  const heir = HEIR_LABEL(s);
+  return `<div class="card bio"><h4>📖 Biografía no autorizada</h4>
+    <ul class="timeline small">${hs.map((h) => `<li><span class="muted">${esc(dateLabel(h.m))}</span> ${esc(h.label)}</li>`).join('')}</ul>
+    ${heir ? `<p class="small muted">Heredero: <b>${esc(heir)}</b>.</p>` : ''}
+  </div>`;
+}
+
+// Ventana del final: ¿qué fue de...?, la carta de Manolo y la crónica (plegadas en móvil).
+export function renderEpilogue(s) {
+  const narrow = typeof window !== 'undefined' && window.matchMedia?.('(max-width: 600px)').matches;
+  const people = epilogue(s);
+  const row = (p) => `<li><img src="${imageUrl(p.portrait)}" alt="" class="epi-portrait"><div><b>${esc(p.name)}</b><div class="small">${esc(p.text)}</div></div></li>`;
+  const shown = people.slice(0, MAX_VISIBLE);
+  const rest = people.slice(MAX_VISIBLE);
+  const block = (title, body, open = false) => (narrow ? `<details class="digest" ${open ? 'open' : ''}><summary>${title}</summary>${body}</details>` : `<h4>${title}</h4>${body}`);
+  const crono = cronica(s);
+  let html = block('¿Qué fue de...?', `<ul class="epilogue">${shown.map(row).join('')}</ul>${rest.length ? `<details><summary class="small">Ver todos (${rest.length} más)</summary><ul class="epilogue">${rest.map(row).join('')}</ul></details>` : ''}`, true);
+  html += block('La carta de Manolo', `<div class="carta">${carta(s).map((t) => `<p>${esc(t)}</p>`).join('')}</div>`);
+  if (crono.length) html += block('Crónica', `<ul class="timeline small">${crono.map((h) => `<li><span class="muted">${esc(h.date)}</span> ${esc(h.label)}</li>`).join('')}</ul>`);
+  return html;
 }
 
 function renderClause(s) {

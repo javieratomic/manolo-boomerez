@@ -42,4 +42,6 @@ export const ACHIEVEMENTS = [
   { id: 'refranero', emoji: '📖', name: 'Refranero completo', desc: `Colecciona los ${REFRAN_COUNT} refranes de la cartilla (entre partidas).`, test: (s) => (s.flags.refranero ?? 0) >= REFRAN_COUNT },
   { id: 'hombre_de_palabra', emoji: '🎤', name: 'Hombre de palabra', desc: 'Cumple 8 promesas del trimestre seguidas cotizando en Bolsa.', test: (s) => (s.ipo?.racha ?? 0) >= 8 },
   { id: 'sobao_hueco', emoji: '🥐', name: 'El sobao está hueco', desc: 'Que un fondo bajista descubra que has maquillado las cuentas.', test: (s) => (s.ipo?.descubiertos ?? 0) >= 1 },
+  { id: 'sucesion', emoji: '📜', name: 'Sucesión ordenada', desc: 'Elige heredero ante el notario de Villacarriedo.', test: (s) => !!s.sucesion?.heir && s.sucesion.heir !== 'nadie' },
+  { id: 'las_que_madrugan', emoji: '🧑‍🍳', name: 'Las que madrugan', desc: 'Deja la empresa en herencia a la plantilla.', test: (s) => s.sucesion?.heir === 'plantilla' },
 ];

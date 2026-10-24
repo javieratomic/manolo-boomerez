@@ -1052,6 +1052,30 @@ Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal des
 
 Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Doña Remedios al teléfono fijo de cable rizado, con la mano en la cadera, en su salón con tapetes de ganchillo; por la ventana se ve a la vecina cotilla en su balcón, también al teléfono. Sin texto legible.
 
+## ev_velas_cumple
+
+- **Archivo:** `assets/events/ev_velas_cumple.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Salón de restaurante de pueblo: tarta enorme con 60 velas y globos dorados con forma de 6 y de 0; Manolo sopla con los mofletes inflados; alrededor, Merche, Maripili, Doña Remedios y el cuñado Jonathan con copas. Sin texto legible.
+
+## ev_velas_notario
+
+- **Archivo:** `assets/events/ev_velas_notario.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 2 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Notaría antigua de pueblo: mesa de nogal, un notario anciano con gafas y el retrato de Don Anselmo (boina, bigote blanco) en la pared; Manolo firma con pluma estilográfica. Sin texto legible.
+
+## ev_velas_clausula
+
+- **Archivo:** `assets/events/ev_velas_clausula.png`
+- **Tamaño:** 768×432 px
+- **Prioridad:** 3 (1 = imprescindible, 3 = cuando haya tiempo)
+
+Diorama isométrico 2.5D con luz cálida, como una maqueta vista en diagonal desde arriba. Primer plano de un testamento en papel timbrado con una cláusula manuscrita ilegible en el margen y una mancha de sobao; una pluma y unas gafas de leer al lado. Sin texto legible.
+
 ## ev_promesa_trimestre
 
 - **Archivo:** `assets/events/ev_promesa_trimestre.png`

@@ -1,7 +1,7 @@
 // Cartas del comité de empresa: nace, revisa el convenio cada marzo y, si se le toma el pelo, convoca
 // huelga general. La opción honrada va siempre la primera.
 import { chance } from '../core/rng.js';
-import { addCash, addRep, addMoral, addHeatTrabajo, addMod, clamp, money, moneyShort, dateLabel } from '../core/helpers.js';
+import { addCash, addRep, addMoral, addHeatTrabajo, addMod, clamp, money, moneyShort, dateLabel, hito } from '../core/helpers.js';
 import { convenioDemand, newComite, profitRatio, K } from '../core/plantilla.js';
 import { LEGAL_LABOR } from './policies.js';
 
@@ -96,6 +96,7 @@ export const PLANTILLA_EVENTS = [
           c.prometido = null;
           c.nextConvenio = s.month + 12;
           c.firmas = (c.firmas || 0) + 1;
+          hito(s, 'convenio');
           agr(s, (a) => a * 0.6);
           addMoral(s, 6);
           Object.assign(s.policies, LEGAL_LABOR);
@@ -181,6 +182,7 @@ export const PLANTILLA_EVENTS = [
           c.paz = 6;
           c.huelgas++;
           s.stats.huelgas = (s.stats.huelgas || 0) + 1;
+          hito(s, 'huelga_general');
           return `Firmas ${s.policies.reparto === 'paga' ? 'una paga del 3 % del beneficio' : 'la participación: el 8 % del beneficio para la plantilla'}. Se recogen las pancartas antes de comer. Moral +10, agravio ×0,7.`;
         },
       },
@@ -196,6 +198,7 @@ export const PLANTILLA_EVENTS = [
           c.paz = 6;
           c.huelgas++;
           s.stats.huelgas = (s.stats.huelgas || 0) + 1;
+          hito(s, 'huelga_general');
           return `Sueldos a convenio y ${money(employees(s) * K.PAGA_HUELGA)} de compensación. Maripili te da la mano delante de todos, para que conste. Moral +15.`;
         },
       },
@@ -213,6 +216,7 @@ export const PLANTILLA_EVENTS = [
           agr(s, (x) => x - 10);
           c.huelgas++;
           s.stats.huelgas = (s.stats.huelgas || 0) + 1;
+          hito(s, 'huelga_general');
           return `${m === 1 ? 'Un mes' : `${m} meses`} de persianas a medio bajar. Las teles hacen directos en la puerta de Selaya. Reputación −6; la plantilla, unida, sale con la moral +5 y desahogada (agravio −10).`;
         },
       },
@@ -228,6 +232,7 @@ export const PLANTILLA_EVENTS = [
           agr(s, (x) => x + 10);
           c.huelgas++;
           s.stats.huelgas = (s.stats.huelgas || 0) + 1;
+          hito(s, 'huelga_general');
           return 'Un autobús de una ETT trae a gente que no sabe ni dónde está el horno. Maripili lo graba todo. Radar de Inspección +15, reputación −8, moral −10, agravio +10.';
         },
       },

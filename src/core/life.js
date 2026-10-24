@@ -1,6 +1,6 @@
 // Vida personal de Manolo (lujos y familia) y salida a Bolsa.
 import { LUJO_BY_ID } from '../data/lujo.js';
-import { addCash, addFama, addHeatHacienda, addRep, log, money, clamp } from './helpers.js';
+import { addCash, addFama, addHeatHacienda, addRep, log, money, clamp, hito } from './helpers.js';
 import { macroFx } from './macro.js';
 import { checkClause } from './clauses.js';
 
@@ -61,6 +61,7 @@ function tickStress(s) {
   addStress(s, 0.4 + Math.min(2.2, s.businesses.length / 25) - 0.35 * execs);
   if ((s.estres ?? 0) > 80 && !s.pending.some((p) => p.id === 'susto_padel') && s.month - (s.flags.sustoMonth ?? -99) >= 6) {
     s.flags.sustoMonth = s.month;
+    hito(s, 'susto');
     s.pending.push({ kind: 'event', id: 'susto_padel' });
   }
 }
@@ -97,6 +98,7 @@ export function tickLife(s) {
 // Divorcio: Merche se queda con una parte de la caja y de los caprichos (régimen de gananciales).
 export function divorce(s, share) {
   if (s.cartilla) s.cartilla.confianza = Math.max(0, s.cartilla.confianza - 30); // «Merche era como una hija para mí»
+  hito(s, 'divorcio');
   const cashPart = Math.max(0, s.cash) * share;
   addCash(s, -cashPart);
   const kept = [];
@@ -163,6 +165,7 @@ export function doIPO(s, equity) {
   s.ipo = { month: s.month, float: IPO_FLOAT, valuation, price: 100, peak: 100, angryMonth: -99, sent: 1, cred: 50, q: null, publicados: {}, maquillajes: [], descubiertos: 0, racha: 0 };
   addFama(s, 12);
   addRep(s, 3);
+  hito(s, 'bolsa');
   log(s, `🔔 Boomerez S.A. sale a Bolsa: vende el ${Math.round(IPO_FLOAT * 100)} % por ${money(raised)} (comisiones: ${money(fee)}). Manolo toca la campana con las gafas de sol puestas.`, 'good');
   return { ok: true, raised, fee, valuation };
 }

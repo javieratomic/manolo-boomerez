@@ -1,6 +1,6 @@
 // Controlador principal de la interfaz.
 import { $, esc, showModal, toast, confirmModal, isModalOpen } from './dom.js';
-import { TABS, renderCity, renderEmpire, renderMarket, renderStaff, renderFinance, renderManolo, renderNews, drawChart, drawCategoryChart, manoloMood, renderWhy, whyTitle } from './panels.js';
+import { TABS, renderCity, renderEmpire, renderMarket, renderStaff, renderFinance, renderManolo, renderNews, drawChart, drawCategoryChart, manoloMood, renderWhy, whyTitle, renderEpilogue } from './panels.js';
 import { macroFx } from '../core/macro.js';
 import { MapView } from '../render/mapView.js';
 import { initAssets, imageUrl, hasArt } from '../render/assets.js';
@@ -765,12 +765,14 @@ async function showEnding(id) {
       <tr class="total"><td>Puntuación Boomerez</td><td>${score(s).toLocaleString('es-ES')}</td></tr>
     </table>
     <h4>Evolución del patrimonio</h4>
-    <canvas id="chart-ending" height="140"></canvas>`;
+    <canvas id="chart-ending" height="140"></canvas>
+    ${renderEpilogue(s)}`;
   const rank = s.recorded ? -1 : addRecord({
     title: e.title, ending: id, patrimonio: Math.round(patrimonio(s)), score: score(s), months: s.month,
     brand: s.brand, difficulty: s.difficulty || 'normal', date: new Date().toLocaleDateString('es-ES'),
     clausula: cl?.def.id ?? null, clausulaOk: cl?.state === 'cumplida',
     seed: seedCode(s.seed), reto: s.flags.reto || null, version: s.gameVersion || GAME_VERSION,
+    heredero: s.sucesion?.heir ?? null,
   });
   // Si el final es por tiempo o por la revista de millonarios, se puede seguir jugando sin límite.
   const canContinue = ['tiburon', 'pyme', 'ruina_lenta', 'forbes'].includes(id);

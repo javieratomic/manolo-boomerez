@@ -9,7 +9,7 @@
 import { chance, int } from '../core/rng.js';
 import { recordSanction } from '../core/inspections.js';
 import {
-  addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addExpediente, addMod, addMonthlyCost, log, money, clamp,
+  addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addExpediente, addMod, addMonthlyCost, log, money, clamp, hito,
 } from '../core/helpers.js';
 
 const employees = (s) => s.lastReport?.employees ?? 10;
@@ -773,6 +773,7 @@ const ARC_COMITE = [
         effect(s) {
           advance(s, 'comite', 3);
           s.flags.comiteFin = 'firmado';
+          hito(s, 'convenio');
           s.wageIndex = (s.wageIndex || 1) * 1.06;
           Object.assign(s.policies, { salario: 'convenio', horas: 'pagadas', becarios: 'ninguno' });
           s.flags.forcedLegal = Math.max(s.flags.forcedLegal || 0, 12);
@@ -830,6 +831,7 @@ const ARC_COMITE = [
         effect(s) {
           advance(s, 'comite', 3);
           s.flags.comiteFin = 'cedido';
+          hito(s, 'convenio');
           s.wageIndex = (s.wageIndex || 1) * 1.07;
           Object.assign(s.policies, { salario: 'convenio', horas: 'pagadas' });
           addMoral(s, 12);

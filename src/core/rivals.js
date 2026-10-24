@@ -3,7 +3,7 @@ import { RIVALS, RIVAL_LEVEL_PENALTY, RIVAL_MAX_LEVEL } from '../data/rivals.js'
 import { CITY_BY_ID, CITIES } from '../data/cities.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
 import { chance, random, weightedPick } from './rng.js';
-import { addCash, addRep, addHeatHacienda, addMod, log, money } from './helpers.js';
+import { addCash, addRep, addHeatHacienda, addMod, log, money, hito } from './helpers.js';
 import { MAX_PER_CITY, sobaoTypeId } from './actions.js';
 import { checkClause } from './clauses.js';
 
@@ -185,5 +185,6 @@ export function acquireRival(s, rivalId) {
   addHeatHacienda(s, 3);
   log(s, `🦈 OPA: compras ${def.name} por ${money(price)}${gained.length ? ` y rebautizas sus locales de ${gained.join(', ')}` : ''}.`, 'good');
   checkClause(s);
+  hito(s, 'opa');
   return { ok: true, price, gained };
 }

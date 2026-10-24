@@ -2,7 +2,7 @@
 // no). La credibilidad y el sentimiento del mercado mueven lo que vale tu parte. Se puede maquillar la
 // cifra publicada, pero se revierte el trimestre siguiente y a veces se descubre.
 import { computeEconomy } from './economy.js';
-import { addFama, addRep, addHeatHacienda, addExpediente, clamp, log, money, START_YEAR } from './helpers.js';
+import { addFama, addRep, addHeatHacienda, addExpediente, clamp, log, money, START_YEAR, hito } from './helpers.js';
 import { chance } from './rng.js';
 
 export const SENT_MIN = 0.85;
@@ -116,6 +116,7 @@ export function discover(s) {
   if (!pend.length) return false;
   for (const x of pend) x.descubierto = true;
   ipo.descubiertos++;
+  hito(s, 'maquillaje');
   moveSent(s, -0.1, true);
   addCred(s, -30);
   addRep(s, -10);

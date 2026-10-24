@@ -50,6 +50,14 @@ ART = [
        "la mesa, mirando el reloj de pared; Manolo entra por la puerta con un sobre en la mano.", 3),
     ev("ev_cartilla_enfado", "Doña Remedios al teléfono fijo de cable rizado, con la mano en la cadera, en su salón con tapetes de ganchillo; "
        "por la ventana se ve a la vecina cotilla en su balcón, también al teléfono.", 3),
+    # ------------------------------------------------------------------ Sesenta velas
+    ev("ev_velas_cumple", "Salón de restaurante de pueblo: tarta enorme con 60 velas y globos dorados con forma de 6 y de 0; Manolo sopla con los "
+       "mofletes inflados; alrededor, Merche, Maripili, Doña Remedios y el cuñado Jonathan con copas.", 2),
+    ev("ev_velas_notario", "Notaría antigua de pueblo: mesa de nogal, un notario anciano con gafas y el retrato de Don Anselmo (boina, bigote blanco) "
+       "en la pared; Manolo firma con pluma estilográfica.", 2),
+    ev("ev_velas_clausula", "Primer plano de un testamento en papel timbrado con una cláusula manuscrita ilegible en el margen y una mancha de "
+       "sobao; una pluma y unas gafas de leer al lado.", 3),
+
     # ------------------------------------------------------------------ La Bolsa tiene memoria
     ev("ev_promesa_trimestre", "Manolo, con traje y zapatillas deportivas, en videollamada con una cuadrícula de analistas genéricos en "
        "pantallas pequeñas; detrás de él, una pizarra con un gráfico de barras que sube.", 2),

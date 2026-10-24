@@ -8,7 +8,7 @@ import { execBonus, execSkill } from './execs.js';
 import { addStress, ACTION_STRESS } from './life.js';
 import { LEGACY_GOAL_ORDER } from './state.js';
 import { creditLimit } from './economy.js';
-import { addCash, log, money } from './helpers.js';
+import { addCash, log, money, hito } from './helpers.js';
 import { checkClause } from './clauses.js';
 
 export const LOAN_STEP = 25000;
@@ -78,6 +78,7 @@ export function openBusiness(s, typeId, cityId, mode = 'propia') {
   }
   s.businesses.push(b);
   s.stats.abiertos++;
+  hito(s, mode === 'franquicia' ? 'primera_franquicia' : 'primera_tienda');
   checkUnlocks(s);
   return { ok: true, business: b };
 }

@@ -1,6 +1,6 @@
 // Seguimiento de la cláusula del testamento: se rompe (para siempre) o se cumple al terminar la partida.
 import { CLAUSE_BY_ID, CLAUSE_PRIZE } from '../data/clauses.js';
-import { addCash, log, money } from './helpers.js';
+import { addCash, log, money, hito } from './helpers.js';
 
 export const clauseOf = (s) => (s.clausula ? CLAUSE_BY_ID[s.clausula.id] : null);
 export const clauseActive = (s) => !!s.clausula && !s.clausula.broken && !s.clausula.done && !s.clausula.closed;
@@ -14,6 +14,7 @@ export function checkClause(s) {
   if (def.broken(s, c)) {
     c.broken = true;
     c.brokenMonth = s.month;
+    hito(s, 'clausula_rota');
     log(s, `📜 Has roto la cláusula «${def.title}». El prado de Vega de Pas y las 40 vacas pasiegas, para la Cofradía del Sobao Pasiego.`, 'bad');
   }
 }

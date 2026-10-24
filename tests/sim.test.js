@@ -1,7 +1,7 @@
 import { test, assert, assertEq } from './runner.js';
 import { newGame, serialize, deserialize } from '../src/core/state.js';
 import { advanceMonth, resolvePending, currentPending, checkEnding, eligibleEvents } from '../src/core/sim.js';
-import { computeEconomy, patrimonio, creditLimit, grossPatrimonio } from '../src/core/economy.js';
+import { computeEconomy, patrimonio, creditLimit, grossPatrimonio, estimateOpening } from '../src/core/economy.js';
 import { openBusiness, canOpen, setPolicy, borrow, repay, buyUpgrade, sellBusiness, doManoloAction, togglePerk, currentGoal, rebrand } from '../src/core/actions.js';
 import { laborFine, trickOdds, recordTrick, recidivism, tickLaborHistory, clearRecord, laborVisitParams } from '../src/core/inspections.js';
 import { dateLabel } from '../src/core/helpers.js';
@@ -23,7 +23,7 @@ import { checkClause, clauseWarn, clauseMult, clauseActive } from '../src/core/c
 import { score } from '../src/core/sim.js';
 import { netDrivers, freshEntries, upcoming, monthDigest, MAX_DRIVERS } from '../src/core/digest.js';
 import { seedCode, parseSeed, isoWeekKey, weekSeed } from '../src/core/seed.js';
-import { playGame } from './bot.js';
+import { playGame, from } from './bot.js';
 
 const started = (seed = 42, brand = 0) => {
   const s = newGame(seed);
@@ -1295,4 +1295,35 @@ test('regresión 0.3b: el parte no culpa a una apertura de bajar costes ni a una
   e.net = prev.net - 2000;
   const i = netDrivers(c, e, s).find((x) => x.key === 'intereses');
   assert(i && i.reason == null, `intereses: ${i?.reason}`);
+});
+
+// ------------------------------------------------------------- 0.4 · Cimientos
+test('estimación rápida: igual que con un clon y sin tocar la partida', () => {
+  const ref = (s, type, city, mode = 'propia') => {
+    const base = computeEconomy(s);
+    const c = JSON.parse(JSON.stringify(s));
+    c.businesses.push({ id: -1, type, city, mode, value: 0, level: 1 });
+    const after = computeEconomy(c);
+    return { delta: after.profit - base.profit, fillAfter: after.fill, fillBefore: base.fill };
+  };
+  for (const months of [12, 40]) {
+    const s = playGame(5, { diversify: true, months }).state;
+    s.unlocked.smash = true;
+    const before = JSON.stringify(s);
+    for (const [type, city] of [['express', 'madrid'], ['smash', 'bilbao'], ['vivienda', 'sevilla']]) {
+      for (let i = 0; i < 10; i++) {
+        const a = estimateOpening(s, type, city);
+        const b = ref(s, type, city);
+        assertEq(JSON.stringify(a), JSON.stringify(b), `${months} ${type}`);
+      }
+    }
+    assertEq(JSON.stringify(s), before, 'la partida no cambia');
+  }
+});
+
+test('bot: modo infinito, políticas por fases y control del radar', () => {
+  const r = playGame(7932, { diversify: true, endless: true, trace: true, policyAt: from(24, { salario: 'minimo', horas: 'gratis' }), control: { hi: 15, lo: 5 } });
+  assertEq(r.month, 96);
+  assertEq(r.mon.length, 96);
+  assert(r.mon.some((x) => x.m > 24), 'traza');
 });

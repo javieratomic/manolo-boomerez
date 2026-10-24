@@ -52,7 +52,7 @@ export function averageWage(s) {
 }
 
 // Modificadores temporales (sucesos, campañas, guerras de precios...). Filtran por categoría, ciudad y tipo.
-function modFactor(s, kind, category, city, type) {
+export function modFactor(s, kind, category, city, type) {
   let f = 1;
   for (const m of s.mods) {
     if (m.kind !== kind) continue;
@@ -347,8 +347,13 @@ export function computeEconomy(s) {
 // Estima cuánto cambiaría el beneficio mensual (antes de impuestos) al abrir un negocio.
 export function estimateOpening(s, typeId, cityId, mode = 'propia') {
   const base = computeEconomy(s);
-  const clone = JSON.parse(JSON.stringify(s));
-  clone.businesses.push({ id: -1, type: typeId, city: cityId, mode, value: 0, level: 1 });
-  const after = computeEconomy(clone);
-  return { delta: after.profit - base.profit, fillAfter: after.fill, fillBefore: base.fill };
+  // Sin clonar (el clon era casi todo el coste del bot): un negocio de prueba que se quita siempre.
+  const tmp = { id: -1, type: typeId, city: cityId, mode, value: 0, level: 1 };
+  s.businesses.push(tmp);
+  try {
+    const after = computeEconomy(s);
+    return { delta: after.profit - base.profit, fillAfter: after.fill, fillBefore: base.fill };
+  } finally {
+    s.businesses.splice(s.businesses.indexOf(tmp), 1);
+  }
 }

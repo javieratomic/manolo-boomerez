@@ -27,15 +27,36 @@ const DIVERSIFY = ['smash', 'empanadas', 'airbnb', 'vivienda', 'academy', 'taber
  *  clause: id de cláusula del testamento a forzar
  *  choice: 'first' | 'random' para resolver sucesos
  *  difficulty: 'cunado' | 'normal' | 'hacienda'
+ *  endless: no se para en la revista (para medir el patrimonio a 96 meses) · months: meses a jugar (96)
+ *  policyAt(s): políticas según el momento (null = las de `policies`), p. ej. from(24, {...})
+ *  control: { hi, lo }: con políticas ilegales, pasa a legal cuando el radar de Trabajo llega a hi y vuelve
+ *    a explotar cuando baja de lo
+ *  choose(s, p): índice de la opción para una carta (null = la regla por defecto)
+ *  hook(s), onMonth(s, r, eventos): ganchos para scripts de medida
  */
+export const LEGAL = { salario: 'convenio', horas: 'pagadas', becarios: 'ninguno' };
+export const from = (m, pol) => (s) => (s.month >= m ? pol : null);
 export function playGame(seed, strategy = {}) {
   const s = newGame(seed, strategy.difficulty || 'normal');
   resolvePending(s, strategy.brand === 'maison' ? 1 : 0);
   Object.assign(s.policies, strategy.policies || {});
   if (strategy.clause) s.clausula = { id: strategy.clause, broken: false, done: false };
+  if (strategy.endless) s.endless = true;
   const trace = [];
-  while (!s.ending && s.month < 96) {
+  const mon = [];
+  let firstForbes = null;
+  let ctl = false;
+  while (!s.ending && s.month < (strategy.months ?? 96)) {
     if (strategy.reapply) for (const [k, v] of Object.entries(strategy.policies || {})) setPolicy(s, k, v);
+    let pol = strategy.policyAt ? strategy.policyAt(s) : null;
+    if (pol && strategy.control) {
+      if (s.heatTrabajo >= strategy.control.hi) ctl = true;
+      if (s.heatTrabajo <= strategy.control.lo) ctl = false;
+      if (ctl) pol = LEGAL;
+    }
+    if (pol) for (const [k, v] of Object.entries(pol)) setPolicy(s, k, v);
+    if (strategy.reparto) setPolicy(s, 'reparto', typeof strategy.reparto === 'function' ? strategy.reparto(s) : strategy.reparto);
+    strategy.hook?.(s);
     if (s.lastReport && s.lastReport.fill < 0.97) buyUpgrade(s);
     if (strategy.leverage && s.debt < creditLimit(s) * 0.5 && s.cash < 150000) borrow(s, 50000);
     if (strategy.smart) manage(s, strategy.off || []);
@@ -59,15 +80,22 @@ export function playGame(seed, strategy = {}) {
     if (strategy.smart && (s.estres ?? 0) > 65) action = s.cash > 20000 ? 'escapada' : 'padel';
     else if (strategy.smart && !s.flags.divorciado && s.familia < 35) action = 'cena';
     doManoloAction(s, action);
-    advanceMonth(s);
+    const r = advanceMonth(s);
+    const evs = [];
     while (s.pending.length) {
       const p = currentPending(s);
-      const k = strategy.choice === 'random' ? Math.floor(random(s) * p.choices.length) : 0;
-      resolvePending(s, p.choices[k].index);
+      evs.push(p.pending.id);
+      let idx = strategy.choose ? strategy.choose(s, p) : null;
+      if (idx == null) idx = p.choices[strategy.choice === 'random' ? Math.floor(random(s) * p.choices.length) : 0].index;
+      resolvePending(s, idx);
     }
     s.notices = [];
     checkEnding(s);
-    if (s.month % 12 === 0) trace.push(Math.round(patrimonio(s) / 1000));
+    const pat = patrimonio(s);
+    if (firstForbes == null && pat >= 15e6) firstForbes = s.month;
+    if (s.month % 12 === 0) trace.push(Math.round(pat / 1000));
+    if (strategy.trace) mon.push({ m: s.month, pat, net: r?.net ?? 0, moral: s.moral, agravio: s.agravio ?? 0, emp: r?.employees ?? 0, ht: s.heatTrabajo, evs });
+    strategy.onMonth?.(s, r, evs);
   }
   return {
     seed,
@@ -84,7 +112,11 @@ export function playGame(seed, strategy = {}) {
     rivals: s.rivals.length,
     divorced: !!s.flags.divorciado,
     ipo: !!s.ipo,
+    firstForbes,
+    liquidado: Math.round(s.stats.liquidado ?? 0),
+    huelgas: s.stats.huelgas ?? 0,
     trace,
+    mon,
     state: s,
   };
 }

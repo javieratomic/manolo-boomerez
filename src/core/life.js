@@ -116,6 +116,8 @@ export function divorce(s, share) {
 // ------------------------------------------------------------------- Bolsa
 export const IPO_FLOAT = 0.25;
 export const IPO_FEE = 0.04;
+export const VALUATION_BLEND = 0.5; // la valoración mezcla lo que hay en libros y 6 veces el beneficio
+export const IPO_LOCKUP = 6; // meses de bloqueo: la revista no te saca justo después de tocar la campana
 
 // Patrimonio total de la empresa (sin descontar a los accionistas).
 export function grossEquity(s, assets) {
@@ -133,9 +135,14 @@ export function ipoPremium(s) {
 }
 
 export function companyValuation(s, equity) {
-  // Una pyme cotizada vale unas 6 veces su beneficio anual (o lo que tenga en activos, si es más).
-  return Math.max(equity, annualProfit(s) * 6) * ipoPremium(s);
+  // Mitad libros y mitad 6 veces el beneficio anual (nunca menos que los libros), por la prima de mercado.
+  const blend = (1 - VALUATION_BLEND) * equity + VALUATION_BLEND * 6 * annualProfit(s);
+  return Math.max(equity, blend) * ipoPremium(s);
 }
+
+// Fin del periodo de bloqueo tras salir a Bolsa (mes a partir del cual cuenta la revista de millonarios).
+export const lockupEnd = (s) => (s.ipo ? s.ipo.month + IPO_LOCKUP : null);
+export const inLockup = (s) => !!s.ipo && s.month < lockupEnd(s);
 
 export function canIPO(s, equity) {
   if (s.ipo) return { ok: false, msg: 'Ya cotizas en Bolsa.' };

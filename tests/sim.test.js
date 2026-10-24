@@ -10,7 +10,7 @@ import { BUSINESS_TYPES, OBRADOR_UPGRADES } from '../src/data/businesses.js';
 import { MANOLO_ACTIONS } from '../src/data/manoloActions.js';
 import { ACHIEVEMENTS } from '../src/data/achievements.js';
 import { refreshCandidates, hireExec, execBonus, fireExec } from '../src/core/execs.js';
-import { buyLujo, doIPO } from '../src/core/life.js';
+import { buyLujo, doIPO, companyValuation, ipoPremium } from '../src/core/life.js';
 import { transportCost } from '../src/core/logistics.js';
 import { advice } from '../src/core/advice.js';
 import { tickRivals, rivalFactor, actOnRival, acquireRival, acquisitionPrice } from '../src/core/rivals.js';
@@ -1510,4 +1510,27 @@ test('plantilla: las partidas viejas migran sin comité y con el ahorro vacío',
 test('bot: una partida explotadora acaba pagando una liquidación', () => {
   const r = playGame(7932, { diversify: true, smart: true, leverage: true, endless: true, policyAt: from(24, { salario: 'minimo', horas: 'gratis' }) });
   assert(r.liquidado > 0, `liquidado ${r.liquidado}`);
+});
+
+// ------------------------------------------------------------- 0.4 · La Bolsa tiene memoria (4a)
+test('bolsa: el bloqueo de 6 meses retrasa la revista', () => {
+  const s = started();
+  s.cash = 20e6;
+  s.ipo = { month: 50, float: 0.25, valuation: 1e7, price: 100, peak: 100, angryMonth: -99 };
+  s.month = 53;
+  assertEq(checkEnding(s), null, 'en el bloqueo no hay revista');
+  s.month = 56;
+  assertEq(checkEnding(s), 'forbes');
+  const t = started();
+  t.cash = 20e6;
+  t.month = 53;
+  assertEq(checkEnding(t), 'forbes', 'sin Bolsa, como siempre');
+});
+
+test('bolsa: la valoración mezcla libros y 6 veces el beneficio al 50 %', () => {
+  const s = started();
+  s.history = Array.from({ length: 12 }, (_, i) => ({ month: i, net: 100000, revenue: 500000, cash: 0, patrimonio: 0, cat: {} }));
+  const prem = ipoPremium(s);
+  assert(Math.abs(companyValuation(s, 2e6) - (0.5 * 2e6 + 0.5 * 6 * 1.2e6) * prem) < 1e-6);
+  assert(Math.abs(companyValuation(s, 10e6) - 10e6 * prem) < 1e-6, 'nunca por debajo de los libros');
 });

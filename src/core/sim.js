@@ -11,7 +11,7 @@ import { tickRivals, rivalHit } from './rivals.js';
 import { tickRD } from './market.js';
 import { tickExecs, execBonus, execSkill, execHeat } from './execs.js';
 import { laborSeverity } from './inspections.js';
-import { tickLife, tickIPO } from './life.js';
+import { tickLife, tickIPO, inLockup } from './life.js';
 import { tickPolitics, govFx } from './politics.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
 import { CITY_BY_ID } from '../data/cities.js';
@@ -283,7 +283,7 @@ export function checkEnding(s) {
   if (s.expedientes >= 3) id = 'carcel';
   else if (s.insolvencyMonths >= 3) id = 'bancarrota';
   else if (s.zeroMoralMonths >= 2) id = 'cooperativa';
-  else if (pat >= 15e6 && !s.endless) id = 'forbes';
+  else if (pat >= 15e6 && !s.endless && !inLockup(s)) id = 'forbes'; // con bloqueo bursátil, espera
   else if (s.month >= GAME_MONTHS && !s.endless) id = pat >= 5e6 ? 'tiburon' : pat >= 800000 ? 'pyme' : 'ruina_lenta';
   if (id) s.ending = id;
   // El premio de la cláusula no cambia el final: se decide antes y se paga una sola vez.

@@ -21,7 +21,7 @@ import { RIVAL_ACTIONS, canActOnRival, acquisitionPrice, rivalTotal } from '../c
 import { canLaunchCampaign, campaignRunning, canStartRD, upgradeCost, upgradeEffect, PRODUCT_BY_ID } from '../core/market.js';
 import { execOf, signingFee, severance, CANDIDATE_REFRESH } from '../core/execs.js';
 import { LUJOS } from '../data/lujo.js';
-import { ownsLujo, canIPO, companyValuation, ipoPremium, annualProfit, IPO_FLOAT } from '../core/life.js';
+import { ownsLujo, canIPO, companyValuation, ipoPremium, annualProfit, IPO_FLOAT, IPO_LOCKUP, lockupEnd, inLockup } from '../core/life.js';
 import { grossPatrimonio } from '../core/economy.js';
 import { money, moneyShort, dateLabel } from '../core/helpers.js';
 import { haciendaDebt } from '../core/inspections.js';
@@ -644,12 +644,14 @@ function renderIPO(s) {
       <div class="kpis"><div><span class="muted small">Cotización</span><b class="${p >= 100 ? 'pos' : 'neg'}">${p.toFixed(1).replace('.', ',')} €</b></div>
       <div><span class="muted small">Máximo</span><b>${s.ipo.peak.toFixed(1).replace('.', ',')} €</b></div></div>
       <p class="small muted">Salió a 100 €. Los accionistas tienen el ${Math.round(s.ipo.float * 100)} % de la empresa, así que tu patrimonio es el ${Math.round((1 - s.ipo.float) * 100)} % del total. Si la acción cae un 30 % desde su máximo, habrá junta de accionistas furiosa.</p>
+      ${inLockup(s) ? `<p class="small warn">🔒 Periodo de bloqueo: la revista de millonarios no te saca hasta ${dateLabel(lockupEnd(s)).toLowerCase().replace(' ', ' de ')}.</p>` : ''}
     </div>`;
   }
   const ok = canIPO(s, equity);
   const val = companyValuation(s, equity);
   return `<div class="card"><h4>🔔 Salir a Bolsa</h4>
-    <p class="small">Vendes el ${Math.round(IPO_FLOAT * 100)} % de la empresa a inversores. Valoración estimada hoy: <b>${moneyShort(val)}</b> (prima de mercado ×${ipoPremium(s).toFixed(2).replace('.', ',')}; beneficio de los últimos 12 meses: ${moneyShort(annualProfit(s))}). Recibirías unos <b>${moneyShort(val * IPO_FLOAT * 0.96)}</b> tras comisiones.</p>
+    <p class="small">Vendes el ${Math.round(IPO_FLOAT * 100)} % de la empresa a inversores. Valoración estimada hoy: <b>${moneyShort(val)}</b>: mitad lo que hay en libros y mitad 6 veces el beneficio de los últimos 12 meses (${moneyShort(annualProfit(s))}), por la prima de mercado ×${ipoPremium(s).toFixed(2).replace('.', ',')}. Recibirías unos <b>${moneyShort(val * IPO_FLOAT * 0.96)}</b> tras comisiones.</p>
+    <p class="small muted">Después hay ${IPO_LOCKUP} meses de bloqueo: aunque pases de 15 M€, la revista de millonarios espera a que terminen.</p>
     <p class="small muted">Truco de tiburón: en plena burbuja, con mucha fama, los inversores pagan más de lo que vale. Después tendrás que dar explicaciones cada vez que caiga la acción.</p>
     <button class="btn small primary" data-act="ipo" ${ok.ok ? '' : 'disabled'}>Salir a Bolsa</button>
     ${ok.ok ? '' : `<div class="small muted">${esc(ok.msg)}</div>`}

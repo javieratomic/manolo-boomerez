@@ -1,5 +1,46 @@
 # Cambios
 
+## 0.4.0 — Cuentas claras
+
+> «Cuentas claras, amistades largas» (refrán de Doña Remedios). Lo que antes salía gratis ahora pasa
+> factura: lo que te ahorras con la plantilla, lo que les prometes a los analistas y lo que le pides a tu
+> madre. Al final, el juego te cuenta qué fue de todos.
+
+### Sistemas nuevos
+- **La cuenta de la plantilla.** Marisa liquida lo que te has ahorrado frente al convenio en los últimos
+  24 meses (×1,2), con un 25 % al momento y el resto aplazado (que cuenta como deuda). El **agravio** sube con
+  el beneficio por cabeza y resta moral; con 50 personas nace el **comité**: revisión del convenio cada
+  marzo (firmar, paga única, prometer o congelar), promesas que se recuerdan y **huelga general**. Política
+  nueva: **reparto con la plantilla** (paga del 3 % o participación del 8 %, deducible).
+- **La cartilla de Doña Remedios.** Tu madre te presta sin intereses si de verdad lo necesitas, siempre con
+  una condición (lo que manda la ley, mantequilla de verdad, cocido los domingos o colocar a Kevin). Vence en
+  un año: devolver, prórroga o embargo materno. Te rescata una vez del concurso. Refranero coleccionable.
+- **La Bolsa tiene memoria.** La valoración mezcla libros y beneficio, hay 6 meses de bloqueo antes de la
+  revista y, cotizando, cada trimestre prometes una cifra a los analistas (prudente, en línea, optimista o
+  modo tiburón). La credibilidad y el sentimiento del mercado mueven lo que vale tu parte. Se puede maquillar
+  el trimestre… y te pueden pillar («EL SOBAO ESTÁ HUECO»).
+- **¿Qué fue de...?** Epílogo de 13 personajes según lo que pasó, crónica de tus hitos y una carta de
+  Manolo. A los sesenta, **«Sesenta velas»**: cumpleaños, heredero ante el notario y la cláusula de Manolo.
+
+### Interfaz
+- **Archivo** (antes Noticias): carpetas de Marisa, Don Fermín, las costumbres, el comité, la cartilla y los
+  analistas, más la hemeroteca.
+- **Objetivos en tres carriles** (negocio, equipo, dinero) con progreso y 6 objetivos nuevos; fichar a un
+  directivo ya no bloquea el resto.
+- **Mapa**: rótulos legibles en el móvil y sin solaparse, insignias de alertas por ciudad, repintado solo
+  cuando cambia algo y cifras de beneficio al cerrar el informe.
+- **Móvil**: HUD de cinco casillas con «⋯», botón ⤢, objetivos plegados, botones de 40 px y respeto por
+  «reducir movimiento». **Accesibilidad**: «Ir a…», resumen del mes para lectores de pantalla y avisos
+  anunciados.
+- Ayuda en cinco páginas; el consejo urgente de Paco en la pestaña Ciudad.
+
+### Técnica y calidad
+- La estimación de aperturas ya no clona la partida: el bot va 3,8 veces más rápido, con las mismas partidas.
+- `tests/balance.mjs`: barrida de equilibrado con 30 variantes en 32 semillas (datos en
+  `docs/balance_0.4.md`).
+- Revisiones con agentes de cada tanda (detección y verificación adversaria) y sus correcciones.
+- Las semillas de la 0.3 no reproducen las mismas partidas en la 0.4 (`GAME_VERSION`).
+
 ## 0.3.0 — Decisiones con memoria
 
 ### Sistemas nuevos

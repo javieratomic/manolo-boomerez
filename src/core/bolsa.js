@@ -8,6 +8,7 @@ import { chance } from './rng.js';
 export const SENT_MIN = 0.85;
 export const SENT_MAX = 1.05;
 export const SENT_STEP = 0.05; // lo más que se mueve el sentimiento en un trimestre (salvo un escándalo)
+export const SENT_REVERT = 0.35; // cada trimestre el mercado olvida un 35 % de lo pasado (vuelve hacia 1)
 export const DISCOVER_Q = 0.08; // por maquillaje pendiente y cierre de trimestre
 export const DISCOVER_AUDIT = 0.25;
 
@@ -96,7 +97,8 @@ function judge(s, qi) {
   const ok = real >= q.target;
   const fx = ok ? g.met : g.fail;
   addCred(s, fx.cred || 0);
-  moveSent(s, fx.sent || 0);
+  // El mercado tiene memoria corta: el sentimiento vuelve hacia 1 y luego se mueve por el resultado.
+  moveSent(s, (1 - ipo.sent) * SENT_REVERT + (fx.sent || 0));
   ipo.racha = ok ? ipo.racha + 1 : 0;
   ipo.lastResult = { qi, ok, real, target: q.target, guia: q.guia };
   ipo.q = null;

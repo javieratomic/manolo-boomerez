@@ -46,13 +46,17 @@ pellizco para el zoom · `Espacio` cierra el mes · `1`-`6` cambia de pestaña �
 | Logística | Transporte por kilómetro desde el obrador más cercano, obradores regionales, licencias de pisos turísticos |
 | Rejugabilidad | Cláusula del testamento (reto opcional por partida), semilla compartible y reto de la semana, balance anual, salón de la fama, logros entre partidas y modo infinito |
 | Información | Previsión de cada política (mes que viene y 6 meses), «¿Por qué?» en cada indicador y parte del mes |
-| Memoria | Los inspectores recuerdan tus trucos y sanciones; Navidad y agosto recuerdan tus costumbres |
+| Memoria | Los inspectores recuerdan tus trucos y sanciones; Navidad y agosto recuerdan tus costumbres; el Archivo lo enseña todo |
+| Plantilla (0.4) | Liquidación de lo ahorrado frente al convenio, agravio, comité con revisión anual del convenio, huelga general y reparto de beneficios |
+| Familia (0.4) | La cartilla de Doña Remedios: préstamos sin intereses con condiciones, embargo materno y rescate |
+| Bolsa (0.4) | Bloqueo de 6 meses y la promesa trimestral a los analistas, con maquillaje y fondos bajistas |
+| Final (0.4) | Epílogo de 13 personajes, crónica, carta de Manolo y «Sesenta velas» (heredero y cláusula) |
 | Políticas | Salarios, horas extra, becarios, alquiler de los pisos de la plantilla, contabilidad e ingredientes |
 | Riesgo | Radares de Inspección de Trabajo y de Hacienda → inspecciones, auditorías, multas y expedientes penales |
-| Sucesos | Más de 120 cartas satíricas con decisiones (el cuñado y su SobaoCoin, la rata viral, la huelga, el jefe infiltrado...) |
-| Objetivos | 9 objetivos encadenados que guían la partida y dan pequeñas recompensas |
+| Sucesos | Más de 130 cartas satíricas con decisiones (el cuñado y su SobaoCoin, la rata viral, la huelga, el jefe infiltrado...) |
+| Objetivos | 18 objetivos en tres carriles (negocio, equipo y dinero) que dan pequeñas recompensas |
 | Dificultad | Modo cuñado (fácil), Emprendedor (normal) y Modo Hacienda (difícil) |
-| Logros | 34 logros que se guardan entre partidas: uno por cada final y uno por cada cláusula, entre otros |
+| Logros | 45 logros que se guardan entre partidas: uno por cada final y uno por cada cláusula, entre otros |
 | Finales | Concurso de acreedores, Soto del Real, la Cooperativa, la Revista de millonarios, Tiburón Pasiego, Pyme con ínfulas, Ruina lenta |
 | Sonido | Efectos y música de fondo (pasodoble lo-fi generativo) sintetizados con WebAudio, sin ficheros de audio; se silencian por separado en el menú |
 

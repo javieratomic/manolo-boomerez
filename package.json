@@ -1,6 +1,6 @@
 {
   "name": "manolo-boomerez-sl",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "Juego de gestión satírico. JS puro, sin dependencias.",
   "type": "module",

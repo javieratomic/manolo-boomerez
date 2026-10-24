@@ -116,7 +116,22 @@ La saturación reduce la demanda cuando hay varios negocios del mismo tipo en un
   - Una visita sin infracciones tacha la sanción más antigua y resta un uso a cada truco de ese inspector.
   - Paco, el gestor, se va la tercera vez que le echas la culpa.
 
-## 9. Finales
+### La cuenta de la plantilla (0.4)
+- **Liquidación** (`src/core/plantilla.js`): cada cierre se apunta lo que se ahorra frente al convenio
+  (`legalWage − policyWage`, sin los pactos legales de los sucesos) por persona. Marisa liquida los últimos 24
+  meses ×1,2 (por la dificultad): un 25 % al momento sin dejar la caja en negativo y el resto, con un 5 % de
+  recargo, en 18-48 cuotas que no se pueden quitar y que cuentan como deuda en el patrimonio. El frigorífico
+  esconde la multa, no las nóminas; el orujo rebaja la liquidación a la mitad si cuela; Don Cosme, al 85 %.
+- **Agravio** (0-100): va hacia `55·max(0, beneficio por cabeza en sueldos − 0,3) + 3·caprichos + 8 si cotizas
+  − 300·plus del convenio`, por `(1 − alivio del reparto)`, un 15 % cada mes. Resta 0,04 de moral por punto.
+- **Comité** con 50 personas (o al cerrar el arco del convenio). Cada marzo pide `(agravio − 10)/15` puntos
+  (de medio en medio, más lo que debas de pagas únicas): firmar (plus, paz de 12 meses y legalidad), paga única
+  de 400 €, prometer para el año siguiente o congelar (con riesgo de huelga). Romper una promesa trae huelga de
+  dos meses y baja la credibilidad de Maripili.
+- **Huelga general**: con comité y sin paz, `(agravio − 40)/200` desde 45 (sustituye a la de moral). Se acaba
+  firmando el reparto, subiendo al convenio con 300 €/cabeza, aguantando (producción al 70 %) o con
+  esquiroles. Lo firmado obliga mientras dura la paz.
+
 
 | Final | Condición |
 |---|---|
@@ -191,7 +206,8 @@ coach de mindfulness o arriesgarse a uno peor.
   *Emprendedor* (normal) y *Modo Hacienda* (50.000 €, radares ×1,3, multas ×1,3, interés del 0,75 %).
 - **Rebranding:** se puede cambiar de Express a Maison (150.000 €) o al revés (60.000 €, reputación −6) una vez
   cada 24 meses. Todas las tiendas de sobaos se reconvierten.
-- **Logros** persistentes entre partidas (34), entre ellos uno por cada final y uno por cada cláusula.
+- **Objetivos en tres carriles** (negocio, equipo y dinero; 18 en total) que avanzan por separado.
+- **Logros** persistentes entre partidas (45), entre ellos uno por cada final y uno por cada cláusula.
 - **Prensa:** titulares satíricos de *El Sobao Digital* en la hemeroteca.
 - **Exportar/importar partida** desde el menú (archivo JSON) para pasarla del PC al móvil.
 - **Balance de fin de año** cada diciembre, con el post de LinkedIn de Manolo.
@@ -223,6 +239,35 @@ coach de mindfulness o arriesgarse a uno peor.
   la semana ISO como semilla (FNV-1a) y dificultad normal. Los récords guardan semilla, reto, versión y
   cláusula. La semilla solo reproduce la partida con la misma versión del juego (`GAME_VERSION`).
 
+### La cartilla de Doña Remedios (0.4)
+- Saldo de 90-160 k€ según la dificultad, más 400 €/mes de pensión. Presta desde el mes 3 si la caja está por
+  debajo de 25.000 € o el banco te ha dicho que no, con confianza 30 o más: 20 k€, 50 k€ o lo que pueda
+  (saldo × confianza). Sin intereses, a 12 meses, y un año de respiro tras devolver.
+- La condición se elige al pedir: «lo que manda la ley» (si alguna política laboral es ilegal), mantequilla,
+  cocido los domingos (cada 3 meses se come la acción del mes) o colocar a Kevin (1.800 €/mes y mantenimiento
+  «con cinta americana»). Romperla trae «Me ha dicho la Puri que...».
+- Al vencer: devolver (confianza +10), prórroga de 6 meses (una vez) o embargo materno (el capricho más caro o
+  el mostrador de Selaya hasta 12 meses). Con dos meses de descubierto, rescate una vez por partida.
+- Lo que debes resta del patrimonio; la cláusula «Ni un duro de los bancos» exige acabar sin deberle nada.
+
+### La promesa del trimestre (0.4)
+- Valoración bursátil: `max(libros, ½·libros + ½·6·beneficio anual) × prima`; 6 meses de bloqueo antes de la
+  revista y no se puede salir a Bolsa sin tiempo para él.
+- Cotizando, al cerrar cada trimestre se promete el siguiente sobre el mismo trimestre del año anterior y el
+  consenso (crecimiento de los últimos 4 trimestres publicados, de 0 a +50 %). Guías: prudente (−10 %), en
+  línea, optimista (+10 %) y modo tiburón (+25 %), con más premio y más castigo cuanto más arriesgas.
+- Credibilidad (0-100) y sentimiento del mercado (0,85-1,05, ±0,05 por trimestre): tu parte vale el
+  patrimonio × (1 − capital flotante) × sentimiento; con 0,90 o menos, junta de accionistas.
+- Si el trimestre no llega, se puede adelantar la facturación a los franquiciados o activar gastos: cambia lo
+  publicado, no la caja, se revierte al siguiente y se descubre con un 8 % por cierre (25 % en una auditoría).
+
+### ¿Qué fue de...? y «Sesenta velas» (0.4)
+- Hitos de la partida (`hito(s, id)`) y finales de los arcos alimentan la crónica (5 de más peso) y la carta
+  de Manolo. El epílogo (`src/data/epilogues.js`) da una línea por personaje: la primera cuya condición se
+  cumple. Un test comprueba que cada bandera que lee la escribe algún suceso.
+- «Sesenta velas» (mes 48, o 36 con 8 M€): cumpleaños, heredero (la plantilla si te lo has ganado, Vanessa,
+  el mejor directivo, Merche, Kevin o nadie) y la cláusula de Manolo. La revista espera como mucho 2 cierres.
+
 ### Información al jugador
 - **Previsiones** (`src/core/preview.js`): se simula sobre copias del estado con las mismas funciones del
   cierre (`computeEconomy`, `driftStats`), así que la previsión coincide con lo que pasa si no hay sucesos.
@@ -230,6 +275,10 @@ coach de mindfulness o arriesgarse a uno peor.
   6 meses con la moral y las multas esperadas ya descontadas.
 - **¿Por qué?**: los indicadores del HUD (y las variaciones del informe) explican qué política empuja cada uno
   frente a su opción honrada, más un resto con la tendencia natural, y el riesgo concreto del mes.
+- **Archivo** (`src/core/codex.js`): carpetas con lo que la partida recuerda (trucos, sanciones, deuda latente,
+  costumbres, comité, cartilla, analistas), sin decir nunca cuándo viene una inspección.
+- **Mapa**: rótulos en pantalla sin solaparse (`src/render/labels.js`) e insignias de alertas por ciudad
+  (`src/core/mapInfo.js`).
 - **Parte del mes** (`src/core/digest.js`): las tres partidas que más mueven el neto con su motivo si se
   detecta, lo que ha dejado el cierre en el registro y lo que viene en los dos próximos cierres (nunca las
   inspecciones).

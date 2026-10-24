@@ -34,6 +34,11 @@ Manolo tampoco hizo caso a nadie.
   sirve: mira los últimos seis meses.
 - **Agosto:** dos años seguidos sin vacaciones aprietan; el tercero trae a la Inspección.
 
+- **Lo que ahorras no se evapora.** Cada euro por debajo del convenio queda apuntado: si viene Marisa, te
+  liquida los dos últimos años con recargo. Explotar sin vigilar el radar acaba saliendo más caro que pagar.
+- **El agravio** crece cuando ganas mucho por cabeza. Con 50 personas hay comité: cada marzo, firmar sale más
+  barato que una huelga general. La paga de beneficios del 3 % lo baja a la mitad y es deducible.
+
 ## Hacienda
 - La contabilidad creativa ahorra impuestos que se acumulan como deuda oculta. Si llega una auditoría con
   más de 120.000 € defraudados y no pagas la paralela, abren expediente por delito fiscal.
@@ -69,12 +74,27 @@ Manolo tampoco hizo caso a nadie.
 - No descuides a Merche: si la relación baja de 15, divorcio en gananciales.
 - Los caprichos dan fama, pero cuestan mantenimiento y Hacienda los mira con lupa.
 
+## Tu madre
+- Si te quedas sin caja (o el banco te dice que no), Doña Remedios te presta sin intereses, pero con una
+  condición. Cúmplela: la Puri se lo cuenta todo. Devolver a tiempo sube su confianza; «no tengo, mamá» te
+  cuesta el yate o el mostrador.
+- Si llegas a dos meses de descubierto, puede rescatarte una vez.
+
+## La Bolsa
+- Salir a Bolsa da dinero, pero luego cada trimestre prometes una cifra. Prometer poco y cumplir sube la
+  credibilidad; el modo tiburón da titulares y, si fallas, una junta de accionistas furiosa.
+- Maquillar un trimestre sirve una vez. La segunda, un fondo bajista suele pillarte.
+
 ## La cláusula del testamento
 - Cada partida trae una cláusula (la lee el notario al empezar y está en la pestaña Manolo). Es opcional: si
   la cumples al terminar, tu puntuación se multiplica (hasta ×2,5) y heredas un prado con 40 vacas.
 - El juego te avisa antes de abrir un negocio, pedir un préstamo o lanzar una OPA que la rompa.
 - Para jugar la misma partida que un amigo, escribe su código de semilla en el título. El **reto de la
   semana** es la misma partida para todo el mundo durante esa semana.
+
+## Al final
+- Al terminar verás qué fue de cada personaje según lo que hiciste, tu crónica y la carta de Manolo. A los
+  sesenta, Manolo elige heredero: la plantilla solo si te lo has ganado.
 
 ## Finales
 - **Tiburón Pasiego** (5 M€ al acabar) requiere diversificar bien. **La revista de millonarios** (15 M€) es para tiburones de

@@ -27,7 +27,7 @@ export function advice(s) {
 
   const liq = liquidacion(s);
   if (liq > 0 && liq > 3 * Math.max(0, r.net)) out.push({ level: 'alta', text: `Lo que te ahorras con la plantilla no se evapora: Marisa liquidaría ${money(liq)} (más de tres meses de beneficio). Volver al convenio deja de sumar deuda.`, tab: 'plantilla' });
-  if ((s.agravio || 0) > PK.STRIKE_AT) out.push({ level: 'media', text: `La plantilla echa cuentas (agravio ${Math.round(s.agravio)}). ${s.comite ? `Con ${PK.STRIKE_AT} o más puede haber huelga general;` : 'Cuando haya comité, eso serán huelgas;'} una paga de beneficios lo baja a la mitad.`, tab: 'plantilla' });
+  if ((s.agravio || 0) > PK.STRIKE_AT) out.push({ level: 'media', text: `La plantilla echa cuentas (agravio ${Math.round(s.agravio)}). ${s.comite ? `Con ${PK.STRIKE_AT} o más puede haber huelga general;` : 'Cuando haya comité, eso serán huelgas;'} una paga de beneficios lo baja a la mitad.`, tab: 'beneficios' });
   if (recidivism(s) > 1) out.push({ level: 'media', text: `Marisa te tiene fichado: la próxima multa laboral lleva un agravante de ×${recidivism(s).toFixed(2).replace('.', ',')} por reincidencia.`, tab: 'plantilla' });
   if (s.heatTrabajo > 65) out.push({ level: 'alta', text: 'El radar de la Inspección de Trabajo está en rojo. Regulariza algo o ficha a alguien en RR. HH.', tab: 'plantilla' });
   if (s.heatHacienda > 65) out.push({ level: 'alta', text: `El radar de Hacienda está en rojo y debes ${money(s.evaded)} "optimizados". Una auditoría ahora dolería.`, tab: 'finanzas' });
@@ -36,7 +36,7 @@ export function advice(s) {
   if (s.expedientes >= 2) out.push({ level: 'alta', text: `Llevas ${s.expedientes} expedientes penales. Uno más y vas a Soto del Real.`, tab: 'finanzas' });
 
   // Negocios que pierden dinero.
-  if(r.online?.active&&r.online.profit<0)out.push({level:'media',text:`El canal online pierde ${money(-r.online.profit)} al mes. Revisa el excedente, ajusta los portes o pausa el canal para detener su cuota y nóminas de preparación.`,tab:'mercado'});
+  if(r.online?.active&&r.online.profit<0)out.push({level:'media',text:`El canal online pierde ${money(-r.online.profit)} al mes. Revisa el excedente, ajusta los portes o pausa el canal para detener su cuota y nóminas de preparación.`,tab:'online'});
   const losers = r.lines.filter((l) => l.id !== 'obrador' && l.id!=='online' && l.type !== 'obrador_regional' && !l.franchise && l.revenue - l.cost < -1500).sort((a, b) => (a.revenue - a.cost) - (b.revenue - b.cost));
   if (losers.length) {
     const l = losers[0];
@@ -62,8 +62,8 @@ export function advice(s) {
   const farOutlets = s.businesses.filter((b) => BUSINESS_TYPES[b.type].category === 'sobaos' && ['sevilla', 'malaga', 'cordoba', 'granada', 'almeria', 'murcia', 'alicante', 'valencia', 'barcelona', 'tarragona'].includes(b.city)).length;
   if (s.unlocked.obrador_regional && regionalCount(s) === 0 && farOutlets >= 4) out.push({ level: 'media', text: `Tienes ${farOutlets} tiendas lejos de Selaya. Un obrador regional en el sur o el este te ahorraría transporte.`, tab: 'ciudad' });
 
-  if (!Object.keys(s.execs || {}).length && s.month >= 6) out.push({ level: 'baja', text: 'Sigues sin equipo directivo. Un buen fichaje en Operaciones o RR. HH. se paga solo.', tab: 'plantilla' });
-  if (!s.rd && s.cash > 150000 && s.month >= 4) out.push({ level: 'baja', text: 'El laboratorio de I+D está parado y tienes caja. Un producto nuevo vende más en todas las tiendas.', tab: 'mercado' });
+  if (!Object.keys(s.execs || {}).length && s.month >= 6) out.push({ level: 'baja', text: 'Sigues sin equipo directivo. Un buen fichaje en Operaciones o RR. HH. se paga solo.', tab: 'direccion' });
+  if (!s.rd && s.cash > 150000 && s.month >= 4) out.push({ level: 'baja', text: 'El laboratorio de I+D está parado y tienes caja. Un producto nuevo vende más en todas las tiendas.', tab: 'rd' });
   if ((s.estres ?? 0) > 70) out.push({ level: 'media', text: `Manolo, tu estrés está en ${Math.round(s.estres)}. Una escapada o unos días en Marbella antes de que te dé algo.`, tab: 'manolo' });
   if (!s.actionUsed && !(s.restMonths > 0)) out.push({ level: 'baja', text: 'Aún no has hecho la acción de Manolo de este mes.', tab: 'manolo' });
 

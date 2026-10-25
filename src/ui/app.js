@@ -6,7 +6,8 @@ import { signAgreement, endAgreement, agreementTerms } from '../core/internation
 import { FOREIGN_BY_ID, DEAL_MODES } from '../data/international.js';
 // Controlador principal de la interfaz.
 import { $, esc, showModal, toast, confirmModal, isModalOpen, msSinceModal } from './dom.js';
-import { TABS, renderCity, renderEmpire, renderMarket, renderStaff, renderFinance, renderManolo, renderNews, drawChart, drawCategoryChart, manoloMood, renderWhy, whyTitle, renderEpilogue, setArchivoOpen } from './panels.js';
+import { TABS, renderCity, renderEmpire, renderMarket, renderResearch,renderMarketing,renderInternational,renderOnline,renderResidences,renderManagement,renderBenefits,renderStaff, renderFinance, renderManolo, renderNews, drawChart, drawCategoryChart, manoloMood, renderWhy, whyTitle, renderEpilogue, setArchivoOpen } from './panels.js';
+import {groupForTab,renderNavigation} from './navigation.js';
 import { macroFx } from '../core/macro.js';
 import { MapView } from '../render/mapView.js';
 import { initAssets, imageUrl, hasArt } from '../render/assets.js';
@@ -138,6 +139,7 @@ function showTitle() {
 function startGame(s) {
   game.s = s;
   game.marketingSelection={};
+  game.panelScroll={};game.renderedPanel=null;game.lastTabs={};game.researchFilters={status:'pending',category:'all'};
   game.bubble = null;
   game.city = HQ_CITY;
   game.tab = 'ciudad';
@@ -233,18 +235,32 @@ function renderHUD(s) {
 }
 
 function renderTabs() {
-  $('#tabs').innerHTML = TABS.map(
-    (t) => `<button class="tab ${game.tab === t.id ? 'on' : ''}" data-act="tab" data-tab="${t.id}"><span>${t.emoji}</span><span class="tab-label">${t.label}</span></button>`,
-  ).join('');
+  const root=$('#tabs'),focused=document.activeElement;
+  const focusTab=root.contains(focused)?focused.dataset.tab:null,focusGroup=root.contains(focused)?focused.dataset.group:null;
+  game.lastTabs||={};game.lastTabs[groupForTab(game.tab).id]=game.tab;
+  root.innerHTML=renderNavigation(game.tab);
+  if(focusTab)root.querySelector(`[data-tab="${focusTab}"]`)?.focus({preventScroll:true});
+  else if(focusGroup)root.querySelector(`[data-group="${focusGroup}"]`)?.focus({preventScroll:true});
 }
 
 function renderPanel(s) {
   const body = $('#panel-body');
-  const scroll = body.scrollTop;
+  const focus=body.contains(document.activeElement)?{act:document.activeElement.dataset.act,value:document.activeElement.dataset.value}:null;
+  const panel=game.tab==='ciudad'?`ciudad:${game.city}`:game.tab;
+  game.panelScroll||={};
+  if(game.renderedPanel&&!game.resetPanelScroll)game.panelScroll[game.renderedPanel]=body.scrollTop;
+  const scroll=game.resetPanelScroll?0:game.panelScroll[panel]||0;game.resetPanelScroll=false;
   const map = {
     ciudad: () => renderCity(s, game.city),
     imperio: () => renderEmpire(s),
-    mercado: () => renderMarket(s,game.marketingSelection),
+    mercado: () => renderMarket(s),
+    marketing:()=>renderMarketing(s,game.marketingSelection),
+    rd:()=>renderResearch(s,game.researchFilters),
+    exterior:()=>renderInternational(s),
+    online:()=>renderOnline(s),
+    viviendas:()=>renderResidences(s),
+    direccion:()=>renderManagement(s),
+    beneficios:()=>renderBenefits(s),
     plantilla: () => renderStaff(s),
     finanzas: () => renderFinance(s),
     manolo: () => renderManolo(s),
@@ -252,6 +268,11 @@ function renderPanel(s) {
   };
   body.innerHTML = map[game.tab]();
   body.scrollTop = scroll;
+  game.renderedPanel=panel;
+  if(game.tab==='rd'&&['research-status','research-category'].includes(focus?.act)){
+    const controls=[...body.querySelectorAll(`[data-act="${focus.act}"]`)];
+    (focus.act==='research-status'?controls.find(el=>el.dataset.value===focus.value):controls[0])?.focus({preventScroll:true});
+  }
   if (game.tab === 'finanzas') drawChart($('#chart'), s);
   if (game.tab === 'imperio') drawCategoryChart($('#chart-cat'), s);
   const btn = $('#end-month');
@@ -400,6 +421,16 @@ async function onClick(e) {
       play('click');
       game.tab = el.dataset.tab;
       document.body.classList.add('panel-open');
+      break;
+    case 'nav-group': {
+      const tabs=TABS.filter(t=>t.group===el.dataset.group);
+      if(!tabs.length)return;
+      play('click');document.body.classList.add('panel-open');
+      const last=game.lastTabs?.[el.dataset.group];game.tab=tabs.some(t=>t.id===last)?last:tabs[0].id;
+      break;
+    }
+    case 'research-status':
+      game.researchFilters||={};game.researchFilters.status=el.dataset.value;game.resetPanelScroll=true;
       break;
     case 'goto-city':
       game.city = el.dataset.city;
@@ -650,6 +681,7 @@ async function onClick(e) {
 
 function onChange(e) {
   const el = e.target;
+  if(el.dataset.act==='research-category'&&game.s){game.researchFilters||={};game.researchFilters.category=el.value;game.resetPanelScroll=true;renderAll();return;}
   if(el.dataset.act==='online-shipping'&&game.s){const res=setOnlineShipping(game.s,el.value);if(!res.ok)toast(res.msg,'bad');renderAll();return;}
   if(el.dataset.act==='marketing-target'&&game.s){
     const scope=el.dataset.scope;game.marketingSelection||={};

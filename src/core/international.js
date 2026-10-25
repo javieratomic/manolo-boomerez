@@ -73,7 +73,7 @@ export function tickInternational(s, report) {
     d.months--;
     if (d.months <= 0) {
       removeDeal(s,d.id);
-      const text = `El acuerdo de ${FOREIGN_BY_ID[d.market].country} ha vencido. Puedes negociar uno nuevo en Mercado.`;
+      const text = `El acuerdo de ${FOREIGN_BY_ID[d.market].country} ha vencido. Puedes negociar uno nuevo en Exterior.`;
       log(s,text,'info'); (s.notices ||= []).push({kicker:'🌍 Exterior', title:'Acuerdo vencido', text});
       continue;
     }

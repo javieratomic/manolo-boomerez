@@ -32,17 +32,26 @@ pellizco para el zoom (en el móvil, tocar dos ciudades juntas acerca el mapa) �
 
 ## Cómo funciona
 
+La navegación se organiza en cuatro áreas. Cada pantalla recuerda su posición de scroll; I+D permite filtrar por estado y tema.
+
+| Área | Menús |
+|---|---|
+| Empresa | Ciudad, Imperio, Mercado, Finanzas |
+| Expansión | Marketing, I+D, Exterior, Online |
+| Equipo | Plantilla, Beneficios, Viviendas, Dirección |
+| Manolo | Manolo, Archivo |
+
 | Sistema | Resumen |
 |---|---|
 | Turnos | Un mes por turno; campaña europea continua con sucesores. Reto semanal clásico de 96 meses |
 | Marca | Al empezar eliges **Express** (low-cost, volumen) o **Maison** (boutique delicatessen) |
 | Producción | Selaya y obradores regionales; capacidad y automatización por I+D, ampliaciones industriales sin tope y plantilla que necesita vivienda |
-| Venta online | Tienda peninsular en Mercado, tres tamaños y cajas de seis; vende excedentes tras tiendas/contratos, con paquetería cara y costes desglosados, portes incluidos o compartidos |
+| Venta online | Tienda peninsular en Expansión → Online, tres tamaños y cajas de seis; vende excedentes tras tiendas/contratos, con paquetería cara y costes desglosados, portes incluidos o compartidos |
 | Negocios | Sobaos, vivienda, turismo, hostelería, gimnasio, coworking, residencia, Academy, banca, telecom y logística; diez niveles. Empanadas solo al asociarse con Rodrigo |
 | Mapa | 55 destinos españoles y 16 ciudades extranjeras tras experiencia de marca blanca e I+D |
 | Economía | Ciclo de expansión, burbuja, crisis y recuperación; costes de estructura crecientes |
 | Competencia | 9 cadenas rivales con IA que te copian; guerra de precios, reseñas falsas, fichajes y OPA |
-| Mercado | Central de marketing: 22 campañas locales, nacionales e internacionales, selección de ciudades/países y contratación conjunta; 35 proyectos I+D y diez mercados para acuerdos |
+| Expansión | Marketing, I+D y Exterior: 22 campañas locales, nacionales e internacionales, selección de ciudades/países y contratación conjunta; 35 proyectos I+D y diez mercados para acuerdos |
 | Equipo | 5 puestos directivos con candidatos que tienen nivel y manías |
 | Vida | Caprichos, familia, sucesión y salida a Bolsa a partir de una valoración de 1.000 M€ |
 | Sinergias | Academy y coworking locales +15 %; vender sobaos aumenta la demanda local de gimnasio el mes siguiente (hasta +35 %) |
@@ -127,17 +136,17 @@ coincidencia (o no). Las marcas, los personajes y las instituciones que aparecen
 
 En **Mercado** se investigan 24 innovaciones y se negocian acuerdos extranjeros. Marca blanca exige sobaos del obrador; una licencia deja que el socio fabrique con tu marca y te pague royalties. Las auditorías reducen el riesgo, pero no evitan todos los impagos, defectos o copias de receta. Los contratos duran 24 meses y su rescisión anticipada cuesta 5.000 €.
 
-El obrador de Selaya admite módulos industriales de coste creciente tras sus tres mejoras iniciales. Abrir un local o comprar un inmueble cuesta según la ciudad. Las viviendas de plantilla se compran como **Residencial Boomerez**, no requieren licencia turística y solo alojan a empleados de la localidad. El alquiler se fija en **Plantilla**; la presión aumenta el control y tiene consecuencias en moral e inspecciones.
+El obrador de Selaya admite módulos industriales de coste creciente tras sus tres mejoras iniciales. Abrir un local o comprar un inmueble cuesta según la ciudad. Las viviendas de plantilla se compran como **Residencial Boomerez**, no requieren licencia turística y solo alojan a empleados de la localidad. El alquiler se fija en **Equipo → Viviendas**; la presión aumenta el control y tiene consecuencias en moral e inspecciones.
 
 Los negocios ajenos a sobaos no necesitan su producción. Si sobra capacidad, pueden recibir sobaos de cortesía: hasta +5 % de ingresos, con las materias, personal y transporte correspondientes. El mapa incluye 50 capitales provinciales, Ceuta, Melilla y los tres destinos adicionales originales. Los índices de población, renta y coste local son valores de juego. La lista de capitales se contrastó con las [Directrices toponímicas del IGN, apartado 6.2](https://www.ign.es/web/resources/acercaDe/libDigPub/Directrices_toponimicas_2023.pdf).
 
 
 ### Campaña europea 0.6
 
-**Las viviendas se compran en Plantilla → Viviendas para empleados**, al principio del panel. Cada ciudad con personal tiene un botón de compra. También están en Ciudad → Abrir. Son residenciales; los apartamentos turísticos son otro negocio. La oferta laboral local se amplía con viviendas: antes de comprar una gran ampliación verás cuántas plazas faltan. Si vendes las viviendas, la actividad puede bajar por falta de empleados.
+**Las viviendas se construyen en Equipo → Viviendas**, al principio del panel. Cada ciudad con personal tiene un botón de compra. También están en Ciudad → Abrir. Son residenciales; los apartamentos turísticos son otro negocio. La oferta laboral local se amplía con viviendas: antes de comprar una gran ampliación verás cuántas plazas faltan. Si vendes las viviendas, la actividad puede bajar por falta de empleados.
 
 La campaña normal es continua y persigue 1.000 M€ de patrimonio, presencia propia en ocho países europeos y banca, telecomunicaciones y logística. El reto semanal sigue siendo clásico, de ocho años. Desde **Manolo** puedes nombrar sucesor: con estrés de 90 o más durante tres meses aparece riesgo mortal y el reposo lo evita; a los 80 años se produce el relevo. La empresa conserva activos, deuda, contratos, productos y calendario. Los sucesores también envejecen.
 
-En **Mercado** hay 35 proyectos de I+D, incluidos producción, automatización y ahorro. Las licencias de banca, telecomunicaciones y logística desbloquean esos negocios. Una Academy crece con tu fama y con el número de negocios de la red. Los locales se reforman hasta nivel diez y las grandes ciudades soportan más establecimientos del mismo tipo.
+En **Expansión → I+D** hay 35 proyectos de I+D, incluidos producción, automatización y ahorro. Las licencias de banca, telecomunicaciones y logística desbloquean esos negocios. Una Academy crece con tu fama y con el número de negocios de la red. Los locales se reforman hasta nivel diez y las grandes ciudades soportan más establecimientos del mismo tipo.
 
-Para abrir en el extranjero: cumple **seis meses de marca blanca con al menos el 90 % del pedido servido en ese país**, termina **Despliegue comercial internacional** y entra en **Mercado → Acuerdos internacionales → Abrir tus propios negocios en Europa**. El selector de ciudades también muestra esos destinos; el mapa principal conserva España. Una licencia de fabricación ajena no cuenta como experiencia de marca blanca. Rescinde una licencia exclusiva antes de abrir allí con tu marca.
+Para abrir en el extranjero: cumple **seis meses de marca blanca con al menos el 90 % del pedido servido en ese país**, termina **Despliegue comercial internacional** y entra en **Expansión → Exterior → Abrir tus propios negocios en Europa**. El selector de ciudades también muestra esos destinos; el mapa principal conserva España. Una licencia de fabricación ajena no cuenta como experiencia de marca blanca. Rescinde una licencia exclusiva antes de abrir allí con tu marca.

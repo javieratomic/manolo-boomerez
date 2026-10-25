@@ -58,15 +58,7 @@ import { PHASES } from '../data/macro.js';
 import { macroFx } from '../core/macro.js';
 import { isUnlocked, unlockedCount } from './achievements.js';
 
-export const TABS = [
-  { id: 'ciudad', label: 'Ciudad', emoji: '📍' },
-  { id: 'imperio', label: 'Imperio', emoji: '🏰' },
-  { id: 'mercado', label: 'Mercado', emoji: '📊' },
-  { id: 'plantilla', label: 'Plantilla', emoji: '👷' },
-  { id: 'finanzas', label: 'Finanzas', emoji: '💶' },
-  { id: 'manolo', label: 'Manolo', emoji: '😎' },
-  { id: 'noticias', label: 'Archivo', emoji: '🗂️' },
-];
+export {TABS} from './navigation.js';
 
 const LOCK_HINTS = {
   vivienda: 'Disponible desde la herencia para alojar a tu plantilla local.',
@@ -78,7 +70,7 @@ const LOCK_HINTS = {
   taberna: 'Se desbloquea con 2 tiendas de sobaos o en el mes 6.',
   gimnasio: 'Se desbloquea en el mes 12 o con 5 tiendas de sobaos.',
   coworking: 'Se desbloquea con fama 35 o con la Academy abierta.',
-  banca: 'Investiga Licencia de banca comercial en Mercado.',
+  banca: 'Investiga Licencia de banca comercial en I+D.',
   telecom: 'Investiga Red de telecomunicaciones del grupo.',
   logistica: 'Investiga Plataforma logística integrada.',
   residencia: 'Se desbloquea en el mes 24 o con 2 millones de patrimonio.',
@@ -151,7 +143,7 @@ export function renderCity(s, cityId) {
           ${l?.occupied != null ? ` · ${Math.floor(l.occupied)}/${b.type==='vivienda'?housingSpec(b).units:t.beds + (t.model==='care'?10:5) * ((b.level || 1) - 1)} plazas ocupadas` : ''}</div>
           ${businessSynergies(s,b).learning ? '<div class="small pos">🤝 Academy + coworking en esta ciudad: demanda +15 %.</div>' : ''}
           ${b.type==='gimnasio' ? `<div class="small">🥐 Sobaos vendidos aquí el mes anterior: ${Math.round(s.citySobaoSales?.[b.city]||0).toLocaleString('es-ES')} · demanda del gimnasio +${(businessSynergies(s,b).fitness*100).toFixed(1).replace('.',',')} % (máximo 35 %).</div>` : ''}
-          ${b.type==='vivienda'&&l ? `<div class="small">Empleados: ${l.employeeOccupied} · Público: ${l.publicOccupied}. <a href="#" data-act="tab" data-tab="plantilla">Gestionar tarifas por ciudad</a></div>` : ''}
+          ${b.type==='vivienda'&&l ? `<div class="small">Empleados: ${l.employeeOccupied} · Público: ${l.publicOccupied}. <a href="#" data-act="tab" data-tab="viviendas">Gestionar tarifas por ciudad</a></div>` : ''}
           ${l?.employeeFamilies>0 ? `<div class="small">Beneficio asistencial: ${Math.floor(l.employeeFamilies)} familiares · descuentos ${money(l.employeeDiscount)}/mes.</div>` : ''}
           ${b.mode === 'franquicia' ? '' : `<div class="cond" title="Estado de conservación: ${Math.round(b.cond ?? 100)}/100">${bar(b.cond ?? 100, 100, (b.cond ?? 100) < 40 ? 'danger' : 'ok')}</div>`}
         </div>
@@ -169,7 +161,7 @@ export function renderCity(s, cityId) {
   html += `<div class="card"><h4>Abrir en ${esc(c.name)}</h4><div class="open-list">`;
   const types = [sobaoTypeId(s), 'vivienda', 'airbnb', 'taberna', 'smash', 'empanadas', 'gimnasio', 'coworking', 'residencia', 'academy', 'obrador_regional','banca','telecom','logistica'];
   const lockedTypes = [];
-  html += '<p class="small">🏘️ <a href="#" data-act="tab" data-tab="plantilla">Comprar viviendas para empleados: Plantilla → Viviendas para empleados</a></p>';
+  html += '<p class="small">🏘️ <a href="#" data-act="tab" data-tab="viviendas">Construir viviendas: Equipo → Viviendas</a></p>';
   for (const id of types) {
     const t = BUSINESS_TYPES[id];
     if (c.hq && t.category !== 'sobaos' && !['vivienda', 'taberna', 'residencia'].includes(id)) continue;
@@ -208,7 +200,7 @@ export function renderCity(s, cityId) {
 function renderLocalRelations(s,city) {
  const ids=Object.keys(LOCAL_RULES).filter(id=>LOCAL_RULES[id][0]===city);
  if(!ids.length)return '';
- return `<div class="card local-relations"><h4>🤝 Relación con la ciudad</h4><p class="small">Reputación: <b>${Math.round(s.rep)}/100</b>. La reputación cambia las invitaciones y los conflictos. Los acuerdos y abusos anteriores se recuerdan.</p>${ids.filter(id=>localState(s,id).visits).map(id=>{const p=localState(s,id);return `<p class="small">${esc(localMemoryText(s,id))}<br>Ediciones: ${p.visits} · Acuerdos: ${p.successes} · Confianza local: ${p.standing>0?'+':''}${p.standing}${id==='ciudad_salamanca'?` · ${esc(NEW_YEAR_STAGES[p.level])} (${p.level}/4)`:''}</p>`}).join('')}${city==='salamanca'?'<p class="small">Las campanadas con minisobaos pueden extenderse por España tras varios patrocinios exitosos. Consulta el progreso en Mercado.</p>':''}</div>`;
+ return `<div class="card local-relations"><h4>🤝 Relación con la ciudad</h4><p class="small">Reputación: <b>${Math.round(s.rep)}/100</b>. La reputación cambia las invitaciones y los conflictos. Los acuerdos y abusos anteriores se recuerdan.</p>${ids.filter(id=>localState(s,id).visits).map(id=>{const p=localState(s,id);return `<p class="small">${esc(localMemoryText(s,id))}<br>Ediciones: ${p.visits} · Acuerdos: ${p.successes} · Confianza local: ${p.standing>0?'+':''}${p.standing}${id==='ciudad_salamanca'?` · ${esc(NEW_YEAR_STAGES[p.level])} (${p.level}/4)`:''}</p>`}).join('')}${city==='salamanca'?'<p class="small">Las campanadas con minisobaos pueden extenderse por España tras varios patrocinios exitosos. Consulta el progreso en Marketing.</p>':''}</div>`;
 }
 function renderNewYearTradition(s) {
  const p=localState(s,'ciudad_salamanca'),terms=sponsorshipTerms(s);
@@ -275,7 +267,7 @@ function renderObrador(s) {
       <div class="small ${fill < 0.999 ? 'warn' : 'muted'}">${fill < 0.999 ? `⚠️ No das abasto: solo sirves el ${Math.round(fill * 100)} % de la demanda.` : `Hay capacidad libre.${r.bonusUnits > 0 ? ` ${Math.round(r.bonusUnits)} sobaos de cortesía: hasta +5 % de ingresos en otros negocios.` : ''}`}</div></div>
     </div>
     ${up ? `<div class="small">Plantilla para capacidad instalada: ${workforce.required} · Oferta local: ${workforce.available} (${workforce.beds} plazas de vivienda).</div><div class="upgrade"><div><b>${esc(up.name)}</b> · +${up.capacity.toLocaleString('es-ES')} uds/mes</div><div class="small muted">${esc(up.desc)}</div>
-      <button class="btn small primary" data-act="upgrade" ${s.cash >= up.cost && nextWorkforce.missingBeds===0 ? '' : 'disabled'}>Comprar (${moneyShort(up.cost)})</button>${nextWorkforce.missingBeds ? `<p class="small warn">Para esta ampliación faltan ${nextWorkforce.missingBeds} plazas en Selaya. <a href="#" data-act="tab" data-tab="plantilla">Comprar viviendas para empleados</a></p>` : ''}</div>` : '<div class="small muted">El obrador está a tope de mejoras.</div>'}
+      <button class="btn small primary" data-act="upgrade" ${s.cash >= up.cost && nextWorkforce.missingBeds===0 ? '' : 'disabled'}>Comprar (${moneyShort(up.cost)})</button>${nextWorkforce.missingBeds ? `<p class="small warn">Para esta ampliación faltan ${nextWorkforce.missingBeds} plazas en Selaya. <a href="#" data-act="tab" data-tab="viviendas">Construir viviendas</a></p>` : ''}</div>` : '<div class="small muted">El obrador está a tope de mejoras.</div>'}
     ${policyGroup(s, 'ingredientes', ing)}
     ${renderRebrand(s)}
     ${s.contracts.length ? `<div class="small">Contratos: ${s.contracts.map((c) => `${esc(c.label)} (${c.units.toLocaleString('es-ES')} uds/mes, ${c.months > 120 ? 'indefinido' : `${c.months} ${c.months === 1 ? 'mes' : 'meses'}`})`).join(', ')}</div>` : ''}
@@ -465,10 +457,10 @@ export function renderEmpire(s) {
 const unitMoney = n => n.toLocaleString('es-ES', {style:'currency',currency:'EUR',minimumFractionDigits:2,maximumFractionDigits:2});
 const pct = (f) => `${f >= 1 ? '+' : '−'}${Math.round(Math.abs(f - 1) * 100)} %`;
 
-export function renderMarket(s,marketingSelection={}) {
+export function renderMarket(s) {
   const p = macroFx(s);
   const order = ['recuperacion', 'expansion', 'burbuja', 'crisis'];
-  return `${renderOnline(s)}${renderMarketingHub(s,marketingSelection)}<div class="card macro macro-${s.macro.phase}">
+  return `<div class="card macro macro-${s.macro.phase}">
       <div class="kicker">Ciclo económico</div>
       <h3>${p.emoji} ${esc(p.label)}</h3>
       <p class="small">${esc(p.desc)}</p>
@@ -481,19 +473,20 @@ export function renderMarket(s,marketingSelection={}) {
       </div>
       <p class="small muted">Lleva ${s.macro.months} ${s.macro.months === 1 ? 'mes' : 'meses'} en esta fase. Nadie sabe cuánto durará (bueno, los economistas dicen que sí, pero cada uno una cosa).</p>
     </div>
-    ${renderNewYearTradition(s)}
     ${renderGov(s)}
     ${renderRivals(s)}
-    ${renderRD(s)}
-    ${renderInternational(s)}`;
+    `;
 }
 
-function renderOnline(s) {
+export function renderOnline(s) {
  const opened=s.online?.level>0,base=computeEconomy(s);
  const report=opened?base:computeEconomy({...s,online:{level:1,active:true,shipping:'incluido'}});
  const o=report.online,level=opened?s.online.level:1,plan=ONLINE_LEVELS[level],check=opened?canUpgradeOnline(s):canOpenOnline(s);
  const rows=[['Ventas de producto',o.productRevenue],['Portes cobrados al cliente',o.chargedShipping],['Materias primas',-o.materials],['Paquetería a domicilio',-o.shipping],['Cajas y embalaje',-o.packaging],['Comisiones de cobro (3 %)',-o.payments],['Reserva de incidencias (2 % producto)',-o.returns],['Personal de preparación en Selaya',-o.wages],['Plataforma y atención digital',-o.fixed]];
  return `<div class="card online-channel"><h3>🛒 Venta online de sobaos</h3><p class="small">Tienda propia para la Península, en cajas de seis. Primero se atienden tiendas y contratos; la web solo acepta pedidos con el excedente real, antes de los regalos de cortesía. La paquetería cuesta más por unidad que abastecer tus propias tiendas.</p><p><b>${esc(plan.name)}</b>${opened&&!s.online.active?' · En pausa':''}</p><div class="chips"><span class="chip">Tráfico potencial: ${o.potentialOrders.toLocaleString('es-ES')} pedidos/mes</span><span class="chip">Aceptados: ${o.orders.toLocaleString('es-ES')} · ${o.units.toLocaleString('es-ES')} uds</span><span class="chip">Precio: ${o.unitPrice.toFixed(2).replace('.',',')} €/ud</span><span class="chip">Paquetería: ${o.parcelCost.toFixed(2).replace('.',',')} €/pedido</span><span class="chip">Margen variable: ${(o.contributionMargin*100).toFixed(1).replace('.',',')} %</span></div><p class="small">Personal previsto: ${plan.staff} · Personal disponible: ${o.staff} · Límite del nivel: ${plan.maxOrders.toLocaleString('es-ES')} pedidos/mes. Campañas nacionales, fama, reputación, I+D y temporada atraen demanda; no sustituyen al stock.</p>${opened?`<fieldset class="online-shipping"><legend>Portes al cliente</legend>${Object.entries(ONLINE_SHIPPING).map(([id,p])=>`<label><input type="radio" name="online-shipping" data-act="online-shipping" value="${id}" ${s.online.shipping===id?'checked':''}> ${esc(p.label)}${id==='compartidos'?' (18 % menos demanda)':''}</label>`).join('')}</fieldset>`:''}<details class="online-breakdown" open><summary>${opened?'Previsión mensual del canal':'Previsión mensual si abres ahora'}</summary><table class="tbl">${rows.map(([label,amount])=>`<tr><td>${esc(label)}</td><td class="${cls(amount)}">${signed(amount)}</td></tr>`).join('')}<tr class="total"><td>Resultado del canal antes de impuestos</td><td class="${cls(o.profit)}">${signed(o.profit)}</td></tr></table><p class="small muted">La fabricación y los gastos comunes se cuentan en la empresa. ${!opened?`Cambio previsto en resultado total: <b>${signed(report.net-base.net)}/mes</b>, tras impuestos.`:''}</p></details>${o.active&&o.potentialOrders>o.orders?'<p class="small warn">Parte de la demanda no se acepta por falta de excedente, personal o capacidad de preparación. No se contabiliza como venta.</p>':''}<div class="row gap wrap">${!opened?`<button class="btn small primary" data-act="online-open" ${check.ok?'':'disabled'}>Abrir tienda online (${moneyShort(ONLINE_LEVELS[1].cost)})</button>`:`<button class="btn small" data-act="online-toggle">${s.online.active?'Pausar canal':'Reactivar canal'}</button>${level<3?`<button class="btn small primary" data-act="online-upgrade" ${check.ok?'':'disabled'}>Ampliar: ${esc(ONLINE_LEVELS[level+1].name)} (${moneyShort(ONLINE_LEVELS[level+1].cost)})</button>`:''}`}</div>${!check.ok&&(!opened||level<3)?`<p class="small muted">${esc(check.msg)}</p>`:''}<p class="small muted">Pausado no vende ni cobra cuota o nóminas de preparación. Al reactivarlo se comprueba de nuevo la oferta laboral. Tarifas medias de juego, no precios reales de transporte.</p></div>`;
+}
+export function renderMarketing(s,selection={}) {
+ return renderMarketingHub(s,selection)+renderNewYearTradition(s);
 }
 function renderMarketingHub(s,selection) {
  const group=(scope,title)=>{
@@ -507,11 +500,11 @@ function renderMarketingHub(s,selection) {
  return `<div class="card marketing-hub"><h3>📢 Central de marketing</h3><p class="small">Selecciona territorios y contrata cada campaña en todos ellos desde aquí. El lote omite campañas ya activas y destinos sin negocios afines. Se cobra el total completo al contratar; elevar la demanda requiere capacidad para atenderla.</p>${execOf(s,'marketing')?'<p class="small">Tu responsable de Marketing mejora la eficacia de cada campaña.</p>':''}${group('national','🇪🇸 Campañas nacionales')}${group('city','📍 Campañas locales en lote')}${group('international','🌍 Campañas internacionales')}</div>`;
 }
 
-function renderInternational(s) {
+export function renderInternational(s) {
   const r = computeEconomy(s);
   return `<div class="card"><h4>🌍 Acuerdos internacionales</h4>
     <p class="small">Marca blanca: fabricas tú para la marca del socio. Licencia: fabrican ellos con tu marca y te pagan el 8 % de sus ventas. Acuerdos exclusivos de 24 meses. Los socios y sus cifras son ficticios.</p>
-    <div class="foreign-territories"><h4>Abrir tus propios negocios en Europa</h4><p class="small">Completa seis meses de marca blanca con al menos el 90 % del pedido servido en el país e investiga Despliegue comercial internacional. Las licencias no cuentan para este acceso. El mapa principal sigue mostrando España; gestiona estas filiales desde aquí.</p>${[...new Set(FOREIGN_CITIES.map(c=>c.market))].map(id=>`<div class="small"><b>${esc(FOREIGN_BY_ID[id].country)}</b> · Marca blanca cumplida: ${s.foreignTrack?.[id]?.successMonths||0}/6 meses<div class="row gap wrap">${FOREIGN_CITIES.filter(c=>c.market===id).map(c=>`<button class="btn small" data-act="goto-city" data-city="${c.id}">${esc(c.name)}</button>`).join('')}</div></div>`).join('')}</div><p class="small muted">Imprevistos: lotes defectuosos, impagos y copias de tu receta. Una auditoría cuesta 900 €/mes y reduce un 60 % el riesgo mensual; no lo elimina. Dos meses con menos del 80 % de suministro también abren conflicto.</p>
+    <div class="foreign-territories"><h4>Abrir tus propios negocios en Europa</h4><p class="small">Completa seis meses de marca blanca con al menos el 90 % del pedido servido en el país e investiga Despliegue comercial internacional en I+D. Las licencias no cuentan para este acceso. El mapa principal sigue mostrando España; gestiona estas filiales desde aquí.</p>${[...new Set(FOREIGN_CITIES.map(c=>c.market))].map(id=>`<div class="small"><b>${esc(FOREIGN_BY_ID[id].country)}</b> · Marca blanca cumplida: ${s.foreignTrack?.[id]?.successMonths||0}/6 meses<div class="row gap wrap">${FOREIGN_CITIES.filter(c=>c.market===id).map(c=>`<button class="btn small" data-act="goto-city" data-city="${c.id}">${esc(c.name)}</button>`).join('')}</div></div>`).join('')}</div><p class="small muted">Imprevistos: lotes defectuosos, impagos y copias de tu receta. Una auditoría cuesta 900 €/mes y reduce un 60 % el riesgo mensual; no lo elimina. Dos meses con menos del 80 % de suministro también abren conflicto.</p>
     ${(s.foreignDeals || []).map(d => {
       const l = r.lines.find(l => l.dealId === d.id);
       return `<div class="foreign-active"><b>${esc(FOREIGN_BY_ID[d.market].country)} · ${esc(DEAL_MODES[d.mode].name)}</b>
@@ -575,13 +568,27 @@ function renderRivals(s) {
   </div>`;
 }
 
-function renderRD(s) {
+function researchAreas(p) {
+ const areas=[];
+ if(p.production||p.laborFactor)areas.push('production');
+ if(['laborFactor','fixedFactor','materialFactor','transportFactor','structureFactor'].some(k=>p[k]))areas.push('costs');
+ if(p.contract||p.effects.some(e=>e.category==='sobaos'||e.types?.some(t=>['express','maison','obrador'].includes(t))))areas.push('sobaos');
+ if(p.whiteSuccess)areas.push('foreign');
+ if(p.opens||p.requires||p.effects.some(e=>!e.category&&!e.types||e.types?.some(t=>!['express','maison','obrador'].includes(t))))areas.push('business');
+ return areas.length?areas:['business'];
+}
+export function renderResearch(s,filters={}) {
   const rd = s.rd;
-  return `<div class="card"><h4>I+D: nuevos productos</h4>
-    ${rd ? `<div class="rd-now"><b>En desarrollo:</b> ${esc(PRODUCT_BY_ID[rd.id].name)} · ${rd.monthsLeft === 1 ? 'falta 1 mes' : `faltan ${rd.monthsLeft} meses`} ${bar(rd.total - rd.monthsLeft, rd.total, 'ok')}</div>`
+  const status=filters.status||'pending',category=filters.category||'all';
+  const categories={all:'Todas las áreas',production:'Producción y automatización',costs:'Reducción de costes',sobaos:'Productos de sobaos',business:'Servicios y nuevos negocios',foreign:'Expansión exterior'};
+  const matches=p=>category==='all'||researchAreas(p).includes(category);
+  const shown=PRODUCTS.filter(p=>(status==='all'||(status==='completed')===s.products.includes(p.id))&&matches(p));
+  return `<div class="card research-panel"><h3>🧪 Investigación y desarrollo</h3><p class="small">${s.products.length} innovaciones terminadas. Filtra por estado y área para encontrar el siguiente proyecto.</p><div class="row gap wrap research-filters">${[['pending','Pendientes'],['completed','Investigados'],['all','Todos']].map(([id,name])=>`<button class="btn small ${status===id?'primary':'ghost'}" data-act="research-status" data-value="${id}" aria-pressed="${status===id}">${name}</button>`).join('')}<label class="small">Área <select data-act="research-category" aria-label="Área de investigación">${Object.entries(categories).map(([id,name])=>`<option value="${id}" ${category===id?'selected':''}>${name}</option>`).join('')}</select></label></div>
+    ${rd ? `<div class="rd-now"><b>En desarrollo:</b> ${esc(PRODUCT_BY_ID[rd.id]?.name||rd.id)} · ${rd.monthsLeft === 1 ? 'falta 1 mes' : `faltan ${rd.monthsLeft} meses`} ${bar(rd.total - rd.monthsLeft, rd.total, 'ok')}</div>`
       : '<p class="small muted">El "laboratorio" (la trastienda del obrador, con una pizarra) está libre.</p>'}
+    <p class="small muted">${shown.length} proyectos en esta selección.</p>
     <div class="products">
-      ${PRODUCTS.map((p) => {
+      ${shown.map((p) => {
         const has = s.products.includes(p.id);
         const ok = canStartRD(s, p.id);
         return `<div class="product ${has ? 'on' : ''}">
@@ -613,10 +620,9 @@ function renderEuropeanGoal(s) {
 export function renderStaff(s) {
   const r = previewCache(s).base.f.r; // la plantilla de ahora (con lo abierto o vendido este mes)
   const locked = s.flags.forcedLegal > 0;
-  const hasHousing = s.businesses.some((b) => b.type === 'vivienda');
   const liq = liquidacion(s);
   const agr = Math.round(s.agravio || 0);
-  return `${renderHousing(s,r)}<div class="card kpis">
+  return `<div class="card kpis">
       <div><span class="muted small">Empleados</span><b>${r.employees}</b></div>
       <div><span class="muted small">Coste medio</span><b>${money(averageWage(s))}</b></div>
       <div><span class="muted small">Moral</span><b>${Math.round(s.moral)}</b></div>
@@ -631,16 +637,25 @@ export function renderStaff(s) {
       ${policyGroup(s, 'salario', POLICIES.salario, locked)}
       ${policyGroup(s, 'horas', POLICIES.horas, locked)}
       ${policyGroup(s, 'becarios', POLICIES.becarios, locked)}
-      ${hasHousing ? `<p class="small muted">🔑 Ajusta los alquileres de empleados y público en el primer bloque, por ciudad.</p>` : `<p class="small muted">🔑 Compra viviendas arriba para alojar a la plantilla y al público.</p>`}
-      ${hasHousing ? `<p class="small">Alojados en su ciudad de trabajo: <b>${r.housed}/${r.beds}</b>. Con más control hay menos denuncias y menos huelgas.</p>` : ''}
+      <p class="small"><a href="#" data-act="tab" data-tab="viviendas">Viviendas y alquileres</a> · <a href="#" data-act="tab" data-tab="beneficios">Beneficios y reparto</a> · <a href="#" data-act="tab" data-tab="direccion">Equipo directivo</a></p>
+      ${pvFootnote(s)}
+    </div>`;
+}
+
+export function renderBenefits(s) {
+ const r=previewCache(s).base.f.r;
+ return `<div class="card"><h3>🎁 Beneficios para la plantilla</h3>
       ${policyGroup(s, 'reparto', POLICIES.reparto)}
       ${policyGroup(s,'residencia',POLICIES.residencia,!s.businesses.some(b=>b.type==='residencia'))}
       <p class="small">Beneficio asistencial usado: <b>${Math.floor(r.residenceBenefit.beneficiaries)}</b> familiares · descuentos ${money(r.residenceBenefit.discount)}/mes · moral +${r.residenceBenefit.moral.toFixed(1).replace('.',',')}/mes. ${s.businesses.some(b=>b.type==='residencia')?'':'Necesitas una residencia propia.'}</p>
       <p class="small muted">El agravio sube con el beneficio por cabeza (en sueldos de lo que cobran), los caprichos y la Bolsa. Resta moral cada mes y, con comité, trae huelgas generales. Repartir lo alivia y es deducible.</p>
-      ${pvFootnote(s)}
-    </div>
-    ${renderExecs(s)}`;
+      ${pvFootnote(s)}</div>`;
 }
+export function renderResidences(s) {
+ const r=previewCache(s).base.f.r;
+ return renderHousing(s,r);
+}
+export function renderManagement(s) {return renderExecs(s);}
 
 const meterBar = (v) => `<div class="meter ${v >= PK.STRIKE_AT ? 'hot' : v >= 30 ? 'warm' : 'good'}"><span style="width:${Math.round(Math.min(100, v))}%"></span></div>`;
 

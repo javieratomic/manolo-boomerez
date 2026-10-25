@@ -1,5 +1,13 @@
 # Cambios
 
+## 0.12.0 — Menús por áreas
+
+- Cuatro grupos de navegación con submenús cortos: Empresa, Expansión, Equipo y Manolo. Sin una fila interminable de pestañas ni scroll horizontal del menú en móvil.
+- I+D, Marketing, Exterior, Online, Viviendas, Beneficios y Dirección tienen pantallas propias. Mercado queda para ciclo económico, Gobierno y competencia; Plantilla para condiciones y comité.
+- I+D filtra pendientes, investigados y áreas; los 35 proyectos tienen categoría y la investigación en marcha permanece visible con cualquier filtro.
+- Scroll independiente por pantalla y ciudad; cada grupo vuelve a su último menú visitado. Los filtros conservan el foco de teclado y los atajos 1–7 mantienen sus destinos anteriores.
+- Enlaces, consejos, objetivos y ayuda apuntan a las nuevas ubicaciones. Guardados compatibles y reglas económicas sin cambios.
+
 ## 0.11.0 — Sobaos a domicilio
 
 - Canal de venta online en Mercado: tres tamaños, previsión económica de apertura, ampliación, pausa y reactivación.

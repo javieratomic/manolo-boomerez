@@ -52,7 +52,7 @@ export function canOpen(s, typeId, cityId, mode = 'propia', housingForm='apartam
   if(typeId==='vivienda'&&!['apartamentos','chalets'].includes(housingForm))return {ok:false,msg:'Promoción residencial desconocida.'};
   if(typeId==='empanadas'&&!s.flags.primoSocio)return {ok:false,msg:'Necesitas asociarte con Rodrigo cuando aparezca el primo argentino.'};
   if(c.foreign) {
-    if(!(s.products||[]).includes('expansion_propia'))return {ok:false,msg:'Investiga Despliegue comercial internacional en Mercado.'};
+    if(!(s.products||[]).includes('expansion_propia'))return {ok:false,msg:'Investiga Despliegue comercial internacional en I+D.'};
     if((s.foreignTrack?.[c.market]?.successMonths||0)<6)return {ok:false,msg:'Necesitas seis meses de marca blanca sirviendo al menos el 90 % en este país.'};
     if((s.foreignDeals||[]).some(d=>d.market===c.market&&d.mode==='licence'))return {ok:false,msg:'Rescinde la licencia territorial antes de abrir con tu propia marca.'};
   }
@@ -67,7 +67,7 @@ export function canOpen(s, typeId, cityId, mode = 'propia', housingForm='apartam
   if(typeId!=='vivienda' && mode!=='franquicia') {
     const tmp={id:-2,type:typeId,city:cityId,mode,level:1};s.businesses.push(tmp);
     let plan;try{plan=workforcePlan(s,cityId);}finally{s.businesses.splice(s.businesses.indexOf(tmp),1);}
-    if(plan.missingBeds>0)return {ok:false,msg:`Faltan ${plan.missingBeds} plazas de vivienda para contratar en ${c.name}. Cómpralas desde Plantilla.`};
+    if(plan.missingBeds>0)return {ok:false,msg:`Faltan ${plan.missingBeds} plazas de vivienda para contratar en ${c.name}. Cómpralas desde Equipo → Viviendas.`};
   }
   const cost = openingCost(s, typeId, mode, cityId,housingForm);
   if (cost > s.cash) return { ok: false, msg: `Necesitas ${money(cost)} en caja.` };
@@ -148,7 +148,7 @@ export function buyUpgrade(s) {
   if (!Number.isSafeInteger(u.cost)) return { ok: false, msg: 'Esta ampliación supera el importe máximo que puede representar el juego.' };
   if (s.cash < u.cost) return { ok: false, msg: `Necesitas ${money(u.cost)}.` };
   const plan=upgradeRequirements(s);
-  if(plan.missingBeds>0)return {ok:false,msg:`Antes de ampliar faltan ${plan.missingBeds} plazas de vivienda en Selaya para la nueva plantilla. Ve a Plantilla → Viviendas para empleados.`};
+  if(plan.missingBeds>0)return {ok:false,msg:`Antes de ampliar faltan ${plan.missingBeds} plazas de vivienda en Selaya para la nueva plantilla. Ve a Equipo → Viviendas.`};
   addCash(s, -u.cost);
   if (u.expansion) s.obrador.expansions = (s.obrador.expansions || 0) + 1;
   else s.obrador.upgrades.push(u.id);

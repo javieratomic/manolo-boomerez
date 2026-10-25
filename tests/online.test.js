@@ -69,7 +69,7 @@ test('Online: se sirve antes que los regalos, sin atribuir todas sus ventas a Se
  const base=computeEconomy(s);openOnline(s);const r=computeEconomy(s);assert(r.bonusUnits<base.bonusUnits);assertEq(r.sobaoSales.selaya,base.sobaoSales.selaya);
 });
 
-test('Online: el gestor dirige a Mercado cuando el canal pierde dinero sin stock',async()=>{
+test('Online: el gestor dirige a Online cuando el canal pierde dinero sin stock',async()=>{
  const {openOnline}=await import('../src/core/online.js');const s=started();openOnline(s);s.contracts=[{units:100000,price:2.3,months:12,label:'Mayorista'}];s.lastReport=computeEconomy(s);
- const tips=advice(s);assert(tips.some(t=>t.tab==='mercado'&&t.text.toLowerCase().includes('online')));assert(!tips.some(t=>t.text.includes('Venta online')&&t.text.includes('Reformar')));
+ const tips=advice(s);assert(tips.some(t=>t.tab==='online'&&t.text.toLowerCase().includes('online')));assert(!tips.some(t=>t.text.includes('Venta online')&&t.text.includes('Reformar')));
 });

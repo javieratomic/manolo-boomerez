@@ -1,12 +1,27 @@
 # Estado para el siguiente agente (25-10-2026)
 
-- Versión actual: **0.11.0**. La última entrega de código es `c9707aa` (venta online); antes, `e2149b8` (central de marketing) y `c427b08` (fiestas con memoria).
+- Versión actual: **0.12.0**, navegación por áreas. La entrega anterior es `c9707aa` (venta online 0.11); antes, `e2149b8` (central de marketing) y `c427b08` (fiestas con memoria).
 - Las peticiones de código recibidas hasta esta entrega están implementadas y verificadas. No queda implementación de esta sesión pendiente. Los apartados siguientes documentan cada entrega; los diagnósticos antiguos se conservan como historial y no deben reabrirse sin reproducirlos en la versión actual.
-- Última validación de código: **271 pruebas Node y 18 DOM**, más los flujos y simulaciones detallados abajo. Esta actualización de relevo solo cambia documentación; no repite esas pruebas.
-- Portable actual comprobado y disponible: `desktop/dist/ManoloBoomerez-0.11.0-portable.exe`. Los ejecutables de `desktop/dist/` son artefactos ignorados por Git y se conservan.
+- Última validación: **272 pruebas Node y 21 DOM**, más navegación y acciones reales en escritorio y móviles de 375/320 px. Las reglas económicas no cambian en esta entrega.
+- Portable actual: `desktop/dist/ManoloBoomerez-0.12.0-portable.exe`. Los ejecutables de `desktop/dist/` son artefactos ignorados por Git y se conservan.
 - Arte: **198 done, 62 requested y 1 blocked** en el manifiesto. Es la cola de recursos existente, no un bloqueo de la entrega de código.
-- Trabajo realizado en `main`, mediante commits locales. **No se ha hecho push**. El árbol estaba limpio antes de actualizar este relevo; esta actualización se guarda también en un commit local.
+- Trabajo realizado en `main`, mediante commits locales. **No se ha hecho push**. Código, pruebas y documentación de cada entrega se guardan conjuntamente.
 - El usuario autorizó continuar código y decidir el equilibrio por entregas. La antigua vigilancia autónoma de arte de ocho horas ya terminó; no reiniciarla.
+
+---
+
+# Continuación 0.12.0 — Menús por áreas (25-10-2026)
+
+Petición completa de reorganización del menú:
+- Cuatro grupos con máximo cuatro submenús: Empresa (Ciudad, Imperio, Mercado, Finanzas), Expansión (Marketing, I+D, Exterior, Online), Equipo (Plantilla, Beneficios, Viviendas, Dirección), Manolo (Manolo, Archivo). `ui/navigation.js` contiene catálogo y render; `panels.js` reexporta TABS por compatibilidad.
+- Extracción de renderizadores existentes, sin duplicación: Mercado solo ciclo/Gobierno/competencia; Marketing campañas y tradición; I+D con filtros; Exterior acuerdos/filiales; Online venta; Viviendas promociones/alquiler; Beneficios reparto/asistencia; Dirección fichajes. Plantilla conserva condiciones/comité. Economía y guardado sin cambios de reglas.
+- I+D filtra pendientes/investigados/todos y cinco áreas; proyecto activo siempre visible. Todas las 35 innovaciones pertenecen al menos a un área. Se incluyen app/fidelización en negocios y congelados en sobaos.
+- Navegación de dos filas sin scroll horizontal en móvil. Cada pantalla conserva scroll, Ciudad por destino; filtros I+D vuelven arriba y conservan foco. Cada grupo recuerda último menú visitado. Atajos 1–7 históricos intactos. Selección de marketing se conserva entre pantallas.
+- Enlaces, bloqueos, consejos, objetivos y ayuda actualizados: investigación en I+D, acuerdos en Exterior, online en Online, vivienda en Equipo → Viviendas, directivos en Dirección, reparto en Beneficios.
+
+Verificación: **272/272 Node y 21/21 DOM**, sintaxis correcta. Edge 1365×900, 375×812 y 320×740: las 14 pantallas accesibles sin desbordamiento ni errores; navegar sin alterar partida, restauración de 500 px, filtros/foco/proyecto activo y acciones reales de I+D, vivienda, beneficios, fichajes, online, marketing y acuerdo exterior. Atajos 3/7 y recarga comprobados; capturas inspeccionadas. Revisión independiente detectó dos proyectos sin área y pérdida de foco de filtros; regresiones rojas/verdes, cierre sin nuevos hallazgos importantes.
+
+Build y smoke de desempaquetado y portable correctos (salida 0). Ejecutable `desktop/dist/ManoloBoomerez-0.12.0-portable.exe`. Plan/registro: `docs/superpowers/plans/2026-10-25-navegacion-por-areas.md`. El resto del documento conserva el historial de entregas; para ubicaciones actuales usar este mapa de menús.
 
 ---
 

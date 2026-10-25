@@ -6,7 +6,7 @@ import { test, assert, assertEq } from './runner.js';
 import { showModal, isModalOpen } from '../src/ui/dom.js';
 import { newGame } from '../src/core/state.js';
 import { resolvePending } from '../src/core/sim.js';
-import { renderManolo, renderCity, renderEmpire, renderMarket, renderStaff } from '../src/ui/panels.js';
+import { renderManolo, renderCity, renderEmpire, renderMarket, renderResearch, renderMarketing, renderInternational, renderOnline, renderResidences, renderBenefits, renderStaff } from '../src/ui/panels.js';
 
 test('DOM: la pestaña Manolo muestra la edad del mes actual', () => {
   const s = newGame(42);
@@ -156,9 +156,9 @@ test('DOM: las franquicias muestran las dos cuentas y su riesgo antes de firmar'
 });
 
 
-test('DOM: Mercado muestra iconos por innovación y los dos acuerdos extranjeros', () => {
+test('DOM: I+D y Exterior conservan iconos por innovación y acuerdos', () => {
   const s = newGame(42); resolvePending(s, 0); s.cash = 1e7;
-  const el = document.createElement('div'); el.innerHTML = renderMarket(s);
+  const el = document.createElement('div'); el.innerHTML = renderResearch(s,{status:'all'})+renderInternational(s);
   const icons = [...el.querySelectorAll('.product img')];
   assertEq(icons.length, PRODUCTS.length);
   assertEq(new Set(icons.map(i => i.getAttribute('src'))).size, PRODUCTS.length);
@@ -170,16 +170,16 @@ test('DOM: Mercado muestra iconos por innovación y los dos acuerdos extranjeros
 
 test('DOM: los acuerdos muestran céntimos en precio y transporte por unidad', () => {
   const s = newGame(42); resolvePending(s,0); s.cash=1e7;
-  const el=document.createElement('div');el.innerHTML=renderMarket(s);
+  const el=document.createElement('div');el.innerHTML=renderInternational(s);
   const portugal=el.querySelector('.foreign-offer[data-market="portugal"]');
   assert(portugal.textContent.includes('2,40'), 'precio de venta de 2,40 €/ud');
   assert(portugal.textContent.includes('0,12'), 'el transporte de 0,12 €/ud no se muestra como gratis');
 });
 
 
-test('DOM 0.6: Plantilla ofrece comprar viviendas directamente',()=>{
+test('DOM: Viviendas ofrece construir ambas promociones directamente',()=>{
  const s=newGame(42);resolvePending(s,0);s.cash=1e8;
- const el=document.createElement('div');el.innerHTML=renderStaff(s);
+ const el=document.createElement('div');el.innerHTML=renderResidences(s);
  const button=el.querySelector('[data-act="housing-open"][data-city="selaya"]');
  assert(button&&!button.disabled);assert(button.textContent.includes('Construir'));
  assertEq(el.querySelectorAll('[data-act="housing-open"][data-city="selaya"]').length,2);
@@ -195,12 +195,12 @@ test('DOM 0.6: el mapa no intenta animar beneficios fuera de España',()=>{
 test('DOM: vivienda muestra dos tarifas por ciudad y beneficio asistencial exige residencia',()=>{
  const s=newGame(42);resolvePending(s,0);s.cash=1e8;
  s.businesses.push({id:1,type:'vivienda',city:'madrid',mode:'propia',level:1,value:200000});
- const el=document.createElement('div');el.innerHTML=renderStaff(s);
+ const el=document.createElement('div');el.innerHTML=renderResidences(s);
  assert(el.querySelector('[data-act="housing-policy"][data-city="madrid"][data-group="employee"]'));
  assert(el.querySelector('[data-act="housing-policy"][data-city="madrid"][data-group="public"]'));
- assert(el.querySelector('[name="pol-residencia"][value="descuento"]').disabled);
+ el.innerHTML=renderBenefits(s);assert(el.querySelector('[name="pol-residencia"][value="descuento"]').disabled);
  s.businesses.push({id:2,type:'residencia',city:'madrid',mode:'propia',level:1,value:1e6});
- el.innerHTML=renderStaff(s);assert(!el.querySelector('[name="pol-residencia"][value="descuento"]').disabled);
+ el.innerHTML=renderBenefits(s);assert(!el.querySelector('[name="pol-residencia"][value="descuento"]').disabled);
 });
 
 test('DOM: las obras muestran plazo, bloquean reforma y se entregan con su capacidad',()=>{
@@ -209,35 +209,62 @@ test('DOM: las obras muestran plazo, bloquean reforma y se entregan con su capac
  const el=document.createElement('div');el.innerHTML=renderCity(s,'selaya');
  assert(el.textContent.includes('En construcción: quedan 12 meses'));
  assert(el.querySelector('[data-act="upgrade-biz"][data-id="1"]').disabled);
- s.month=12;el.innerHTML=renderStaff(s);assert(el.textContent.includes('25 viviendas disponibles'));
+ s.month=12;el.innerHTML=renderResidences(s);assert(el.textContent.includes('25 viviendas disponibles'));
  assert(el.textContent.includes('renovación en 180 meses'));
 });
 
 test('DOM: reputación local y etapas de las campanadas son visibles',()=>{
  const s=newGame(42);resolvePending(s,0);
  const el=document.createElement('div');el.innerHTML=renderCity(s,'salamanca');assert(el.querySelector('.local-relations'));assert(el.textContent.includes('Reputación:'));
- el.innerHTML=renderMarket(s);assert(el.querySelector('.new-year-tradition'));assert(el.textContent.includes('0/4'));assert(el.textContent.includes('patrocinios exitosos'));
+ el.innerHTML=renderMarketing(s);assert(el.querySelector('.new-year-tradition'));assert(el.textContent.includes('0/4'));assert(el.textContent.includes('patrocinios exitosos'));
 });
 
 test('DOM: Mercado centraliza marketing por ciudades y países con presupuesto de lote',()=>{
  const s=newGame(42);resolvePending(s,0);s.cash=1e7;s.businesses.push({id:1,type:'express',city:'madrid',mode:'propia',level:1,value:30000});
- const el=document.createElement('div');el.innerHTML=renderMarket(s);
+ const el=document.createElement('div');el.innerHTML=renderMarketing(s);
  assert(el.querySelector('.marketing-hub'));assertEq(el.querySelectorAll('.marketing-scope').length,3);
  assert(el.querySelector('[data-act="marketing-target"][value="madrid"]').checked);
  assert(el.querySelector('[data-act="campaign-batch"][data-id="buzoneo"]'));assert(el.textContent.includes('Lote:'));
- el.innerHTML=renderMarket(s,{city:[],international:[]});assert(el.querySelector('[data-act="campaign-batch"][data-id="buzoneo"]').disabled);
+ el.innerHTML=renderMarketing(s,{city:[],international:[]});assert(el.querySelector('[data-act="campaign-batch"][data-id="buzoneo"]').disabled);
 });
 
 test('DOM: una selección de marketing no queda bloqueada por territorios que ya no tienes',()=>{
  const s=newGame(42);resolvePending(s,0);s.cash=1e7;s.businesses.push({id:1,type:'express',city:'barcelona',mode:'propia',level:1,value:30000});
- const el=document.createElement('div');el.innerHTML=renderMarket(s,{city:['madrid','barcelona']});
+ const el=document.createElement('div');el.innerHTML=renderMarketing(s,{city:['madrid','barcelona']});
  assert(!el.querySelector('[data-act="marketing-target"][value="madrid"]'));
  assert(!el.querySelector('[data-act="campaign-batch"][data-id="buzoneo"]').disabled);
 });
 
 test('DOM: Mercado ofrece venta online con previsión, envíos desglosados y pausa',()=>{
  const s=newGame(42);resolvePending(s,0);s.cash=1e7;
- const el=document.createElement('div');el.innerHTML=renderMarket(s);assert(el.querySelector('[data-act="online-open"]'));assert(el.textContent.includes('Paquetería a domicilio'));assert(el.textContent.includes('Cambio previsto en resultado total'));
+ const el=document.createElement('div');el.innerHTML=renderOnline(s);assert(el.querySelector('[data-act="online-open"]'));assert(el.textContent.includes('Paquetería a domicilio'));assert(el.textContent.includes('Cambio previsto en resultado total'));
  assert(el.textContent.includes('3,80 €'));assert(el.textContent.includes('6,90 €'));
- s.online={level:1,active:true,shipping:'incluido'};el.innerHTML=renderMarket(s);assert(el.querySelector('[data-act="online-toggle"]'));assert(el.querySelector('[data-act="online-shipping"][value="compartidos"]'));
+ s.online={level:1,active:true,shipping:'incluido'};el.innerHTML=renderOnline(s);assert(el.querySelector('[data-act="online-toggle"]'));assert(el.querySelector('[data-act="online-shipping"][value="compartidos"]'));
+});
+
+test('DOM: las pantallas de expansión y equipo no siguen mezcladas',async()=>{
+ const p=await import('../src/ui/panels.js');const s=newGame(42);resolvePending(s,0);s.cash=1e8;
+ const el=document.createElement('div');el.innerHTML=p.renderMarket(s);
+ assert(!el.querySelector('.products'));assert(!el.querySelector('.online-channel'));assert(!el.querySelector('.marketing-hub'));
+ el.innerHTML=p.renderResearch(s);assert(el.querySelector('.products'));assert(!el.querySelector('.marketing-hub'));
+ el.innerHTML=p.renderOnline(s);assert(el.querySelector('.online-channel'));
+ el.innerHTML=p.renderMarketing(s);assert(el.querySelector('.marketing-hub'));
+ el.innerHTML=p.renderStaff(s);assert(!el.querySelector('.housing-card'));assert(!el.querySelector('[data-act="hire"]'));assert(!el.querySelector('[name="pol-reparto"]'));
+ el.innerHTML=p.renderBenefits(s);assert(el.querySelector('[name="pol-reparto"]'));
+ el.innerHTML=p.renderResidences(s);assert(el.querySelector('.housing-card'));
+});
+
+test('DOM: I+D filtra investigados y producción sin ocultar el proyecto en marcha',async()=>{
+ const {renderResearch}=await import('../src/ui/panels.js');const s=newGame(42);resolvePending(s,0);s.products=['relleno'];s.rd={id:'robots_envasado',monthsLeft:2,total:6};
+ const el=document.createElement('div');el.innerHTML=renderResearch(s,{status:'pending',category:'production'});
+ assert(!el.textContent.includes('Sobao relleno de crema'));assert(el.querySelector('.rd-now'));assert(el.querySelectorAll('.product').length<PRODUCTS.length);
+ el.innerHTML=renderResearch(s,{status:'completed',category:'all'});assertEq(el.querySelectorAll('.product').length,1);assert(el.textContent.includes('Sobao relleno de crema'));
+});
+
+test('DOM: todas las innovaciones tienen un área y fidelización/congelados se encuentran',()=>{
+ const s=newGame(42);resolvePending(s,0);const el=document.createElement('div'),ids=new Set();
+ for(const category of ['production','costs','sobaos','business','foreign']){el.innerHTML=renderResearch(s,{status:'all',category});for(const b of el.querySelectorAll('[data-act="rd"]'))ids.add(b.dataset.id);}
+ assertEq(ids.size,PRODUCTS.length,'No debe haber proyectos que solo aparezcan en Todas');
+ el.innerHTML=renderResearch(s,{status:'all',category:'business'});assert(el.querySelector('[data-id="app"]'));
+ el.innerHTML=renderResearch(s,{status:'all',category:'sobaos'});assert(el.querySelector('[data-id="congelados"]'));
 });

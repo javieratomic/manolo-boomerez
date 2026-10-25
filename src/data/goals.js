@@ -58,7 +58,7 @@ export const GOALS = [
   {
     id: 'directivo',
     lane: 'equipo',
-    text: 'Ficha a tu primer directivo (pestaña Plantilla → Equipo directivo).',
+    text: 'Ficha a tu primer directivo (Equipo → Dirección).',
     test: (s) => Object.keys(s.execs || {}).length >= 1,
     reward(s) {
       addFama(s, 2);
@@ -104,7 +104,7 @@ export const GOALS = [
   {
     id: 'campana',
     lane: 'negocio',
-    text: 'Lanza una campaña de marketing (en una ciudad o en la pestaña Mercado).',
+    text: 'Lanza una campaña de marketing (Expansión → Marketing o en una ciudad).',
     test: (s) => s.mods.some((m) => m.campaign) || s.flags.campaignDone,
     reward(s) {
       s.flags.campaignDone = true;
@@ -115,7 +115,7 @@ export const GOALS = [
   {
     id: 'producto',
     lane: 'negocio',
-    text: 'Desarrolla un producto nuevo en I+D (pestaña Mercado).',
+    text: 'Desarrolla una innovación (Expansión → I+D).',
     test: (s) => (s.products || []).length >= 1,
     reward(s) {
       addCash(s, 8000);

@@ -1,14 +1,21 @@
-# Estado para el siguiente agente (25-10-2026)
+# Estado para el siguiente agente (26-10-2026)
 
-- Versión actual: **0.12.0**, navegación por áreas. La entrega anterior es `c9707aa` (venta online 0.11); antes, `e2149b8` (central de marketing) y `c427b08` (fiestas con memoria).
+- Versión actual: **0.12.1**, navegación por áreas y versión de portada sincronizada. La entrega anterior es `c9707aa` (venta online 0.11); antes, `e2149b8` (central de marketing) y `c427b08` (fiestas con memoria).
 - Las peticiones de código recibidas hasta esta entrega están implementadas y verificadas. No queda implementación de esta sesión pendiente. Los apartados siguientes documentan cada entrega; los diagnósticos antiguos se conservan como historial y no deben reabrirse sin reproducirlos en la versión actual.
 - Última validación: **272 pruebas Node y 21 DOM**, más navegación y acciones reales en escritorio y móviles de 375/320 px. Las reglas económicas no cambian en esta entrega.
-- Portable actual: `desktop/dist/ManoloBoomerez-0.12.0-portable.exe`. Los ejecutables de `desktop/dist/` son artefactos ignorados por Git y se conservan.
+- Portable actual: `desktop/dist/ManoloBoomerez-0.12.1-portable.exe`. Los ejecutables de `desktop/dist/` son artefactos ignorados por Git y se conservan.
 - Arte: **198 done, 62 requested y 1 blocked** en el manifiesto. Es la cola de recursos existente, no un bloqueo de la entrega de código.
 - Trabajo realizado en `main`, mediante commits locales. **No se ha hecho push**. Código, pruebas y documentación de cada entrega se guardan conjuntamente.
 - El usuario autorizó continuar código y decidir el equilibrio por entregas. La antigua vigilancia autónoma de arte de ocho horas ya terminó; no reiniciarla.
 
 ---
+
+# Continuación 0.12.1 — Revisión de navegación y skill (26-10-2026)
+
+- Instalada la skill solicitada `robonuggets/be-ambitious` en `C:/Users/MSI/.codex/skills/be-ambitious`, fuera del repositorio. No se cambia la autorización de trabajo ni se reactiva la vigilancia de arte.
+- Revisión de los 14 menús y operaciones de I+D, viviendas, beneficios, dirección, online, marketing y acuerdos exteriores en Edge a 1365×900, 375×812 y 320×740; scroll recordado, foco, atajos y guardado. Sin errores de consola ni desbordamiento. El primer intento de navegador tuvo un timeout transitorio de arranque; la repetición completa pasó.
+- Hallazgo concreto: portada fijada en «v0.4». Ahora `setupTitle` usa `GAME_VERSION`, sin duplicar el número en HTML. Versión del juego y metadatos Electron 0.12.1. No cambian las reglas económicas ni el formato de guardado.
+- Batería antes del cambio visual: 272/272 Node y 21/21 DOM. Sintaxis y diff sin errores; nueva comprobación real exige «v0.12.1» en portada y repite los recorridos: todos pasan. Build, smoke desempaquetado y portable correctos (salida 0).
 
 # Continuación 0.12.0 — Menús por áreas (25-10-2026)
 

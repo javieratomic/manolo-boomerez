@@ -72,6 +72,7 @@ export async function boot() {
 
 // ------------------------------------------------------------------ Título
 function setupTitle() {
+  $('.title-version').textContent = `v${GAME_VERSION}`;
   const title = $('#title-screen');
   if (hasArt('bg_title')) title.style.backgroundImage = `url(${imageUrl('bg_title')})`;
   if (hasArt('logo_game')) $('#title-logo').innerHTML = `<img src="${imageUrl('logo_game')}" alt="Manolo Boomerez S.L.">`;

@@ -34,6 +34,8 @@ pellizco para el zoom (en el móvil, tocar dos ciudades juntas acerca el mapa) �
 
 La navegación se organiza en cuatro áreas. Cada pantalla recuerda su posición de scroll; I+D permite filtrar por estado y tema.
 
+En **Empresa → Imperio → Plan de operaciones** puedes anticipar las entregas y renovaciones de hoy y los próximos doce meses. El plan avisa de las ciudades que necesitarán viviendas para su plantilla, incluidas las variaciones estacionales. La agenda usa inversiones ya contratadas y condiciones actuales: no predice sucesos ni ingresos futuros, y consultar no modifica la partida.
+
 | Área | Menús |
 |---|---|
 | Empresa | Ciudad, Imperio, Mercado, Finanzas |

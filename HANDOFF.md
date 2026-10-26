@@ -1,14 +1,27 @@
 # Estado para el siguiente agente (26-10-2026)
 
-- Versión actual: **0.12.1**, navegación por áreas y versión de portada sincronizada. La entrega anterior es `c9707aa` (venta online 0.11); antes, `e2149b8` (central de marketing) y `c427b08` (fiestas con memoria).
+- Versión actual: **0.13.0**, plan de operaciones en Imperio. Entrega anterior `64d2d8f` (portada 0.12.1), navegación `484515f` (0.12.0), venta online `c9707aa` (0.11).
 - Las peticiones de código recibidas hasta esta entrega están implementadas y verificadas. No queda implementación de esta sesión pendiente. Los apartados siguientes documentan cada entrega; los diagnósticos antiguos se conservan como historial y no deben reabrirse sin reproducirlos en la versión actual.
-- Última validación: **272 pruebas Node y 21 DOM**, más navegación y acciones reales en escritorio y móviles de 375/320 px. Las reglas económicas no cambian en esta entrega.
-- Portable actual: `desktop/dist/ManoloBoomerez-0.12.1-portable.exe`. Los ejecutables de `desktop/dist/` son artefactos ignorados por Git y se conservan.
+- Última validación: **279 pruebas Node y 25 DOM**, más agenda, enlaces, construcción y recarga reales en escritorio y móviles de 375/320 px. Las reglas económicas no cambian en esta entrega.
+- Portable actual: `desktop/dist/ManoloBoomerez-0.13.0-portable.exe`. Los ejecutables de `desktop/dist/` son artefactos ignorados por Git y se conservan.
 - Arte: **198 done, 62 requested y 1 blocked** en el manifiesto. Es la cola de recursos existente, no un bloqueo de la entrega de código.
 - Trabajo realizado en `main`, mediante commits locales. **No se ha hecho push**. Código, pruebas y documentación de cada entrega se guardan conjuntamente.
 - El usuario autorizó continuar código y decidir el equilibrio por entregas. La antigua vigilancia autónoma de arte de ocho horas ya terminó; no reiniciarla.
 
 ---
+
+# Continuación 0.13.0 — Plan de operaciones (26-10-2026)
+
+El usuario invocó be-ambitious y pidió continuar desarrollo, con detalles delegados. Entrega centrada en anticipar inversiones del imperio:
+
+- **Empresa → Imperio → Plan de operaciones**, disponible sin informe previo. Reúne obras por entregar, viviendas pendientes y reserva estimada de renovaciones desde hoy hasta el mes actual+12 inclusive.
+- `core/operations.js`: consulta pura de edificios, fechas, costes de reposición y `workforcePlan` por mes y ciudad. Las viviendas solo entran a partir de entrega; obras del mismo mes se evalúan juntas. Franquicias sin puestos centrales. Detecta riesgos de empleo también sin obras por estacionalidad (p. ej. gimnasio enero), con primera falta y pico por ciudad. No completa I+D ni cambia mercado/políticas/condiciones; mantiene condiciones actuales y cambia calendario, expresamente explicado en UI.
+- Renovación en máximo de hoy/entrega/fecha debida: incluye vencidas y excluye posteriores al horizonte, una vez por inmueble. Reserva estimada, no proyección de caja ni cobro. Descubierto sin renovaciones no inventa aviso de reserva; regresión roja/verde.
+- `ui/operations.js` presenta bloque compacto con detalles: riesgos abiertos si existen, agenda plegada, enlaces a ciudad y Viviendas. No añade menús ni estado de guardado. Ayuda/README documentados. La economía y el contenido anterior siguen intactos.
+
+Validación: **279/279 Node +25/25 DOM**. Edge 1365×900,375×812,320×812: agenda, cambio de año, enlaces a ciudades/Viviendas, nueva promoción, recarga y conteos; sin errores/desbordamiento, capturas inspeccionadas. Simulación comparativa de24meses consultando solo una de dos copias idénticas: estado/RNG exactos mes a mes y una renovación real. Consulta200negocios ~6ms; revisión independiente sin hallazgos y pruebas adicionales hasta2.000negocios (~134ms) en esta máquina. Sintaxis/diff correctos.
+
+Build definitivo y smoke desempaquetado/portable correctos (salida 0). Fuentes copiadas coinciden con las revisadas y dependencias intactas. Portable `desktop/dist/ManoloBoomerez-0.13.0-portable.exe`. Sin push ni modificación del perfil real. Plan y registro: `docs/superpowers/plans/2026-10-26-plan-operaciones.md`.
 
 # Continuación 0.12.1 — Revisión de navegación y skill (26-10-2026)
 

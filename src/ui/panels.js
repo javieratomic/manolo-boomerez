@@ -1,4 +1,5 @@
 import {workforcePlan} from '../core/workforce.js';
+import {renderOperations} from './operations.js';
 import {ONLINE_LEVELS,ONLINE_SHIPPING} from '../data/online.js';
 import {canOpenOnline,canUpgradeOnline} from '../core/online.js';
 import {campaignPlan,marketingTerritories,campaignSelection} from '../core/marketing.js';
@@ -433,6 +434,7 @@ export function renderEmpire(s) {
     <div><span class="muted small">Beneficio último mes</span><b class="${r ? cls(r.net) : ''}">${r ? moneyShort(r.net) : '—'}</b></div>
   </div>`;
   html += renderAdvice(s);
+  html += renderOperations(s);
   if (!r) return html;
   html += `<div class="card"><h4>Ingresos por sector</h4>
     <canvas id="chart-cat" height="170"></canvas>

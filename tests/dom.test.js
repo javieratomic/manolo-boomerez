@@ -8,6 +8,38 @@ import { newGame } from '../src/core/state.js';
 import { resolvePending } from '../src/core/sim.js';
 import { renderManolo, renderCity, renderEmpire, renderMarket, renderResearch, renderMarketing, renderInternational, renderOnline, renderResidences, renderBenefits, renderStaff } from '../src/ui/panels.js';
 
+test('DOM: Imperio muestra plan de operaciones antes del primer cierre sin cambiar la partida',()=>{
+ const s=newGame(42);resolvePending(s,0);const before=JSON.stringify(s);
+ const el=document.createElement('div');el.innerHTML=renderEmpire(s);
+ assert(el.querySelector('.operations-plan'),'Plan presente sin informe');assert(el.textContent.includes('Plan de operaciones'));
+ assert(el.textContent.includes('Sin entregas ni renovaciones'));assertEq(JSON.stringify(s),before);
+});
+
+test('DOM: operaciones muestra fechas, viviendas reales, riesgos y enlaces de gestión',async()=>{
+ const {renderOperations}=await import('../src/ui/operations.js');
+ const s=newGame(42);resolvePending(s,0);s.month=11;s.obrador.expansions=10;
+ s.businesses=[{id:1,type:'vivienda',housingForm:'apartamentos',city:'selaya',mode:'propia',level:1,value:2e6,readyMonth:23,renewalMonth:203},{id:2,type:'vivienda',housingForm:'chalets',city:'madrid',mode:'propia',level:1,value:3e6,readyMonth:0,renewalMonth:12}];
+ const el=document.createElement('div');el.innerHTML=renderOperations(s);
+ assertEq(el.querySelectorAll('.operations-metrics b')[1].textContent,'25');assert(el.textContent.includes('viviendas pendientes'));assert(el.textContent.includes('Diciembre 2027'));assert(el.textContent.includes('Enero 2027'));
+ assert(el.querySelector('.operations-risks[open]'));assert(el.querySelector('[data-tab="viviendas"]'));assert(el.querySelector('[data-city="madrid"]'));
+ assert(el.textContent.includes('condiciones actuales'));assert(el.textContent.includes('no es una previsión de caja'));
+ assertEq(el.querySelectorAll('.operations-event').length,2);
+});
+
+test('DOM: agenda de operaciones se mantiene plegada y no ofrece cobros ni acciones nuevas',async()=>{
+ const {renderOperations}=await import('../src/ui/operations.js');
+ const s=newGame(42);resolvePending(s,0);s.businesses=[{id:1,type:'vivienda',housingForm:'chalets',city:'selaya',mode:'propia',level:1,value:3e6,readyMonth:12,renewalMonth:192}];
+ const el=document.createElement('div');el.innerHTML=renderOperations(s);
+ assert(!el.querySelector('.operations-agenda').open);assert(!el.querySelector('.operations-risks'));
+ assert([...el.querySelectorAll('[data-act]')].every(x=>['tab','goto-city'].includes(x.dataset.act)));
+});
+
+test('DOM: descubierto sin renovaciones no inventa una reserva pendiente',async()=>{
+ const {renderOperations}=await import('../src/ui/operations.js');
+ const s=newGame(42);resolvePending(s,0);s.cash=-1000;
+ assert(!renderOperations(s).includes('La caja actual no cubriría'));
+});
+
 test('DOM: la pestaña Manolo muestra la edad del mes actual', () => {
   const s = newGame(42);
   resolvePending(s, 0);

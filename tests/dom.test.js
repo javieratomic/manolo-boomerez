@@ -8,6 +8,34 @@ import { newGame } from '../src/core/state.js';
 import { resolvePending } from '../src/core/sim.js';
 import { renderManolo, renderCity, renderEmpire, renderMarket, renderResearch, renderMarketing, renderInternational, renderOnline, renderResidences, renderBenefits, renderStaff,renderFinance } from '../src/ui/panels.js';
 
+test('DOM: alternativas de apertura ofrecen Resistencia sin comprar y conservan ciudad y modalidad',async()=>{
+ const {renderOpportunities}=await import('../src/ui/opportunities.js');const s=newGame(42);resolvePending(s,0);s.cash=1e7;
+ const el=document.createElement('div');el.innerHTML=renderOpportunities(s,{query:'Madrid',mode:'both'});
+ assertEq(el.querySelectorAll('[data-act="opening-stress"]').length,2);
+ assert(el.querySelector('[data-act="opening-stress"][data-city="madrid"][data-mode="franquicia"]'));
+});
+
+test('DOM: Finanzas compara una apertura como Abrir, separa canon y vuelve a Aperturas',async()=>{
+ const {openingPlan}=await import('../src/core/opportunities.js');const s=newGame(42);resolvePending(s,0);s.cash=1e7;
+ const choice={type:'express',city:'madrid',mode:'franquicia'},quote=openingPlan(s,choice),before=JSON.stringify(s);
+ const el=document.createElement('div');el.innerHTML=renderFinance(s,{view:'stress',operation:'opening',choice,quote});
+ assertEq(el.querySelectorAll('.stress-comparison').length,4);assert(el.textContent.includes('Canon'));assert(el.textContent.includes('Madrid'));assert(el.textContent.includes('Abrir'));
+ assert(el.querySelector('[data-act="stress-opening"]'));assert(!el.querySelector('[data-act="stress-portfolio"]'));assertEq(JSON.stringify(s),before);
+});
+
+test('DOM: pérdidas del nuevo franquiciado se muestran separadas de liquidez central',async()=>{
+ const {renderStress}=await import('../src/ui/stress.js');const s=newGame(42);resolvePending(s,0);s.cash=1e7;
+ s.businesses=Array.from({length:6},(_,i)=>({id:i+1,type:'express',city:'selaya',mode:'franquicia',fee:25000,level:1,value:0}));s.nextId=7;
+ const el=document.createElement('div');el.innerHTML=renderStress(s,{type:'express',city:'selaya',mode:'franquicia'},null,'opening');
+ assert(el.querySelector('.stress-owner-warning'));assert(el.querySelector('.stress-owner-warning').textContent.includes('4 de 4'));assert(el.textContent.includes('Resultado del nuevo franquiciado'));
+});
+
+test('DOM: retorno explícito de estudio conserva la marca anterior bloqueada, sin sustituirla',async()=>{
+ const {renderOpportunities}=await import('../src/ui/opportunities.js');const s=newGame(42);resolvePending(s,0);s.cash=1e7;s.brand='maison';
+ const el=document.createElement('div');el.innerHTML=renderOpportunities(s,{type:'express',preserveType:true,query:'Madrid',mode:'franquicia',showBlocked:true});
+ assertEq(el.querySelector('[data-key="type"]').value,'express');assert(el.querySelector('[data-type="express"][data-act="opening-review"]:disabled'));assert(el.textContent.includes('Esa no es tu marca'));
+});
+
 test('DOM: Imperio ofrece Aperturas como subvista corta, sin añadir otra lista al resumen',()=>{
  const s=newGame(42);resolvePending(s,0);const before=JSON.stringify(s);
  const el=document.createElement('div');el.innerHTML=renderEmpire(s,{view:'openings',openings:{query:'Madrid'}});

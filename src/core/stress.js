@@ -3,6 +3,7 @@ import {computeEconomy} from './economy.js';
 import {renovationSchedule} from './construction.js';
 import {upgradeBatchPlan,upgradeBatch} from './portfolio.js';
 import {saleBatchPlan,saleBatch} from './divestment.js';
+import {openingPlan,executeOpening,openingIntent} from './opportunities.js';
 
 export const STRESS_SCENARIOS=[
  {id:'current',label:'Condiciones actuales',demand:1,wages:1,description:'El mismo mes, sin cambios de demanda ni salarios.'},
@@ -10,7 +11,7 @@ export const STRESS_SCENARIOS=[
  {id:'wages',label:'Salario base +10 %',demand:1,wages:1.1,description:'Sube la base salarial de la plantilla ordinaria. Las becas y los sueldos fijos de directivos se mantienen.'},
  {id:'combined',label:'Ambos cambios',demand:.85,wages:1.1,description:'Combina menos demanda comercial y mayor salario base; producción y personal se recalculan juntos.'},
 ];
-function scenario(state,assumption) {
+function scenario(state,assumption,franchiseId=null) {
  const c=structuredClone(state);
  if(assumption.demand!==1)c.mods.push({kind:'revenue',factor:assumption.demand,months:1,label:'Supuesto de demanda'});
  c.wageIndex=(c.wageIndex||1)*assumption.wages;
@@ -19,21 +20,25 @@ function scenario(state,assumption) {
  const closingCash=c.cash+r.net,reserve=3*payroll+renewalsFuture,margin=closingCash-reserve;
  return {net:r.net,revenue:r.revenue,foreignRevenue:r.lines.filter(l=>l.foreign).reduce((n,l)=>n+l.revenue,0),
   closingCash,payroll,renewalsNow:r.costs.renovaciones,renewalsFuture,reserve,margin,
-  employees:r.employees,fill:r.fill,status:closingCash<0?'deficit':margin<0?'thin':'covered'};
+  employees:r.employees,fill:r.fill,franchiseeProfit:franchiseId==null?null:r.lines.find(l=>l.id===franchiseId)?.franchiseeProfit??null,
+  status:closingCash<0?'deficit':margin<0?'thin':'covered'};
 }
-export function stressReport(s,ids=[],expectedItems=null,operation='upgrade') {
- let comparison=null,alternative=null;
- if(!Array.isArray(ids)||ids.length){
-  comparison=(operation==='sale'?saleBatchPlan:upgradeBatchPlan)(s,ids);
-  if(comparison.ok&&expectedItems&&JSON.stringify(comparison.items)!==JSON.stringify(expectedItems))comparison={...comparison,ok:false,msg:'Los negocios o niveles del lote han cambiado. Vuelve a seleccionarlo en la cartera.'};
+export function stressReport(s,selection=[],expectedItems=null,operation='upgrade') {
+ let comparison=null,alternative=null,franchiseId=null;
+ const opening=operation==='opening',requested=opening?selection!=null&&(!Array.isArray(selection)||selection.length>0):!Array.isArray(selection)||selection.length;
+ if(requested){
+  comparison=(opening?openingPlan:operation==='sale'?saleBatchPlan:upgradeBatchPlan)(s,selection);
+  const changed=comparison.ok&&expectedItems&&(opening?openingIntent(comparison)!==openingIntent(expectedItems):JSON.stringify(comparison.items)!==JSON.stringify(expectedItems));
+  if(changed)comparison={...comparison,ok:false,msg:opening?'La apertura o su cotización han cambiado. Vuelve a elegirla en Aperturas.':'Los negocios o niveles del lote han cambiado. Vuelve a seleccionarlo en la cartera.'};
   if(comparison.ok){
    alternative=structuredClone(s);
-   const applied=(operation==='sale'?saleBatch:upgradeBatch)(alternative,ids,comparison);
+   const applied=(opening?executeOpening:operation==='sale'?saleBatch:upgradeBatch)(alternative,selection,comparison);
    if(!applied.ok){comparison=applied;alternative=null;}
+   else if(opening&&comparison.choice.mode==='franquicia')franchiseId=comparison.businessId;
   }
  }
  const rows=STRESS_SCENARIOS.map(assumption=>{
-  const current=scenario(s,assumption),investment=alternative?scenario(alternative,assumption):null;
+  const current=scenario(s,assumption),investment=alternative?scenario(alternative,assumption,franchiseId):null;
   return {id:assumption.id,current,investment,deltaNet:investment?investment.net-current.net:null};
  });
  return {month:s.month,comparison,rows,operation};

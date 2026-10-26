@@ -1,14 +1,28 @@
 # Estado para el siguiente agente (26-10-2026)
 
-- Versión actual: **0.17.0**, comparador de aperturas inmediatas. Entrega anterior `9335ae9` (reestructuración0.16), `c0b1dd9` (resistencia0.15), `e9a5ab4` (cartera0.14).
+- Versión actual: **0.18.0**, Resistencia de nuevas aperturas. Entrega anterior `a788cc7` (aperturas0.17), `9335ae9` (reestructuración0.16), `c0b1dd9` (resistencia0.15).
 - Las peticiones de código recibidas hasta esta entrega están implementadas y verificadas. No queda implementación de esta sesión pendiente. Los apartados siguientes documentan cada entrega; los diagnósticos antiguos se conservan como historial y no deben reabrirse sin reproducirlos en la versión actual.
-- Última validación: **316 pruebas Node y42 DOM**, más aperturas propias/franquicias, cláusula, cotización/cancelación/guardado en escritorio y móviles375/320px. Se conservan costes y reglas de apertura individuales.
-- Portable actual: `desktop/dist/ManoloBoomerez-0.17.0-portable.exe`. Los ejecutables de `desktop/dist/` son artefactos ignorados por Git y se conservan.
+- Última validación: **321 pruebas Node y46 DOM**, más estudio/retorno/propietario/marca anterior/apertura y recorrido0.17 en escritorio y móviles375/320px. Sin cambios de reglas económicas ni guardados.
+- Portable actual: `desktop/dist/ManoloBoomerez-0.18.0-portable.exe`. Los ejecutables de `desktop/dist/` son artefactos ignorados por Git y se conservan.
 - Arte: **198 done, 62 requested y 1 blocked** en el manifiesto. Es la cola de recursos existente, no un bloqueo de la entrega de código.
 - Trabajo realizado en `main`, mediante commits locales. **No se ha hecho push**. Código, pruebas y documentación de cada entrega se guardan conjuntamente.
 - El usuario autorizó continuar código y decidir el equilibrio por entregas. La antigua vigilancia autónoma de arte de ocho horas ya terminó; no reiniciarla.
 
 ---
+
+# Continuación 0.18.0 — Resistencia de nuevas aperturas (26-10-2026)
+
+Usuario delegó siguiente mejora con be-ambitious: unir el comparador de nuevas aperturas y el análisis de Resistencia.
+
+- En **Imperio → Aperturas**, Probar escenarios en tarjeta o como tercera opción de la revisión lleva elección/cotización a **Finanzas → Resistencia**, sin abrir. Compara Mantener/Abrir bajo los cuatro supuestos ya existentes. Volver a Aperturas conserva tipo, ciudad y modalidad, mostrando bloqueadas si corresponde; desde Resistencia sin estudio también se puede ir al comparador.
+- `stressReport(s,selection,expectedItems,operation)` conserva firmas anteriores. Con operation opening, selection es elección type/city/mode y expectedItems es cotización. Aplica executeOpening en copia, con canon/desembolso/premios y efectos de objetivos/cláusula antes del supuesto. Caja se modifica una vez; canon/premios no se suman al neto mensual. openingIntent ancla elección/businessId previsto/coste/canon/premios, permitiendo recalcular mes/condiciones si la intención no cambió. Si ya abriste otro negocio o cambió cotización, baseline+aviso, sin proponer silenciosamente segunda tienda.
+- Nueva franquicia expone `rows[i].investment.franchiseeProfit` por escenario; null en mantener y operaciones que no estudian nueva franquicia. Tabla y aviso de pérdidas del dueño separados del colchón de la central. Conteo de supuestos no son probabilidades ni meses simulados. No se ejecuta desde Resistencia; revisión/confirmación normal de Aperturas mantiene guardia completa y clauseOk.
+- UI temporal en game.finance.choice/quote, reseteada al cargar/quitar comparación; sin nuevo esquema. Foco al ir/volver, modalidad y datos restaurados. Footer ahora aclara que cada alternativa incluye efectos inmediatos de su operación, como objetivos, antes de congelar condiciones del cierre.
+- P2 de revisión: tras cambiar de Express a Maison, retorno descartaba Express y enseñaba Maison. Corregido con preserveType solo en retorno explícito: selector conserva marca anterior bloqueada con motivo, y elegir tipo manualmente limpia esa intención. Normalización ordinaria de rebranding0.17 intacta. Regresión DOM roja/verde y prueba real3tamaños, P2 cerrado.
+
+Verificación: **321/321 Node +46/46 DOM**, sintaxis/diff correctos. Edge1365×900,375×812,320×812: ambas vías de estudio, pureza de partida/cupón/cláusula, cuatro comparaciones y dueño en pérdidas4de4 con colchón central cubierto, retornar/limpiar, cambio de marca conservado bloqueado y selección explícita nueva, cancelar, firmar una sola franquicia+25.000€, estudio anterior invalidado y recarga. Sin errores/desbordamiento, capturas inspeccionadas. Recorrido anterior0.17 con aperturas propias/franquicias, cotizaciones caducadas y ambas decisiones de cláusula vuelve a pasar en3tamaños.
+
+Simulación24meses con/sin consultar conserva estado/RNG exactos. Informe de apertura con200negocios~36ms en esta máquina. Revisión independiente P2 cerrado y sin hallazgos adicionales; cubre compatibilidad, premios y canon una vez y propietario. Ayuda/README actualizados. Build definitivo y smoke desempaquetado/portable correctos (salida0), fuentes coincidentes y dependencias intactas. Migración0.17→0.18 conserva caja/neto/RNG. Portable `desktop/dist/ManoloBoomerez-0.18.0-portable.exe`. Sin push ni alteración de perfil real. Plan/registro `docs/superpowers/plans/2026-10-26-resistencia-aperturas.md`.
 
 # Continuación 0.17.0 — Comparador de aperturas (26-10-2026)
 

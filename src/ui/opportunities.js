@@ -2,10 +2,18 @@ import {openingOpportunities,immediateOpeningTypes} from '../core/opportunities.
 import {BUSINESS_TYPES} from '../data/businesses.js';
 import {CITY_BY_ID} from '../data/cities.js';
 import {sobaoTypeId} from '../core/actions.js';
+import {buildMonths} from '../core/construction.js';
 import {dateLabel,money,moneyShort} from '../core/helpers.js';
 import {esc} from './dom.js';
 const signed=n=>`${n>=0?'+':''}${moneyShort(n)}`;
 const tone=n=>n<0?'neg':'pos';
+export function renderOpeningStudy(p) {
+ const franchise=p.choice.mode==='franquicia';
+ return `<b>Apertura en estudio: ${esc(BUSINESS_TYPES[p.choice.type].name)} · ${esc(CITY_BY_ID[p.choice.city].name)} · ${franchise?'Franquicia':'Propia'}</b>
+  <p>${franchise?'Canon que recibirías':'Desembolso'}: ${money(franchise?p.fee:p.cost)}.${p.goalCash?` Premios de objetivos: ${signed(p.goalCash)}.`:''}</p>
+  <p class="small">La columna Abrir incorpora esos cobros y pagos una sola vez, antes de calcular el cierre. Todavía no se ha abierto ningún negocio.</p>
+  ${p.clauseBreaks?'<p class="small warn">Esta apertura rompería la cláusula del testamento. Estudiarla no cambia la partida; la confirmación real conserva su aviso.</p>':''}`;
+}
 export function renderOpeningReview(p) {
  const franchise=p.choice.mode==='franquicia';
  return `<p><b>${esc(BUSINESS_TYPES[p.choice.type].name)} · ${esc(CITY_BY_ID[p.choice.city].name)}</b><br>${franchise?'Franquicia':'Local propio'} · apertura inmediata.</p>
@@ -21,7 +29,9 @@ export function renderOpeningReview(p) {
   <p class="small muted">Incluye costes generales, impuestos, mantenimiento y cambios compartidos en producción, personal y sinergias. Canon y premios no son beneficio mensual. Es una alternativa independiente con las condiciones actuales; no garantiza resultados futuros.</p>`;
 }
 export function renderOpportunities(s,settings={}) {
- const types=immediateOpeningTypes(s),type=types.some(t=>t.id===settings.type)?settings.type:sobaoTypeId(s),franchisable=BUSINESS_TYPES[type].category==='sobaos';
+ const types=immediateOpeningTypes(s),requested=BUSINESS_TYPES[settings.type];
+ if(settings.preserveType&&requested&&!buildMonths(requested.id)&&!types.some(t=>t.id===requested.id))types.push({id:requested.id,name:`${requested.name} · marca anterior`,enabled:false});
+ const type=types.some(t=>t.id===settings.type)?settings.type:sobaoTypeId(s),franchisable=BUSINESS_TYPES[type].category==='sobaos';
  const filters={...settings,type,mode:franchisable?(settings.mode||'both'):'propia'},p=openingOpportunities(s,filters);
  const page=Math.max(0,Math.min(Number.isInteger(settings.page)?settings.page:0,Math.max(0,Math.ceil(p.rows.length/10)-1))),rows=p.rows.slice(page*10,(page+1)*10);
  const select=(key,label,options)=>`<label>${label}<select data-act="opening-filter" data-key="${key}">${options.map(x=>`<option value="${esc(x.id)}" ${x.id===(filters[key]||'all')?'selected':''} ${x.enabled===false?'disabled':''}>${esc(x.name)}${x.enabled===false?' (bloqueado)':''}</option>`).join('')}</select></label>`;
@@ -38,7 +48,7 @@ export function renderOpportunities(s,settings={}) {
    ${r.ok?`<p class="small">Cambio neto de la empresa: <b class="${tone(r.deltaNet)}">${signed(r.deltaNet)}/mes</b>. Cobertura: ${Math.round(r.after.fill*100)} %.</p>
     ${r.choice.mode==='franquicia'?`<p class="small">Resultado del dueño: <b class="${tone(r.franchiseeProfit)}">${signed(r.franchiseeProfit)}/mes</b>${r.franchiseeProfit<0?' · riesgo de pérdidas':''}.</p>`:''}
     ${r.clauseBreaks?'<p class="small warn">Rompería la cláusula del testamento.</p>':''}`:`<p class="small warn">${esc(r.msg)}</p>`}
-   <button class="btn small" data-act="opening-review" data-type="${r.choice.type}" data-city="${r.choice.city}" data-mode="${r.choice.mode}" ${r.ok?'':'disabled'}>Revisar apertura</button>
+   <button class="btn small" data-act="opening-review" data-type="${r.choice.type}" data-city="${r.choice.city}" data-mode="${r.choice.mode}" ${r.ok?'':'disabled'}>Revisar apertura</button> <button class="btn small" data-act="opening-stress" data-type="${r.choice.type}" data-city="${r.choice.city}" data-mode="${r.choice.mode}" ${r.ok?'':'disabled'}>Probar escenarios</button>
   </div>`).join('')||'<p class="small muted">No hay alternativas disponibles con estos filtros. Activa Mostrar bloqueadas para consultar motivos.</p>'}
   <div class="portfolio-tools"><button class="btn small" data-act="opening-page" data-direction="previous" data-page="${page-1}" ${page>0?'':'disabled'}>Anterior</button><span class="small">Página ${page+1} de ${Math.max(1,Math.ceil(p.rows.length/10))}</span><button class="btn small" data-act="opening-page" data-direction="next" data-page="${page+1}" ${(page+1)*10<p.rows.length?'':'disabled'}>Siguiente</button></div>
   <p class="small muted">La mejora neta corresponde a toda la empresa, con producción y costes compartidos. Las obras con plazo se gestionan desde Ciudad y Viviendas; aquí se comparan negocios que entran en servicio al momento.</p></div>`;

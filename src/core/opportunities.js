@@ -29,6 +29,8 @@ export function openingPlan(s,input) {
  };
 }
 const quotation=p=>JSON.stringify({choice:p.choice,month:p.month,businessId:p.businessId,cost:p.cost,fee:p.fee,before:p.before,after:p.after,goalCash:p.goalCash,franchiseeProfit:p.franchiseeProfit,clauseBreaks:p.clauseBreaks});
+// Ancla del estudio: conserva qué apertura y qué precio se estaban valorando, no el mes simulado.
+export const openingIntent=p=>JSON.stringify({type:p?.choice?.type,city:p?.choice?.city,mode:p?.choice?.mode,businessId:p?.businessId,cost:p?.cost,fee:p?.fee,goalCash:p?.goalCash});
 export function executeOpening(s,choice,reviewedPlan=null) {
  const p=openingPlan(s,choice);if(!p.ok)return p;
  if(reviewedPlan&&quotation(p)!==quotation(reviewedPlan))return {ok:false,msg:'La apertura ha cambiado. Revisa la nueva cotización antes de confirmar.'};

@@ -144,6 +144,7 @@ function startGame(s) {
   game.marketingSelection={};
   game.panelScroll={};game.renderedPanel=null;game.lastTabs={};game.researchFilters={status:'pending',category:'all'};
   game.empire={view:'summary',filters:{},selected:[],page:0};game.portfolioReviewOpen=false;
+  game.finance={view:'balance',ids:[],items:null};
   game.bubble = null;
   game.city = HQ_CITY;
   game.tab = 'ciudad';
@@ -271,7 +272,7 @@ function renderPanel(s) {
     direccion:()=>renderManagement(s),
     beneficios:()=>renderBenefits(s),
     plantilla: () => renderStaff(s),
-    finanzas: () => renderFinance(s),
+    finanzas: () => renderFinance(s,game.finance),
     manolo: () => renderManolo(s),
     noticias: () => renderNews(s),
   };
@@ -288,6 +289,10 @@ function renderPanel(s) {
     el?.focus({preventScroll:true});
     if(el&&focus.act==='portfolio-search'&&focus.start!=null)el.setSelectionRange(focus.start,focus.end);
   }
+  if(game.tab==='finanzas'&&['finance-view','stress-current','portfolio-stress'].includes(focus?.act)){
+    body.querySelector(`[data-act="finance-view"][data-view="${focus.act==='finance-view'?focus.view:'stress'}"]`)?.focus({preventScroll:true});
+  }
+  if(game.tab==='imperio'&&focus?.act==='stress-portfolio')body.querySelector('[data-act="empire-view"][data-view="portfolio"]')?.focus({preventScroll:true});
   if (game.tab === 'finanzas') drawChart($('#chart'), s);
   if (game.tab === 'imperio') drawCategoryChart($('#chart-cat'), s);
   const btn = $('#end-month');
@@ -433,6 +438,23 @@ async function onClick(e) {
   e.preventDefault();
   let res = null;
   switch (act) {
+    case 'finance-view':
+      game.finance.view=el.dataset.view;game.resetPanelScroll=true;
+      break;
+    case 'portfolio-stress': {
+      const ids=portfolioSelection(portfolio(s,game.empire.filters).rows,game.empire.selected);
+      if(!ids.length){res={ok:false,msg:'Selecciona negocios reformables en la cartera.'};break;}
+      const quote=upgradeBatchPlan(s,ids);
+      game.finance={view:'stress',ids,items:quote.ok?quote.items:null};game.tab='finanzas';game.resetPanelScroll=true;
+      break;
+    }
+    case 'stress-current':
+      game.finance.ids=[];game.finance.items=null;game.resetPanelScroll=true;
+      break;
+    case 'stress-portfolio':
+      if(game.finance.ids.length){game.empire.filters={};game.empire.selected=portfolioSelection(portfolio(s).rows,game.finance.ids);game.empire.page=0;}
+      game.empire.view='portfolio';game.tab='imperio';game.resetPanelScroll=true;
+      break;
     case 'empire-view':
       game.empire.view=el.dataset.view;game.resetPanelScroll=true;
       break;

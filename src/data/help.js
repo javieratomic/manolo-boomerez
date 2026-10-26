@@ -20,6 +20,7 @@ export const HELP_PAGES = [
         <li>🏪 <b>Imperio → Cartera y reformas:</b> filtra por ciudad, país, sector o estado y selecciona varios negocios. Revisa el coste y el efecto conjunto de las reformas antes de confirmar; falta de fondos o vivienda bloquea todo el lote.</li>
         <li>🔨 <b>Reformas</b> en cada ciudad; <b>campañas</b> en Expansión → Marketing e <b>I+D</b> en su menú propio. La venta online y los acuerdos exteriores también tienen pantalla propia en Expansión. Cuantos más negocios, más estructura central.</li>
         <li>🏦 La <b>póliza</b> de la Caja Cantábrica cubre los descubiertos; tres meses sin margen es concurso de acreedores.</li>
+        <li>🧭 <b>Finanzas → Resistencia</b> comprueba demanda menor y salario base mayor. Desde la cartera puedes enviar un lote con <b>Probar escenarios</b>, sin comprarlo. Compara la caja tras el cierre con tres nóminas y renovaciones futuras; ese colchón es orientativo y no bloquea dinero.</li>
         <li>🔔 Con 3 años de cuentas y una valoración de empresa de al menos 1.000 M€ puedes <b>salir a Bolsa</b>: luego cada trimestre prometes una cifra a los analistas.</li>
       </ul>`,
   },

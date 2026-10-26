@@ -38,6 +38,8 @@ En **Empresa → Imperio → Plan de operaciones** puedes anticipar las entregas
 
 En **Imperio → Cartera y reformas** puedes buscar y filtrar los negocios actuales por país, sector o estado, con diez por página y cuentas separadas de los franquiciados. Selecciona reformas entre páginas o todo un filtro y revisa su coste y efecto conjunto sobre el resultado mensual de la empresa. El lote se aplica completo o no se cobra nada; cambiar filtros limpia la selección. El informe del último cierre sigue disponible, plegado en Resumen.
 
+**Finanzas → Resistencia** compara condiciones actuales, demanda comercial −15 %, salario base +10 % y ambos cambios. Desde la cartera, **Probar escenarios** añade un lote sin ejecutarlo. Muestra beneficio y caja tras un cierre antes de financiación, más un colchón orientativo de tres nóminas y renovaciones de los doce meses posteriores. Las renovaciones del mes ya están en el resultado y no se suman otra vez al colchón. Los supuestos no tienen probabilidades, no avanzan tiempo ni cambian el mercado; contratos y regalías conservan sus condiciones, becas y sueldos fijos no se indexan. Un lote cuyo nivel ya cambió requiere seleccionarlo de nuevo.
+
 | Área | Menús |
 |---|---|
 | Empresa | Ciudad, Imperio, Mercado, Finanzas |

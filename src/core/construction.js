@@ -16,6 +16,11 @@ export function renovationCost(b) {
  return Math.round(base*(0.25+c.rent/1.2)*0.2);
 }
 export const renewalDue=(s,b)=>isResidential(b)&&isOperating(s,b)&&Number.isInteger(b.renewalMonth)&&s.month>=b.renewalMonth;
+export function renovationSchedule(s) {
+ return s.businesses.filter(b=>isResidential(b)&&Number.isInteger(b.renewalMonth)).map(b=>({
+  id:b.id,city:b.city,type:b.type,name:businessName(b),month:Math.max(s.month,b.renewalMonth,b.readyMonth??s.month),cost:renovationCost(b),
+ })).filter(x=>x.month<=s.month+12).sort((a,b)=>a.month-b.month||a.id-b.id);
+}
 export function applyRenovations(s,report,silent=false) {
  for(const charge of report.renovations||[]) {
   const b=s.businesses.find(x=>x.id===charge.id);if(!b||!renewalDue(s,b))continue;

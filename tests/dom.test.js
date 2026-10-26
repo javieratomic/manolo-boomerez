@@ -6,7 +6,32 @@ import { test, assert, assertEq } from './runner.js';
 import { showModal, isModalOpen } from '../src/ui/dom.js';
 import { newGame } from '../src/core/state.js';
 import { resolvePending } from '../src/core/sim.js';
-import { renderManolo, renderCity, renderEmpire, renderMarket, renderResearch, renderMarketing, renderInternational, renderOnline, renderResidences, renderBenefits, renderStaff } from '../src/ui/panels.js';
+import { renderManolo, renderCity, renderEmpire, renderMarket, renderResearch, renderMarketing, renderInternational, renderOnline, renderResidences, renderBenefits, renderStaff,renderFinance } from '../src/ui/panels.js';
+
+test('DOM: Finanzas ofrece resistencia sin informe previo y explica supuestos sin probabilidades',()=>{
+ const s=newGame(42);resolvePending(s,0);const before=JSON.stringify(s);
+ const el=document.createElement('div');el.innerHTML=renderFinance(s,{view:'stress',ids:[]});
+ assertEq(el.querySelectorAll('.stress-scenario').length,4);assert(!el.querySelector('#chart'));assert(el.textContent.includes('No son probabilidades'));assert(el.textContent.includes('tres nóminas'));assert(el.querySelector('[data-act="finance-view"]'));assertEq(JSON.stringify(s),before);
+});
+
+test('DOM: comparación de resistencia identifica lote sin botones que ejecuten inversiones',async()=>{
+ const {renderStress}=await import('../src/ui/stress.js');const s=newGame(42);resolvePending(s,0);s.cash=1e7;
+ s.businesses=[{id:1,type:'express',city:'madrid',mode:'propia',level:1,value:3e4}];
+ const el=document.createElement('div');el.innerHTML=renderStress(s,[1]);
+ assert(el.querySelector('.stress-lot'));assert(el.textContent.includes('Madrid'));assert(el.textContent.includes('nivel 1 → 2'));
+ assertEq(el.querySelectorAll('.stress-comparison').length,4);assert(!el.querySelector('[data-act="portfolio-review"]'));assert(el.querySelector('[data-act="stress-current"]'));assert(el.querySelector('[data-act="stress-portfolio"]'));
+});
+
+test('DOM: lote de resistencia obsoleto deja ver las cuentas actuales',async()=>{
+ const {renderStress}=await import('../src/ui/stress.js');const s=newGame(42);resolvePending(s,0);
+ const el=document.createElement('div');el.innerHTML=renderStress(s,[999]);
+ assert(el.querySelector('.stress-invalid'));assertEq(el.querySelectorAll('.stress-scenario').length,4);assertEq(el.querySelectorAll('.stress-comparison').length,0);
+});
+
+test('DOM: cartera permite probar escenarios del lote válido antes de comprar',async()=>{
+ const {renderPortfolio}=await import('../src/ui/portfolio.js');const s=newGame(42);resolvePending(s,0);s.cash=1e7;s.businesses=[{id:1,type:'express',city:'madrid',mode:'propia',level:1,value:3e4}];
+ const el=document.createElement('div');el.innerHTML=renderPortfolio(s,{selected:[1]});assert(el.querySelector('[data-act="portfolio-stress"]'));assert(!el.querySelector('[data-act="portfolio-stress"]').disabled);
+});
 
 test('DOM: cartera es una subvista de Imperio y limita la página a diez negocios sin informe',()=>{
  const s=newGame(42);resolvePending(s,0);s.businesses=Array.from({length:23},(_,i)=>({id:i+1,type:'express',city:'madrid',mode:'propia',level:1,value:3e4}));

@@ -1,6 +1,7 @@
 import {workforcePlan} from '../core/workforce.js';
 import {renderOperations} from './operations.js';
 import {renderPortfolio} from './portfolio.js';
+import {renderStress} from './stress.js';
 import {ONLINE_LEVELS,ONLINE_SHIPPING} from '../data/online.js';
 import {canOpenOnline,canUpgradeOnline} from '../core/online.js';
 import {campaignPlan,marketingTerritories,campaignSelection} from '../core/marketing.js';
@@ -745,10 +746,12 @@ function renderCartilla(s) {
   </div>`;
 }
 
-export function renderFinance(s) {
+export function renderFinance(s,settings={}) {
+  const views=`<div class="card empire-views" role="group" aria-label="Vista de Finanzas"><button class="btn small ${settings.view!=='stress'?'primary':''}" data-act="finance-view" data-view="balance" aria-pressed="${settings.view!=='stress'}">Balance y financiación</button><button class="btn small ${settings.view==='stress'?'primary':''}" data-act="finance-view" data-view="stress" aria-pressed="${settings.view==='stress'}">Resistencia</button></div>`;
+  if(settings.view==='stress')return views+renderStress(s,settings.ids||[],settings.items);
   const r = s.lastReport;
   const limit = creditLimit(s);
-  let html = renderEuropeanGoal(s)+`<div class="card kpis">
+  let html = views+renderEuropeanGoal(s)+`<div class="card kpis">
     <div><span class="muted small">Caja</span><b class="${cls(s.cash)}">${moneyShort(s.cash)}</b></div>
     <div><span class="muted small">Deuda</span><b>${moneyShort(s.debt)}</b></div>
     <div><span class="muted small">Límite de crédito</span><b>${moneyShort(limit)}</b></div>

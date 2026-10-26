@@ -512,3 +512,10 @@ body.big-text .choice small, body.big-text .opt small, body.big-text .action sma
 .portfolio-heading{display:flex;align-items:start;justify-content:space-between;flex-wrap:wrap;gap:5px}
 .portfolio-heading label{display:flex;align-items:start;gap:6px}
 .portfolio-selection{border:1px solid var(--accent);border-radius:8px;padding:10px;margin:12px 0;overflow-wrap:anywhere}
+.stress-lot{padding:10px;border:1px solid var(--accent);border-radius:8px;margin:10px 0;overflow-wrap:anywhere}
+.stress-scenario{border-top:1px solid var(--line);padding:8px 0}
+.stress-panel summary{cursor:pointer;padding:5px 0;overflow-wrap:anywhere}
+.stress-scenario summary>.small{display:block;margin-left:14px}
+.stress-metrics{table-layout:fixed;width:100%;font-size:12px}
+.stress-metrics th,.stress-metrics td{overflow-wrap:anywhere;vertical-align:top}
+.stress-metrics th:first-child{width:44%}

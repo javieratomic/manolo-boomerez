@@ -1,14 +1,29 @@
 # Estado para el siguiente agente (26-10-2026)
 
-- Versión actual: **0.14.0**, cartera y reformas conjuntas. Entrega anterior `97364dc` (plan de operaciones0.13), `64d2d8f` (portada0.12.1), navegación `484515f` (0.12.0).
+- Versión actual: **0.15.0**, resistencia de inversiones. Entrega anterior `e9a5ab4` (cartera0.14), `97364dc` (plan de operaciones0.13), navegación `484515f` (0.12.0).
 - Las peticiones de código recibidas hasta esta entrega están implementadas y verificadas. No queda implementación de esta sesión pendiente. Los apartados siguientes documentan cada entrega; los diagnósticos antiguos se conservan como historial y no deben reabrirse sin reproducirlos en la versión actual.
-- Última validación: **288 pruebas Node y 30 DOM**, más cartera/lotes y recorrido anterior14pantallas en escritorio y móviles375/320px. Se reutilizan las reglas económicas individuales sin cambios de costes ni niveles.
-- Portable actual: `desktop/dist/ManoloBoomerez-0.14.0-portable.exe`. Los ejecutables de `desktop/dist/` son artefactos ignorados por Git y se conservan.
+- Última validación: **298 pruebas Node y34 DOM**, más resistencia/comparación/financiación/retorno y guardado en escritorio y móviles375/320px. Economía y guardados sin cambios de reglas.
+- Portable actual: `desktop/dist/ManoloBoomerez-0.15.0-portable.exe`. Los ejecutables de `desktop/dist/` son artefactos ignorados por Git y se conservan.
 - Arte: **198 done, 62 requested y 1 blocked** en el manifiesto. Es la cola de recursos existente, no un bloqueo de la entrega de código.
 - Trabajo realizado en `main`, mediante commits locales. **No se ha hecho push**. Código, pruebas y documentación de cada entrega se guardan conjuntamente.
 - El usuario autorizó continuar código y decidir el equilibrio por entregas. La antigua vigilancia autónoma de arte de ocho horas ya terminó; no reiniciarla.
 
 ---
+
+# Continuación 0.15.0 — Pruebas de resistencia (26-10-2026)
+
+Usuario delegó la mejora siguiente con be-ambitious: profundizar decisiones sin aumentar trabajo manual.
+
+- **Empresa → Finanzas → Resistencia**, subvista junto a Balance y financiación. Desde **Imperio → Cartera y reformas**, seleccionar negocios y **Probar escenarios** lleva el lote a comparación sin comprarlo. Puede volver al lote, quitar comparación o consultar financiación. UI temporal en game.finance, reiniciada al cargar; ninguna propiedad nueva en guardado.
+- `core/stress.js`: cuatro supuestos del mismo cierre: actual, demanda comercial×0,85 (modificador revenue existente), salario base ordinario×1,10 (wageIndex), combinación. ComputeEconomy recalcula relaciones compartidas; no multiplicar ingresos finales ni sumar mejoras aisladas. Pedidos contratados y regalías conservan condiciones; becas y sueldos fijos de directivos no se indexan. No se asignan probabilidades ni avanza tiempo, I+D, mercado, moral, fama ni sucesos.
+- Cada caso muestra neto, caja tras cierre antes de financiación/ventas/sucesos, plantilla y cobertura. Colchón orientativo =3×(costs.salarios+directivos)+renovaciones de meses+1..+12. Las vencidas/actuales ya incluidas en neto no se vuelven a sumar. Distingue caja negativa de caja positiva por debajo del colchón. No bloquea dinero, no modifica reglas ni proyecta supervivencia repitiendo gastos extraordinarios.
+- `renovationSchedule` extraído a construction.js y compartido con operations.js, mismos datos/orden/horizonte inclusivo actual+12. Actual reserva futura excluye actual. Reformar turísticos puede aumentar coste de renovación futura, y se refleja.
+- Alternativa aplica lote en copia con upgradeBatch y descuenta inversión una vez. IDs inválidos/fondos insuficientes dejan baseline visible sin compras parciales. UI guarda quote.items para conservar intención de niveles: si un local ya cambió, no simula silenciosamente siguiente nivel; pide reelección. Cambios de condiciones del mes se recalculan en base actual. Ninguna compra se hace en Resistencia, solo en revisión habitual de la cartera.
+- `ui/stress.js` presenta casos desplegables, tabla mantener/reformar y supuestos; primer caso abierto. Foco se conserva en cambios de vista, transferencia, quitar comparación y retorno. Ayuda/README documentados.
+
+Validación: **298/298 Node y34/34 DOM**, sintaxis/diff correctos. Edge1365×900,375×812,320×812: cuatro casos, transferencia2reformas36.000€, renovaciones actuales266.667€ y futuras380.000€ separadas, navegar/consultar sin mutaciones, financiación accesible, retorno de selección, compra posterior, lote obsoleto bloqueado, quitar comparación y recarga; sin errores/desbordamiento. Capturas inspeccionadas. Simulación24meses consultando solo una de dos copias idénticas: estado/RNG exactos mes a mes. Informe con lote200negocios ~44ms en esta máquina.
+
+Revisión independiente sin hallazgos; checks adicionales con online limitado por stock, becas/directivos fijos, reformas residenciales y estado profundamente congelado. Incluye revisión de intención de niveles. Build definitivo, fuentes empaquetadas coincidentes y dependencias intactas; smoke desempaquetado y portable correctos (salida0). Portable `desktop/dist/ManoloBoomerez-0.15.0-portable.exe`. Sin push ni alteración del perfil real. Plan y registro `docs/superpowers/plans/2026-10-26-resistencia-inversion.md`.
 
 # Continuación 0.14.0 — Cartera del imperio y reformas conjuntas (26-10-2026)
 

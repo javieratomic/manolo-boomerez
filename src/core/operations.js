@@ -2,7 +2,7 @@
 // No avanza la simulación, completa I+D, cobra renovaciones ni consume azar.
 import {HQ_CITY} from '../data/cities.js';
 import {housingSpec} from '../data/housing.js';
-import {isOperating,isResidential,businessName,renovationCost} from './construction.js';
+import {isOperating,businessName,renovationSchedule} from './construction.js';
 import {workforcePlan} from './workforce.js';
 
 export function operationsPlan(s) {
@@ -12,9 +12,7 @@ export function operationsPlan(s) {
   id:b.id,city:b.city,type:b.type,name:businessName(b),month:b.readyMonth,months:b.readyMonth-from,
   homes:b.type==='vivienda'?housingSpec(b).units:0,
  })).sort((a,b)=>a.month-b.month||a.id-b.id);
- const renewals=s.businesses.filter(b=>isResidential(b)&&Number.isInteger(b.renewalMonth)).map(b=>({
-  id:b.id,city:b.city,type:b.type,name:businessName(b),month:Math.max(from,b.renewalMonth,b.readyMonth??from),cost:renovationCost(b),
- })).filter(x=>x.month<=to).sort((a,b)=>a.month-b.month||a.id-b.id);
+ const renewals=renovationSchedule(s);
  const cities=[...new Set([HQ_CITY,...s.businesses.map(b=>b.city)])].sort();
  const timeline=Array.from({length:13},(_,i)=>{
   const month=from+i,future={...s,month};

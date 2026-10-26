@@ -1,14 +1,28 @@
 # Estado para el siguiente agente (26-10-2026)
 
-- Versión actual: **0.16.0**, ventas y rescisiones conjuntas. Entrega anterior `c0b1dd9` (resistencia0.15), `e9a5ab4` (cartera0.14), `97364dc` (plan de operaciones0.13).
+- Versión actual: **0.17.0**, comparador de aperturas inmediatas. Entrega anterior `9335ae9` (reestructuración0.16), `c0b1dd9` (resistencia0.15), `e9a5ab4` (cartera0.14).
 - Las peticiones de código recibidas hasta esta entrega están implementadas y verificadas. No queda implementación de esta sesión pendiente. Los apartados siguientes documentan cada entrega; los diagnósticos antiguos se conservan como historial y no deben reabrirse sin reproducirlos en la versión actual.
-- Última validación: **308 pruebas Node y38 DOM**, más venta/rescisión, cotización/cancelación/guardado y resistencia anterior en escritorio y móviles375/320px. Se conservan precios y reglas individuales de venta.
-- Portable actual: `desktop/dist/ManoloBoomerez-0.16.0-portable.exe`. Los ejecutables de `desktop/dist/` son artefactos ignorados por Git y se conservan.
+- Última validación: **316 pruebas Node y42 DOM**, más aperturas propias/franquicias, cláusula, cotización/cancelación/guardado en escritorio y móviles375/320px. Se conservan costes y reglas de apertura individuales.
+- Portable actual: `desktop/dist/ManoloBoomerez-0.17.0-portable.exe`. Los ejecutables de `desktop/dist/` son artefactos ignorados por Git y se conservan.
 - Arte: **198 done, 62 requested y 1 blocked** en el manifiesto. Es la cola de recursos existente, no un bloqueo de la entrega de código.
 - Trabajo realizado en `main`, mediante commits locales. **No se ha hecho push**. Código, pruebas y documentación de cada entrega se guardan conjuntamente.
 - El usuario autorizó continuar código y decidir el equilibrio por entregas. La antigua vigilancia autónoma de arte de ocho horas ya terminó; no reiniciarla.
 
 ---
+
+# Continuación 0.17.0 — Comparador de aperturas (26-10-2026)
+
+Usuario delegó siguiente mejora con be-ambitious, centrada en elegir dónde crecer.
+
+- **Empresa → Imperio → Aperturas**, tercera subvista con **Resumen** y **Cartera** (etiquetas cortas para móvil). Sin cambio de14pestañas/4áreas/atajos. Tipos con buildMonths0 y marca vigente, propia/franquicia/ambas, país, búsqueda de ciudad sin tildes, orden por delta neto/coste/ciudad y mostrar bloqueadas con motivo. Diez alternativas por página. Obras con plazo conservan gestión en Ciudad/Viviendas.
+- `core/opportunities.js`: `openingPlan`, `openingOpportunities`, `executeOpening`, `immediateOpeningTypes`. Simula canOpen y openBusiness en copia, incluyendo coste localizado, mantenimiento del valor real, descuento/primo, saturación, personal, suministro, objetivos y cláusula. Comparación de neto aftertax global; canon y premios de objetivos separados de ingreso mensual, resultado del dueño de franquicia explícito y advertencia de pérdidas. Alternativas independientes: no se consumen descuentos, primeros negocios, RNG ni objetivos al consultar.
+- Revisar alternativa muestra ciudad/tipo/modalidad, desembolso/canon, objetivos/caja/patrimonio, neto, cobertura y empleo. Abre una sola tras confirmar; cotización recalculada incorpora mes/id/elección/importes/métricas/cláusula. Si cambió no abre nada; doble clic no duplica. Mantiene clauseOk original antes de romper testamento y notificaciones de openBusiness real. No modifica precios/reglas/save.
+- UI temporal en game.empire.openings, reiniciada al cargar. Foco de subvista/filtros/búsqueda y dirección de página preservados; normaliza tipo si cambia marca. Enlace a ciudad en cada alternativa.
+- Revisión identificó coste de repetir todo (~300ms con200negocios). Caché privada acotada a estado serializado actual y opciones tipo/ciudad/modo; resultados públicos clonados. Filtrar/ordenar/paginar reutiliza mientras el estado sea igual. openingPlan y executeOpening no usan caché, siempre recalculan. Benchmark de datos200negocios/142alternativas: frío343ms, repetición1ms, búsqueda0ms, ordenar1ms en esta máquina. No es medición de render completo.
+
+Validación: **316/316 Node y42/42 DOM**, sintaxis/diff correctos. Edge1365×900,375×812,320×812: consulta pura/cupón intacto, búsqueda/foco, bloqueos extranjeros, cancelación de revisión y de cláusula, cotización caducada, propia con descuento24.600€ y doble clic una sola apertura, franquicia+25.000€, aceptar cláusula posterior, cuatro negocios tras recarga; sin errores/desbordamiento, capturas inspeccionadas. El script inicial asumió orden de botones de confirmModal y luego nombre accesible sin prefijo numérico: corregido para seleccionar texto visible, recorridos completos finales pasan.
+
+Simulación24meses/5aperturas válidas frente a acción individual conserva estado/RNG completos. Migración0.16→0.17 conserva caja/neto/RNG. Revisión independiente de núcleo/flujo y caché cerrada sin hallazgos. Ayuda/README actualizados. Build definitivo y smoke desempaquetado/portable correctos (salida0), fuentes copiadas coincidentes y dependencias intactas. Portable `desktop/dist/ManoloBoomerez-0.17.0-portable.exe`. Sin push ni alteración del perfil real. Plan/registro `docs/superpowers/plans/2026-10-26-comparador-aperturas.md`.
 
 # Continuación 0.16.0 — Reestructuración de cartera (26-10-2026)
 

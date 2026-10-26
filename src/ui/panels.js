@@ -2,6 +2,7 @@ import {workforcePlan} from '../core/workforce.js';
 import {renderOperations} from './operations.js';
 import {renderPortfolio} from './portfolio.js';
 import {renderStress} from './stress.js';
+import {renderOpportunities} from './opportunities.js';
 import {ONLINE_LEVELS,ONLINE_SHIPPING} from '../data/online.js';
 import {canOpenOnline,canUpgradeOnline} from '../core/online.js';
 import {campaignPlan,marketingTerritories,campaignSelection} from '../core/marketing.js';
@@ -427,8 +428,9 @@ export function renderWhy(s, stat) {
 
 // ------------------------------------------------------------------ Imperio
 export function renderEmpire(s,settings={},portfolioData=null) {
-  const views=`<div class="card empire-views" role="group" aria-label="Vista de Imperio"><button class="btn small ${settings.view!=='portfolio'?'primary':''}" data-act="empire-view" data-view="summary" aria-pressed="${settings.view!=='portfolio'}">Resumen y operaciones</button><button class="btn small ${settings.view==='portfolio'?'primary':''}" data-act="empire-view" data-view="portfolio" aria-pressed="${settings.view==='portfolio'}">Cartera y reformas</button></div>`;
+  const views=`<div class="card empire-views" role="group" aria-label="Vista de Imperio">${[['summary','Resumen'],['portfolio','Cartera'],['openings','Aperturas']].map(([id,label])=>`<button class="btn small ${(settings.view||'summary')===id?'primary':''}" data-act="empire-view" data-view="${id}" aria-pressed="${(settings.view||'summary')===id}">${label}</button>`).join('')}</div>`;
   if(settings.view==='portfolio')return views+renderPortfolio(s,settings,portfolioData);
+  if(settings.view==='openings')return views+renderOpportunities(s,settings.openings);
   const r = s.lastReport;
   const pat = patrimonio(s);
   let html = views+renderEuropeanGoal(s)+`<div class="card kpis">

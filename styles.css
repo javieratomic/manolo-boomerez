@@ -519,3 +519,4 @@ body.big-text .choice small, body.big-text .opt small, body.big-text .action sma
 .stress-metrics{table-layout:fixed;width:100%;font-size:12px}
 .stress-metrics th,.stress-metrics td{overflow-wrap:anywhere;vertical-align:top}
 .stress-metrics th:first-child{width:44%}
+.opening-option{border-top:1px solid var(--line);padding:12px 0;overflow-wrap:anywhere}

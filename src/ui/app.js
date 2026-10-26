@@ -3,6 +3,8 @@ import {portfolio,portfolioSelection,upgradeBatchPlan,upgradeBatch} from '../cor
 import {renderUpgradeReview} from './portfolio.js';
 import {saleBatchPlan,saleBatch} from '../core/divestment.js';
 import {renderSaleReview} from './divestment.js';
+import {openingPlan,executeOpening} from '../core/opportunities.js';
+import {renderOpeningReview} from './opportunities.js';
 import {openOnline,upgradeOnline,toggleOnline,setOnlineShipping} from '../core/online.js';
 import {campaignPlan,launchCampaignBatch,marketingTerritories,campaignSelection} from '../core/marketing.js';
 import {setHousingPolicy} from '../core/housing.js';
@@ -145,7 +147,7 @@ function startGame(s) {
   game.s = s;
   game.marketingSelection={};
   game.panelScroll={};game.renderedPanel=null;game.lastTabs={};game.researchFilters={status:'pending',category:'all'};
-  game.empire={view:'summary',filters:{},selected:[],page:0,operation:'upgrade'};game.portfolioReviewOpen=false;
+  game.empire={view:'summary',filters:{},selected:[],page:0,operation:'upgrade',openings:{}};game.portfolioReviewOpen=false;game.openingReviewOpen=false;
   game.finance={view:'balance',ids:[],items:null,operation:'upgrade'};
   game.bubble = null;
   game.city = HQ_CITY;
@@ -253,7 +255,7 @@ function renderTabs() {
 function renderPanel(s) {
   const body = $('#panel-body');
   const active=document.activeElement;
-  const focus=body.contains(active)?{act:active.dataset.act,value:active.dataset.value,key:active.dataset.key,id:active.dataset.id,view:active.dataset.view,operation:active.dataset.operation,direction:active.dataset.direction,start:active.selectionStart,end:active.selectionEnd}:null;
+  const focus=body.contains(active)?{act:active.dataset.act,value:active.dataset.value,key:active.dataset.key,id:active.dataset.id,city:active.dataset.city,mode:active.dataset.mode,view:active.dataset.view,operation:active.dataset.operation,direction:active.dataset.direction,start:active.selectionStart,end:active.selectionEnd}:null;
   const panel=game.tab==='ciudad'?`ciudad:${game.city}`:game.tab;
   game.panelScroll||={};
   if(game.renderedPanel&&!game.resetPanelScroll)game.panelScroll[game.renderedPanel]=body.scrollTop;
@@ -285,11 +287,11 @@ function renderPanel(s) {
     const controls=[...body.querySelectorAll(`[data-act="${focus.act}"]`)];
     (focus.act==='research-status'?controls.find(el=>el.dataset.value===focus.value):controls[0])?.focus({preventScroll:true});
   }
-  if(game.tab==='imperio'&&(focus?.act?.startsWith('portfolio-')||focus?.act==='empire-view')){
+  if(game.tab==='imperio'&&(focus?.act?.startsWith('portfolio-')||focus?.act?.startsWith('opening-')||focus?.act==='empire-view')){
     const controls=[...body.querySelectorAll(`[data-act="${focus.act}"]`)];
-    const el=controls.find(x=>!x.disabled&&(!focus.key||x.dataset.key===focus.key)&&(!focus.id||x.dataset.id===focus.id)&&(!focus.view||x.dataset.view===focus.view)&&(!focus.operation||x.dataset.operation===focus.operation)&&(!focus.direction||x.dataset.direction===focus.direction))||controls.find(x=>!x.disabled);
+    const el=controls.find(x=>!x.disabled&&(!focus.key||x.dataset.key===focus.key)&&(!focus.id||x.dataset.id===focus.id)&&(!focus.city||x.dataset.city===focus.city)&&(!focus.mode||x.dataset.mode===focus.mode)&&(!focus.view||x.dataset.view===focus.view)&&(!focus.operation||x.dataset.operation===focus.operation)&&(!focus.direction||x.dataset.direction===focus.direction))||controls.find(x=>!x.disabled);
     el?.focus({preventScroll:true});
-    if(el&&focus.act==='portfolio-search'&&focus.start!=null)el.setSelectionRange(focus.start,focus.end);
+    if(el&&['portfolio-search','opening-search'].includes(focus.act)&&focus.start!=null)el.setSelectionRange(focus.start,focus.end);
   }
   if(game.tab==='finanzas'&&['finance-view','stress-current','portfolio-stress'].includes(focus?.act)){
     body.querySelector(`[data-act="finance-view"][data-view="${focus.act==='finance-view'?focus.view:'stress'}"]`)?.focus({preventScroll:true});
@@ -440,6 +442,23 @@ async function onClick(e) {
   e.preventDefault();
   let res = null;
   switch (act) {
+    case 'opening-page':
+      game.empire.openings.page=Math.max(0,Number(el.dataset.page)||0);game.resetPanelScroll=true;
+      break;
+    case 'opening-review': {
+      if(game.openingReviewOpen)return;
+      const choice={type:el.dataset.type,city:el.dataset.city,mode:el.dataset.mode},plan=openingPlan(s,choice);
+      if(!plan.ok){res=plan;break;}
+      game.openingReviewOpen=true;
+      try {
+        const picked=await showModal({title:'Revisar nueva apertura',html:renderOpeningReview(plan),dismissable:true,choices:[{label:'Cancelar'},{label:choice.mode==='franquicia'?'Firmar franquicia':'Abrir local',primary:true}]});
+        if(picked!==1)return;
+        if(!await clauseOk(s,c=>openBusiness(c,choice.type,choice.city,choice.mode)))return;
+        res=executeOpening(s,choice,plan);
+        if(res.ok){play(choice.mode==='franquicia'?'cash':'build');toast(`🏪 Apertura en ${CITY_BY_ID[choice.city].name}`,'good');}
+      } finally {game.openingReviewOpen=false;}
+      break;
+    }
     case 'finance-view':
       game.finance.view=el.dataset.view;game.resetPanelScroll=true;
       break;
@@ -749,6 +768,7 @@ async function onClick(e) {
 
 function onChange(e) {
   const el = e.target;
+  if(el.dataset.act==='opening-filter'&&game.s){setOpeningFilter(el.dataset.key,el.type==='checkbox'?el.checked:el.value);return;}
   if(el.dataset.act==='portfolio-filter'&&game.s){setPortfolioFilter(el.dataset.key,el.value);return;}
   if(el.dataset.act==='portfolio-pick'&&game.s){
     const ids=new Set(portfolioSelection(portfolio(game.s,game.empire.filters).rows,game.empire.selected,game.empire.operation));
@@ -787,6 +807,10 @@ function setPortfolioFilter(key,value) {
 }
 function onInput(e) {
   if(e.target.dataset.act==='portfolio-search'&&game.s)setPortfolioFilter('query',e.target.value);
+  if(e.target.dataset.act==='opening-search'&&game.s)setOpeningFilter('query',e.target.value);
+}
+function setOpeningFilter(key,value) {
+  game.empire.openings[key]=value;game.empire.openings.page=0;game.resetPanelScroll=true;renderAll();
 }
 
 async function showMenu() {

@@ -8,6 +8,33 @@ import { newGame } from '../src/core/state.js';
 import { resolvePending } from '../src/core/sim.js';
 import { renderManolo, renderCity, renderEmpire, renderMarket, renderResearch, renderMarketing, renderInternational, renderOnline, renderResidences, renderBenefits, renderStaff,renderFinance } from '../src/ui/panels.js';
 
+test('DOM: Imperio ofrece Aperturas como subvista corta, sin añadir otra lista al resumen',()=>{
+ const s=newGame(42);resolvePending(s,0);const before=JSON.stringify(s);
+ const el=document.createElement('div');el.innerHTML=renderEmpire(s,{view:'openings',openings:{query:'Madrid'}});
+ assert(el.querySelector('.opening-opportunities'));assert(!el.querySelector('.operations-plan'));assert(el.querySelector('[data-view="openings"][aria-pressed="true"]'));assertEq(JSON.stringify(s),before);
+});
+
+test('DOM: alternativas paginadas separan franquicia, canon, neto de central y dueño',async()=>{
+ const {renderOpportunities}=await import('../src/ui/opportunities.js');const s=newGame(42);resolvePending(s,0);s.cash=1e7;
+ const el=document.createElement('div');el.innerHTML=renderOpportunities(s,{query:'Madrid',mode:'both'});
+ assertEq(el.querySelectorAll('.opening-option').length,2);assert(el.textContent.includes('Canon'));assert(el.textContent.includes('Resultado del dueño'));assert(el.textContent.includes('Cambio neto de la empresa'));
+ assert(el.querySelector('[data-act="opening-review"][data-mode="propia"]'));assert(el.querySelector('[data-act="opening-review"][data-mode="franquicia"]'));
+ el.innerHTML=renderOpportunities(s);assertEq(el.querySelectorAll('.opening-option').length,10);
+});
+
+test('DOM: Aperturas muestra motivos exteriores bloqueados y marca coherente tras rebranding',async()=>{
+ const {renderOpportunities}=await import('../src/ui/opportunities.js');const s=newGame(42);resolvePending(s,0);s.cash=1e7;
+ const el=document.createElement('div');el.innerHTML=renderOpportunities(s,{country:'portugal',showBlocked:true});
+ assert(el.querySelectorAll('[data-act="opening-review"]:disabled').length>0);assert(el.textContent.includes('I+D'));
+ s.brand='maison';el.innerHTML=renderOpportunities(s,{type:'express',query:'Madrid'});assertEq(el.querySelector('[data-key="type"]').value,'maison');
+});
+
+test('DOM: revisión de apertura distingue extras de objetivos de beneficios y avisa cláusula',async()=>{
+ const {openingPlan}=await import('../src/core/opportunities.js');const {renderOpeningReview}=await import('../src/ui/opportunities.js');const s=newGame(42);resolvePending(s,0);s.cash=1e7;s.clausula={id:'cornisa',broken:false,done:false,closed:false};
+ const html=renderOpeningReview(openingPlan(s,{type:'express',city:'madrid',mode:'propia'}));
+ assert(html.includes('Madrid'));assert(html.includes('Desembolso'));assert(html.includes('cláusula'));assert(html.includes('costes generales'));
+});
+
 test('DOM: modo venta permite seleccionar franquicias, obras y máximos sin ofrecer ejecutar reformas',async()=>{
  const {renderPortfolio}=await import('../src/ui/portfolio.js');const s=newGame(42);resolvePending(s,0);s.cash=1e7;
  s.businesses=[{id:1,type:'express',city:'madrid',mode:'propia',level:10,value:1e5},{id:2,type:'express',city:'barcelona',mode:'franquicia',level:1,value:3e4,fee:42000},{id:3,type:'vivienda',housingForm:'apartamentos',city:'selaya',mode:'propia',level:1,value:2e6,readyMonth:12,renewalMonth:192}];

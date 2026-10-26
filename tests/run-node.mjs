@@ -12,6 +12,7 @@ import './navigation.test.js';
 import './operations.test.js';
 import './portfolio.test.js';
 import './stress.test.js';
+import './divestment.test.js';
 
 const { failures } = await run((line) => console.log(line));
 process.exit(failures.length ? 1 : 0);

@@ -8,6 +8,32 @@ import { newGame } from '../src/core/state.js';
 import { resolvePending } from '../src/core/sim.js';
 import { renderManolo, renderCity, renderEmpire, renderMarket, renderResearch, renderMarketing, renderInternational, renderOnline, renderResidences, renderBenefits, renderStaff,renderFinance } from '../src/ui/panels.js';
 
+test('DOM: modo venta permite seleccionar franquicias, obras y máximos sin ofrecer ejecutar reformas',async()=>{
+ const {renderPortfolio}=await import('../src/ui/portfolio.js');const s=newGame(42);resolvePending(s,0);s.cash=1e7;
+ s.businesses=[{id:1,type:'express',city:'madrid',mode:'propia',level:10,value:1e5},{id:2,type:'express',city:'barcelona',mode:'franquicia',level:1,value:3e4,fee:42000},{id:3,type:'vivienda',housingForm:'apartamentos',city:'selaya',mode:'propia',level:1,value:2e6,readyMonth:12,renewalMonth:192}];
+ const el=document.createElement('div');el.innerHTML=renderPortfolio(s,{operation:'sale',selected:[1,2,3]});
+ assertEq(el.querySelectorAll('[data-act="portfolio-pick"]:disabled').length,0);assert(el.textContent.includes('Revisar ventas y rescisiones'));assert(el.querySelector('[data-act="portfolio-mode"][data-operation="sale"][aria-pressed="true"]'));
+ assert(el.textContent.includes('indemnizaciones'));assert(!el.textContent.includes('Revisar lote de reformas'));
+});
+
+test('DOM: revisión de venta explica ingresos, pagos y capacidad perdida antes de confirmar',async()=>{
+ const {saleBatchPlan}=await import('../src/core/divestment.js');const {renderSaleReview}=await import('../src/ui/divestment.js');const s=newGame(42);resolvePending(s,0);s.cash=1e7;s.obrador.expansions=8;
+ s.businesses=[{id:1,type:'vivienda',housingForm:'apartamentos',city:'selaya',mode:'propia',level:1,value:2e6},{id:2,type:'express',city:'madrid',mode:'franquicia',level:1,fee:42000,value:3e4}];
+ const html=renderSaleReview(saleBatchPlan(s,[1,2]));assert(html.includes('indemnizaciones'));assert(html.includes('capacidad'));assert(html.includes('Selaya'));assert(html.includes('Pagas'));assert(html.includes('Cobras'));assert(html.includes('definitiva'));
+});
+
+test('DOM: resistencia de venta usa Reestructurar y movimiento de caja firmado, sin hablar de reforma',async()=>{
+ const {renderStress}=await import('../src/ui/stress.js');const s=newGame(42);resolvePending(s,0);s.cash=1e7;s.businesses=[{id:1,type:'express',city:'madrid',mode:'propia',level:1,value:1e5}];
+ const el=document.createElement('div');el.innerHTML=renderStress(s,[1],null,'sale');assert(el.textContent.includes('Reestructurar'));assert(el.textContent.includes('Ventas y rescisiones'));assert(el.textContent.includes('una sola vez'));assert(!el.textContent.includes('nivel 1 → 2'));
+});
+
+test('DOM: revisión muestra los meses en que vender una obra prolonga la falta de vivienda',async()=>{
+ const {saleBatchPlan}=await import('../src/core/divestment.js');const {renderSaleReview}=await import('../src/ui/divestment.js');const s=newGame(42);resolvePending(s,0);s.cash=1e7;s.obrador.expansions=8;
+ s.businesses=[2,4].map((readyMonth,i)=>({id:i+1,type:'vivienda',housingForm:'apartamentos',city:'selaya',mode:'propia',level:1,value:2e6,readyMonth}));
+ const el=document.createElement('div');el.innerHTML=renderSaleReview(saleBatchPlan(s,[1]));
+ assert(el.textContent.includes('empeora en 2 cierres, desde Marzo 2026'));assert(el.textContent.includes('más que antes'));
+});
+
 test('DOM: Finanzas ofrece resistencia sin informe previo y explica supuestos sin probabilidades',()=>{
  const s=newGame(42);resolvePending(s,0);const before=JSON.stringify(s);
  const el=document.createElement('div');el.innerHTML=renderFinance(s,{view:'stress',ids:[]});

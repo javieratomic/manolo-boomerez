@@ -748,7 +748,7 @@ function renderCartilla(s) {
 
 export function renderFinance(s,settings={}) {
   const views=`<div class="card empire-views" role="group" aria-label="Vista de Finanzas"><button class="btn small ${settings.view!=='stress'?'primary':''}" data-act="finance-view" data-view="balance" aria-pressed="${settings.view!=='stress'}">Balance y financiación</button><button class="btn small ${settings.view==='stress'?'primary':''}" data-act="finance-view" data-view="stress" aria-pressed="${settings.view==='stress'}">Resistencia</button></div>`;
-  if(settings.view==='stress')return views+renderStress(s,settings.ids||[],settings.items);
+  if(settings.view==='stress')return views+renderStress(s,settings.ids||[],settings.items,settings.operation);
   const r = s.lastReport;
   const limit = creditLimit(s);
   let html = views+renderEuropeanGoal(s)+`<div class="card kpis">

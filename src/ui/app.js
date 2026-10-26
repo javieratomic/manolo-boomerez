@@ -1,6 +1,8 @@
 import {nominateHeir} from '../core/dynasty.js';
 import {portfolio,portfolioSelection,upgradeBatchPlan,upgradeBatch} from '../core/portfolio.js';
 import {renderUpgradeReview} from './portfolio.js';
+import {saleBatchPlan,saleBatch} from '../core/divestment.js';
+import {renderSaleReview} from './divestment.js';
 import {openOnline,upgradeOnline,toggleOnline,setOnlineShipping} from '../core/online.js';
 import {campaignPlan,launchCampaignBatch,marketingTerritories,campaignSelection} from '../core/marketing.js';
 import {setHousingPolicy} from '../core/housing.js';
@@ -143,8 +145,8 @@ function startGame(s) {
   game.s = s;
   game.marketingSelection={};
   game.panelScroll={};game.renderedPanel=null;game.lastTabs={};game.researchFilters={status:'pending',category:'all'};
-  game.empire={view:'summary',filters:{},selected:[],page:0};game.portfolioReviewOpen=false;
-  game.finance={view:'balance',ids:[],items:null};
+  game.empire={view:'summary',filters:{},selected:[],page:0,operation:'upgrade'};game.portfolioReviewOpen=false;
+  game.finance={view:'balance',ids:[],items:null,operation:'upgrade'};
   game.bubble = null;
   game.city = HQ_CITY;
   game.tab = 'ciudad';
@@ -251,7 +253,7 @@ function renderTabs() {
 function renderPanel(s) {
   const body = $('#panel-body');
   const active=document.activeElement;
-  const focus=body.contains(active)?{act:active.dataset.act,value:active.dataset.value,key:active.dataset.key,id:active.dataset.id,view:active.dataset.view,direction:active.dataset.direction,start:active.selectionStart,end:active.selectionEnd}:null;
+  const focus=body.contains(active)?{act:active.dataset.act,value:active.dataset.value,key:active.dataset.key,id:active.dataset.id,view:active.dataset.view,operation:active.dataset.operation,direction:active.dataset.direction,start:active.selectionStart,end:active.selectionEnd}:null;
   const panel=game.tab==='ciudad'?`ciudad:${game.city}`:game.tab;
   game.panelScroll||={};
   if(game.renderedPanel&&!game.resetPanelScroll)game.panelScroll[game.renderedPanel]=body.scrollTop;
@@ -260,7 +262,7 @@ function renderPanel(s) {
     ciudad: () => renderCity(s, game.city),
     imperio: () => {
       const data=game.empire.view==='portfolio'?portfolio(s,game.empire.filters):null;
-      if(data)game.empire.selected=portfolioSelection(data.rows,game.empire.selected);
+      if(data)game.empire.selected=portfolioSelection(data.rows,game.empire.selected,game.empire.operation);
       return renderEmpire(s,game.empire,data);
     },
     mercado: () => renderMarket(s),
@@ -285,7 +287,7 @@ function renderPanel(s) {
   }
   if(game.tab==='imperio'&&(focus?.act?.startsWith('portfolio-')||focus?.act==='empire-view')){
     const controls=[...body.querySelectorAll(`[data-act="${focus.act}"]`)];
-    const el=controls.find(x=>!x.disabled&&(!focus.key||x.dataset.key===focus.key)&&(!focus.id||x.dataset.id===focus.id)&&(!focus.view||x.dataset.view===focus.view)&&(!focus.direction||x.dataset.direction===focus.direction))||controls.find(x=>!x.disabled);
+    const el=controls.find(x=>!x.disabled&&(!focus.key||x.dataset.key===focus.key)&&(!focus.id||x.dataset.id===focus.id)&&(!focus.view||x.dataset.view===focus.view)&&(!focus.operation||x.dataset.operation===focus.operation)&&(!focus.direction||x.dataset.direction===focus.direction))||controls.find(x=>!x.disabled);
     el?.focus({preventScroll:true});
     if(el&&focus.act==='portfolio-search'&&focus.start!=null)el.setSelectionRange(focus.start,focus.end);
   }
@@ -442,41 +444,44 @@ async function onClick(e) {
       game.finance.view=el.dataset.view;game.resetPanelScroll=true;
       break;
     case 'portfolio-stress': {
-      const ids=portfolioSelection(portfolio(s,game.empire.filters).rows,game.empire.selected);
+      const ids=portfolioSelection(portfolio(s,game.empire.filters).rows,game.empire.selected,game.empire.operation);
       if(!ids.length){res={ok:false,msg:'Selecciona negocios reformables en la cartera.'};break;}
-      const quote=upgradeBatchPlan(s,ids);
-      game.finance={view:'stress',ids,items:quote.ok?quote.items:null};game.tab='finanzas';game.resetPanelScroll=true;
+      const operation=game.empire.operation,quote=(operation==='sale'?saleBatchPlan:upgradeBatchPlan)(s,ids);
+      game.finance={view:'stress',ids,items:quote.ok?quote.items:null,operation};game.tab='finanzas';game.resetPanelScroll=true;
       break;
     }
     case 'stress-current':
       game.finance.ids=[];game.finance.items=null;game.resetPanelScroll=true;
       break;
     case 'stress-portfolio':
-      if(game.finance.ids.length){game.empire.filters={};game.empire.selected=portfolioSelection(portfolio(s).rows,game.finance.ids);game.empire.page=0;}
+      if(game.finance.ids.length){game.empire.filters={};game.empire.operation=game.finance.operation||'upgrade';game.empire.selected=portfolioSelection(portfolio(s).rows,game.finance.ids,game.empire.operation);game.empire.page=0;}
       game.empire.view='portfolio';game.tab='imperio';game.resetPanelScroll=true;
       break;
     case 'empire-view':
       game.empire.view=el.dataset.view;game.resetPanelScroll=true;
       break;
+    case 'portfolio-mode':
+      game.empire.operation=el.dataset.operation==='sale'?'sale':'upgrade';game.empire.selected=[];game.empire.page=0;game.resetPanelScroll=true;
+      break;
     case 'portfolio-page':
       game.empire.page=Math.max(0,Number(el.dataset.page)||0);game.resetPanelScroll=true;
       break;
     case 'portfolio-all':
-      game.empire.selected=portfolio(s,game.empire.filters).rows.filter(r=>r.upgradeable).map(r=>r.id);
+      game.empire.selected=portfolio(s,game.empire.filters).rows.filter(r=>game.empire.operation==='sale'||r.upgradeable).map(r=>r.id);
       break;
     case 'portfolio-clear':
       game.empire.selected=[];
       break;
     case 'portfolio-review': {
       if(game.portfolioReviewOpen)return;
-      const ids=portfolioSelection(portfolio(s,game.empire.filters).rows,game.empire.selected),plan=upgradeBatchPlan(s,ids);
+      const ids=portfolioSelection(portfolio(s,game.empire.filters).rows,game.empire.selected,game.empire.operation),sale=game.empire.operation==='sale',plan=(sale?saleBatchPlan:upgradeBatchPlan)(s,ids);
       if(!plan.ok){res=plan;break;}
       game.portfolioReviewOpen=true;
       try {
-        const choice=await showModal({title:'Revisar reformas conjuntas',html:renderUpgradeReview(plan),dismissable:true,choices:[{label:'Cancelar'},{label:'Confirmar reformas',primary:true}]});
+        const choice=await showModal({title:sale?'Revisar ventas y rescisiones':'Revisar reformas conjuntas',html:sale?renderSaleReview(plan):renderUpgradeReview(plan),dismissable:true,choices:[{label:'Cancelar'},{label:sale?'Vender y rescindir definitivamente':'Confirmar reformas',primary:!sale,danger:sale}]});
         if(choice!==1)return;
-        res=upgradeBatch(s,ids,plan);
-        if(res.ok){game.empire.selected=[];play('build');toast(`🔨 ${res.count} reformas · ${money(res.cost)}`,'good');}
+        res=(sale?saleBatch:upgradeBatch)(s,ids,plan);
+        if(res.ok){game.empire.selected=[];play(sale?'cash':'build');toast(sale?`💼 ${res.count} operaciones · ${res.cashDelta>=0?'+':''}${money(res.cashDelta)}`:`🔨 ${res.count} reformas · ${money(res.cost)}`,'good');}
       } finally {game.portfolioReviewOpen=false;}
       break;
     }
@@ -746,7 +751,7 @@ function onChange(e) {
   const el = e.target;
   if(el.dataset.act==='portfolio-filter'&&game.s){setPortfolioFilter(el.dataset.key,el.value);return;}
   if(el.dataset.act==='portfolio-pick'&&game.s){
-    const ids=new Set(portfolioSelection(portfolio(game.s,game.empire.filters).rows,game.empire.selected));
+    const ids=new Set(portfolioSelection(portfolio(game.s,game.empire.filters).rows,game.empire.selected,game.empire.operation));
     if(el.checked)ids.add(Number(el.dataset.id));else ids.delete(Number(el.dataset.id));
     game.empire.selected=[...ids];renderAll();return;
   }

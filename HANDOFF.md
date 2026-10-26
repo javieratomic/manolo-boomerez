@@ -1,14 +1,28 @@
 # Estado para el siguiente agente (26-10-2026)
 
-- Versión actual: **0.15.0**, resistencia de inversiones. Entrega anterior `e9a5ab4` (cartera0.14), `97364dc` (plan de operaciones0.13), navegación `484515f` (0.12.0).
+- Versión actual: **0.16.0**, ventas y rescisiones conjuntas. Entrega anterior `c0b1dd9` (resistencia0.15), `e9a5ab4` (cartera0.14), `97364dc` (plan de operaciones0.13).
 - Las peticiones de código recibidas hasta esta entrega están implementadas y verificadas. No queda implementación de esta sesión pendiente. Los apartados siguientes documentan cada entrega; los diagnósticos antiguos se conservan como historial y no deben reabrirse sin reproducirlos en la versión actual.
-- Última validación: **298 pruebas Node y34 DOM**, más resistencia/comparación/financiación/retorno y guardado en escritorio y móviles375/320px. Economía y guardados sin cambios de reglas.
-- Portable actual: `desktop/dist/ManoloBoomerez-0.15.0-portable.exe`. Los ejecutables de `desktop/dist/` son artefactos ignorados por Git y se conservan.
+- Última validación: **308 pruebas Node y38 DOM**, más venta/rescisión, cotización/cancelación/guardado y resistencia anterior en escritorio y móviles375/320px. Se conservan precios y reglas individuales de venta.
+- Portable actual: `desktop/dist/ManoloBoomerez-0.16.0-portable.exe`. Los ejecutables de `desktop/dist/` son artefactos ignorados por Git y se conservan.
 - Arte: **198 done, 62 requested y 1 blocked** en el manifiesto. Es la cola de recursos existente, no un bloqueo de la entrega de código.
 - Trabajo realizado en `main`, mediante commits locales. **No se ha hecho push**. Código, pruebas y documentación de cada entrega se guardan conjuntamente.
 - El usuario autorizó continuar código y decidir el equilibrio por entregas. La antigua vigilancia autónoma de arte de ocho horas ya terminó; no reiniciarla.
 
 ---
+
+# Continuación 0.16.0 — Reestructuración de cartera (26-10-2026)
+
+Usuario delegó la siguiente mejora con be-ambitious. Implementada evaluación y ejecución de ventas/rescisiones en lote:
+
+- **Empresa → Imperio → Cartera y reformas → Vender y rescindir**. Cambiar modo limpia selección; mantiene filtros, páginas y normaliza por operación. Venta admite activos físicos actuales, incluidos máximos, obras y franquicias según reglas existentes; reformas conservan su elegibilidad anterior. Precio firmado por activo, selección entre páginas y todos los activos del filtro.
+- `core/divestment.js`: `saleBatchPlan`/`saleBatch`, simulan `sellBusiness` en copia, deduplican y validan ids. Primero ingresos por ventas y luego indemnizaciones, permitiendo financiación dentro del lote. Si una rescisión no tiene fondos se rechaza todo sin cambios. Vender propios en descubierto sigue permitido. Se usa `saleValue` con canon histórico; no se alteran precios ni reglas.
+- Revisión muestra nombres/ciudades/ids, cobros/pagos, movimiento neto de caja, patrimonio, resultado del mes, capacidad/cobertura/empleo/vivienda y retroceso de países/sectores europeos cuando procede. Beneficio operativo y cobros de venta separados. Alerta pérdida de producción y déficit laboral nuevo/empeorado de cada mes hasta actual+12. La venta exige confirmación definitiva; cancelar no toca la partida, doble clic no duplica, cotización vieja se recalcula/rechaza. Ejecución solo cambia cash, array de negocios y log, equivalente a individuales en orden planificado; preserva identidades retenidas/flags/historia.
+- `portfolioSelection` acepta operación opcional, default upgrade. `game.empire.operation` temporal. `stressReport`/renderStress aceptan cuarto argumento operation default upgrade; sale compara Mantener/Reestructurar y suma ventas/resta indemnizaciones una vez. Se conserva quote.items y el contexto al volver; activos vendidos dejan comparación obsoleta sin inventar otros. Nada se vende en Resistencia. Modo y selección se reinician al cargar, sin esquema nuevo.
+- Revisión independiente encontró P2: comparar solo pico/primer déficit/actual ocultaba prolongar carencia al vender vivienda en obras (dos bloques entregas2/4). Corregido comparando ciudad/mes de ambos timelines; `workforceRisks.worseMonths` detalla mes/déficit/exceso, se muestra recuento/primera fecha y participa en cotización. Regresión roja/verde detecta meses2y3 aunque capacidad/pico/inicio actuales no cambien. P2 cerrado por revisor.
+
+Verificación: **308/308 Node y38/38 DOM**. Edge1365×900,375×812,320×812: modo/foco y limpieza de selección, máximos/franquicias/obras, rescisión sin fondos bloqueada, venta60.000€ financia indemnización42.000€ partiendo de1.000€ y deja19.000€, Stress y retorno conservan modo/selección, consultas/cancelar sin cambios, cotización obsoleta no vende, doble clic aplica una vez, alerta por retirada vivienda, recarga. Sin errores/desbordamiento; capturas inspeccionadas. Recorrido anterior0.15 de reformas/Resistencia también pasa en tres tamaños. Dos arranques paralelos agotaron espera de depuración; sonda de portada0.16 sin errores y repetición secuencial completa pasa.
+
+Simulación24meses/6lotes conserva estado y RNG idénticos a individuales. Benchmark200negocios/lote100activos: plan~12ms, Resistencia~36ms en esta máquina. Revisor verificó40lotes adicionales equivalentes, identidad retenida y cierre del P2; sin hallazgos pendientes. README/ayuda actualizados. Build definitivo y smoke desempaquetado/portable correctos (salida0). Fuentes empaquetadas coincidentes y dependencias intactas; portable `desktop/dist/ManoloBoomerez-0.16.0-portable.exe`. Sin push ni alteración del perfil real. Plan/registro `docs/superpowers/plans/2026-10-26-reestructuracion-cartera.md`.
 
 # Continuación 0.15.0 — Pruebas de resistencia (26-10-2026)
 

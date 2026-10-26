@@ -6,9 +6,10 @@ import {computeEconomy} from './economy.js';
 import {isOperating,businessName} from './construction.js';
 import {upgradeCost,upgradeBusiness} from './market.js';
 import {money} from './helpers.js';
+import {saleValue} from './actions.js';
 
 const normalized=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
-export const portfolioSelection=(rows,ids=[])=>rows.filter(r=>r.upgradeable&&ids.includes(r.id)).map(r=>r.id);
+export const portfolioSelection=(rows,ids=[],operation='upgrade')=>rows.filter(r=>(operation==='sale'||r.upgradeable)&&ids.includes(r.id)).map(r=>r.id);
 export function portfolio(s,filters={}) {
  const report=computeEconomy(s),lines=new Map(report.lines.map(l=>[l.id,l]));
  const all=s.businesses.map(b=>{
@@ -16,7 +17,7 @@ export function portfolio(s,filters={}) {
   return {id:b.id,type:b.type,city:b.city,country,category:BUSINESS_TYPES[b.type].category,
    name:businessName(b),mode:b.mode,level:b.level||1,operating,readyMonth:b.readyMonth,
    revenue:l?.revenue||0,profit:(l?.revenue||0)-(l?.cost||0),franchiseeProfit:l?.franchiseeProfit??0,
-   upgradeable:operating&&cost!=null,upgradeCost:cost};
+   upgradeable:operating&&cost!=null,upgradeCost:cost,cashOnSale:saleValue(b)};
  });
  const countries=[...new Set(all.map(r=>r.country))].map(id=>({id,name:id==='espana'?'España':FOREIGN_BY_ID[id].country})).sort((a,b)=>a.name.localeCompare(b.name,'es'));
  const categories=[...new Set(all.map(r=>r.category))].sort();

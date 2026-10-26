@@ -1,5 +1,6 @@
 import {workforcePlan} from '../core/workforce.js';
 import {renderOperations} from './operations.js';
+import {renderPortfolio} from './portfolio.js';
 import {ONLINE_LEVELS,ONLINE_SHIPPING} from '../data/online.js';
 import {canOpenOnline,canUpgradeOnline} from '../core/online.js';
 import {campaignPlan,marketingTerritories,campaignSelection} from '../core/marketing.js';
@@ -424,10 +425,12 @@ export function renderWhy(s, stat) {
 }
 
 // ------------------------------------------------------------------ Imperio
-export function renderEmpire(s) {
+export function renderEmpire(s,settings={},portfolioData=null) {
+  const views=`<div class="card empire-views" role="group" aria-label="Vista de Imperio"><button class="btn small ${settings.view!=='portfolio'?'primary':''}" data-act="empire-view" data-view="summary" aria-pressed="${settings.view!=='portfolio'}">Resumen y operaciones</button><button class="btn small ${settings.view==='portfolio'?'primary':''}" data-act="empire-view" data-view="portfolio" aria-pressed="${settings.view==='portfolio'}">Cartera y reformas</button></div>`;
+  if(settings.view==='portfolio')return views+renderPortfolio(s,settings,portfolioData);
   const r = s.lastReport;
   const pat = patrimonio(s);
-  let html = renderEuropeanGoal(s)+`<div class="card kpis">
+  let html = views+renderEuropeanGoal(s)+`<div class="card kpis">
     <div><span class="muted small">Patrimonio</span><b>${moneyShort(pat)}</b></div>
     <div><span class="muted small">Negocios</span><b>${s.businesses.length + 1}</b></div>
     <div><span class="muted small">Plantilla</span><b>${r ? r.employees : '—'}</b></div>
@@ -443,7 +446,7 @@ export function renderEmpire(s) {
   const groups = {};
   for (const l of r.lines) (groups[l.city] ||= []).push(l);
   const cities = Object.keys(groups).sort((a, b) => groups[b].reduce((x, l) => x + l.revenue - l.cost, 0) - groups[a].reduce((x, l) => x + l.revenue - l.cost, 0));
-  html += `<div class="card"><h4>Resultado por negocio (${dateLabel(r.month)})</h4><table class="tbl"><thead><tr><th>Negocio</th><th>Ingresos</th><th>Resultado</th></tr></thead><tbody>`;
+  html += `<div class="card"><details class="empire-last-report"><summary>Resultado del último cierre por negocio (${dateLabel(r.month)})</summary><table class="tbl"><thead><tr><th>Negocio</th><th>Ingresos</th><th>Resultado</th></tr></thead><tbody>`;
   for (const cid of cities) {
     html += `<tr class="grp"><td colspan="3"><a href="#" data-act="goto-city" data-city="${cid}">📍 ${esc(CITY_BY_ID[cid].name)}</a></td></tr>`;
     for (const l of groups[cid]) {
@@ -451,7 +454,7 @@ export function renderEmpire(s) {
       html += `<tr><td>${esc(l.label)}${l.franchise ? ` <span class="tag">Franquicia</span><div class="small">Su dueño: <span class="${cls(l.franchiseeProfit)}">${signed(l.franchiseeProfit)}/mes</span></div>` : ''}</td><td>${moneyShort(l.revenue)}</td><td class="${cls(p)}">${moneyShort(p)}</td></tr>`;
     }
   }
-  html += `</tbody></table><p class="small muted">Resultado de la central, sin costes generales ni impuestos. Cada franquiciado lleva sus propias cuentas; quiebra tras cuatro meses consecutivos de pérdidas.</p></div>`;
+  html += `</tbody></table><p class="small muted">Resultado de la central, sin costes generales ni impuestos. Cada franquiciado lleva sus propias cuentas; quiebra tras cuatro meses consecutivos de pérdidas.</p></details></div>`;
   return html;
 }
 

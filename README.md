@@ -36,6 +36,8 @@ La navegación se organiza en cuatro áreas. Cada pantalla recuerda su posición
 
 En **Empresa → Imperio → Plan de operaciones** puedes anticipar las entregas y renovaciones de hoy y los próximos doce meses. El plan avisa de las ciudades que necesitarán viviendas para su plantilla, incluidas las variaciones estacionales. La agenda usa inversiones ya contratadas y condiciones actuales: no predice sucesos ni ingresos futuros, y consultar no modifica la partida.
 
+En **Imperio → Cartera y reformas** puedes buscar y filtrar los negocios actuales por país, sector o estado, con diez por página y cuentas separadas de los franquiciados. Selecciona reformas entre páginas o todo un filtro y revisa su coste y efecto conjunto sobre el resultado mensual de la empresa. El lote se aplica completo o no se cobra nada; cambiar filtros limpia la selección. El informe del último cierre sigue disponible, plegado en Resumen.
+
 | Área | Menús |
 |---|---|
 | Empresa | Ciudad, Imperio, Mercado, Finanzas |

@@ -17,6 +17,7 @@ export const HELP_PAGES = [
         <li>🏭 Los sobaos salen del <b>obrador de Selaya</b>. Si no da abasto, mejóralo, investiga producción o abre un obrador regional. La plantilla debe disponer de vivienda suficiente.</li>
         <li>🏘️ <b>Viviendas para empleados:</b> se compran directamente en <b>Equipo → Viviendas</b>, con un botón por ciudad. Los alquileres se ajustan en esa misma pestaña.</li><li>🤝 Las <b>franquicias</b> dan dinero rápido; si el franquiciado se arruina, viene a pedirte cuentas.</li>
         <li>🗓️ <b>Empresa → Imperio → Plan de operaciones</b> reúne entregas, necesidades de vivienda y renovaciones de los próximos 12 meses. Es un calendario con las condiciones actuales, no una previsión de caja.</li>
+        <li>🏪 <b>Imperio → Cartera y reformas:</b> filtra por ciudad, país, sector o estado y selecciona varios negocios. Revisa el coste y el efecto conjunto de las reformas antes de confirmar; falta de fondos o vivienda bloquea todo el lote.</li>
         <li>🔨 <b>Reformas</b> en cada ciudad; <b>campañas</b> en Expansión → Marketing e <b>I+D</b> en su menú propio. La venta online y los acuerdos exteriores también tienen pantalla propia en Expansión. Cuantos más negocios, más estructura central.</li>
         <li>🏦 La <b>póliza</b> de la Caja Cantábrica cubre los descubiertos; tres meses sin margen es concurso de acreedores.</li>
         <li>🔔 Con 3 años de cuentas y una valoración de empresa de al menos 1.000 M€ puedes <b>salir a Bolsa</b>: luego cada trimestre prometes una cifra a los analistas.</li>

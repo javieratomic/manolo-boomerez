@@ -1,7 +1,7 @@
 {
   "name": "manolo-boomerez-desktop",
   "productName": "Manolo Boomerez S.L.",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "Versión de escritorio de Manolo Boomerez S.L. (Electron).",
   "private": true,
   "main": "main.cjs",

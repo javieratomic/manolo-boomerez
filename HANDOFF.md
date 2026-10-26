@@ -1,14 +1,31 @@
 # Estado para el siguiente agente (26-10-2026)
 
-- Versión actual: **0.13.0**, plan de operaciones en Imperio. Entrega anterior `64d2d8f` (portada 0.12.1), navegación `484515f` (0.12.0), venta online `c9707aa` (0.11).
+- Versión actual: **0.14.0**, cartera y reformas conjuntas. Entrega anterior `97364dc` (plan de operaciones0.13), `64d2d8f` (portada0.12.1), navegación `484515f` (0.12.0).
 - Las peticiones de código recibidas hasta esta entrega están implementadas y verificadas. No queda implementación de esta sesión pendiente. Los apartados siguientes documentan cada entrega; los diagnósticos antiguos se conservan como historial y no deben reabrirse sin reproducirlos en la versión actual.
-- Última validación: **279 pruebas Node y 25 DOM**, más agenda, enlaces, construcción y recarga reales en escritorio y móviles de 375/320 px. Las reglas económicas no cambian en esta entrega.
-- Portable actual: `desktop/dist/ManoloBoomerez-0.13.0-portable.exe`. Los ejecutables de `desktop/dist/` son artefactos ignorados por Git y se conservan.
+- Última validación: **288 pruebas Node y 30 DOM**, más cartera/lotes y recorrido anterior14pantallas en escritorio y móviles375/320px. Se reutilizan las reglas económicas individuales sin cambios de costes ni niveles.
+- Portable actual: `desktop/dist/ManoloBoomerez-0.14.0-portable.exe`. Los ejecutables de `desktop/dist/` son artefactos ignorados por Git y se conservan.
 - Arte: **198 done, 62 requested y 1 blocked** en el manifiesto. Es la cola de recursos existente, no un bloqueo de la entrega de código.
 - Trabajo realizado en `main`, mediante commits locales. **No se ha hecho push**. Código, pruebas y documentación de cada entrega se guardan conjuntamente.
 - El usuario autorizó continuar código y decidir el equilibrio por entregas. La antigua vigilancia autónoma de arte de ocho horas ya terminó; no reiniciarla.
 
 ---
+
+# Continuación 0.14.0 — Cartera del imperio y reformas conjuntas (26-10-2026)
+
+El usuario pidió avanzar con be-ambitious y delegó elegir una mejora de comodidad/profundidad para imperios grandes.
+
+- **Empresa → Imperio → Cartera y reformas**, subvista junto a **Resumen y operaciones**. Cartera independiente de `lastReport`: previsión de negocios físicos actuales con `computeEconomy`, excluye líneas virtuales y locales vendidos. Diez negocios por página; búsqueda sin tildes por nombre/ciudad/id, país, sector, estado y orden por resultado/ciudad/nivel. Franquicias muestran cuentas central/dueño separadas; pérdidas/orden usan las cuentas del dueño. Obras y máximos no reformables.
+- Selección entre páginas o todos los reformables del filtro; filtros explícitos limpian selección y cada render excluye entradas invisibles/no elegibles. País/sector cuyo último local se vendió conserva opción «sin negocios», sin aparentar Todos. UI temporal en game.empire, reiniciada al cargar; nada nuevo en guardado.
+- `core/portfolio.js`: `portfolio`, `portfolioSelection`, `upgradeBatchPlan`, `upgradeBatch`. Plan en copia ejecuta reglas existentes de `upgradeBusiness`, viviendas primero y luego id, deduplica, valida coste total y empleo conjunto. Si un negocio falla no se modifica caja/local/log. Commit de éxito solo cash/log y level/cond/value seleccionados, equivalente a individuales.
+- Previsión conjunta antes/después de toda la empresa: neto mensual incluyendo generales/impuestos, cobertura y empleo. Se declara horizonte mes actual, no garantía ni gasto de inversión mensual; advierte delta no positivo. La falta de suministro puede hacer mala una reforma aparentemente buena.
+- Modal lista todos los nombres, ciudades, ids, niveles y costes; cancelar no gasta y doble clic no duplica. La confirmación recalcula y compara con cotización revisada (mes/items/coste/antes/después); si cambió pide revisar otra vez sin cobrar. Guardado y recarga reales conservan reformas.
+- Tabla histórica del último cierre queda disponible plegada en Resumen para acortar la pantalla. Foco de búsqueda/filtros/selección/subvista/paginación restaurado tras render; dirección de siguiente/anterior estable y alternativa habilitada si se alcanza extremo. README y ayuda actualizados.
+
+Verificación: **288/288 Node y30/30 DOM**. Edge1365×900,375×812,320×812: selección entre páginas, búsqueda/foco, filtros, cuentas franquiciados, obras, revisión concreta, cancelar, confirmar doble clic, coste36.000€ y neto coincidente con previsión, limpiar filtros, recarga, sin errores/desbordamiento. Repetido recorrido anterior14pantallas y acciones reales de I+D/viviendas/beneficios/dirección/online/marketing/exterior, también pasa.
+
+Simulación24meses con6lotes: estado y RNG idénticos a reformas individuales mes a mes. Benchmark200negocios: cartera~3ms y plan completo~8ms en esta máquina. Revisión independiente sin hallazgos; comparación adicional de los15tipos de negocio y rechazo de cotizaciones tras cambios de mes/estado/capacidad/otros negocios. Regresiones rojas/verdes de cotización vieja, filtros huérfanos, informe plegado y foco de subvista en navegador.
+
+Build definitivo y smoke desempaquetado/portable correctos (salida0), fuentes copiadas verificadas, dependencias intactas. Portable `desktop/dist/ManoloBoomerez-0.14.0-portable.exe`. Sin push ni alteración del perfil real. Plan y registro: `docs/superpowers/plans/2026-10-26-cartera-imperio.md`.
 
 # Continuación 0.13.0 — Plan de operaciones (26-10-2026)
 

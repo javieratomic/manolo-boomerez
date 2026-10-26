@@ -10,6 +10,7 @@ import './marketing.test.js';
 import './online.test.js';
 import './navigation.test.js';
 import './operations.test.js';
+import './portfolio.test.js';
 
 const { failures } = await run((line) => console.log(line));
 process.exit(failures.length ? 1 : 0);

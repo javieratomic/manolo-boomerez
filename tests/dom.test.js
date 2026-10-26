@@ -8,6 +8,44 @@ import { newGame } from '../src/core/state.js';
 import { resolvePending } from '../src/core/sim.js';
 import { renderManolo, renderCity, renderEmpire, renderMarket, renderResearch, renderMarketing, renderInternational, renderOnline, renderResidences, renderBenefits, renderStaff } from '../src/ui/panels.js';
 
+test('DOM: cartera es una subvista de Imperio y limita la página a diez negocios sin informe',()=>{
+ const s=newGame(42);resolvePending(s,0);s.businesses=Array.from({length:23},(_,i)=>({id:i+1,type:'express',city:'madrid',mode:'propia',level:1,value:3e4}));
+ const el=document.createElement('div');el.innerHTML=renderEmpire(s,{view:'portfolio'});
+ assertEq(el.querySelectorAll('.portfolio-business').length,10);assert(!el.querySelector('.operations-plan'));assert(el.querySelector('[data-act="empire-view"]'));
+ assert(el.textContent.includes('23 negocios'));assert(el.textContent.includes('Previsión del mes actual'));
+});
+
+test('DOM: cartera excluye selección invisible o no reformable y muestra el lote de otras páginas',async()=>{
+ const {renderPortfolio}=await import('../src/ui/portfolio.js');const s=newGame(42);resolvePending(s,0);s.cash=1e8;
+ s.businesses=Array.from({length:12},(_,i)=>({id:i+1,type:'express',city:i===11?'barcelona':'madrid',mode:i===0?'franquicia':'propia',level:1,value:3e4}));
+ const el=document.createElement('div');el.innerHTML=renderPortfolio(s,{page:1,selected:[1,2,12,999]});
+ assertEq(el.querySelectorAll('.portfolio-business').length,2);assert(el.textContent.includes('2 negocios seleccionados'));
+ assert(el.querySelector('[data-act="portfolio-review"]'));assert(!el.querySelector('[data-act="portfolio-review"]').disabled);
+ el.innerHTML=renderPortfolio(s,{filters:{query:'barcelona'},selected:[2,12]});
+ assert(el.textContent.includes('1 negocio seleccionado'));assert(el.textContent.includes('Barcelona'));
+});
+
+test('DOM: cartera distingue obras, franquicias y límite de nivel sin ofrecer reformas',async()=>{
+ const {renderPortfolio}=await import('../src/ui/portfolio.js');const s=newGame(42);resolvePending(s,0);
+ s.businesses=[{id:1,type:'telecom',city:'madrid',mode:'propia',level:1,value:3e6,readyMonth:6},{id:2,type:'express',city:'barcelona',mode:'franquicia',level:1,value:3e4},{id:3,type:'express',city:'valencia',mode:'propia',level:10,value:3e4}];
+ const el=document.createElement('div');el.innerHTML=renderPortfolio(s);
+ assertEq(el.querySelectorAll('[data-act="portfolio-pick"]:disabled').length,3);assert(el.textContent.includes('En obras'));assert(el.textContent.includes('Resultado del dueño'));assert(el.textContent.includes('Nivel máximo'));
+});
+
+test('DOM: cartera conserva visibles los filtros de un país o sector tras vender su último negocio',async()=>{
+ const {renderPortfolio}=await import('../src/ui/portfolio.js');const s=newGame(42);resolvePending(s,0);
+ s.businesses=[{id:1,type:'express',city:'madrid',mode:'propia',level:1,value:3e4}];
+ const el=document.createElement('div');el.innerHTML=renderPortfolio(s,{filters:{country:'portugal',category:'infraestructura'}});
+ assertEq(el.querySelector('[data-key="country"]').value,'portugal');assertEq(el.querySelector('[data-key="category"]').value,'infraestructura');
+ assert(el.textContent.includes('sin negocios'));assertEq(el.querySelectorAll('.portfolio-business').length,0);
+});
+
+test('DOM: Imperio mantiene el informe histórico disponible pero plegado para no alargar el resumen',async()=>{
+ const {computeEconomy}=await import('../src/core/economy.js');const s=newGame(42);resolvePending(s,0);s.lastReport=computeEconomy(s);
+ const el=document.createElement('div');el.innerHTML=renderEmpire(s);
+ const details=el.querySelector('.empire-last-report');assert(details);assert(!details.open);assert(details.querySelector('table'));
+});
+
 test('DOM: Imperio muestra plan de operaciones antes del primer cierre sin cambiar la partida',()=>{
  const s=newGame(42);resolvePending(s,0);const before=JSON.stringify(s);
  const el=document.createElement('div');el.innerHTML=renderEmpire(s);

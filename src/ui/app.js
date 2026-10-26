@@ -1,4 +1,6 @@
 import {nominateHeir} from '../core/dynasty.js';
+import {portfolio,portfolioSelection,upgradeBatchPlan,upgradeBatch} from '../core/portfolio.js';
+import {renderUpgradeReview} from './portfolio.js';
 import {openOnline,upgradeOnline,toggleOnline,setOnlineShipping} from '../core/online.js';
 import {campaignPlan,launchCampaignBatch,marketingTerritories,campaignSelection} from '../core/marketing.js';
 import {setHousingPolicy} from '../core/housing.js';
@@ -141,6 +143,7 @@ function startGame(s) {
   game.s = s;
   game.marketingSelection={};
   game.panelScroll={};game.renderedPanel=null;game.lastTabs={};game.researchFilters={status:'pending',category:'all'};
+  game.empire={view:'summary',filters:{},selected:[],page:0};game.portfolioReviewOpen=false;
   game.bubble = null;
   game.city = HQ_CITY;
   game.tab = 'ciudad';
@@ -246,14 +249,19 @@ function renderTabs() {
 
 function renderPanel(s) {
   const body = $('#panel-body');
-  const focus=body.contains(document.activeElement)?{act:document.activeElement.dataset.act,value:document.activeElement.dataset.value}:null;
+  const active=document.activeElement;
+  const focus=body.contains(active)?{act:active.dataset.act,value:active.dataset.value,key:active.dataset.key,id:active.dataset.id,view:active.dataset.view,direction:active.dataset.direction,start:active.selectionStart,end:active.selectionEnd}:null;
   const panel=game.tab==='ciudad'?`ciudad:${game.city}`:game.tab;
   game.panelScroll||={};
   if(game.renderedPanel&&!game.resetPanelScroll)game.panelScroll[game.renderedPanel]=body.scrollTop;
   const scroll=game.resetPanelScroll?0:game.panelScroll[panel]||0;game.resetPanelScroll=false;
   const map = {
     ciudad: () => renderCity(s, game.city),
-    imperio: () => renderEmpire(s),
+    imperio: () => {
+      const data=game.empire.view==='portfolio'?portfolio(s,game.empire.filters):null;
+      if(data)game.empire.selected=portfolioSelection(data.rows,game.empire.selected);
+      return renderEmpire(s,game.empire,data);
+    },
     mercado: () => renderMarket(s),
     marketing:()=>renderMarketing(s,game.marketingSelection),
     rd:()=>renderResearch(s,game.researchFilters),
@@ -273,6 +281,12 @@ function renderPanel(s) {
   if(game.tab==='rd'&&['research-status','research-category'].includes(focus?.act)){
     const controls=[...body.querySelectorAll(`[data-act="${focus.act}"]`)];
     (focus.act==='research-status'?controls.find(el=>el.dataset.value===focus.value):controls[0])?.focus({preventScroll:true});
+  }
+  if(game.tab==='imperio'&&(focus?.act?.startsWith('portfolio-')||focus?.act==='empire-view')){
+    const controls=[...body.querySelectorAll(`[data-act="${focus.act}"]`)];
+    const el=controls.find(x=>!x.disabled&&(!focus.key||x.dataset.key===focus.key)&&(!focus.id||x.dataset.id===focus.id)&&(!focus.view||x.dataset.view===focus.view)&&(!focus.direction||x.dataset.direction===focus.direction))||controls.find(x=>!x.disabled);
+    el?.focus({preventScroll:true});
+    if(el&&focus.act==='portfolio-search'&&focus.start!=null)el.setSelectionRange(focus.start,focus.end);
   }
   if (game.tab === 'finanzas') drawChart($('#chart'), s);
   if (game.tab === 'imperio') drawCategoryChart($('#chart-cat'), s);
@@ -355,6 +369,7 @@ function bindGlobal() {
   document.addEventListener('pointerdown', () => game.s && startMusic(), { passive: true });
   document.addEventListener('click', onClick);
   document.addEventListener('change', onChange);
+  document.addEventListener('input', onInput);
   document.addEventListener('toggle', (e) => {
     const d = e.target;
     if (d instanceof HTMLDetailsElement && d.dataset.folder && d.open) setArchivoOpen(d.dataset.folder);
@@ -418,6 +433,31 @@ async function onClick(e) {
   e.preventDefault();
   let res = null;
   switch (act) {
+    case 'empire-view':
+      game.empire.view=el.dataset.view;game.resetPanelScroll=true;
+      break;
+    case 'portfolio-page':
+      game.empire.page=Math.max(0,Number(el.dataset.page)||0);game.resetPanelScroll=true;
+      break;
+    case 'portfolio-all':
+      game.empire.selected=portfolio(s,game.empire.filters).rows.filter(r=>r.upgradeable).map(r=>r.id);
+      break;
+    case 'portfolio-clear':
+      game.empire.selected=[];
+      break;
+    case 'portfolio-review': {
+      if(game.portfolioReviewOpen)return;
+      const ids=portfolioSelection(portfolio(s,game.empire.filters).rows,game.empire.selected),plan=upgradeBatchPlan(s,ids);
+      if(!plan.ok){res=plan;break;}
+      game.portfolioReviewOpen=true;
+      try {
+        const choice=await showModal({title:'Revisar reformas conjuntas',html:renderUpgradeReview(plan),dismissable:true,choices:[{label:'Cancelar'},{label:'Confirmar reformas',primary:true}]});
+        if(choice!==1)return;
+        res=upgradeBatch(s,ids,plan);
+        if(res.ok){game.empire.selected=[];play('build');toast(`🔨 ${res.count} reformas · ${money(res.cost)}`,'good');}
+      } finally {game.portfolioReviewOpen=false;}
+      break;
+    }
     case 'tab':
       play('click');
       game.tab = el.dataset.tab;
@@ -682,6 +722,12 @@ async function onClick(e) {
 
 function onChange(e) {
   const el = e.target;
+  if(el.dataset.act==='portfolio-filter'&&game.s){setPortfolioFilter(el.dataset.key,el.value);return;}
+  if(el.dataset.act==='portfolio-pick'&&game.s){
+    const ids=new Set(portfolioSelection(portfolio(game.s,game.empire.filters).rows,game.empire.selected));
+    if(el.checked)ids.add(Number(el.dataset.id));else ids.delete(Number(el.dataset.id));
+    game.empire.selected=[...ids];renderAll();return;
+  }
   if(el.dataset.act==='research-category'&&game.s){game.researchFilters||={};game.researchFilters.category=el.value;game.resetPanelScroll=true;renderAll();return;}
   if(el.dataset.act==='online-shipping'&&game.s){const res=setOnlineShipping(game.s,el.value);if(!res.ok)toast(res.msg,'bad');renderAll();return;}
   if(el.dataset.act==='marketing-target'&&game.s){
@@ -707,6 +753,13 @@ function onChange(e) {
   const res = setPolicy(game.s, el.dataset.key, el.value);
   if (!res.ok) toast(res.msg, 'bad');
   renderAll();
+}
+
+function setPortfolioFilter(key,value) {
+  game.empire.filters[key]=value;game.empire.selected=[];game.empire.page=0;game.resetPanelScroll=true;renderAll();
+}
+function onInput(e) {
+  if(e.target.dataset.act==='portfolio-search'&&game.s)setPortfolioFilter('query',e.target.value);
 }
 
 async function showMenu() {

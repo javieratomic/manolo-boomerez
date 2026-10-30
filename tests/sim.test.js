@@ -1357,7 +1357,9 @@ test('estimación rápida: igual que con un clon y sin tocar la partida', () => 
   const ref = (s, type, city, mode = 'propia') => {
     const base = computeEconomy(s);
     const c = JSON.parse(JSON.stringify(s));
-    c.businesses.push({ id: -1, type, city, mode, value: 0, level: 1,...(type==='vivienda'?{housingForm:'apartamentos'}:{}) });
+    // El negocio de prueba vale lo que le daría openBusiness, para que la estimación cuente su mantenimiento.
+    const value = mode === 'franquicia' ? 0 : openingCost(s, type, mode, city) * (BUSINESS_TYPES[type].realEstate ? 0.85 : 1);
+    c.businesses.push({ id: -1, type, city, mode, value, level: 1,...(type==='vivienda'?{housingForm:'apartamentos'}:{}) });
     const after = computeEconomy(c);
     return { delta: after.profit - base.profit, fillAfter: after.fill, fillBefore: base.fill };
   };

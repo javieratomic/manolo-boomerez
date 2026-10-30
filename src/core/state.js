@@ -18,7 +18,7 @@ import { grossPatrimonio, computeEconomy } from './economy.js';
 export const SAVE_KEY = 'manolo-boomerez-save-v1';
 export const SAVE_VERSION = 2;
 // Versión del contenido: una semilla solo reproduce la misma partida con la misma versión.
-export const GAME_VERSION = '0.18.0';
+export const GAME_VERSION = '0.19.0';
 
 export const DIFFICULTIES = {
   cunado: {
@@ -137,7 +137,9 @@ export function migrate(s) {
     s.originalGameVersion ||= s.gameVersion;
     s.gameVersion = GAME_VERSION;
   }
-  const d = newGame(s.seed, s.difficulty || 'normal');
+  // Antes de la 0.6 solo existía la campaña clásica: una partida sin campaña no se vuelve europea al cargarla.
+  s.campaign ??= 'classic';
+  const d = newGame(s.seed, s.difficulty || 'normal', s.campaign);
   for (const [k, v] of Object.entries(d)) if (!(k in s)) s[k] = v;
   // En modo infinito la partida ya terminó: una cláusula sin cumplir queda cerrada.
   if (s.endless && s.clausula && !s.clausula.done && !s.clausula.broken) s.clausula.closed = true;

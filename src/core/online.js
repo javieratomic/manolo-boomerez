@@ -17,7 +17,8 @@ export function onlineRevenueFactor(s) {
 export function calculateOnline(s,{availableUnits=0,staff=0,wage=0,demandFactor=1,materialFactor=1}={}) {
  const state=s.online||{level:0,active:false,shipping:'incluido'},plan=ONLINE_LEVELS[state.level],brand=ONLINE_BRANDS[s.brand]||ONLINE_BRANDS.express,shippingPolicy=ONLINE_SHIPPING[state.shipping];
  const active=!!state.active&&state.level>0;
- const hub=s.businesses.some(b=>b.type==='logistica'&&b.city==='selaya'&&b.mode!=='franquicia'&&isOperating(s,b));
+ // Un centro de Boomerez Logística propio y en marcha abarata la paquetería (en Selaya no se puede abrir).
+ const hub=s.businesses.some(b=>b.type==='logistica'&&b.mode!=='franquicia'&&isOperating(s,b));
  const parcelCost=brand.parcel*researchFactor(s,'transportFactor')*(hub?0.85:1);
  const potentialUnits=active?Math.max(0,Math.floor(plan.demand*brand.traffic*shippingPolicy.demand*demandFactor/ONLINE_BOX)*ONLINE_BOX):0;
  const maxOrders=active?Math.floor(plan.maxOrders*staff/Math.max(1,plan.staff)):0;

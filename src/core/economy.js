@@ -21,6 +21,7 @@ import { execBonus, execSalaries } from './execs.js';
 import { lujoValue, lujoUpkeep } from './life.js';
 import { transportCost, regionalCount, REGIONAL_CAPACITY, productionSites } from './logistics.js';
 import { govFx } from './politics.js';
+import { openingCost } from './actions.js';
 
 export const SOBAO_SEASON = [1.05, 0.95, 0.95, 1, 1, 0.9, 0.85, 0.9, 1, 1.05, 1.1, 1.35];
 export const TOURISM_SEASON = [0.6, 0.65, 0.8, 0.95, 1, 1.2, 1.5, 1.55, 1.15, 0.9, 0.7, 0.85];
@@ -446,7 +447,9 @@ export function computeEconomy(s) {
 export function estimateOpening(s, typeId, cityId, mode = 'propia') {
   const base = computeEconomy(s);
   // Sin clonar (el clon era casi todo el coste del bot): un negocio de prueba que se quita siempre.
-  const tmp = { id: -1, type: typeId, city: cityId, mode, value: 0, level: 1, ...(typeId==='vivienda'?{housingForm:'apartamentos'}:{}) };
+  // Con el valor que le daría openBusiness: así la estimación incluye su mantenimiento.
+  const value = mode === 'franquicia' ? 0 : openingCost(s, typeId, mode, cityId) * (BUSINESS_TYPES[typeId]?.realEstate ? 0.85 : 1);
+  const tmp = { id: -1, type: typeId, city: cityId, mode, value, level: 1, ...(typeId==='vivienda'?{housingForm:'apartamentos'}:{}) };
   s.businesses.push(tmp);
   try {
     const after = computeEconomy(s);

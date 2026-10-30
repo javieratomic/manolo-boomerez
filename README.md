@@ -115,6 +115,17 @@ docs/        Documento de diseño
 Incluyen un bot (`tests/bot.js`) que juega partidas completas con distintas estrategias y que sirve para
 equilibrar la economía.
 
+Fuera de la batería, tres herramientas de medida:
+
+- `node tests/fuzz.mjs --seeds 30 --months 600 --rich --tame`: partidas caóticas con acciones válidas al
+  azar. Cada mes comprueba que no haya números no finitos, valores fuera de rango, negocios duplicados,
+  cartas sin opciones o que se repiten sin fin, y excepciones. Cada 12 meses guarda y carga la partida y
+  comprueba que la cargada viva lo mismo que la original. Sale con código 1 si algo falla.
+- `node tests/europe.mjs --seeds 32 --months 600 --only EU_goal`: el bot juega la campaña europea en
+  paralelo y da el porcentaje de victorias con su intervalo de confianza, los meses hasta ganar y en qué
+  se queda quien no gana.
+- `node tests/balance.mjs`: barrida de la campaña clásica de ocho años.
+
 ## Flujo de arte (agente Codex)
 
 1. `tools/art_catalog.py` define cada recurso: id, ruta, tamaño, ancla, prioridad y descripción.

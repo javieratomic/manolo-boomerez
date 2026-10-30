@@ -1,4 +1,4 @@
-import {workforcePlan} from './workforce.js';
+import {workforcePlan,missingBedsAhead,bedsMessage} from './workforce.js';
 import {HOUSING_FORMS} from '../data/housing.js';
 import {buildMonths,businessName} from './construction.js';
 // Acciones del jugador durante el mes (todas validan y devuelven { ok, msg }).
@@ -16,6 +16,7 @@ import { checkClause } from './clauses.js';
 import { breaksPromise } from './cartilla.js';
 
 export const LOAN_STEP = 25000;
+export const FRANCHISES_PER_MONTH = 3;
 export const MAX_PER_CITY = 6; // compatibilidad con herramientas anteriores
 export const cityBusinessLimit = city => 6+Math.ceil(6*(CITY_BY_ID[city]?.pop||0));
 
@@ -59,6 +60,8 @@ export function canOpen(s, typeId, cityId, mode = 'propia', housingForm='apartam
   if (t.category === 'sobaos' && typeId !== sobaoTypeId(s)) return { ok: false, msg: 'Esa no es tu marca.' };
   if (t.category !== 'sobaos' && typeId !== 'vivienda' && !s.unlocked[typeId]) return { ok: false, msg: 'Aún no está desbloqueado.' };
   if (mode === 'franquicia' && t.category !== 'sobaos') return { ok: false, msg: 'Solo las tiendas de sobaos se franquician.' };
+  // Sin este tope se podían colocar cientos de franquicias ruinosas en un mes y quedarse con los cánones.
+  if (mode === 'franquicia' && s.businesses.filter((b) => b.mode === 'franquicia' && b.openedMonth === s.month).length >= FRANCHISES_PER_MONTH) return { ok: false, msg: `Este mes ya has colocado ${FRANCHISES_PER_MONTH} franquicias: no hay tantos incautos por semana. El mes que viene, más.` };
   if (mode === 'ilegal' && !needsLicense(typeId, cityId)) return { ok: false, msg: 'Aquí no hace falta licencia.' };
   if (t.onePerCity && s.businesses.some((b) => b.type === typeId && b.city === cityId)) return { ok: false, msg: 'Ya tienes uno en esta ciudad.' };
   if (t.unique && s.businesses.some((b) => b.type === typeId)) return { ok: false, msg: 'Solo puede haber una.' };
@@ -66,8 +69,8 @@ export function canOpen(s, typeId, cityId, mode = 'propia', housingForm='apartam
   if (typeId!=='vivienda' && s.businesses.filter((b) => b.city === cityId && b.type!=='vivienda').length >= cityBusinessLimit(cityId)) return { ok: false, msg: 'Ya no caben más negocios en esta ciudad.' };
   if(typeId!=='vivienda' && mode!=='franquicia') {
     const tmp={id:-2,type:typeId,city:cityId,mode,level:1};s.businesses.push(tmp);
-    let plan;try{plan=workforcePlan(s,cityId);}finally{s.businesses.splice(s.businesses.indexOf(tmp),1);}
-    if(plan.missingBeds>0)return {ok:false,msg:`Faltan ${plan.missingBeds} plazas de vivienda para contratar en ${c.name}. Cómpralas desde Equipo → Viviendas.`};
+    let gap;try{gap=missingBedsAhead(s,cityId);}finally{s.businesses.splice(s.businesses.indexOf(tmp),1);}
+    if(gap.missing>0)return {ok:false,msg:bedsMessage(s,gap,c.name)};
   }
   const cost = openingCost(s, typeId, mode, cityId,housingForm);
   if (cost > s.cash) return { ok: false, msg: `Necesitas ${money(cost)} en caja.` };

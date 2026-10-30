@@ -1,4 +1,4 @@
-import {workforcePlan} from './workforce.js';
+import {workforcePlan,missingBedsAhead,bedsMessage} from './workforce.js';
 import {decemberTradition} from './localEvents.js';
 import {isOperating} from './construction.js';
 // Marketing, I+D y reformas de negocios.
@@ -90,8 +90,8 @@ export function upgradeBusiness(s, id) {
   if (cost == null) return { ok: false, msg: b.mode === 'franquicia' ? 'Las franquicias las reforma el franquiciado (o nadie).' : 'Ya está al máximo.' };
   if (s.cash < cost) return { ok: false, msg: `Necesitas ${money(cost)}.` };
   b.level=(b.level||1)+1;
-  let plan;try{plan=workforcePlan(s,b.city);}finally{b.level--;}
-  if(b.type!=='vivienda'&&plan.missingBeds>0)return {ok:false,msg:`Faltan ${plan.missingBeds} plazas de vivienda en ${CITY_BY_ID[b.city].name}. Ve a Equipo → Viviendas.`};
+  let gap;try{gap=missingBedsAhead(s,b.city);}finally{b.level--;}
+  if(b.type!=='vivienda'&&gap.missing>0)return {ok:false,msg:bedsMessage(s,gap,CITY_BY_ID[b.city].name)};
   addCash(s, -cost);
   b.level = (b.level || 1) + 1;
   b.cond = 100; // la reforma lo deja como nuevo

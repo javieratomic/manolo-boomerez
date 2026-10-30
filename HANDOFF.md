@@ -1,9 +1,50 @@
-# Estado para el siguiente agente (26-10-2026)
+# Estado para el siguiente agente (30-10-2026)
 
-- Versión actual: **0.18.0**, Resistencia de nuevas aperturas. Entrega anterior `a788cc7` (aperturas0.17), `9335ae9` (reestructuración0.16), `c0b1dd9` (resistencia0.15).
-- Las peticiones de código recibidas hasta esta entrega están implementadas y verificadas. No queda implementación de esta sesión pendiente. Los apartados siguientes documentan cada entrega; los diagnósticos antiguos se conservan como historial y no deben reabrirse sin reproducirlos en la versión actual.
-- Última validación: **321 pruebas Node y46 DOM**, más estudio/retorno/propietario/marca anterior/apertura y recorrido0.17 en escritorio y móviles375/320px. Sin cambios de reglas económicas ni guardados.
-- Portable actual: `desktop/dist/ManoloBoomerez-0.18.0-portable.exe`. Los ejecutables de `desktop/dist/` son artefactos ignorados por Git y se conservan.
+- Versión actual: **0.19.0**, La campaña europea, medida (Claude). Entrega anterior: 0.18.0 `a0252f8` (Codex).
+- Última validación: **328 pruebas Node y 374 en el navegador** (incluidas las del DOM). Unos 58.000 meses
+  de `tests/fuzz.mjs` sin fallos de invariantes.
+- Portable actual: `desktop/dist/ManoloBoomerez-0.19.0-portable.exe`. Los ejecutables de `desktop/dist/` son
+  artefactos ignorados por Git y se conservan.
+
+# Continuación 0.19.0 — La campaña europea, medida (30-10-2026)
+
+El usuario pidió seguir 4 horas con be-ambitious. Objetivo: que un juez externo diga si la campaña por defecto
+se puede ganar, a qué ritmo y sin trucos ni atascos, y corregir lo que encuentre.
+
+- **Medida:** `node tests/europe.mjs --seeds 24 --months 360 --only EU_goal,EU_goal_delta` (en paralelo; cada
+  partida tarda 10-17 min porque el bot evalúa muchas aperturas). Estrategia `europe` en `tests/bot.js`: marca
+  blanca con auditoría en los mercados baratos si el obrador llega al 90 %, despliegue exterior, una tienda
+  propia por país y fin del acuerdo, I+D de logística → telecomunicaciones → banca, un local de cada sector
+  (con crédito si hace falta) y viviendas donde falte plantilla. Las opciones por defecto del bot no cambian
+  (12 partidas idénticas a la versión anterior).
+- **Resultado:** 24/24 victorias en las dos variantes; mediana 286 meses (EU_goal) y 250 (EU_goal_delta,
+  IC95 245-257). Repetido tras las correcciones: EU_goal_delta 24/24, mediana 257 (IC95 244-264). 8 países hacia el mes 75-79, 3 sectores hacia el 105; manda el patrimonio. Sin banca, el
+  patrimonio crece de forma lineal (unos 7 M€/año). No se ha cambiado el ritmo.
+- **Fuzzer:** `node tests/fuzz.mjs --seeds 40 --months 900 --rich --tame` (y sin `--rich --tame` para partidas
+  que acaban pronto). Invariantes: números finitos, rangos, ids únicos, cartas con opciones y sin bucles,
+  excepciones en acciones y cierres, y que una copia cargada viva igual que la original durante 3 meses.
+- **Caza de trucos** (cazador + verificador adversario por hipótesis, scripts en el scratchpad de la sesión):
+  corregidos el bucle de franquicias ruinosas (tope `FRANCHISES_PER_MONTH = 3`), la estimación sin
+  mantenimiento, el salto de la comprobación de plantilla con locales en obras (`missingBedsAhead` en
+  `workforce.js`; mira las entregas pendientes sin cambiar la temporada), el descuento de paquetería
+  inalcanzable, el aviso de la oferta del rival y el orden del ERTE. Migración: guardado sin `campaign` →
+  `classic`.
+- **Probado y descartado:** la vivienda como pozo de revalorización (deriva neta ~2 %/año), endeudarse para
+  inflar el patrimonio (neutro), la OPA en crisis (no da dinero), la salida a Bolsa como atajo a 1.000 M€
+  (como mucho +0,8 %), lotes frente a operaciones sueltas (idénticos), el acceso permanente a un país tras
+  seis meses de marca blanca (coherente con los textos).
+- **Pendiente, decisiones de diseño (no tocadas):**
+  1. La campaña clásica es ahora mucho más fácil que en la 0.4: con 32 semillas el bot llega a la revista
+     en 30/32 partidas Express (mes ~79) y 32/32 Maison (mes ~59). Explotar con cuidado apenas rinde más
+     que jugar legal (23,7 frente a 22,8 M€ y 48,8 frente a 46,8 M€); la explotación bruta pierde (15,3 M€).
+  2. Partidas muy largas: los salarios suben (SMI, elecciones) sin índice de precios; hacia el mes 700-840 el
+     índice salarial llega a ×2-3 y el beneficio se vuelve negativo. No afecta a una victoria a los ~21-24
+     años, sí al modo infinito tras ganar.
+  3. Los expedientes se heredan en el relevo; Doña Remedios presta también a los sucesores; el relevo da
+     una acción extra y quita el estrés. El patrimonio no descuenta la deuda con Hacienda ni la liquidación
+     latente (un jugador ilegal gana ~2 meses antes). Las OPA no exigen plazas ni plazo de obra. El obrador
+     no se deprecia.
+- Plan: `docs/superpowers/plans/2026-10-30-campana-europea-medida.md`.
 - Arte: **198 done, 62 requested y 1 blocked** en el manifiesto. Es la cola de recursos existente, no un bloqueo de la entrega de código.
 - Trabajo realizado en `main`, mediante commits locales. **No se ha hecho push**. Código, pruebas y documentación de cada entrega se guardan conjuntamente.
 - El usuario autorizó continuar código y decidir el equilibrio por entregas. La antigua vigilancia autónoma de arte de ocho horas ya terminó; no reiniciarla.

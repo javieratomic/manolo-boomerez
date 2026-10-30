@@ -1,7 +1,7 @@
 // Bot de juego automático para equilibrar la economía y para los tests de humo.
 import { newGame } from '../src/core/state.js';
 import { advanceMonth, currentPending, resolvePending, checkEnding, score } from '../src/core/sim.js';
-import { openBusiness, canOpen, buyUpgrade, sobaoTypeId, doManoloAction, borrow, setPolicy } from '../src/core/actions.js';
+import { openBusiness, canOpen, buyUpgrade, sobaoTypeId, doManoloAction, borrow, setPolicy, openingCost } from '../src/core/actions.js';
 import { estimateOpening, patrimonio, creditLimit, grossPatrimonio } from '../src/core/economy.js';
 import { refreshCandidates, hireExec, execOf } from '../src/core/execs.js';
 import { canStartRD, startRD, upgradeBusiness, upgradeCost, launchCampaign } from '../src/core/market.js';
@@ -11,6 +11,10 @@ import { PRODUCTS } from '../src/data/market.js';
 import { CITIES } from '../src/data/cities.js';
 import { random } from '../src/core/rng.js';
 import { canAsk, askLoan } from '../src/core/cartilla.js';
+import { canSignAgreement, signAgreement, endAgreement, agreementTerms } from '../src/core/international.js';
+import { FOREIGN_CITIES } from '../src/data/foreignCities.js';
+import { FOREIGN_MARKETS } from '../src/data/international.js';
+import { isOperating } from '../src/core/construction.js';
 
 const CITY_IDS = CITIES.filter((c) => !c.hq).map((c) => c.id);
 const DIVERSIFY = ['smash', 'empanadas', 'airbnb', 'vivienda', 'academy', 'taberna', 'gimnasio', 'coworking', 'residencia', 'obrador_regional'];
@@ -36,9 +40,110 @@ const DIVERSIFY = ['smash', 'empanadas', 'airbnb', 'vivienda', 'academy', 'taber
  *  hook(s), onMonth(s, r, eventos): ganchos para scripts de medida
  *  guia: guía de la promesa del trimestre cotizando ('prudente' por defecto, 'en_linea', 'optimista', 'tiburon')
  *  mama: pide a Doña Remedios «lo que pueda» cuando se deja (y resuelve sus cartas con la primera opción)
+ *  campaign: 'classic' (por defecto en el bot) | 'europe'
+ *  scan: evalúa solo ese número de combinaciones tipo×ciudad al mes, elegidas con un azar propio del bot
+ *    (no toca el de la partida); sin scan, las prueba todas · opens: aperturas como mucho por mes (1)
+ *  europe: persigue la meta de la campaña europea (marca blanca → despliegue exterior → tienda propia en cada
+ *    país; I+D de logística, telecomunicaciones y banca; viviendas donde falte plantilla) y no vende un local
+ *    a un rival. Abre también los sectores estratégicos y en ciudades europeas. rank: 'ratio' (beneficio/coste,
+ *    por defecto) | 'delta' (el mayor beneficio con un plazo de recuperación ≤ payback meses, 36 por defecto)
  */
 export const LEGAL = { salario: 'convenio', horas: 'pagadas', becarios: 'ninguno' };
+// Azar del propio bot (mulberry32), para no gastar el de la partida al decidir qué mirar.
+function botRandom(seed, month) {
+  let a = (seed * 2654435761 + month * 40503) | 0;
+  return () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
 export const from = (m, pol) => (s) => (s.month >= m ? pol : null);
+const STRATEGIC = ['plataforma_logistica', 'red_telecom', 'licencia_bancaria'];
+const STRATEGIC_TYPES = ['logistica', 'telecom', 'banca'];
+const EU_MARKETS = FOREIGN_MARKETS.filter((m) => FOREIGN_CITIES.some((c) => c.market === m.id)).sort((a, b) => a.setup - b.setup);
+const FOREIGN_IDS = FOREIGN_CITIES.map((c) => c.id);
+const marketOf = Object.fromEntries(FOREIGN_CITIES.map((c) => [c.id, c.market]));
+const ownIn = (s, market) => s.businesses.some((b) => b.mode !== 'franquicia' && isOperating(s, b) && marketOf[b.city] === market);
+
+// Lo que haría un jugador que va a por la meta europea, antes de la gestión de siempre.
+function europeStep(s, strategy) {
+  const track = (m) => s.foreignTrack?.[m]?.successMonths || 0;
+  // Laboratorio: primero el despliegue exterior en cuanto un país lo permite; si no, los sectores estratégicos.
+  if (!s.rd) {
+    if (!s.products.includes('expansion_propia') && EU_MARKETS.some((m) => track(m.id) >= 6)) {
+      if (canStartRD(s, 'expansion_propia').ok) startRD(s, 'expansion_propia');
+    } else {
+      const next = STRATEGIC.find((id, i) => !s.unlocked[STRATEGIC_TYPES[i]] && !s.products.includes(id));
+      const cost = PRODUCTS.find((x) => x.id === next)?.cost ?? Infinity;
+      if (next && s.cash > cost * 2 && canStartRD(s, next).ok) startRD(s, next);
+    }
+  }
+  // Marca blanca, con auditoría, en los mercados más baratos, si el obrador puede servirla al 90 %.
+  const rep = s.lastReport;
+  if (rep && s.cash > 300000) {
+    const needed = 7 - EU_MARKETS.filter((m) => ownIn(s, m.id)).length;
+    let spare = rep.capacity * 0.92 - rep.totalDemand;
+    let signed = (s.foreignDeals || []).filter((d) => d.mode === 'private_label').length;
+    for (const m of EU_MARKETS) {
+      if (signed >= needed) break;
+      if (ownIn(s, m.id) || track(m.id) >= 6 || (s.foreignDeals || []).some((d) => d.market === m.id)) continue;
+      const units = agreementTerms(m.id, 'private_label', true).units;
+      if (spare < units) { if (rep.fill > 0.97) buyUpgrade(s); break; }
+      if (!canSignAgreement(s, m.id, 'private_label', true).ok) break;
+      signAgreement(s, m.id, 'private_label', true);
+      spare -= units; signed++;
+    }
+  }
+  // Tienda propia en cada país desbloqueado y, ya dentro, fuera el acuerdo (libera obrador y evita disputas).
+  if (s.products.includes('expansion_propia')) {
+    for (const m of EU_MARKETS) {
+      if (track(m.id) < 6) continue;
+      if (!ownIn(s, m.id)) {
+        let best = null;
+        for (const c of FOREIGN_CITIES.filter((x) => x.market === m.id)) {
+          if (!canOpen(s, sobaoTypeId(s), c.id).ok) continue;
+          const d = estimateOpening(s, sobaoTypeId(s), c.id, 'propia').delta;
+          if (!best || d > best.d) best = { c: c.id, d };
+        }
+        if (best) openBusiness(s, sobaoTypeId(s), best.c);
+      }
+      const deal = (s.foreignDeals || []).find((d) => d.market === m.id);
+      if (deal && ownIn(s, m.id)) endAgreement(s, deal.id);
+    }
+  }
+  // Un local de cada sector estratégico en cuanto se pueda, en la ciudad que más rinda.
+  for (const type of STRATEGIC_TYPES) {
+    if (!s.unlocked[type] || s.businesses.some((b) => b.type === type && b.mode !== 'franquicia')) continue;
+    let best = null;
+    let blocked = null;
+    for (const c of [...CITY_IDS, ...FOREIGN_IDS]) {
+      const ok = canOpen(s, type, c);
+      if (!ok.ok && /plazas/.test(ok.msg || '')) { blocked ??= c; continue; }
+      if (!ok.ok && !/en caja/.test(ok.msg || '')) continue;
+      const d = estimateOpening(s, type, c, 'propia').delta;
+      if (d > 0 && (!best || d > best.d)) best = { c, d };
+    }
+    if (best) {
+      const cost = openingCost(s, type, 'propia', best.c);
+      if (s.cash < cost && strategy.leverage) fund(s, cost - s.cash + 50000);
+      openBusiness(s, type, best.c);
+    } else if (blocked) housingFor(s, blocked, strategy);
+  }
+}
+// Viviendas para la plantilla donde un negocio grande no cabe (una promoción en obras por ciudad).
+function housingFor(s, city, strategy) {
+  if (s.businesses.some((b) => b.type === 'vivienda' && b.city === city && !isOperating(s, b))) return;
+  const cost = openingCost(s, 'vivienda', 'propia', city, 'apartamentos');
+  if (s.cash < cost * 1.2 && strategy.leverage) fund(s, cost * 1.2 - s.cash);
+  if (canOpen(s, 'vivienda', city, 'propia', 'apartamentos').ok) openBusiness(s, 'vivienda', city, 'propia', 'apartamentos');
+}
+// Crédito solo si cabe con holgura (deuda hasta el 80 % del límite).
+function fund(s, amount) {
+  if (amount <= 0) return;
+  const room = creditLimit(s) * 0.8 - s.debt;
+  if (room >= amount) borrow(s, Math.ceil(amount / 25000) * 25000);
+}
+
+// En la campaña europea, vender un local a un rival puede costar un país.
+const europeChooser = (p) => (p.pending.id === 'rival_oferta_compra' ? p.choices.find((c) => c.index === 1)?.index ?? null : null);
+
 export function playGame(seed, strategy = {}) {
   const s = newGame(seed, strategy.difficulty || 'normal',strategy.campaign||'classic');
   resolvePending(s, strategy.brand === 'maison' ? 1 : 0);
@@ -63,23 +168,34 @@ export function playGame(seed, strategy = {}) {
     if (strategy.mama && canAsk(s).ok) askLoan(s, 'max');
     if (s.lastReport && s.lastReport.fill < 0.97) buyUpgrade(s);
     if (strategy.leverage && s.debt < creditLimit(s) * 0.5 && s.cash < 150000) borrow(s, 50000);
+    if (strategy.europe) europeStep(s, strategy);
     if (strategy.smart) manage(s, strategy.off || []);
     const types = [sobaoTypeId(s)];
     if (strategy.diversify) types.push(...DIVERSIFY);
-    let best = null;
-    for (const t of types) {
-      for (const c of strategy.cities || CITY_IDS) {
+    if (strategy.europe) types.push(...STRATEGIC_TYPES);
+    const cityIds = strategy.cities || (strategy.europe ? [...CITY_IDS, ...FOREIGN_IDS] : CITY_IDS);
+    let pairs = null;
+    if (strategy.scan) {
+      const pick = botRandom(seed, s.month);
+      pairs = Array.from({ length: strategy.scan }, () => [types[Math.floor(pick() * types.length)], cityIds[Math.floor(pick() * cityIds.length)]]);
+    }
+    for (let k = 0; k < (strategy.opens ?? 1); k++) {
+      let best = null;
+      for (const [t, c] of pairs || types.flatMap((t) => cityIds.map((c) => [t, c]))) {
         for (const mode of strategy.franchise && t === sobaoTypeId(s) ? ['propia', 'franquicia'] : ['propia']) {
           const ok = canOpen(s, t, c, mode);
           if (!ok.ok) continue;
           const est = estimateOpening(s, t, c, mode);
           if (est.delta < 800) continue;
-          const score = est.delta / Math.max(mode === 'franquicia' ? 1 : ok.cost, 20000);
+          const cost = mode === 'franquicia' ? 1 : ok.cost;
+          if (strategy.rank === 'delta' && cost / est.delta > (strategy.payback ?? 36)) continue;
+          const score = strategy.rank === 'delta' ? est.delta : est.delta / Math.max(cost, 20000);
           if (!best || score > best.score) best = { t, c, mode, score };
         }
       }
+      if (!(best && s.cash > 40000 && s.businesses.length < (strategy.maxBiz ?? Infinity))) break;
+      if (!openBusiness(s, best.t, best.c, best.mode)?.ok) break;
     }
-    if (best && s.cash > 40000 && s.businesses.length < (strategy.maxBiz ?? Infinity)) openBusiness(s, best.t, best.c, best.mode);
     let action = strategy.action || 'linkedin';
     if (strategy.smart && (s.estres ?? 0) > 65) action = s.cash > 20000 ? 'escapada' : 'padel';
     else if (strategy.smart && !s.flags.divorciado && s.familia < 35) action = 'cena';
@@ -90,6 +206,7 @@ export function playGame(seed, strategy = {}) {
       const p = currentPending(s);
       evs.push(p.pending.id);
       let idx = strategy.choose ? strategy.choose(s, p) : null;
+      if (idx == null && strategy.europe) idx = europeChooser(p);
       if (idx == null && strategy.guia && p.pending.id === 'promesa_trimestre') idx = p.choices.find((c) => c.key === strategy.guia)?.index ?? null;
       if (idx == null) idx = p.choices[strategy.choice === 'random' ? Math.floor(random(s) * p.choices.length) : 0].index;
       resolvePending(s, idx);

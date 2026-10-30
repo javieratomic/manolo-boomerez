@@ -1,5 +1,39 @@
 # Cambios
 
+## 0.19.0 — La campaña europea, medida
+
+Las versiones 0.13 a 0.18 están documentadas en `HANDOFF.md`.
+
+- **La campaña europea se puede ganar, y ahora está medido.** Un bot que juega la campaña por defecto entera
+  gana 24 de 24 partidas. Persiguiendo los tres requisitos tarda una mediana de 286 meses; si además
+  prioriza el mayor beneficio, 257 meses (unos 21 años, IC95 244–264), antes de que Manolo cumpla 80.
+  Los ocho países llegan hacia el mes 72–79 y los tres sectores hacia el 102–105; lo que marca el ritmo son los
+  1.000 M€.
+- **Franquicias:** como mucho tres firmadas al mes. Antes se podían colocar cientos de franquicias ruinosas
+  en el mismo mes y quedarse con los cánones cuando quebraban: una partida clásica que empezaba con 80.000 €
+  llegaba a la revista de millonarios en el mes 5. El botón explica el tope cuando se alcanza.
+- **La estimación de una apertura incluye el mantenimiento** del local. Antes prometía, por ejemplo,
+  492.577 €/mes por un banco en Madrid que luego daba 468.952 €.
+- **Plantilla y obras:** un local en obras (telecomunicaciones, obrador regional...) ya cuenta para la
+  vivienda que hará falta al entregarlo, así que no se puede abrir otro negocio a su lado y quedarse sin
+  plantilla. Si la falta llega con una entrega futura, el mensaje lo dice y recuerda que una vivienda tarda 12
+  meses.
+- **Venta online:** cualquier centro propio de Boomerez Logística en marcha abarata un 15 % la paquetería.
+  Antes el descuento exigía un centro en Selaya, donde no se puede abrir, y nunca se aplicaba.
+- **Oferta de un rival:** en la campaña europea, «Vender» avisa si el local es el único en un país o en un
+  sector estratégico, y cuánto bajaría la meta.
+- **ERTE:** la opción honrada va primero, como en el resto de cartas.
+- Las partidas guardadas antes de la 0.6, que no indican campaña, se cargan como campaña clásica y no como
+  europea.
+- En la campaña europea, el aviso del bloqueo bursátil ya no habla de la revista de millonarios.
+
+### Herramientas
+- `tests/fuzz.mjs`: partidas caóticas con comprobaciones cada mes y una prueba de que guardar y cargar no
+  cambia lo que pasa después. Ha jugado unos 58.000 meses sin un solo fallo de invariantes.
+- `tests/europe.mjs` y la estrategia `europe` del bot: miden la campaña europea en paralelo, con intervalos
+  de confianza.
+- 7 regresiones nuevas (`tests/europe-review.test.js`); todas fallan con la 0.18.
+
 ## 0.12.0 — Menús por áreas
 
 - Cuatro grupos de navegación con submenús cortos: Empresa, Expansión, Equipo y Manolo. Sin una fila interminable de pestañas ni scroll horizontal del menú en móvil.

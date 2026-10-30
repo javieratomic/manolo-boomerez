@@ -1261,6 +1261,13 @@ const BASE_EVENTS = [
     weight: (s) => (s.month >= 6 && employees(s) >= 15 ? 0.8 : 0), cooldown: 36,
     choices: [
       {
+        label: '"Paco, eso es fraude"',
+        effect(s) {
+          addHeatHacienda(s, -3);
+          return 'Paco se encoge de hombros: "Era por decir." Te sientes extrañamente orgulloso de ti mismo.';
+        },
+      },
+      {
         label: 'Hacerlo',
         effect(s) {
           const ahorro = employees(s) * 700;
@@ -1269,13 +1276,6 @@ const BASE_EVENTS = [
           addMoral(s, -6);
           if (chance(s, 0.25)) addExpediente(s, 1, 'fraude en ERTE');
           return `Ahorras ${money(ahorro)} este mes. El radar de Inspección se dispara (+25). Algunos empleados cobran del SEPE y trabajan para ti a la vez. Es exactamente tan ilegal como suena.`;
-        },
-      },
-      {
-        label: '"Paco, eso es fraude"',
-        effect(s) {
-          addHeatHacienda(s, -3);
-          return 'Paco se encoge de hombros: "Era por decir." Te sientes extrañamente orgulloso de ti mismo.';
         },
       },
     ],

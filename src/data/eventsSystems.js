@@ -10,6 +10,8 @@ import { LEGAL_LABOR } from './policies.js';
 import { rivalHit, rivalTotal } from '../core/rivals.js';
 import { execOf, fireExec } from '../core/execs.js';
 import { divorce, addStress } from '../core/life.js';
+import { europeProgress } from '../core/dynasty.js';
+import { FOREIGN_BY_ID } from './international.js';
 import { holdElection } from '../core/politics.js';
 import { PARTIES } from './politics.js';
 
@@ -388,6 +390,14 @@ export const SYSTEM_EVENTS = [
       {
         label: 'Vender',
         available: (s) => !!coveted(s),
+        hint: (s) => {
+          const b = coveted(s);
+          if (!b || s.campaign !== 'europe') return '';
+          const a = europeProgress(s), z = europeProgress({ ...s, businesses: s.businesses.filter((x) => x !== b) });
+          if (z.countries < a.countries) return `Es tu único negocio propio en ${FOREIGN_BY_ID[CITY_BY_ID[b.city].market]?.country || 'ese país'}: la meta europea baja de ${a.countries} a ${z.countries} países.`;
+          if (z.sectors < a.sectors) return `Es tu único negocio de ${BUSINESS_TYPES[b.type].name}: la meta europea baja de ${a.sectors} a ${z.sectors} sectores estratégicos.`;
+          return '';
+        },
         effect(s) {
           const b = coveted(s);
           const price = b.value * 1.6;

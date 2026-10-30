@@ -10,6 +10,8 @@ export const EU_VARIANTS = {
   EU_smart: { ...SMART },                          // el bot de siempre, sin plan europeo
   EU_goal: { ...SMART, europe: true },             // persigue los tres requisitos
   EU_goal_delta: { ...SMART, europe: true, rank: 'delta' }, // además prioriza el mayor beneficio (plazo ≤ 36 meses)
+  // Un jugador corriente: sin crédito, una apertura al mes y mirando pocas opciones.
+  EU_casual: { diversify: true, smart: true, campaign: 'europe', scan: 40, opens: 1, europe: true },
   EU_goal_maison: { ...SMART, europe: true, brand: 'maison' },
   EU_goal_hacienda: { ...SMART, europe: true, difficulty: 'hacienda' },
   EU_goal_cunado: { ...SMART, europe: true, difficulty: 'cunado' },

@@ -21,6 +21,7 @@ trucos que rompan la cuenta ni atascos. El juez no es el agente sino herramienta
 | Victorias europeas (EU_goal_delta, 24 semillas, 30 años) | 24/24, mediana 250 m | 24/24, mediana 257 m (IC95 244-264) |
 | Partida clásica con franquicias ruinosas desde 80.000 € | revista en el mes 5 | 3 franquicias y pérdidas por demandas |
 | Estimación del banco de Madrid frente al resultado real | 492.577 / 468.952 € | iguales |
+| Victorias de un jugador corriente (EU_casual, 50 años) | — | 24/24, mediana 502 m (IC95 473-513) |
 | Meses de fuzzing sin fallos de invariantes | — | unos 58.000 |
 | Tests | 321 Node | 328 Node, 374 navegador |
 

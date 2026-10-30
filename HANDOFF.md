@@ -18,7 +18,10 @@ se puede ganar, a qué ritmo y sin trucos ni atascos, y corregir lo que encuentr
   (con crédito si hace falta) y viviendas donde falte plantilla. Las opciones por defecto del bot no cambian
   (12 partidas idénticas a la versión anterior).
 - **Resultado:** 24/24 victorias en las dos variantes; mediana 286 meses (EU_goal) y 250 (EU_goal_delta,
-  IC95 245-257). Repetido tras las correcciones: EU_goal_delta 24/24, mediana 257 (IC95 244-264). 8 países hacia el mes 75-79, 3 sectores hacia el 105; manda el patrimonio. Sin banca, el
+  IC95 245-257). Repetido tras las correcciones: EU_goal_delta 24/24, mediana 257 (IC95 244-264). Un jugador corriente
+  (`EU_casual`: sin crédito, una apertura al mes, pocas opciones) también gana 24/24, pero en 502 meses (IC95
+  473-513, unos 42 años) y con un relevo de media; de 100 M€ a 1.000 M€ tarda 27 años. La inflación salarial no
+  lo atrapa antes de ganar. 8 países hacia el mes 75-79, 3 sectores hacia el 105; manda el patrimonio. Sin banca, el
   patrimonio crece de forma lineal (unos 7 M€/año). No se ha cambiado el ritmo.
 - **Fuzzer:** `node tests/fuzz.mjs --seeds 40 --months 900 --rich --tame` (y sin `--rich --tame` para partidas
   que acaban pronto). Invariantes: números finitos, rangos, ids únicos, cartas con opciones y sin bucles,

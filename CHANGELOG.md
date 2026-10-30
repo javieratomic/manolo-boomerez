@@ -8,7 +8,8 @@ Las versiones 0.13 a 0.18 están documentadas en `HANDOFF.md`.
   gana 24 de 24 partidas. Persiguiendo los tres requisitos tarda una mediana de 286 meses; si además
   prioriza el mayor beneficio, 257 meses (unos 21 años, IC95 244–264), antes de que Manolo cumpla 80.
   Los ocho países llegan hacia el mes 72–79 y los tres sectores hacia el 102–105; lo que marca el ritmo son los
-  1.000 M€.
+  1.000 M€. Un jugador corriente (sin crédito y una apertura al mes) también gana siempre, pero en unos 42
+  años y con un relevo por el camino.
 - **Franquicias:** como mucho tres firmadas al mes. Antes se podían colocar cientos de franquicias ruinosas
   en el mismo mes y quedarse con los cánones cuando quebraban: una partida clásica que empezaba con 80.000 €
   llegaba a la revista de millonarios en el mes 5. El botón explica el tope cuando se alcanza.

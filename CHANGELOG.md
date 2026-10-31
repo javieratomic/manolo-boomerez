@@ -10,6 +10,10 @@ Las versiones 0.13 a 0.18 están documentadas en `HANDOFF.md`.
   Los ocho países llegan hacia el mes 72–79 y los tres sectores hacia el 102–105; lo que marca el ritmo son los
   1.000 M€. Un jugador corriente (sin crédito y una apertura al mes) también gana siempre, pero en unos 42
   años y con un relevo por el camino.
+- **La campaña clásica vuelve a la dificultad de la 0.4:** la revista de millonarios pide ahora 20 M€ (antes
+  15 M€). Con la economía de la 0.5 en adelante, el bot Express jugando legal llegaba en 32 de 32 partidas
+  hacia el mes 79; con 20 M€ llega en el 72 %, hacia el mes 89, como en la 0.4. Maison llega siempre, hacia el
+  mes 66 (antes, el 60). Tiburón Pasiego (5 M€) y Pyme (0,8 M€) no cambian.
 - **Franquicias:** como mucho tres firmadas al mes. Antes se podían colocar cientos de franquicias ruinosas
   en el mismo mes y quedarse con los cánones cuando quebraban: una partida clásica que empezaba con 80.000 €
   llegaba a la revista de millonarios en el mes 5. El botón explica el tope cuando se alcanza.

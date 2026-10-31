@@ -15,6 +15,7 @@ import { canSignAgreement, signAgreement, endAgreement, agreementTerms } from '.
 import { FOREIGN_CITIES } from '../src/data/foreignCities.js';
 import { FOREIGN_MARKETS } from '../src/data/international.js';
 import { isOperating } from '../src/core/construction.js';
+import { CLASSIC_GOALS } from '../src/data/endings.js';
 
 const CITY_IDS = CITIES.filter((c) => !c.hq).map((c) => c.id);
 const DIVERSIFY = ['smash', 'empanadas', 'airbnb', 'vivienda', 'academy', 'taberna', 'gimnasio', 'coworking', 'residencia', 'obrador_regional'];
@@ -214,7 +215,7 @@ export function playGame(seed, strategy = {}) {
     s.notices = [];
     checkEnding(s);
     const pat = patrimonio(s);
-    if (firstForbes == null && pat >= 15e6) firstForbes = s.month;
+    if (firstForbes == null && pat >= CLASSIC_GOALS.revista) firstForbes = s.month;
     if (s.month % 12 === 0) trace.push(Math.round(pat / 1000));
     if (strategy.trace) mon.push({ m: s.month, pat, net: r?.net ?? 0, moral: s.moral, agravio: s.agravio ?? 0, emp: r?.employees ?? 0, ht: s.heatTrabajo, evs });
     strategy.onMonth?.(s, r, evs);

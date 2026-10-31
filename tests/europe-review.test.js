@@ -77,3 +77,16 @@ test('guardados de antes de la 0.6 sin campaña siguen siendo de la campaña cl�
   const e = migrate(JSON.parse(JSON.stringify(fresh(9, 'europe'))));
   assertEq(e.campaign, 'europe');
 });
+
+test('campaña clásica: la revista pide 20 M€ y el texto lo dice', async () => {
+  const { checkEnding } = await import('../src/core/sim.js');
+  const { CLASSIC_GOALS, ENDINGS } = await import('../src/data/endings.js');
+  const { GOALS } = await import('../src/data/goals.js');
+  const { patrimonio } = await import('../src/core/economy.js');
+  assertEq(CLASSIC_GOALS.revista, 20e6);
+  const rich = (extra) => { const s = fresh(4, 'classic'); s.month = 50; s.cash += CLASSIC_GOALS.revista - patrimonio(s) + extra; return s; };
+  assertEq(checkEnding(rich(-1000)), null, 'por debajo, nada');
+  assertEq(checkEnding(rich(1000)), 'forbes');
+  assert(ENDINGS.forbes.text.includes('20 millones'));
+  assert(GOALS.find((g) => g.id === 'forbes').text.includes('20 millones'));
+});

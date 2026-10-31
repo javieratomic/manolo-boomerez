@@ -138,7 +138,7 @@ La saturación reduce la demanda cuando hay varios negocios del mismo tipo en un
 | **Concurso de acreedores** | 3 meses seguidos en descubierto por encima del límite de crédito |
 | **Soto del Real** | 3 expedientes penales |
 | **La Cooperativa** | Moral a 0 durante 2 meses: la plantilla se queda la empresa |
-| **Revista de millonarios (sección curiosidades)** | Patrimonio ≥ 15 M€ |
+| **Revista de millonarios (sección curiosidades)** | Patrimonio ≥ 20 M€ (15 M€ hasta la 0.18) |
 | **Tiburón Pasiego** | Al acabar los 8 años con ≥ 5 M€ |
 | **Pyme con ínfulas** | Al acabar con ≥ 800.000 € |
 | **Ruina lenta** | Al acabar por debajo de eso |
@@ -202,7 +202,7 @@ coach de mindfulness o arriesgarse a uno peor.
 ## 11. Progresión y rejugabilidad
 
 - **Objetivos encadenados** (primera tienda → 3 tiendas → mejorar el obrador → diversificar → 1 M€ → 50
-  empleados → 3 M€ → 5 M€ → 15 M€), con recompensas pequeñas y un aviso fijo en el mapa.
+  empleados → 3 M€ → 5 M€ → 20 M€), con recompensas pequeñas y un aviso fijo en el mapa.
 - **Dificultad:** *Modo cuñado* (150.000 € de herencia, radares ×0,7, multas ×0,7, menos interés),
   *Emprendedor* (normal) y *Modo Hacienda* (50.000 €, radares ×1,3, multas ×1,3, interés del 0,75 %).
 - **Rebranding:** se puede cambiar de Express a Maison (150.000 €) o al revés (60.000 €, reputación −6) una vez

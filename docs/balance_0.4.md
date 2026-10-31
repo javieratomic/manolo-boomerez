@@ -1,7 +1,7 @@
 # Equilibrado de la 0.4
 
 Medido con `node tests/balance.mjs --seeds 32` (semillas `(i+1)·7919+13`, modo infinito, patrimonio en el
-mes 96; «revista» es el primer mes con 15 M€ o más). Explotar = políticas aplicadas desde el mes 24.
+mes 96; «revista» es el primer mes con 15 M€ o más (20 M€ desde la 0.19)). Explotar = políticas aplicadas desde el mes 24.
 Patrimonio en millones de euros: mediana (media).
 
 | Variante | 0.3 | 0.4 | Revista 0.3 → 0.4 |

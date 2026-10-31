@@ -10,6 +10,7 @@ import { velasPending } from '../data/eventsVelas.js';
 import { haciendaDebt, inspectionChance, auditChance, tickLaborHistory, laborVisitParams } from './inspections.js';
 import { checkUnlocks } from './actions.js';
 import { settleClause, clauseMult, checkClause } from './clauses.js';
+import { CLASSIC_GOALS } from '../data/endings.js';
 import { tickAhorro, driftAgravio, tickComite, rollConvenio, strikeChance } from './plantilla.js';
 import { tickCartilla, maybeRescue, isDomingo, apunte } from './cartilla.js';
 import { tickBolsa, afterAudit } from './bolsa.js';
@@ -340,8 +341,8 @@ export function checkEnding(s) {
   else if (s.insolvencyMonths >= 3) id = 'bancarrota';
   else if (s.zeroMoralMonths >= 2) id = 'cooperativa';
   else if(s.campaign==='europe'&&!s.endless&&europeProgress(s,pat).complete)id='europe';
-  else if (s.campaign!=='europe' && pat >= 15e6 && !s.endless && (s.month >= GAME_MONTHS || (!inLockup(s) && !holdForVelas(s)))) id = 'forbes';
-  else if (s.campaign!=='europe' && s.month >= GAME_MONTHS && !s.endless) id = pat >= 5e6 ? 'tiburon' : pat >= 800000 ? 'pyme' : 'ruina_lenta';
+  else if (s.campaign!=='europe' && pat >= CLASSIC_GOALS.revista && !s.endless && (s.month >= GAME_MONTHS || (!inLockup(s) && !holdForVelas(s)))) id = 'forbes';
+  else if (s.campaign!=='europe' && s.month >= GAME_MONTHS && !s.endless) id = pat >= CLASSIC_GOALS.tiburon ? 'tiburon' : pat >= CLASSIC_GOALS.pyme ? 'pyme' : 'ruina_lenta';
   if (id) s.ending = id;
   // El premio de la cláusula no cambia el final: se decide antes y se paga una sola vez.
   if (['pyme', 'tiburon', 'forbes','europe'].includes(id)) settleClause(s);

@@ -97,5 +97,5 @@ Manolo tampoco hizo caso a nadie.
   sesenta, Manolo elige heredero: la plantilla solo si te lo has ganado.
 
 ## Finales
-- **Tiburón Pasiego** (5 M€ al acabar) requiere diversificar bien. **La revista de millonarios** (15 M€) es para tiburones de
+- **Tiburón Pasiego** (5 M€ al acabar) requiere diversificar bien. **La revista de millonarios** (20 M€) es para tiburones de
   verdad. Si terminas los 8 años con ganas de más, el modo infinito te deja seguir.

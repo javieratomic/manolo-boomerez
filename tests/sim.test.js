@@ -1573,14 +1573,14 @@ test('bot: una visita liquida el ahorro de una partida explotadora', () => {
 // ------------------------------------------------------------- 0.4 · La Bolsa tiene memoria (4a)
 test('bolsa: el bloqueo de 6 meses retrasa la revista', () => {
   const s = started();
-  s.cash = 20e6;
+  s.cash = 30e6;
   s.ipo = { month: 50, float: 0.25, valuation: 1e7, price: 100, peak: 100, angryMonth: -99 };
   s.month = 53;
   assertEq(checkEnding(s), null, 'en el bloqueo no hay revista');
   s.month = 56;
   assertEq(checkEnding(s), 'forbes');
   const t = started();
-  t.cash = 20e6;
+  t.cash = 30e6;
   t.month = 53;
   assertEq(checkEnding(t), 'forbes', 'sin Bolsa, como siempre');
 });
@@ -1884,7 +1884,7 @@ test('velas: el cumpleaños sale cuando cumple sesenta y la revista espera como 
   assert(ev.weight(s) > 0);
   const u = started();
   u.month = 60;
-  u.cash = 20e6;
+  u.cash = 30e6;
   u.seen.velas_1 = 59;
   for (let m = 60; m <= 63; m++) {
     u.month = m;
@@ -1894,7 +1894,7 @@ test('velas: el cumpleaños sale cuando cumple sesenta y la revista espera como 
   assertEq(checkEnding(u), 'forbes', 'no espera más de 4 cierres');
   const w = started();
   w.month = 61;
-  w.cash = 20e6;
+  w.cash = 30e6;
   assertEq(checkEnding(w), null, 'el cumpleaños está a punto de salir');
 });
 
@@ -2032,7 +2032,7 @@ test('regresión 0.4: no se sale a Bolsa sin tiempo para el bloqueo y la revista
   assert(canIPO(s, grossPatrimonio(s)).ok, 'en modo infinito sí');
   const g = GOALS.find((x) => x.id === 'forbes');
   const t = started();
-  t.cash = 20e6;
+  t.cash = 30e6;
   t.month = 50;
   t.ipo = { month: 48, float: 0.25, valuation: 1e7, price: 100, peak: 100, angryMonth: -99 };
   assert(!g.test(t), 'en el bloqueo, la revista no llama');
@@ -2434,7 +2434,7 @@ test('regresión 0.4: sin gestor el informe bajista no inventa la presencia de P
 
 test('regresión 0.4: las velas tienen prioridad y la revista espera al notario real', () => {
   const s = started();
-  s.cash = 20e6;
+  s.cash = 30e6;
   s.month = 64;
   s.flags.forbesHoldFrom = 60;
   s.seen.velas_1 = 63;

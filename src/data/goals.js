@@ -2,6 +2,7 @@
 // Cada carril avanza por su cuenta; el orden de la lista decide cuál se enseña primero.
 // progress(s) → [ahora, meta], opcional, para la barra del recuadro.
 import { BUSINESS_TYPES } from './businesses.js';
+import { CLASSIC_GOALS } from './endings.js';
 import { patrimonio } from '../core/economy.js';
 import { inLockup } from '../core/life.js';
 import { addCash, addFama, addRep } from '../core/helpers.js';
@@ -204,15 +205,15 @@ export const GOALS = [
     test: (s) => patrimonio(s) >= 5e6,
     reward(s) {
       addFama(s, 10);
-      return 'Ya eres oficialmente un tiburón. Ahora, a salir en una revista de millonarios (15 M€). Fama +10.';
+      return `Ya eres oficialmente un tiburón. Ahora, a salir en una revista de millonarios (${CLASSIC_GOALS.revista / 1e6} M€). Fama +10.`;
     },
   },
   {
     id: 'forbes',
     lane: 'dinero',
-    progress: (s) => [Math.min(15e6, Math.max(0, Math.round(patrimonio(s)))), 15e6],
-    text: 'Próximo hito: 15 millones de patrimonio (sin periodo de bloqueo bursátil en marcha).',
-    test: (s) => patrimonio(s) >= 15e6 && !inLockup(s),
+    progress: (s) => [Math.min(CLASSIC_GOALS.revista, Math.max(0, Math.round(patrimonio(s)))), CLASSIC_GOALS.revista],
+    text: `Próximo hito: ${CLASSIC_GOALS.revista / 1e6} millones de patrimonio (sin periodo de bloqueo bursátil en marcha).`,
+    test: (s) => patrimonio(s) >= CLASSIC_GOALS.revista && !inLockup(s),
     reward() {
       return 'La revista de millonarios ya está al teléfono.';
     },

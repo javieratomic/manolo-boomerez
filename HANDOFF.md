@@ -36,8 +36,14 @@ se puede ganar, a qué ritmo y sin trucos ni atascos, y corregir lo que encuentr
   inflar el patrimonio (neutro), la OPA en crisis (no da dinero), la salida a Bolsa como atajo a 1.000 M€
   (como mucho +0,8 %), lotes frente a operaciones sueltas (idénticos), el acceso permanente a un país tras
   seis meses de marca blanca (coherente con los textos).
+- **Campaña clásica (decidido con el usuario):** la revista pide 20 M€ (`CLASSIC_GOALS` en
+  `src/data/endings.js`, que usan `sim.js`, `goals.js` y los textos). Con 32 semillas devuelve la dificultad de
+  la 0.4: Express legal 72 % hacia el mes 89, Maison legal 100 % hacia el mes 66.
 - **Pendiente, decisiones de diseño (no tocadas):**
-  1. La campaña clásica es ahora mucho más fácil que en la 0.4: con 32 semillas el bot llega a la revista
+  0. Maison gana el doble que Express (47 frente a 22,6 M€ a los 8 años) porque cada tienda gasta la cuarta
+     parte de capacidad de obrador (1.000 frente a 3.800 unidades) para casi el mismo margen. Afecta a las dos
+     campañas.
+  1. Antes del cambio a 20 M€, la campaña clásica era mucho más fácil que en la 0.4: con 32 semillas el bot llega a la revista
      en 30/32 partidas Express (mes ~79) y 32/32 Maison (mes ~59). Explotar con cuidado apenas rinde más
      que jugar legal (23,7 frente a 22,8 M€ y 48,8 frente a 46,8 M€); la explotación bruta pierde (15,3 M€).
   2. Partidas muy largas: los salarios suben (SMI, elecciones) sin índice de precios; hacia el mes 700-840 el

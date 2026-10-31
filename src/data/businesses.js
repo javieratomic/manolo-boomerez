@@ -14,6 +14,8 @@ export const BUSINESS_TYPES = {
     name: 'Maison Boomerez', short: 'Maison',
     cost: 95000, franchiseFee: 60000, staff: 3, rentBase: 2600,
     price: 10, unitCost: 2.6, wholesale: 6.5, baseUnits: 1000,
+    // Sobaos de autor: cada uno ocupa más obrador que uno de mostrador (sobaos por unidad de capacidad).
+    yield: 0.5,
     sprite: 'bld_sobaos_maison', color: '#7a4fa0', letter: 'M',
     desc: 'Pâtisserie pasiega "de autor". Mármol, luz cálida y sobaos en vitrina, como joyas.',
   },
@@ -84,7 +86,7 @@ export const BUSINESS_TYPES = {
     cost: 380000, staff: 8, upkeep: 3000, onePerCity: true,
     model: 'production',
     sprite: 'bld_obrador_regional', color: '#a0522d', letter: 'O',
-    desc: '15.000 sobaos más al mes, fabricados cerca de tus tiendas: se ahorra transporte. "Artesanos" con casco y chaleco reflectante.',
+    desc: '15.000 sobaos más al mes (7.500 si son de autor, Maison), fabricados cerca de tus tiendas: se ahorra transporte. "Artesanos" con casco y chaleco reflectante.',
   },
   residencia: {
     id: 'residencia', category: 'servicios',
@@ -150,7 +152,7 @@ export const PERKS = {
 export const expansionUpgrade = (n = 0) => ({
   id: `modulo_${n + 1}`, expansion: true, name: `Módulo industrial ${n + 1}`,
   cost: Math.round(650000 * 1.32 ** n), capacity: 25000,
-  desc: 'Otra nave, otra línea y más permisos. +25.000 uds/mes; mantenimiento +1.500 €/mes. La siguiente cuesta un 32 % más.',
+  desc: 'Otra nave, otra línea y más permisos (25.000 uds/mes de mostrador; la mitad si son de autor). Mantenimiento +1.500 €/mes. La siguiente cuesta un 32 % más.',
 });
 export const expansionValue = (n = 0) => {
   let sum = 0;

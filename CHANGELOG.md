@@ -14,6 +14,13 @@ Las versiones 0.13 a 0.18 están documentadas en `HANDOFF.md`.
   15 M€). Con la economía de la 0.5 en adelante, el bot Express jugando legal llegaba en 32 de 32 partidas
   hacia el mes 79; con 20 M€ llega en el 72 %, hacia el mes 89, como en la 0.4. Maison llega siempre, hacia el
   mes 66 (antes, el 60). Tiburón Pasiego (5 M€) y Pyme (0,8 M€) no cambian.
+- **Maison ya no gana el doble que Express.** Lo barato sale antes: el obrador heredado rinde igual con
+  cualquier marca, pero cada ampliación y cada obrador regional sacan la mitad de sobaos de autor (`yield` de
+  la marca). Con 32 semillas en la campaña clásica, Maison legal pasa de 47 a 35 M€ a los 8 años (Express,
+  22,6) y llega a la revista hacia el mes 75 (antes, el 66; Express, el 89). Se probó además bajar el precio
+  de la tienda Maison a 8,50-9 €: igualaba más las marcas, pero hacía quebrar a Maison al empezar en 2 de 24
+  partidas europeas, así que el precio sigue en 10 €. Los textos del obrador, del robot, de las reformas del obrador regional, de la elección de
+  marca y del rebranding dan la cifra que corresponde a la marca.
 - **Franquicias:** como mucho tres firmadas al mes. Antes se podían colocar cientos de franquicias ruinosas
   en el mismo mes y quedarse con los cánones cuando quebraban: una partida clásica que empezaba con 80.000 €
   llegaba a la revista de millonarios en el mes 5. El botón explica el tope cuando se alcanza.

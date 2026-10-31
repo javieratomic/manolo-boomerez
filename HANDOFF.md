@@ -39,10 +39,15 @@ se puede ganar, a qué ritmo y sin trucos ni atascos, y corregir lo que encuentr
 - **Campaña clásica (decidido con el usuario):** la revista pide 20 M€ (`CLASSIC_GOALS` en
   `src/data/endings.js`, que usan `sim.js`, `goals.js` y los textos). Con 32 semillas devuelve la dificultad de
   la 0.4: Express legal 72 % hacia el mes 89, Maison legal 100 % hacia el mes 66.
+- **Equilibrio de marcas (decidido con el usuario: «lo barato sale antes»):** `BUSINESS_TYPES.maison.yield = 0.5`
+  y `brandCapacity` en `economy.js`: el obrador heredado (12.000 uds, con sus mejoras de I+D y directivo) rinde
+  igual con cualquier marca; lo ampliado y los obradores regionales dan `yield` sobaos por unidad. Los sueldos
+  del obrador se pagan por capacidad usada. Clásica, 32 semillas: Maison legal 35 M€ (antes 47; Express 22,6),
+  revista 32/32 hacia el mes 75. Probado y descartado: sin exención del obrador heredado, o bajando el precio de
+  la tienda Maison a 8,5-9 €, Maison quiebra al empezar (2/24 partidas europeas con 8,5 €, semillas 110879 y
+  142555; ninguna con 10 €). Para igualar más las marcas haría falta otra palanca (p. ej. la demanda por tienda),
+  medida también en el arranque.
 - **Pendiente, decisiones de diseño (no tocadas):**
-  0. Maison gana el doble que Express (47 frente a 22,6 M€ a los 8 años) porque cada tienda gasta la cuarta
-     parte de capacidad de obrador (1.000 frente a 3.800 unidades) para casi el mismo margen. Afecta a las dos
-     campañas.
   1. Antes del cambio a 20 M€, la campaña clásica era mucho más fácil que en la 0.4: con 32 semillas el bot llega a la revista
      en 30/32 partidas Express (mes ~79) y 32/32 Maison (mes ~59). Explotar con cuidado apenas rinde más
      que jugar legal (23,7 frente a 22,8 M€ y 48,8 frente a 46,8 M€); la explotación bruta pierde (15,3 M€).

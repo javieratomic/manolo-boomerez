@@ -7,6 +7,7 @@ import { INTERNATIONAL_EVENTS } from './eventsInternational.js';
 //  quickRepeat: true -> a partir de la tercera vez seguida con la misma opción, el resultado sale como aviso.
 //  forced: true -> si es elegible, sale ese mismo mes sin pasar por el azar (pasos de arcos narrativos).
 import { chance, int } from '../core/rng.js';
+import { brandYield } from '../core/economy.js';
 import {
   addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addExpediente, addMod, addMonthlyCost, log, money, custom, clamp, hito,
 } from '../core/helpers.js';
@@ -98,7 +99,7 @@ const BASE_EVENTS = [
       },
       {
         label: 'Maison Boomerez (boutique delicatessen)',
-        hint: 'Precio alto, poco volumen. Ciudades ricas y turísticas. La calidad importa mucho.',
+        hint: 'Precio alto, poco volumen. Ciudades ricas y turísticas. La calidad importa mucho. Lo de autor lleva más tiempo: el obrador del abuelo da lo mismo, pero cada ampliación y cada obrador regional sacan la mitad de sobaos.',
         effect(s) {
           s.brand = 'maison';
           log(s, '✨ Nace "Maison Boomerez — Pâtisserie Pasiega". Con acento circunflejo y todo.', 'good');
@@ -1156,7 +1157,7 @@ const BASE_EVENTS = [
         effect(s) {
           addCash(s, -144000);
           s.obrador.upgrades.push('robot');
-          return 'El robot llega en un camión de Múnich. Le pones de nombre "Anselmo II". Capacidad +15.000 uds/mes.';
+          return `El robot llega en un camión de Múnich. Le pones de nombre "Anselmo II". Capacidad +${Math.round(15000 * brandYield(s)).toLocaleString('es-ES')} uds/mes.`;
         },
       },
       {

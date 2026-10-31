@@ -1,4 +1,5 @@
 import {workforcePlan,missingBedsAhead,bedsMessage} from './workforce.js';
+import { brandYield } from './economy.js';
 import {decemberTradition} from './localEvents.js';
 import {isOperating} from './construction.js';
 // Marketing, I+D y reformas de negocios.
@@ -72,8 +73,8 @@ export function productFactor(s, type, category, city, month) {
 // ---------------------------------------------------------------- Reformas
 export const levelFactor = (b) => 1 + LEVEL_BONUS * ((b.level || 1) - 1);
 
-export function upgradeEffect(b) {
-  return { obrador_regional: '+5.250 uds/mes de capacidad instalada', vivienda: b.housingForm&&b.housingForm!=='legacy'?'+3 % de renta y mejor calidad':'+5 plazas', airbnb: '+2 pisos turísticos', residencia: '+10 plazas' }[b.type] || `+${Math.round(LEVEL_BONUS * 100)} % de clientela`;
+export function upgradeEffect(b, s = null) {
+  return { obrador_regional: `+${Math.round(5250 * (s ? brandYield(s) : 1)).toLocaleString('es-ES')} uds/mes de capacidad`, vivienda: b.housingForm&&b.housingForm!=='legacy'?'+3 % de renta y mejor calidad':'+5 plazas', airbnb: '+2 pisos turísticos', residencia: '+10 plazas' }[b.type] || `+${Math.round(LEVEL_BONUS * 100)} % de clientela`;
 }
 
 export function upgradeCost(b) {

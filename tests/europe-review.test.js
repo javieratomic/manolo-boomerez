@@ -90,3 +90,18 @@ test('campaña clásica: la revista pide 20 M€ y el texto lo dice', async () =
   assert(ENDINGS.forbes.text.includes('20 millones'));
   assert(GOALS.find((g) => g.id === 'forbes').text.includes('20 millones'));
 });
+
+test('marcas: el obrador heredado rinde igual y lo ampliado da la mitad de sobaos de autor', async () => {
+  const { obradorCapacity } = await import('../src/core/economy.js');
+  const { upgradeEffect } = await import('../src/core/market.js');
+  const { EVENT_BY_ID: EV } = await import('../src/data/events.js');
+  const make = (brand) => { const s = fresh(3, 'classic'); s.brand = brand; return s; };
+  const e = make('express'), m = make('maison');
+  assertEq(Math.round(obradorCapacity(m)), Math.round(obradorCapacity(e)), 'el obrador del abuelo da lo mismo');
+  for (const s of [e, m]) { s.obrador.upgrades.push('linea2', 'robot', 'nave'); for (let i = 0; i < 10; i++) s.businesses.push({ id: 800 + i, type: 'vivienda', city: 'selaya', mode: 'propia', level: 1, value: 0 }); }
+  const extraE = obradorCapacity(e) - 12000, extraM = obradorCapacity(m) - 12000;
+  assert(extraE > 0 && Math.abs(extraM - extraE / 2) < 1, `${extraE} frente a ${extraM}`);
+  assert(/\+2\.?625 /.test(upgradeEffect({ type: 'obrador_regional' }, m)));
+  const r = make('maison'); r.cash = 1e6;
+  assert(/\+7\.?500 /.test(EV.robot_aleman.choices[0].effect(r)), 'el robot promete lo que da');
+});

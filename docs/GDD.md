@@ -41,7 +41,7 @@ los trabajadores: el blanco de la burla es siempre Manolo.
 | Enfoque | Negocio | Precio | Volumen | Le va bien en |
 |---|---|---|---|---|
 | **Sobaos Manolo Express** (low-cost) | Tienda barata con mucho volumen | 3,20 €/ud | Alto | Ciudades grandes y populares |
-| **Maison Boomerez** (boutique delicatessen) | Pâtisserie pasiega "de autor" | 10 €/ud | Bajo | Ciudades ricas y turísticas; castiga mucho la mala calidad |
+| **Maison Boomerez** (boutique delicatessen) | Pâtisserie pasiega "de autor" | 10 €/ud | Bajo | Ciudades ricas y turísticas; castiga mucho la mala calidad. Lo de autor lleva más tiempo: las ampliaciones del obrador y los obradores regionales sacan la mitad de sobaos (el obrador heredado rinde igual) |
 
 Cada tienda de sobaos puede ser **propia** (pagas tú el local y la plantilla) o una **franquicia**, que un
 incauto compra por un canon de entrada. Tú le vendes el producto a precio mayorista y te quedas un 5 % de
@@ -161,7 +161,7 @@ encargado y OPA (120.000 € por nivel; más barata en crisis; te quedas con has
 
 ### Logística y licencias
 Cada sobao viaja desde el obrador más cercano: 0,025 € por cada 100 km por carretera (×1,5 a Baleares y
-×2,2 a Canarias). Los **obradores regionales** (380.000 €, uno por ciudad) añaden 15.000 sobaos/mes de
+×2,2 a Canarias). Los **obradores regionales** (380.000 €, uno por ciudad) añaden 15.000 sobaos/mes (7.500 con Maison) de
 capacidad y abaratan el transporte de su zona. En Barcelona, Madrid, Palma, Ibiza, Donostia y Málaga los
 pisos turísticos necesitan una licencia de 120.000 €; sin ella son más baratos, pero suben el radar de
 Hacienda y cada mes hay un 4 % de probabilidades de inspección municipal.

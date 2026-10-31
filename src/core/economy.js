@@ -9,7 +9,7 @@ import {workforcePlan,factoryLaborFactor,plannedStaff} from './workforce.js';
 import {researchFactor} from '../data/market.js';
 import { foreignDemand, foreignLines } from './international.js';
 // Cálculo económico mensual. Función pura: no muta el estado (salvo lo que haga quien la llama).
-import { BUSINESS_TYPES, OBRADOR_BASE, OBRADOR_UPGRADES, PERKS, expansionValue } from '../data/businesses.js';
+import { BUSINESS_TYPES, OBRADOR_BASE, OBRADOR_UPGRADES, PERKS, expansionValue, SOBAO_TYPE_BY_BRAND } from '../data/businesses.js';
 import { POLICIES, BECARIO_WAGE } from '../data/policies.js';
 import { CITY_BY_ID } from '../data/cities.js';
 import { difficultyOf } from './state.js';
@@ -48,8 +48,27 @@ export function policyFx(s) {
 export const moralFactor = (moral) => 0.8 + (0.4 * moral) / 100;
 export const repFactor = (rep) => 0.55 + (0.9 * rep) / 100;
 
+// Lo barato sale antes: un sobao de autor lleva más trabajo que uno de mostrador. El obrador heredado ya trabajaba
+// a mano y rinde igual con cualquier marca; las ampliaciones y los obradores regionales, hechos para producir en
+// serie, sacan menos sobaos de autor por cada unidad de capacidad (`yield` de la marca).
+export const brandYield = (s) => BUSINESS_TYPES[SOBAO_TYPE_BY_BRAND[s.brand]]?.yield ?? 1;
+const inheritedCapacity = (s) => OBRADOR_BASE.capacity * researchFactor(s,'production') * (1 + execBonus(s,'operaciones'));
+export function brandCapacity(s, city, effective) {
+  const y = brandYield(s);
+  if (y === 1) return effective;
+  const inherited = city === 'selaya' ? Math.min(effective, inheritedCapacity(s)) : 0;
+  return inherited + (effective - inherited) * y;
+}
+// Al revés: cuánta capacidad del obrador ocupan esos sobaos (para pagar a quien los hace).
+function capacityUsed(s, city, sobaos) {
+  const y = brandYield(s);
+  if (y === 1) return sobaos;
+  const inherited = city === 'selaya' ? inheritedCapacity(s) : 0;
+  return Math.min(sobaos, inherited) + Math.max(0, sobaos - inherited) / y;
+}
+
 export function obradorCapacity(s) {
-  return productionSites(s).reduce((n,city)=>n+workforcePlan(s,city).effective,0);
+  return productionSites(s).reduce((n,city)=>n+brandCapacity(s,city,workforcePlan(s,city).effective),0);
 }
 
 export function obradorValue(s) {
@@ -182,7 +201,7 @@ export function computeEconomy(s) {
     sobaoEntries.push({ b, t, c, demand,staff });
   }
 
-  const capacity = productionSites(s).reduce((n,city)=>n+localPlan(city).effective,0) * strike;
+  const capacity = productionSites(s).reduce((n,city)=>n+brandCapacity(s,city,localPlan(city).effective),0) * strike;
   const baseDemand = shopUnits + wholesaleUnits + contractUnits + foreignDemand(s) + sobaoEntries.reduce((a, e) => a + e.demand, 0);
   const fill = baseDemand > 0 ? Math.min(1, capacity / baseDemand) : 1;
   const online=calculateOnline(s,{availableUnits:Math.max(0,capacity-baseDemand),staff:localPlan('selaya').onlineStaff,wage,
@@ -201,7 +220,8 @@ export function computeEconomy(s) {
   const robot = factoryLaborFactor(s,'selaya');
   const selayaCap = localPlan('selaya').effective * strike;
   const mainPlan=localPlan('selaya');
-  const obradorStaff = Math.min(Math.max(0,mainPlan.available-mainPlan.other),3 + Math.ceil((Math.min(produced, Math.max(0, selayaCap)) / 3000) * robot));
+  const selayaSobaos = brandCapacity(s, 'selaya', selayaCap);
+  const obradorStaff = Math.min(Math.max(0,mainPlan.available-mainPlan.other),3 + Math.ceil((capacityUsed(s, 'selaya', Math.min(produced, Math.max(0, selayaSobaos))) / 3000) * robot));
   employees += obradorStaff;
   const localUnitCost = 1.05 * fx.ing.cost * researchFactor(s,'materialFactor');
   const obRevenue =

@@ -28,7 +28,7 @@ import { CITY_BY_ID, CITIES, ALL_CITIES, HQ_CITY } from '../data/cities.js';
 import { BUSINESS_TYPES, PERKS } from '../data/businesses.js';
 import { POLICIES } from '../data/policies.js';
 import { MANOLO_ACTIONS } from '../data/manoloActions.js';
-import { computeEconomy, estimateOpening, obradorCapacity, patrimonio, creditLimit, averageWage, ssOwed } from '../core/economy.js';
+import { computeEconomy, estimateOpening, obradorCapacity, patrimonio, creditLimit, averageWage, ssOwed, brandYield } from '../core/economy.js';
 import { canOpen, upgradeRequirements, openingCost, sobaoTypeId, nextUpgrade, saleValue, canRebrand, franchiseFee, needsLicense, LOAN_STEP } from '../core/actions.js';
 import { nearestSite, transportCost } from '../core/logistics.js';
 import { advice } from '../core/advice.js';
@@ -152,7 +152,7 @@ export function renderCity(s, cityId) {
           ${b.mode === 'franquicia' ? '' : `<div class="cond" title="Estado de conservación: ${Math.round(b.cond ?? 100)}/100">${bar(b.cond ?? 100, 100, (b.cond ?? 100) < 40 ? 'danger' : 'ok')}</div>`}
         </div>
         <div class="biz-actions">
-          ${upgradeCost(b) != null ? `<button class="btn small" data-act="upgrade-biz" data-id="${b.id}" ${s.cash >= upgradeCost(b)&&isOperating(s,b) ? '' : 'disabled'} title="Reforma: ${upgradeEffect(b)}">Reformar ${moneyShort(upgradeCost(b))}</button>` : ''}
+          ${upgradeCost(b) != null ? `<button class="btn small" data-act="upgrade-biz" data-id="${b.id}" ${s.cash >= upgradeCost(b)&&isOperating(s,b) ? '' : 'disabled'} title="Reforma: ${upgradeEffect(b, s)}">Reformar ${moneyShort(upgradeCost(b))}</button>` : ''}
           <button class="btn small ghost" data-act="sell" data-id="${b.id}">${b.mode === 'franquicia' ? `Rescindir (−${moneyShort(-saleValue(b))})` : `Vender ${moneyShort(saleValue(b))}`}</button>
         </div>
       </li>`;
@@ -267,10 +267,11 @@ function renderObrador(s) {
     <div class="row gap"><img src="${imageUrl(s.obrador.upgrades.includes('nave') ? 'bld_obrador_3' : s.obrador.upgrades.length ? 'bld_obrador_2' : 'bld_obrador_1')}" class="biz-icon big" alt="">
       <div class="grow"><h4>Obrador Boomerez</h4>
       <div class="small">Capacidad: <b>${Math.round(cap).toLocaleString('es-ES')}</b> uds/mes · Demanda: <b>${Math.round(r.totalDemand).toLocaleString('es-ES')}</b></div>
+      ${brandYield(s) < 1 ? `<div class="small muted">Sobaos de autor: más trabajo por pieza. Las ampliaciones y los obradores regionales rinden un ${Math.round(brandYield(s) * 100)} % de lo que sacarían con sobaos de mostrador.</div>` : ''}
       ${bar(Math.min(r.totalDemand, cap), cap, fill < 0.999 ? 'danger' : 'ok')}
       <div class="small ${fill < 0.999 ? 'warn' : 'muted'}">${fill < 0.999 ? `⚠️ No das abasto: solo sirves el ${Math.round(fill * 100)} % de la demanda.` : `Hay capacidad libre.${r.bonusUnits > 0 ? ` ${Math.round(r.bonusUnits)} sobaos de cortesía: hasta +5 % de ingresos en otros negocios.` : ''}`}</div></div>
     </div>
-    ${up ? `<div class="small">Plantilla para capacidad instalada: ${workforce.required} · Oferta local: ${workforce.available} (${workforce.beds} plazas de vivienda).</div><div class="upgrade"><div><b>${esc(up.name)}</b> · +${up.capacity.toLocaleString('es-ES')} uds/mes</div><div class="small muted">${esc(up.desc)}</div>
+    ${up ? `<div class="small">Plantilla para capacidad instalada: ${workforce.required} · Oferta local: ${workforce.available} (${workforce.beds} plazas de vivienda).</div><div class="upgrade"><div><b>${esc(up.name)}</b> · +${Math.round(up.capacity * brandYield(s)).toLocaleString('es-ES')} uds/mes</div><div class="small muted">${esc(up.desc)}</div>
       <button class="btn small primary" data-act="upgrade" ${s.cash >= up.cost && nextWorkforce.missingBeds===0 ? '' : 'disabled'}>Comprar (${moneyShort(up.cost)})</button>${nextWorkforce.missingBeds ? `<p class="small warn">Para esta ampliación faltan ${nextWorkforce.missingBeds} plazas en Selaya. <a href="#" data-act="tab" data-tab="viviendas">Construir viviendas</a></p>` : ''}</div>` : '<div class="small muted">El obrador está a tope de mejoras.</div>'}
     ${policyGroup(s, 'ingredientes', ing)}
     ${renderRebrand(s)}
@@ -283,7 +284,7 @@ function renderRebrand(s) {
   const r = canRebrand(s);
   const to = BUSINESS_TYPES[r.to];
   return `<div class="upgrade"><div><b>Marca actual:</b> ${esc(BUSINESS_TYPES[s.brand].name)}</div>
-    <div class="small muted">¿Cambiar a ${esc(to.name)}? Se reconvierten todas las tiendas de sobaos${r.to === 'express' ? ' (reputación −6)' : ' (fama +5; cuida la calidad)'}.</div>
+    <div class="small muted">¿Cambiar a ${esc(to.name)}? Se reconvierten todas las tiendas de sobaos${r.to === 'express' ? ' (reputación −6)' : ' (fama +5; cuida la calidad)'}. Capacidad del obrador: ${Math.round(obradorCapacity(s)).toLocaleString('es-ES')} → ${Math.round(obradorCapacity({ ...s, brand: r.to })).toLocaleString('es-ES')} uds/mes${r.to === 'maison' ? ' (lo de autor lleva más tiempo)' : ''}.</div>
     <button class="btn small" data-act="rebrand" ${r.ok ? '' : 'disabled'} title="${esc(r.msg || '')}">Rebranding${r.cost ? ` (${moneyShort(r.cost)})` : ''}</button>
     ${!r.ok ? `<div class="small muted">${esc(r.msg)}</div>` : ''}</div>`;
 }

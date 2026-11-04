@@ -25,7 +25,7 @@ export const HELP_PAGES = [
         <li>🏦 La <b>póliza</b> de la Caja Cantábrica cubre los descubiertos; tres meses sin margen es concurso de acreedores.</li>
         <li>🧮 <b>Finanzas → Patrimonio y riesgos</b> desglosa activos, deuda bancaria, préstamo familiar y cuotas de Seguridad Social. Hacienda y Trabajo figuran como contingencias separadas, con un escenario ilustrativo de pago conjunto; consultar no paga ni cambia las cuentas.</li>
         <li>🧭 <b>Finanzas → Resistencia</b> comprueba demanda menor y salario base mayor. Desde la cartera puedes enviar un lote con <b>Probar escenarios</b>, sin comprarlo. Compara la caja tras el cierre con tres nóminas y renovaciones futuras; ese colchón es orientativo y no bloquea dinero.</li>
-        <li>🔔 Con 3 años de cuentas y una valoración de empresa de al menos 1.000 M€ puedes <b>salir a Bolsa</b>: luego cada trimestre prometes una cifra a los analistas.</li>
+        <li>🔔 Con 3 años de cuentas y una valoración de empresa de al menos 1.000 M€ puedes <b>salir a Bolsa</b>: luego cada trimestre prometes una cifra a los analistas, también después del octavo año en Europa.</li>
       </ul>`,
   },
   {
@@ -53,6 +53,7 @@ export const HELP_PAGES = [
         <li>🎲 La <b>semilla</b> reproduce la partida: escribe el código de un amigo en el título o juega el <b>reto de la semana</b>.</li>
         <li>🎂 A los sesenta, Manolo elegirá <b>heredero</b> ante el notario.</li>
         <li>🫀 <b>Dinastía:</b> tres meses por encima de 90 de estrés pueden causar un fallecimiento. El reposo protege. A los 80 años toma el mando un sucesor; nomínalo desde Manolo. La empresa y el calendario continúan.</li><li>🌍 <b>Europa:</b> completa seis meses de marca blanca sirviendo el 90 % e investiga Despliegue comercial internacional para abrir locales propios en ese país desde Exterior.</li><li>🏁 <b>Finales de la campaña clásica:</b> concurso de acreedores, Soto del Real, la cooperativa, Pyme con ínfulas, Tiburón Pasiego (5 M€ al acabar) o la revista de millonarios (20 M€). Desde los 61, también puedes <b>volver a Selaya</b> (pestaña Manolo). Al final verás qué fue de cada uno.</li>
+        <li>♾️ Al ganar Europa puedes <b>seguir jugando</b>. Volver al título conserva la empresa; <b>Ver desenlace</b> permite reabrir la escena y continuar. También funciona si cerraste el juego antes de elegir, sin repetir su récord.</li>
       </ul>
       <p>⌨️ Atajos: <b>Espacio</b> cierra el mes, <b>1-7</b> cambia de pestaña, <b>1-4</b> elige opción en las cartas y <b>,</b> <b>.</b> recorren las ciudades con alerta.</p>`,
   },

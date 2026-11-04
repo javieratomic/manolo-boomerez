@@ -48,7 +48,7 @@ import { grossPatrimonio } from '../core/economy.js';
 import { money, moneyShort, dateLabel, GAME_MONTHS, START_YEAR, log, custom } from '../core/helpers.js';
 import { HQ_CITY, CITY_BY_ID } from '../data/cities.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
-import { endingOf } from '../data/endings.js';
+import { endingOf,canContinueEnding } from '../data/endings.js';
 
 const game = { s: null, tab: 'ciudad', city: HQ_CITY, map: null, busy: false };
 window.__boomerez = game; // para depurar desde la consola
@@ -86,8 +86,9 @@ function setupTitle() {
   $('#title-portrait').src = imageUrl('portrait_manolo_smug');
   const saved = loadFromStorage();
   const cont = $('#btn-continue');
-  cont.hidden = !saved || !!saved.ending;
-  if (saved && !saved.ending) cont.querySelector('small').textContent = `${dateLabel(saved.month)} · ${moneyShort(patrimonio(saved))}`;
+  cont.hidden = !saved;
+  $('#continue-label').textContent=saved?.ending?'Ver desenlace':'Continuar';
+  if (saved) cont.querySelector('small').textContent = `${dateLabel(saved.month)} · ${moneyShort(patrimonio(saved))}`;
   $('#btn-new').onclick = async () => {
     // Semilla opcional: el mismo código da la misma partida (para compartir retos).
     const code = $('#seed-input').value.trim();
@@ -96,7 +97,7 @@ function setupTitle() {
       toast('Código de semilla no válido: letras y cifras, como mucho 1Z141Z3 (p. ej. 1ODLXA).', 'bad');
       return;
     }
-    if (saved && !saved.ending && !(await confirmModal('¿Empezar de cero?', 'Se perderá la partida guardada. Manolo no se arrepiente de nada, pero tú quizá sí.', 'Nueva partida'))) return;
+    if (saved && !(await confirmModal('¿Empezar de cero?', 'Se perderá la partida guardada. Manolo no se arrepiente de nada, pero tú quizá sí.', 'Nueva partida'))) return;
     const diffs = Object.entries(DIFFICULTIES);
     const i = await showModal({
       title: 'Elige la dificultad',
@@ -117,7 +118,7 @@ function setupTitle() {
     const clause = clauseStatus(preview);
     const text = `Esta semana (${key}) todo el mundo juega la misma partida: misma semilla, mismos sucesos si eliges lo mismo y la misma cláusula del testamento. Dificultad normal.\n\nCódigo: ${seedCode(seed)}${clause ? `\nCláusula: «${clause.def.title}» (${clause.def.rule})` : ''}\n\nCompara tu puntuación del Salón de la fama con la de tus amigos.`;
     if (!(await confirmModal('🗓️ Reto de la semana', text, 'Empezar'))) return;
-    if (saved && !saved.ending && !(await confirmModal('¿Empezar de cero?', 'Se perderá la partida guardada.', 'Empezar el reto'))) return;
+    if (saved && !(await confirmModal('¿Empezar de cero?', 'Se perderá la partida guardada.', 'Empezar el reto'))) return;
     clearStorage();
     preview.flags.reto = key;
     startGame(preview);
@@ -1105,12 +1106,13 @@ async function showEnding(id) {
     seed: seedCode(s.seed), reto: s.flags.reto || null, version: s.gameVersion || GAME_VERSION,
     heredero: s.sucesion?.heir ?? null,
   });
-  // Si el final es por tiempo o por la revista de millonarios, se puede seguir jugando sin límite.
-  const canContinue = ['tiburon', 'pyme', 'ruina_lenta', 'forbes'].includes(id);
+  // Una empresa que alcanza sus objetivos puede seguir; los finales terminales conservan su cierre.
+  const canContinue = canContinueEnding(id);
   const choices = [{ label: 'Nueva partida', primary: true }, { label: 'Volver al título' }];
   if (canContinue) choices.push({ label: 'Seguir jugando (modo infinito)', hint: rank >= 0 ? 'Sin límite de tiempo. El récord ya está guardado.' : 'Sin límite de tiempo.' });
   requestAnimationFrame(() => drawChart($('#chart-ending'), s));
   s.recorded = true;
+  saveToStorage(s); // Reabrir el desenlace no vuelve a insertar su récord.
   const i = await showModal({ title: e.title, kicker: rank >= 0 ? `FIN · Puesto ${rank + 1} del Salón de la fama` : 'FIN', image: e.image, html, wide: true, className: `ending ${e.tone}`, choices });
   if (i === 2) {
     s.ending = null;
@@ -1120,7 +1122,7 @@ async function showEnding(id) {
     renderAll();
     return;
   }
-  clearStorage();
+  if(i===0)clearStorage(); // Volver al título conserva el desenlace y la empresa.
   // Se difiere para que la cola de sucesos actual termine antes de empezar otra partida.
   setTimeout(() => (i === 0 ? startGame(newGame(undefined, s.difficulty)) : showTitle()));
 }

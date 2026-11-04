@@ -1,6 +1,6 @@
 // Generado por node tools/offline_catalog.mjs. No editar a mano.
 self.BOOMEREZ_OFFLINE = {
-  "revision": "29e0e74bef09fde9f66a0667a0e0553a8371dc1fc6f23cd3229ec94434b103be",
+  "revision": "c8f00a1963b999a6bc3d7d6ef283421ae5b6c229fb48979d54a5735542be7b38",
   "files": [
     {
       "file": "assets/ui/rd_app.svg",
@@ -148,7 +148,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "index.html",
-      "sha256": "37c13169c71df3f58dfed5443e50bc624c9e9832c7d957c73955b7f96ad9e537"
+      "sha256": "d7729135a2e79bf530c6b818c5ef534ad5db6d53d3727af66147f973570038c1"
     },
     {
       "file": "manifest.webmanifest",
@@ -164,7 +164,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/bolsa.js",
-      "sha256": "a2ef7b565d88adf96eda80496d0af064a74d1f1a2d9f9c3b1e06739a326dec65"
+      "sha256": "d6b4f4f52c64e338768b30a905c597e1423b26d3368a202c18a6e184984e8d4c"
     },
     {
       "file": "src/core/cartilla.js",
@@ -312,7 +312,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/state.js",
-      "sha256": "959bf108550a35756d4fdff989123ebb098b81ed4e7587dab605860a18056a99"
+      "sha256": "e09f1f90c56958c1445d0dab1719dde26f60db4d2cba582286109cc6fb4732fe"
     },
     {
       "file": "src/core/stress.js",
@@ -344,7 +344,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/data/endings.js",
-      "sha256": "1eebf32bde758cfd288738e202a713dbf4362f5f3df23f22593584802588f061"
+      "sha256": "6f2609265eb0ef68f76923184280dae1ef23a7e3524f9381454dcb254e0326d5"
     },
     {
       "file": "src/data/epilogues.js",
@@ -428,7 +428,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/data/help.js",
-      "sha256": "6352b6e799e0f62fe2b32d2869e44726629b8c2db264904db665419b8228486d"
+      "sha256": "ce346c652d3d9dea78087042f0d066405b24b395d1449abb149a4ad4338d2d27"
     },
     {
       "file": "src/data/housing.js",
@@ -512,7 +512,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/ui/app.js",
-      "sha256": "81a7c4aacd642d708811c63b54214f07a8e11ce43c964fe4c2050b2adda4269f"
+      "sha256": "251326558bb1ce98b6011544e605498773525f3739a5a7bacaa0a8177ebfed27"
     },
     {
       "file": "src/ui/divestment.js",

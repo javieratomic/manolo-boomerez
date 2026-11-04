@@ -21,6 +21,7 @@ import './opening-stress.test.js';
 import './europe-review.test.js';
 import './finance.test.js';
 import './research.test.js';
+import './continuity.test.js';
 
 await checkOfflineCatalog();
 const { failures } = await run((line) => console.log(line));

@@ -2,6 +2,7 @@
 // Umbrales de la campaña clásica de ocho años. La revista se calibró en la 0.19 para volver a la dificultad de
 // la 0.4 (con 32 semillas: Express legal 72 % hacia el mes 89, Maison legal 100 % hacia el mes 66).
 export const CLASSIC_GOALS = { revista: 20e6, tiburon: 5e6, pyme: 800000 };
+export const canContinueEnding=id=>['europe','tiburon','pyme','ruina_lenta','forbes'].includes(id);
 
 export const ENDINGS = {
   europe:{title:'Imperio económico europeo',image:'end_tiburon',tone:'good',text:'De un obrador de Selaya a un grupo con 1.000 millones de patrimonio, presencia propia en ocho países europeos y banca, telecomunicaciones y logística. La dinastía Boomerez ha construido su imperio. Puedes seguir ampliándolo en modo infinito.'},

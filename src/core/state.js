@@ -1,4 +1,5 @@
 import {newDynasty} from './dynasty.js';
+import {ENDINGS} from '../data/endings.js';
 import {LOCAL_RULES} from '../data/localEvents.js';
 import {CAMPAIGNS} from '../data/market.js';
 import {ONLINE_LEVELS,ONLINE_SHIPPING} from '../data/online.js';
@@ -18,7 +19,7 @@ import { grossPatrimonio, computeEconomy } from './economy.js';
 export const SAVE_KEY = 'manolo-boomerez-save-v1';
 export const SAVE_VERSION = 2;
 // Versión del contenido: una semilla solo reproduce la misma partida con la misma versión.
-export const GAME_VERSION = '0.21.1';
+export const GAME_VERSION = '0.21.2';
 
 export const DIFFICULTIES = {
   cunado: {
@@ -189,6 +190,7 @@ export function deserialize(text) {
   // sustituya la partida abierta o escriba el guardado automático.
   const defaults = newGame(ready.seed, ready.difficulty);
   const invalid = () => { throw new Error('Partida incompatible'); };
+  if(ready.ending!=null&&!Object.hasOwn(ENDINGS,ready.ending))invalid();
   const checkShape = (actual, template) => {
     for (const [key, value] of Object.entries(template)) {
       if (typeof value === 'number' && !Number.isFinite(actual[key])) invalid();

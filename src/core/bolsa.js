@@ -144,8 +144,8 @@ export function tickBolsa(s) {
   if (pend && chance(s, Math.min(1, DISCOVER_Q * pend))) discover(s);
   if (ipo.q && ipo.q.qi === qi) judge(s, qi);
   ipo.publicados[qi] ??= reportedQuarter(s, qi); // también sin promesa, para que cuente la reversión
-  // No se promete un trimestre que empieza cuando ya ha terminado la partida (salvo en modo infinito).
-  if (m >= ipo.month && (s.endless || (qi + 1) * 3 < GAME_MONTHS)) queuePromise(s, qi + 1);
+  // Solo la clásica tiene un cierre por calendario; Europa y el modo infinito siguen prometiendo.
+  if (m >= ipo.month && (s.campaign==='europe' || s.endless || (qi + 1) * 3 < GAME_MONTHS)) queuePromise(s, qi + 1);
 }
 
 export function queuePromise(s, next) {

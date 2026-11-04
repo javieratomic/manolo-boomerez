@@ -1,14 +1,26 @@
 # Estado para el siguiente agente (04-11-2026)
 
-- Versión actual: **0.21.1**, Offline fiable desde primera preparación (Codex). Anterior: 0.21.0 `7ae47cd` (Codex).
-- Última validación: **341/341 simulación +14/14 worker Node +56/56 DOM =411 pruebas**. Nueva pasada de 19.507 meses
+- Versión actual: **0.21.2**, Continuidad del imperio y Bolsa (Codex). Anterior: 0.21.1 `7b645a4` (Codex).
+- Última validación: **346/346 simulación +14/14 worker Node +56/56 DOM =416 pruebas**. Nueva pasada de 19.507 meses
   de `tests/fuzz.mjs` sin fallos de invariantes, además de las pasadas históricas.
-- Portable actual: `desktop/dist/ManoloBoomerez-0.21.1-portable.exe`. Los ejecutables de `desktop/dist/` son
+- Portable actual: `desktop/dist/ManoloBoomerez-0.21.2-portable.exe`. Los ejecutables de `desktop/dist/` son
   artefactos ignorados por Git y se conservan.
 
 # Continuación autónoma de cuatro horas (04-11-2026)
 
 Usuario autorizó revisar y mejorar por entregas con be-ambitious durante cuatro horas. Inicio comprobado: 11:45 UTC; **límite 04-11-2026 15:45 UTC /16:45 Europe/Madrid**. Automatización de continuación creada: `revisi-n-de-manolo-boomerez-cuatro-horas`, cada diez minutos. Al vencer, no iniciar trabajo y desactivarla; informar entregas/pendientes. No reactivar la antigua vigilancia de arte. Código autorizado por la conversación; decisiones delegadas. Sin push, perfiles reales ni mensajes a otros chats.
+
+## Entrega 0.21.2 — Continuidad del imperio y Bolsa
+
+- Reproducidos tres problemas: IPO europeo real en119 nunca pedía promesas por un corte clásico residual en96; victoria europea prometía modo infinito pero no ofrecía opción; cerrar en desenlace dejaba guardado inaccesible y recorded sin persistir. Revisión independiente encontró otro: Volver al título borraba la empresa.
+- **Europa → Seguir jugando (modo infinito)** ahora disponible, con elegibilidad central canContinueEnding en data/endings. Finales terminales no admiten continuar; lista clásica intacta. **Ver desenlace** en portada reabre el guardado final; volver al título lo conserva y solo Nueva partida explícita reinicia. Nueva partida/reto semanal desde portada confirman sustitución también de empresas terminadas. recorded se guarda antes del diálogo para no repetir récord en nuevas reaperturas; no se fusionan ni borran récords históricos.
+- Promesas bursátiles siguen en Europa después del octavo año, como canIPO y checkEnding ya permitían. Requisitos, guías, cálculos y clásica96meses intactos. deserialize rechaza ending desconocido antes de abrir escena inválida; acepta desenlaces válidos anteriores. Sin nuevo esquema/arte/dependencias.
+
+Validación:346/346simulación+14/14workerNode+56/56DOM=416 únicas.5regresiones rojas/verdes. Edge1365/375/320: victoria por checkEnding, premio boutique300k una vez, récord1 persistido, cerrar/recargar/reabrir, cancelar Nuevo/Reto, Volver conserva, continuar sin alterar caja/deuda/mes/RNG/negocios, recargar y cerrar mes121. Terminal sin infinito, retorno seguro y Nueva partida explícita sí resetea. Sin errores/desbordamiento, capturas inspeccionadas. Simulación real3semillas×24meses con IPO tardío y guías0/1/3 genera7/7/8promesas y juicios, sin bloqueo/final; no se ha rebalanceado economía. Migración0.21.1→0.21.2 preserva activo/Europe/terminal, caja/neto/patrimonio/mes/RNG. Catálogo offline regenerado; fuentes108archivos iguales en build, dependencias intactas, build+ambos smoke ocultos salida0. Perfiles reales intactos.
+
+Plan/registro `docs/superpowers/plans/2026-11-04-continuidad-imperio.md`, evidencias `%TEMP%/boomerez0212-*`, focalizado `boomerez-continuity-test.mjs`. Revisión independiente y hallazgo de borrado cerrado con QA roja/verde. No quedan arreglos abiertos nuevos. Sigue el P3 conservador del indicador offline ya descrito en0.21.1; no repetir el lote por ese aviso menor.
+
+Entregas de esta autorización:0.20.0,0.21.0,0.21.1,0.21.2. Continuar revisión por evidencia hasta15:45UTC, sin añadir funciones por llenar tiempo; reservar últimos minutos para cierre, resumen y eliminar automatización. **Tras tocar código web regenerar offline-files.js antes de probar/publicar.**
 
 ## Entrega 0.21.1 — Offline fiable
 

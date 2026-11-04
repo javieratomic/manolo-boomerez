@@ -1,5 +1,8 @@
 // Ejecuta los tests en Node 18+ (opcional): node tests/run-node.mjs
 import { run } from './runner.js';
+import {spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+import {checkOfflineCatalog} from '../tools/offline_catalog.mjs';
 import './sim.test.js';
 import './expansion.test.js';
 import './empire.test.js';
@@ -19,5 +22,8 @@ import './europe-review.test.js';
 import './finance.test.js';
 import './research.test.js';
 
+await checkOfflineCatalog();
 const { failures } = await run((line) => console.log(line));
-process.exit(failures.length ? 1 : 0);
+if(failures.length)process.exit(1);
+const offline=spawnSync(process.execPath,['--test',fileURLToPath(new URL('./offline-worker.test.mjs',import.meta.url))],{stdio:'inherit'});
+process.exit(offline.status??1);

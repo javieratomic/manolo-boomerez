@@ -1,14 +1,30 @@
 # Estado para el siguiente agente (04-11-2026)
 
-- Versión actual: **0.21.0**, Evaluar investigación (Codex). Anterior: 0.20.0 `bb0df8b` (Codex).
-- Última validación: **341/341 Node +54/54 DOM =395 pruebas**. Nueva pasada de 19.507 meses
+- Versión actual: **0.21.1**, Offline fiable desde primera preparación (Codex). Anterior: 0.21.0 `7ae47cd` (Codex).
+- Última validación: **341/341 simulación +14/14 worker Node +56/56 DOM =411 pruebas**. Nueva pasada de 19.507 meses
   de `tests/fuzz.mjs` sin fallos de invariantes, además de las pasadas históricas.
-- Portable actual: `desktop/dist/ManoloBoomerez-0.21.0-portable.exe`. Los ejecutables de `desktop/dist/` son
+- Portable actual: `desktop/dist/ManoloBoomerez-0.21.1-portable.exe`. Los ejecutables de `desktop/dist/` son
   artefactos ignorados por Git y se conservan.
 
 # Continuación autónoma de cuatro horas (04-11-2026)
 
 Usuario autorizó revisar y mejorar por entregas con be-ambitious durante cuatro horas. Inicio comprobado: 11:45 UTC; **límite 04-11-2026 15:45 UTC /16:45 Europe/Madrid**. Automatización de continuación creada: `revisi-n-de-manolo-boomerez-cuatro-horas`, cada diez minutos. Al vencer, no iniciar trabajo y desactivarla; informar entregas/pendientes. No reactivar la antigua vigilancia de arte. Código autorizado por la conversación; decisiones delegadas. Sin push, perfiles reales ni mensajes a otros chats.
+
+## Entrega 0.21.1 — Offline fiable
+
+- Reproducción confirmada: primera visita/registro del worker antiguo no almacenaba código (caché0); offline recarga fallaba. Una segunda visita online sí dejaba290entradas y permitía jugar. Corregido con copia completa verificada antes de activar, sin retrasar boot online.
+- **Portada HTTPS:** Preparando / Juego disponible sin conexión / Actualización preparada para reabrir / No se pudo preparar. Servicio desactivado en localhost y app:// como antes. No cambia guardados ni economía.
+- `tools/offline_catalog.mjs` genera `offline-files.js`:145archivos de código/HTML/CSS/iconosSVG,~1MiB. Hashes SHA256 canónicos CRLF/BOM. **Tras editar código web ejecutar `node tools/offline_catalog.mjs` antes de validar/publicar**. El runner Node comprueba vigencia y ejecuta pruebas del worker; desktop/prepare.mjs lo regenera. Web sigue sin dependencias ni compilación.
+- Worker importa catálogo; código de revisión cache-first, install atómico con hashes, fallos conservan copia anterior; limpieza solo de su prefijo/directorio. Arte/manifest PNG independientes, red primero y respaldo con waitUntil; lee arte legacy boomerez-v1 por URL exacto sin borrar esa caché compartida. Imágenes no descargadas usan marcadores; no se precargan36,65MB por instalar offline.
+- `src/ui/offline.js` verifica preparación por MessageChannel, observa controllerchange y updatefound, distingue instalada/en espera de activada. No await de skipWaiting dentro de install tras cache completa, para no acoplar fin de instalación a transición anterior. Regresiones de recuperación, corrupción y migración de worker/arte legacy verificadas.
+
+Validación:341/341simulación+14/14workerNode+56/56DOM. Edge nuevo1365/375/320: primera preparación457–626ms local, desconectar, index con query, continuar, Finanzas, I+D, cerrar mes con caja exacta y recargar mes1. Sin excepciones JS/desbordamiento; capturas inspeccionadas. Arte no disponible produce fallos de recurso esperados y marcadores (no errores de lógica). Servidor local en memoria: publicaciónB fallida mantieneA offline, Bbuena actualiza solo catálogo importado, cash1234567 conservada, subdirectorio, cachés de otra ruta/app intactas y arte nuevo independiente. Migración desde worker original preserva arte legacy al reabrir. Fuentes108archivos idénticas en build, dependencias intactas; build y ambos smoke ocultos salida0. Migración de partida0.21→0.21.1 conserva caja/mes/patrimonio/neto/RNG.
+
+Revisión independiente sin bloqueantes; **pendiente menor P3:** tras una actualización fallida, aviso conservador puede mostrar no disponible aunque quede la copia anterior; no afecta a integridad ni capacidad de volver a ella. No es motivo para repetir este lote. Plan/registro `docs/superpowers/plans/2026-11-04-offline-fiable.md`; scripts `%TEMP%/boomerez0211-*`, pruebasunitarias enrepo. No quedan otros arreglos abiertos.
+
+Nota de QA: este Playwright no espera predicados async en waitForFunction (async false se tomó truthy). Usar predicado síncrono/eventos o esperar page.evaluate desde Node; no sondear continuamente OFFLINE_STATUS durante actualización porque mantiene ocupado el worker anterior. Instrumentación de diagnóstico retirada y recorridos finales completos verdes.
+
+**Siguiente ejecución:** continuar revisión basada en evidencia dentro del plazo, priorizando integridad/flujos reales de gestión; no añadir funciones por llenar tiempo ni repetir campañas/worker ya verificados. Si falta poco tiempo, reservarlo para cierre y desactivación. Entregas de esta autorización hasta ahora:0.20.0,0.21.0,0.21.1, commits locales propios, sin push.
 
 ## Entrega 0.21.0 — Evaluar investigación
 

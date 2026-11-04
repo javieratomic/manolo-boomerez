@@ -26,6 +26,8 @@ python tools/serve.py 8080 --open
 En Windows también puedes hacer doble clic en `jugar.bat`. La partida se guarda sola en el navegador, y desde el
 menú (☰) se puede exportar a un archivo e importar en otro dispositivo.
 
+En una web HTTPS, espera a **Juego disponible sin conexión** en la portada antes de desconectarte por primera vez. Se prepara el código completo, también los menús que todavía no hayas abierto. Una actualización preparada puede pedir reabrir el juego para aplicarse. El arte descargado con el servicio activo queda como respaldo; si alguna imagen no está disponible, se usan los marcadores habituales. El guardado sigue siendo local. El servidor de desarrollo y el portable no necesitan registrar este servicio.
+
 **Controles:** clic o toque en una ciudad para abrir negocios · arrastrar para mover el mapa · rueda o
 pellizco para el zoom (en el móvil, tocar dos ciudades juntas acerca el mapa) · `Espacio` cierra el mes ·
 `1`-`7` cambia de pestaña · `1`-`4` elige opción en las cartas · `,` y `.` recorren las ciudades con alerta.
@@ -99,6 +101,7 @@ El diseño completo está en [`docs/GDD.md`](docs/GDD.md) y los consejos de estr
 ```
 index.html, styles.css      Página y estilos (PC + móvil)
 manifest.webmanifest, sw.js PWA (instalable y sin conexión)
+offline-files.js           Catálogo generado del código offline (no editar a mano)
 src/
   core/      Simulación pura y testeable (sin DOM): estado, economía, sucesos, acciones, inspecciones
   data/      Contenido: ciudades, negocios, políticas, sucesos, finales, frases de Manolo
@@ -110,6 +113,8 @@ tools/       serve.py (servidor sin caché), art_catalog.py (genera las peticion
 tests/       Tests de simulación + bot que juega partidas completas
 docs/        Documento de diseño
 ```
+
+Antes de validar o publicar cambios del código web, ejecuta `node tools/offline_catalog.mjs`. El runner Node comprueba que el catálogo esté actualizado y prueba instalación/actualización offline; el empaquetado de escritorio lo regenera automáticamente. Los hashes normalizan finales de línea de Git. El arte PNG y su manifiesto se actualizan independientemente, sin regenerar este catálogo.
 
 ## Tests
 

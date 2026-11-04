@@ -3,10 +3,12 @@ import { cp, rm, mkdir, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {writeOfflineCatalog} from '../tools/offline_catalog.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const game = path.resolve(here, '..');
 const out = path.join(here, 'app');
+await writeOfflineCatalog(game);
 
 const ENTRIES = ['index.html', 'styles.css', 'manifest.webmanifest', 'icon.svg', 'src', 'assets'];
 

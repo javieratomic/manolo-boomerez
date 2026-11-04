@@ -1,6 +1,7 @@
 import {nominateHeir} from '../core/dynasty.js';
 import {researchPlan} from '../core/research.js';
 import {renderResearchReview} from './research.js';
+import {prepareOffline} from './offline.js';
 import {portfolio,portfolioSelection,upgradeBatchPlan,upgradeBatch} from '../core/portfolio.js';
 import {renderUpgradeReview} from './portfolio.js';
 import {saleBatchPlan,saleBatch} from '../core/divestment.js';
@@ -73,9 +74,7 @@ export async function boot() {
   await initAssets();
   setupTitle();
   bindGlobal();
-  if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !location.hostname.match(/^(localhost|127\.)/)) {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
-  }
+  prepareOffline();
 }
 
 // ------------------------------------------------------------------ Título

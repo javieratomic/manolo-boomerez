@@ -9,6 +9,17 @@ import {computeEconomy} from '../src/core/economy.js';
 import { resolvePending } from '../src/core/sim.js';
 import { renderManolo, renderCity, renderEmpire, renderMarket, renderResearch, renderMarketing, renderInternational, renderOnline, renderResidences, renderBenefits, renderStaff,renderFinance } from '../src/ui/panels.js';
 
+test('DOM: preparación offline tiene estado accesible y no registra en desarrollo',async()=>{
+ const indicator=document.getElementById('offline-status');assert(indicator);assertEq(indicator.getAttribute('role'),'status');
+ const {prepareOffline}=await import('../src/ui/offline.js');assertEq(await prepareOffline(),false);assert(indicator.hidden);
+});
+
+test('DOM: actualización offline instalada puede anunciar preparada aunque espere al cierre de la sesión',async()=>{
+ const {offlineWorker}=await import('../src/ui/offline.js');const worker=new EventTarget();worker.state='installing';
+ const waiting=offlineWorker(worker);worker.state='installed';worker.dispatchEvent(new Event('statechange'));
+ assertEq(await Promise.race([waiting,new Promise(resolve=>setTimeout(()=>resolve(null),100))]),worker);
+});
+
 test('DOM: I+D permite evaluar pendientes y bloqueados sin desarrollar al consultar',()=>{
  const s=newGame(42);resolvePending(s,0);s.cash=0;s.products=['congelados'];s.rd={id:'horneado_continuo',monthsLeft:3,total:5};
  const el=document.createElement('div');el.innerHTML=renderResearch(s,{status:'all'});

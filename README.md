@@ -38,9 +38,13 @@ Escenas del propio juego: inspecciones, fiestas y parientes con propuestas irres
 
 ### De un obrador a un imperio
 
-| Obrador | Tienda de sobaos | Academy | Viviendas |
-| :---: | :---: | :---: | :---: |
-| <img src="assets/buildings/bld_obrador_1.png" width="130" alt="Obrador Boomerez"> | <img src="assets/buildings/bld_sobaos_express.png" width="130" alt="Tienda Express"> | <img src="assets/buildings/bld_academy.png" width="130" alt="Academy Boomerez"> | <img src="assets/buildings/bld_vivienda.png" width="130" alt="Edificio residencial"> |
+| Obrador | Tienda de sobaos |
+| :---: | :---: |
+| <img src="assets/buildings/bld_obrador_1.png" width="130" alt="Obrador Boomerez"> | <img src="assets/buildings/bld_sobaos_express.png" width="130" alt="Tienda Express"> |
+
+| Academy | Viviendas |
+| :---: | :---: |
+| <img src="assets/buildings/bld_academy.png" width="130" alt="Academy Boomerez"> | <img src="assets/buildings/bld_vivienda.png" width="130" alt="Edificio residencial"> |
 
 ---
 

@@ -15,4 +15,4 @@
 
 Browser plugin not available; pruebas con Edge/Playwright en perfiles aislados. No pruebas unitarias que reflejen el texto del README o un wrapper de bajo impacto: la comprobación se hace sobre rutas y navegación reales.
 
-Verificado local:432pruebas, build y ambos smoke0; file→web y HTTP local0.21.6,108fuentes idénticas. Revisión sin hallazgos. README público1365/390,13imágenes y descargaWindows200, SHA256coincidente. Código836ac5c, galería móvilc648134, Release0.21.6 publicada; Actions41879299023 en cola, pendiente Pages.
+Verificado local:432pruebas, build y ambos smoke0; file→web y HTTP local0.21.6,108fuentes idénticas. Revisión sin hallazgos. README público1365/390,13imágenes y descargaWindows200, SHA256coincidente. Código836ac5c, galería móvilc648134, Release0.21.6 publicada; Actions41879299023 con pruebas/preparación/upload verdes; deploy en cola, pendiente comprobación Pages0.21.6. README y portable públicos verificados; repo sincronizado.

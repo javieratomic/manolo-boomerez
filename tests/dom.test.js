@@ -5,8 +5,29 @@ import {MapView} from '../src/render/mapView.js';
 import { test, assert, assertEq } from './runner.js';
 import { showModal, isModalOpen } from '../src/ui/dom.js';
 import { newGame } from '../src/core/state.js';
+import {computeEconomy} from '../src/core/economy.js';
 import { resolvePending } from '../src/core/sim.js';
 import { renderManolo, renderCity, renderEmpire, renderMarket, renderResearch, renderMarketing, renderInternational, renderOnline, renderResidences, renderBenefits, renderStaff,renderFinance } from '../src/ui/panels.js';
+
+test('DOM: patrimonio reconcilia pasivos y separa exposición sin cambiar la partida',()=>{
+ const s=newGame(42);s.debt=12000;s.cartilla.owed=8000;s.extraMonthly=[{ss:true,amount:400,months:6}];s.evaded=30000;s.dossier.ahorro=[10000];
+ const before=JSON.stringify(s),el=document.createElement('div');el.innerHTML=renderFinance(s,{view:'wealth'});
+ assert(el.querySelector('[data-act="finance-view"][data-view="wealth"][aria-pressed="true"]'));
+ for(const label of ['Activos','Deudas confirmadas','Seguridad Social','Patrimonio antes de accionistas','Contingencias','Hacienda','Trabajo','sin multas adicionales','antes de crédito'])assert(el.textContent.includes(label),label);
+ assertEq(JSON.stringify(s),before);assert(!el.querySelector('[data-act="borrow"]'));
+});
+
+test('DOM: patrimonio sin deudas ni contingencias no muestra ceros negativos',()=>{
+ const el=document.createElement('div');el.innerHTML=renderFinance(newGame(42),{view:'wealth'});
+ assert(!/[-−]0\s*€/.test(el.textContent));assert(el.textContent.includes('Sin importes acumulados'));
+});
+
+test('DOM: resultados incluyen banca, telecom y logística y admiten cierre antiguo',()=>{
+ const s=newGame(42);s.lastReport={...computeEconomy(s),revenueByCat:{sobaos:100,finanzas:200,infraestructura:300,logistica:400},revenue:1000,net:100,tax:0};
+ const el=document.createElement('div');el.innerHTML=renderFinance(s);
+ for(const label of ['Banca','Telecomunicaciones','Logística','Deuda bancaria'])assert(el.textContent.includes(label),label);
+ s.lastReport.revenueByCat={sobaos:100};el.innerHTML=renderFinance(s);assert(!el.textContent.includes('undefined'));assert(!el.textContent.includes('NaN'));
+});
 
 test('DOM: alternativas de apertura ofrecen Resistencia sin comprar y conservan ciudad y modalidad',async()=>{
  const {renderOpportunities}=await import('../src/ui/opportunities.js');const s=newGame(42);resolvePending(s,0);s.cash=1e7;

@@ -46,6 +46,8 @@ El modo **Vender y rescindir** permite reestructurar varios activos: separa cobr
 
 **Finanzas → Resistencia** compara condiciones actuales, demanda comercial −15 %, salario base +10 % y ambos cambios. Desde la cartera, **Probar escenarios** añade un lote sin ejecutarlo. Muestra beneficio y caja tras un cierre antes de financiación, más un colchón orientativo de tres nóminas y renovaciones de los doce meses posteriores. Las renovaciones del mes ya están en el resultado y no se suman otra vez al colchón. Los supuestos no tienen probabilidades, no avanzan tiempo ni cambian el mercado; contratos y regalías conservan sus condiciones, becas y sueldos fijos no se indexan. Un lote cuyo nivel ya cambió requiere seleccionarlo de nuevo.
 
+**Finanzas → Patrimonio y riesgos** reconcilia caja, obrador, negocios/viviendas y caprichos con las deudas confirmadas del banco, la familia y Seguridad Social. Explica la participación del jugador y el sentimiento bursátil cuando cotizas. Las estimaciones de Hacienda y Trabajo quedan fuera del balance y tienen un escenario ilustrativo de pago conjunto, antes de crédito y sin multas adicionales. No cambia las reglas de patrimonio ni ejecuta pagos. El balance del último cierre incluye también el desglose de banca, telecomunicaciones y logística.
+
 | Área | Menús |
 |---|---|
 | Empresa | Ciudad, Imperio, Mercado, Finanzas |

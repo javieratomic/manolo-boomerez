@@ -1,10 +1,27 @@
-# Estado para el siguiente agente (30-10-2026)
+# Estado para el siguiente agente (04-11-2026)
 
-- Versión actual: **0.19.0**, La campaña europea, medida (Claude). Entrega anterior: 0.18.0 `a0252f8` (Codex).
-- Última validación: **328 pruebas Node y 374 en el navegador** (incluidas las del DOM). Unos 58.000 meses
-  de `tests/fuzz.mjs` sin fallos de invariantes.
-- Portable actual: `desktop/dist/ManoloBoomerez-0.19.0-portable.exe`. Los ejecutables de `desktop/dist/` son
+- Versión actual: **0.20.0**, Patrimonio y riesgos (Codex). Anterior: 0.19.0 `035ce66` (Claude).
+- Última validación: **335/335 Node +49/49 DOM =384 pruebas**. Nueva pasada de 19.507 meses
+  de `tests/fuzz.mjs` sin fallos de invariantes, además de las pasadas históricas.
+- Portable actual: `desktop/dist/ManoloBoomerez-0.20.0-portable.exe`. Los ejecutables de `desktop/dist/` son
   artefactos ignorados por Git y se conservan.
+
+# Continuación autónoma de cuatro horas (04-11-2026)
+
+Usuario autorizó revisar y mejorar por entregas con be-ambitious durante cuatro horas. Inicio comprobado: 11:45 UTC; **límite 04-11-2026 15:45 UTC /16:45 Europe/Madrid**. Automatización de continuación creada: `revisi-n-de-manolo-boomerez-cuatro-horas`, cada diez minutos. Al vencer, no iniciar trabajo y desactivarla; informar entregas/pendientes. No reactivar la antigua vigilancia de arte. Código autorizado por la conversación; decisiones delegadas. Sin push, perfiles reales ni mensajes a otros chats.
+
+## Entrega 0.20.0 — Patrimonio y riesgos
+
+- **Finanzas → Patrimonio y riesgos**, tercera subvista separada: activos (incluidas obras y caprichos), deudas confirmadas del banco/familia/SS, patrimonio antes de accionistas y del jugador. Si cotiza explica participación y sentimiento. Reutiliza exactamente las valoraciones actuales: no cambia el equilibrio ni el esquema de guardado.
+- Hacienda no inspeccionada y liquidación laboral potencial figuran como contingencias fuera del balance. Escenario ilustrativo de pago íntegro conjunto, antes de crédito y sin multas adicionales, con caja/patrimonio resultantes. Las cuotas SS ya aplazadas no se vuelven a sumar a exposición. No paga ni usa RNG.
+- `src/core/finance.js`: `financeSnapshot(s)` puro; `src/ui/finance.js`: renderer. Cambiar subvista conserva estudios de Resistencia y foco. Corregidos ceros negativos con regresión DOM roja/verde.
+- **Omisión corregida:** cuenta del último cierre no desglosaba ingresos de banca/telecom/logística aunque sí entraban en el total. Ahora incluye todas las categorías actuales. KPI Deuda pasa a Deuda bancaria; resto de obligaciones en la nueva vista. El gráfico de sectores ya incluía esos tres sectores, no necesitó cambio.
+
+Verificación: 335/335 Node +49/49 DOM. Edge 1365×900,375×900,320×900: vista, advertencia de insuficiencia de caja, navegación Balance/Patrimonio/Resistencia, estudio conservado, estado/RNG intactos y recarga; sin errores ni desbordamientos, capturas inspeccionadas. Simulación emparejada: 12 semillas×48 meses=576 meses, consultar/no consultar deja estado completo y RNG idénticos; snapshot de500 negocios~0,008ms en esta máquina. Migración0.19→0.20 conserva caja/neto/patrimonio/RNG. Revisión independiente sin hallazgos. Fuentes empaquetadas coinciden (105 ficheros) y dependencias de lockfile intactas. Build y smoke ocultos desempaquetado/portable correctos, salida0; no perfiles reales.
+
+Auditoría ampliada: `node tests/fuzz.mjs --seeds 40 --from 81 --months 900 --rich --tame`: 40 partidas,19.507 meses,29.145 acciones,17.280 cartas; sin fallos de invariantes ni divergencias de guardado. Todas acabaron en bancarrota con acciones aleatorias: esta prueba mide integridad, no capacidad de victoria ni equilibrio. La medida de victoria europea de0.19 sigue siendo la referencia.
+
+Plan/registro: `docs/superpowers/plans/2026-11-04-patrimonio-riesgos.md`. Evidencias y scripts temporales en `%TEMP%/boomerez020-*`; focalizado `%TEMP%/boomerez-finance-test.mjs`, DOM `%TEMP%/boomerez-dom-tests.cjs`. Servidor propio `python tools/serve.py 8080` (sesión36886). No hay arreglos abiertos de esta entrega. **Siguiente lote:** continuar revisión por evidencia dentro del plazo; no repetir las simulaciones de campaña europea ya medidas ni ampliar el balance por inercia. Priorizar problemas reproducibles en gestión avanzada; pendientes de diseño de0.19 siguen descritos abajo y no se han alterado.
 
 # Continuación 0.19.0 — La campaña europea, medida (30-10-2026)
 

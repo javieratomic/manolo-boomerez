@@ -2,6 +2,7 @@ import {workforcePlan} from '../core/workforce.js';
 import {renderOperations} from './operations.js';
 import {renderPortfolio} from './portfolio.js';
 import {renderStress} from './stress.js';
+import {renderWealth} from './finance.js';
 import {renderOpportunities} from './opportunities.js';
 import {ONLINE_LEVELS,ONLINE_SHIPPING} from '../data/online.js';
 import {canOpenOnline,canUpgradeOnline} from '../core/online.js';
@@ -750,13 +751,15 @@ function renderCartilla(s) {
 }
 
 export function renderFinance(s,settings={}) {
-  const views=`<div class="card empire-views" role="group" aria-label="Vista de Finanzas"><button class="btn small ${settings.view!=='stress'?'primary':''}" data-act="finance-view" data-view="balance" aria-pressed="${settings.view!=='stress'}">Balance y financiación</button><button class="btn small ${settings.view==='stress'?'primary':''}" data-act="finance-view" data-view="stress" aria-pressed="${settings.view==='stress'}">Resistencia</button></div>`;
+  const view=['stress','wealth'].includes(settings.view)?settings.view:'balance';
+  const views=`<div class="card empire-views" role="group" aria-label="Vista de Finanzas">${[['balance','Balance y financiación'],['wealth','Patrimonio y riesgos'],['stress','Resistencia']].map(([id,label])=>`<button class="btn small ${view===id?'primary':''}" data-act="finance-view" data-view="${id}" aria-pressed="${view===id}">${label}</button>`).join('')}</div>`;
+  if(view==='wealth')return views+renderWealth(s);
   if(settings.view==='stress')return views+renderStress(s,settings.operation==='opening'?settings.choice:settings.ids||[],settings.operation==='opening'?settings.quote:settings.items,settings.operation);
   const r = s.lastReport;
   const limit = creditLimit(s);
   let html = views+renderEuropeanGoal(s)+`<div class="card kpis">
     <div><span class="muted small">Caja</span><b class="${cls(s.cash)}">${moneyShort(s.cash)}</b></div>
-    <div><span class="muted small">Deuda</span><b>${moneyShort(s.debt)}</b></div>
+    <div><span class="muted small">Deuda bancaria</span><b>${moneyShort(s.debt)}</b></div>
     <div><span class="muted small">Límite de crédito</span><b>${moneyShort(limit)}</b></div>
     <div><span class="muted small">Cuota "optimizada"</span><b class="${s.evaded > 0 ? 'neg' : ''}">${moneyShort(haciendaDebt(s))}</b></div>
   </div>
@@ -780,6 +783,10 @@ export function renderFinance(s,settings={}) {
       ${r.revenueByCat.hosteleria ? `<tr><td>&nbsp;· Hostelería</td><td>${money(r.revenueByCat.hosteleria)}</td></tr>` : ''}
       ${r.revenueByCat.formacion ? `<tr><td>&nbsp;· Formación</td><td>${money(r.revenueByCat.formacion)}</td></tr>` : ''}
       ${r.revenueByCat.servicios ? `<tr><td>&nbsp;· Servicios</td><td>${money(r.revenueByCat.servicios)}</td></tr>` : ''}
+      ${r.revenueByCat.produccion ? `<tr><td>&nbsp;· Producción</td><td>${money(r.revenueByCat.produccion)}</td></tr>` : ''}
+      ${r.revenueByCat.finanzas ? `<tr><td>&nbsp;· Banca</td><td>${money(r.revenueByCat.finanzas)}</td></tr>` : ''}
+      ${r.revenueByCat.infraestructura ? `<tr><td>&nbsp;· Telecomunicaciones</td><td>${money(r.revenueByCat.infraestructura)}</td></tr>` : ''}
+      ${r.revenueByCat.logistica ? `<tr><td>&nbsp;· Logística</td><td>${money(r.revenueByCat.logistica)}</td></tr>` : ''}
       <tr><td>Salarios</td><td class="neg">−${money(c.salarios)}</td></tr>
       ${c.mantenimiento ? `<tr><td>Mantenimiento</td><td class="neg">−${money(c.mantenimiento)}</td></tr>` : ''}
       ${c.renovaciones ? `<tr><td>Renovaciones inmobiliarias (ciclo de 15 años)</td><td class="neg">−${money(c.renovaciones)}</td></tr>` : ''}

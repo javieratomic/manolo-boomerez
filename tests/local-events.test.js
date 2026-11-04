@@ -4,6 +4,7 @@ import {resolvePending,currentPending,eligibleEvents,advanceMonth} from '../src/
 import {EVENT_BY_ID} from '../src/data/events.js';
 import {productFactor} from '../src/core/market.js';
 import {CITY_BY_ID} from '../src/data/cities.js';
+import {computeEconomy} from '../src/core/economy.js';
 
 const started=(city='salamanca')=>{const s=newGame(42);resolvePending(s,0);s.pending=[];s.clausula=null;s.cash=1e7;s.rep=80;s.moral=70;s.month=11;s.obrador.upgrades=['linea2'];s.businesses.push({id:s.nextId++,type:'express',city,mode:'propia',level:1,value:30000});return s;};
 const choose=(s,id,index)=>{s.pending=[{kind:'event',id}];return resolvePending(s,index);};
@@ -35,7 +36,7 @@ test('Fiestas: repetir un abuso cuesta más reputación, los acuerdos buenos mej
 test('Nochevieja: cuatro patrocinios en años distintos crean tradición nacional, sin duplicar edición',()=>{
  const s=started();
  for(let year=0;year<4;year++){
-  s.month=11+12*year;s.rep=85;s.moral=70;s.lastReport={fill:1};s.mods=[];
+  s.month=11+12*year;s.rep=85;s.moral=70;s.mods=[];s.lastReport={...computeEconomy(s),fill:1};
   choose(s,'ciudad_salamanca',0);
   assertEq(s.localEvents.ciudad_salamanca.level,year+1);
   const cash=s.cash,visits=s.localEvents.ciudad_salamanca.visits,count=s.customs.ciudad_salamanca.count;choose(s,'ciudad_salamanca',0);assertEq(s.cash,cash);assertEq(s.localEvents.ciudad_salamanca.level,year+1);assertEq(s.localEvents.ciudad_salamanca.visits,visits);assertEq(s.customs.ciudad_salamanca.count,count);

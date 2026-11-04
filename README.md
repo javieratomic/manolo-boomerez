@@ -26,6 +26,8 @@ python tools/serve.py 8080 --open
 En Windows también puedes hacer doble clic en `jugar.bat`. La partida se guarda sola en el navegador, y desde el
 menú (☰) se puede exportar a un archivo e importar en otro dispositivo.
 
+La importación comprueba también la estructura del último informe antes de sustituir la compañía activa. Un informe roto se rechaza conservando la partida y su guardado; se admiten informes anteriores sin las columnas añadidas posteriormente.
+
 En una web HTTPS, espera a **Juego disponible sin conexión** en la portada antes de desconectarte por primera vez. Se prepara el código completo, también los menús que todavía no hayas abierto. Una actualización preparada puede pedir reabrir el juego para aplicarse. El arte descargado con el servicio activo queda como respaldo; si alguna imagen no está disponible, se usan los marcadores habituales. El guardado sigue siendo local. El servidor de desarrollo y el portable no necesitan registrar este servicio.
 
 **Controles:** clic o toque en una ciudad para abrir negocios · arrastrar para mover el mapa · rueda o

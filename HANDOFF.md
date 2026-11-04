@@ -1,14 +1,29 @@
 # Estado para el siguiente agente (04-11-2026)
 
-- Versión actual: **0.21.3**, Plantilla coherente con las entregas (Codex). Anterior: 0.21.2 `cbbae07` (Codex).
-- Última validación: **352/352 simulación +14/14 worker Node +56/56 DOM =422 pruebas**. Nueva pasada de 19.507 meses
+- Versión actual: **0.21.4**, Informes importados compatibles (Codex). Anterior: 0.21.3 `62042c0` (Codex).
+- Última validación: **355/355 simulación +14/14 worker Node +56/56 DOM =425 pruebas**. Nueva pasada de 19.507 meses
   de `tests/fuzz.mjs` sin fallos de invariantes, además de las pasadas históricas.
-- Portable actual: `desktop/dist/ManoloBoomerez-0.21.3-portable.exe`. Los ejecutables de `desktop/dist/` son
+- Portable actual: `desktop/dist/ManoloBoomerez-0.21.4-portable.exe`. Los ejecutables de `desktop/dist/` son
   artefactos ignorados por Git y se conservan.
 
 # Continuación autónoma de cuatro horas (04-11-2026)
 
 Usuario autorizó revisar y mejorar por entregas con be-ambitious durante cuatro horas. Inicio comprobado: 11:45 UTC; **límite 04-11-2026 15:45 UTC /16:45 Europe/Madrid**. Automatización de continuación creada: `revisi-n-de-manolo-boomerez-cuatro-horas`, cada diez minutos. Al vencer, no iniciar trabajo y desactivarla; informar entregas/pendientes. No reactivar la antigua vigilancia de arte. Código autorizado por la conversación; decisiones delegadas. Sin push, perfiles reales ni mensajes a otros chats.
+
+## Entrega 0.21.4 — Informe importado seguro
+
+- Reproducción de riesgo real de integridad: lastReport={} pasaba deserialize; importar una copia con cash111 mostraba error pero sustituía game.s por esa compañía mientras el autosave seguía en1.100M€, y el mapa fallaba con r.lines is not iterable. La validación anterior solo garantizaba la economía actual, no la caché usada por la interfaz.
+- deserialize ahora valida estructura/métricas/líneas del informe antes de startGame: arrays/objetos, números básicos finitos, mes válido, etiquetas/ciudades/cantidades de líneas. Admite informe null, ids virtuales/externos y negocios ya vendidos; no exige columnas nuevas de costes/sectores ni reconstruye un cierre pasado con cifras actuales. Error antes de confirmar o sustituir estado. Sin nuevo esquema ni cambios económicos.
+
+Verificación:355/355simulación+14/14worker+56/56DOM=425únicas.3tests nuevos con11variantes rotas y positivos actual/legado/virtual/vendido/sin cierre. Revisión independiente comprobó compatibilidad con el primer informe del repo (4f00f31), sin hallazgos. El test de Nochevieja guardaba stub {fill:1}: se completó fixture con computeEconomy manteniendo fill1 y todas sus expectativas; focalizado12/12 y suite final verde. Edge1365/375 con400negocios: exportación exacta, cancelar, crédito e importación buena restituyen original; JSON roto/ending desconocido/versión99/informe vacío/líneas null no cambian modelo ni autosave y recarga es idéntica. Sin errores JS y captura inspeccionada. Catálogo vigente, build y ambos smoke ocultos salida0,108fuentes coincidentes, dependencias intactas. Perfiles reales intactos y sin push.
+
+Plan `docs/superpowers/plans/2026-11-04-informe-importado.md`; scripts `%TEMP%/boomerez0214-*`, focalizado `boomerez-report-test.mjs`. No quedan fallos nuevos abiertos.
+
+### Cierre del tramo de desarrollo
+
+Entregas de esta autorización: **seis** —0.20.0,0.21.0,0.21.1,0.21.2,0.21.3,0.21.4—. No iniciar más lotes antes del vencimiento: quedan solo comprobación de árbol y cierre/resumen a15:45UTC, eliminando la automatización. Fuentes/artefacto estables y comprobados; no repetir builds ni suites sin cambios.
+
+Pendientes menores conocidos: aviso offline conservador tras actualización fallida (P3 de0.21.1); aclarar fecha/tiempo verbal de alertas económicas del mapa, que leen último cierre aunque la empresa ya haya cambiado (repro: fill59% histórico,100% tras mejora). Esto último se dejó para priorizar el fallo real de importación; no cambiar fuente de alertas por una simulación en cada frame. Balance de partidas extraordinariamente largas sigue como decisión de diseño histórica en0.19, no se tocó.
 
 ## Entrega 0.21.3 — Plantilla y obras
 

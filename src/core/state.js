@@ -19,7 +19,7 @@ import { grossPatrimonio, computeEconomy } from './economy.js';
 export const SAVE_KEY = 'manolo-boomerez-save-v1';
 export const SAVE_VERSION = 2;
 // Versión del contenido: una semilla solo reproduce la misma partida con la misma versión.
-export const GAME_VERSION = '0.21.3';
+export const GAME_VERSION = '0.21.4';
 
 export const DIFFICULTIES = {
   cunado: {
@@ -214,6 +214,17 @@ export function deserialize(text) {
     }
   };
   checkData(ready);
+  // El informe es histórico: no se puede reconstruir con la economía de hoy.
+  // Validar lo que usa la interfaz antes de que una importación reemplace la partida.
+  if(ready.lastReport!=null){
+    const r=ready.lastReport,record=x=>x!==null&&typeof x==='object'&&!Array.isArray(x);
+    if(!record(r)||!Array.isArray(r.lines)||!record(r.costs)||!record(r.revenueByCat))invalid();
+    if(!Number.isSafeInteger(r.month)||r.month<0||r.month>ready.month)invalid();
+    if(!['revenue','net','tax','employees','fill'].every(k=>Number.isFinite(r[k])))invalid();
+    if(!['salarios','alquileres','materias','otros'].every(k=>Number.isFinite(r.costs[k]))||!Number.isFinite(r.revenueByCat.sobaos))invalid();
+    if(!Object.values(r.costs).every(Number.isFinite)||!Object.values(r.revenueByCat).every(Number.isFinite))invalid();
+    for(const l of r.lines)if(!record(l)||!(Number.isSafeInteger(l.id)||typeof l.id==='string')||!Object.hasOwn(CITY_BY_ID,l.city)||typeof l.label!=='string'||!Number.isFinite(l.revenue)||!Number.isFinite(l.cost))invalid();
+  }
   if (!Number.isInteger(ready.month) || ready.month < 0) invalid();
   if (!Number.isSafeInteger(ready.obrador.expansions) || ready.obrador.expansions < 0 || !Number.isFinite(650000 * 1.32 ** ready.obrador.expansions)) invalid();
   for (const [key, value] of Object.entries(ready.policies)) {

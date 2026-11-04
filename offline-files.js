@@ -1,6 +1,6 @@
 // Generado por node tools/offline_catalog.mjs. No editar a mano.
 self.BOOMEREZ_OFFLINE = {
-  "revision": "c8f00a1963b999a6bc3d7d6ef283421ae5b6c229fb48979d54a5735542be7b38",
+  "revision": "4d5e4d49492295467eeb87ffa8e8aba15d9c6a87b4469ce0f783489569951a25",
   "files": [
     {
       "file": "assets/ui/rd_app.svg",
@@ -156,7 +156,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/actions.js",
-      "sha256": "ab815861be09d613206f00fe0993e4e836596d728b092033a954305784249d60"
+      "sha256": "dde37681e85ceaeb283d864f6459c42a58ac7db8942efd169d34d2c070e2e1fa"
     },
     {
       "file": "src/core/advice.js",
@@ -312,7 +312,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/state.js",
-      "sha256": "e09f1f90c56958c1445d0dab1719dde26f60db4d2cba582286109cc6fb4732fe"
+      "sha256": "7483c8c1a766a30ddb3bef81ca0ac02cf077ff51b5dc1647297f9fab28111698"
     },
     {
       "file": "src/core/stress.js",
@@ -324,7 +324,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/workforce.js",
-      "sha256": "559f2664bc8a8b4fc07dbd5e53fcb2a7ff421e1811a078cfbf5cba7d44df85bf"
+      "sha256": "a321797a012a871dd06ce70a3dc7b05eb1d8c22c64874d09c12e1bbf606869c4"
     },
     {
       "file": "src/data/achievements.js",

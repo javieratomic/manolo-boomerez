@@ -38,11 +38,14 @@ export function missingBedsAhead(s,city) {
 // Falta de vivienda hoy o cuando se entregue una obra de la ciudad (las viviendas tardan 12 meses en llegar).
 export function bedsMessage(s,gap,cityName) {
   if(gap.month<=s.month)return `Faltan ${gap.missing} plazas de vivienda para contratar en ${cityName}. Cómpralas desde Equipo → Viviendas.`;
-  return `Cuando se entregue la obra de ${dateLabel(gap.month).toLowerCase().replace(" ", " de ")} faltarán ${gap.missing} plazas de vivienda en ${cityName}. Una vivienda nueva tarda 12 meses: espera a esa entrega o a tener plazas de sobra.`;
+  return `Con las condiciones actuales, al entregar las obras en ${dateLabel(gap.month).toLowerCase().replace(" ", " de ")} faltarían ${gap.missing} plazas de vivienda en ${cityName}. Una promoción tarda 12 meses: coordina las entregas o espera a tener plazas suficientes.`;
 }
 export function workforcePlan(s,city='selaya',at=s.month) {
+ // Congelar el mes, pero entregar en la copia exactamente las obras debidas.
+ // Así demanda, saturación y sinergias ven la misma disponibilidad que la plantilla.
+ if(at!==s.month){const month=s.month;s={...s,businesses:s.businesses.map(b=>({...b,readyMonth:b.readyMonth==null||at>=b.readyMonth?month:month+1}))};}
  const c=CITY_BY_ID[city];
- const ready=at===s.month?b=>isOperating(s,b):b=>b.readyMonth==null||at>=b.readyMonth;
+ const ready=b=>isOperating(s,b);
  const beds=s.businesses.filter(b=>b.type==='vivienda'&&b.city===city&&ready(b)).reduce((n,b)=>n+housingBeds(b),0);
  const base=Math.round(24+16*Math.sqrt(c.pop));
  const jobs=s.businesses.filter(b=>b.city===city&&BUSINESS_TYPES[b.type].model!=='production').map(b=>({b,n:plannedStaff(b,s,ready)}));

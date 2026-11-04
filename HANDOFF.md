@@ -1,14 +1,26 @@
 # Estado para el siguiente agente (04-11-2026)
 
-- Versión actual: **0.21.2**, Continuidad del imperio y Bolsa (Codex). Anterior: 0.21.1 `7b645a4` (Codex).
-- Última validación: **346/346 simulación +14/14 worker Node +56/56 DOM =416 pruebas**. Nueva pasada de 19.507 meses
+- Versión actual: **0.21.3**, Plantilla coherente con las entregas (Codex). Anterior: 0.21.2 `cbbae07` (Codex).
+- Última validación: **352/352 simulación +14/14 worker Node +56/56 DOM =422 pruebas**. Nueva pasada de 19.507 meses
   de `tests/fuzz.mjs` sin fallos de invariantes, además de las pasadas históricas.
-- Portable actual: `desktop/dist/ManoloBoomerez-0.21.2-portable.exe`. Los ejecutables de `desktop/dist/` son
+- Portable actual: `desktop/dist/ManoloBoomerez-0.21.3-portable.exe`. Los ejecutables de `desktop/dist/` son
   artefactos ignorados por Git y se conservan.
 
 # Continuación autónoma de cuatro horas (04-11-2026)
 
 Usuario autorizó revisar y mejorar por entregas con be-ambitious durante cuatro horas. Inicio comprobado: 11:45 UTC; **límite 04-11-2026 15:45 UTC /16:45 Europe/Madrid**. Automatización de continuación creada: `revisi-n-de-manolo-boomerez-cuatro-horas`, cada diez minutos. Al vencer, no iniciar trabajo y desactivarla; informar entregas/pendientes. No reactivar la antigua vigilancia de arte. Código autorizado por la conversación; decisiones delegadas. Sin push, perfiles reales ni mensajes a otros chats.
+
+## Entrega 0.21.3 — Plantilla y obras
+
+- Reproducido por API real: dos telecom en Madrid admitidas sin viviendas, entrega en30; proyección decía28empleados/0déficit, entrega real58/oferta53/faltan2viviendas. `plannedStaff` aceptaba ready futuro, pero serviceRevenue comprobaba otra vez la fecha original y caía al mínimo14por centro. Se corrige la vista de disponibilidad de workforcePlan para que todos los cálculos vean las mismas obras entregadas, con calendario/condiciones congelados.
+- El temporal de canOpen ahora lleva la misma fecha de obra que openBusiness: no exige antes de tiempo al personal de una construcción. Permite coordinar viviendas y negocio en la misma entrega; rechaza casas que lleguen tarde y varias obras que sobrepasen oferta. Error explica fecha, déficit y condiciones actuales/coordinación. No cambia fórmulas de nóminas ni demanda de lo que ya funciona; no modifica ni cancela proyectos guardados.
+- `operationsPlan` sigue incorporando estacionalidad del calendario, como indica su texto. El permiso de contratación conserva el contrato anterior de condiciones actuales. No es una previsión de cambios de mercado o I+D futura.
+
+Verificación:352/352simulación+14/14workerNode+56/56DOM=422 únicas;6regresiones rojas/verdes. Matriz540planes actuales iguales a cbbae07 y720proyecciones iguales a entregar las obras debidas en copia, con estado congelado profundo/RNG intactos. Benchmark200negocios~0,63ms missingBedsAhead. Simulación real6meses: casa y telecom coetáneas, ningún ingreso prematuro y déficit0al entregar. Edge1365/375/320×3escenarios: construir primera, segunda bloqueada con2plazas, persistir/recargar, permitir con vivienda coetánea y plan operativo cubierto, rechazar si llega1mes tarde. Sin errores/desbordamiento, capturas inspeccionadas. Migración0.21.2→0.21.3 conserva proyectos/efectivo/neto actual/ids/RNG e informa déficit futuro de proyectos existentes sin alterarlos. Revisión independiente sin hallazgos. Catálogo vigente, build y ambos smoke ocultos salida0,108fuentes coincidentes, dependencias intactas; sin perfiles reales.
+
+Plan `docs/superpowers/plans/2026-11-04-plantilla-obras.md`; scripts `%TEMP%/boomerez0213-*`, focalizado `boomerez-workforce-test.mjs`, baseline de matriz fijada a cbbae07. No hay arreglos nuevos abiertos. Permanece solo el P3 de aviso offline conservador de0.21.1 como hallazgo menor conocido.
+
+Entregas de esta autorización hasta ahora: **cinco** —0.20.0,0.21.0,0.21.1,0.21.2,0.21.3—, commits locales, sin push. Último tramo: revisar solo flujos con evidencia útil, sin encadenar funciones por llenar tiempo. Posible comprobación acotada aún no hecha en esta autorización: exportar/importar una partida grande y rechazo de archivo inválido desde menú con perfil aislado. Reservar cierre y resumen para15:45UTC y eliminar la automatización al vencer. Regenerar catálogo offline tras tocar código web.
 
 ## Entrega 0.21.2 — Continuidad del imperio y Bolsa
 

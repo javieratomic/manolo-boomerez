@@ -68,7 +68,7 @@ export function canOpen(s, typeId, cityId, mode = 'propia', housingForm='apartam
   if (c.hq && t.category !== 'sobaos' && !['vivienda', 'taberna', 'residencia'].includes(typeId)) return { ok: false, msg: typeId === 'obrador_regional' ? 'En Selaya ya está el obrador principal.' : 'En Selaya no hay mercado para eso.' };
   if (typeId!=='vivienda' && s.businesses.filter((b) => b.city === cityId && b.type!=='vivienda').length >= cityBusinessLimit(cityId)) return { ok: false, msg: 'Ya no caben más negocios en esta ciudad.' };
   if(typeId!=='vivienda' && mode!=='franquicia') {
-    const tmp={id:-2,type:typeId,city:cityId,mode,level:1};s.businesses.push(tmp);
+    const wait=buildMonths(typeId),tmp={id:-2,type:typeId,city:cityId,mode,level:1,...(wait?{readyMonth:s.month+wait}:{})};s.businesses.push(tmp);
     let gap;try{gap=missingBedsAhead(s,cityId);}finally{s.businesses.splice(s.businesses.indexOf(tmp),1);}
     if(gap.missing>0)return {ok:false,msg:bedsMessage(s,gap,c.name)};
   }

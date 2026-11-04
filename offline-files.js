@@ -1,6 +1,6 @@
 // Generado por node tools/offline_catalog.mjs. No editar a mano.
 self.BOOMEREZ_OFFLINE = {
-  "revision": "95142f889821552b134e44c76c6690ac70f3799ad0cd48bd8071da7814a3869c",
+  "revision": "b23de7ab92d628f68889dc595c85d4fbea32b4eafc2061658862ddd2613d74f7",
   "files": [
     {
       "file": "assets/ui/rd_app.svg",
@@ -148,7 +148,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "index.html",
-      "sha256": "d7729135a2e79bf530c6b818c5ef534ad5db6d53d3727af66147f973570038c1"
+      "sha256": "59e2128c0e1c6833c34a96d66ef0cc1c758e98e1f490c86b715b9b7831a5eb99"
     },
     {
       "file": "manifest.webmanifest",
@@ -312,7 +312,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/state.js",
-      "sha256": "efacd4977bfd5115246eebfab56e229c9bca038509ee2c63cfab7c14ac009384"
+      "sha256": "c40ce466517574456bb0f65e7f076c948b68c156db2ed458b116fc3754d86281"
     },
     {
       "file": "src/core/stress.js",

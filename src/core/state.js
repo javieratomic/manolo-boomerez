@@ -19,7 +19,7 @@ import { grossPatrimonio, computeEconomy } from './economy.js';
 export const SAVE_KEY = 'manolo-boomerez-save-v1';
 export const SAVE_VERSION = 2;
 // Versión del contenido: una semilla solo reproduce la misma partida con la misma versión.
-export const GAME_VERSION = '0.21.5';
+export const GAME_VERSION = '0.21.6';
 
 export const DIFFICULTIES = {
   cunado: {

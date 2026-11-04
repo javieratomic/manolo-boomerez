@@ -1,5 +1,10 @@
 # Cambios
 
+## 0.21.6 — Jugar con un clic
+
+- README breve con enlace directo al juego, descarga Windows y galería de doce ilustraciones; los detalles de sistemas y desarrollo pasan a `docs/REFERENCIA.md`.
+- Abrir `index.html` como archivo o hacer doble clic en `jugar.bat` lleva a la web pública sin instalar herramientas. `jugar.bat --local` conserva la ejecución del código local con Python.
+
 ## 0.21.5 — Avisos fiables y publicación pública
 
 - Una actualización offline fallida verifica la copia activa guardada antes de anunciar indisponibilidad; las respuestas tardías no pisan un controlador nuevo.

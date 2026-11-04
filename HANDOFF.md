@@ -1,3 +1,11 @@
+# Entrega 0.21.6 — Acceso directo y README visual (04-11-2026)
+
+Usuario pide simplificar jugar y un README más breve con más arte. README de3251 a363palabras/50líneas: botón web dominante, descarga directa Windows y galería de4escenas,4retratos,4edificios existentes, más captura del juego. La referencia larga pasa a docs/REFERENCIA.md, con enlaces corregidos. Sin cambiar imágenes ni dependencias.
+
+Repro antes: abrir index.html como archivo dejaba file:// sin poder cargar módulos. Ahora solo file: redirige a la web pública; HTTP/HTTPS/app: conservan ejecución normal. jugar.bat abre web sin Python; --local conserva servidor Python y --help explica las rutas. Versiones0.21.6 y catálogo regenerados.
+
+Verificado:358/358simulación+14/14worker+60/60DOM=432pruebas. Edge aislado: abrir archivo redirige a HTTPS público; HTTP local sigue en localhost y muestra0.21.6. Ayuda BAT correcta, enlaces locales de ambos documentos válidos. Build y smoke oculto de desempaquetado/portable salida0; mes1,sin errores.108fuentes coinciden con desktop/app, dependencias intactas. Revisión independiente sin hallazgos. Plan docs/superpowers/plans/2026-11-04-acceso-readme.md. Publicación0.21.6 pendiente de comprobación pública final; no reactivar automatizaciones.
+
 # Estado para el siguiente agente (04-11-2026)
 
 - Versión actual: **0.21.5**, Avisos fiables y publicación pública (Codex). Anterior: 0.21.4 `416c337` (Codex).

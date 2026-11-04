@@ -11,6 +11,7 @@ import { execBonus } from './execs.js';
 
 export {CAMPAIGN_BY_ID,campaignRunning,canLaunchCampaign,launchCampaign,campaignPlan,launchCampaignBatch,marketingTerritories} from './marketing.js';
 export const PRODUCT_BY_ID = Object.fromEntries(PRODUCTS.map((p) => [p.id, p]));
+export const researchDuration=(s,id)=>PRODUCT_BY_ID[id]?Math.max(1,Math.round(PRODUCT_BY_ID[id].months*(1-execBonus(s,'operaciones')*0.5))):null;
 
 // ---------------------------------------------------------------------- I+D
 export function canStartRD(s, id) {
@@ -29,7 +30,7 @@ export function startRD(s, id) {
   if (!check.ok) return check;
   const p = PRODUCT_BY_ID[id];
   addCash(s, -p.cost);
-  const months = Math.max(1, Math.round(p.months * (1 - execBonus(s, 'operaciones') * 0.5)));
+  const months = researchDuration(s,id);
   s.rd = { id, monthsLeft: months, total: months };
   log(s, `🧪 Empieza el desarrollo de "${p.name}" (${months} meses).`, 'info');
   return { ok: true, months };

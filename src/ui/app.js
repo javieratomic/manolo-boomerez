@@ -1,4 +1,6 @@
 import {nominateHeir} from '../core/dynasty.js';
+import {researchPlan} from '../core/research.js';
+import {renderResearchReview} from './research.js';
 import {portfolio,portfolioSelection,upgradeBatchPlan,upgradeBatch} from '../core/portfolio.js';
 import {renderUpgradeReview} from './portfolio.js';
 import {saleBatchPlan,saleBatch} from '../core/divestment.js';
@@ -146,7 +148,7 @@ function showTitle() {
 function startGame(s) {
   game.s = s;
   game.marketingSelection={};
-  game.panelScroll={};game.renderedPanel=null;game.lastTabs={};game.researchFilters={status:'pending',category:'all'};
+  game.panelScroll={};game.renderedPanel=null;game.lastTabs={};game.researchFilters={status:'pending',category:'all'};game.researchReviewOpen=false;
   game.empire={view:'summary',filters:{},selected:[],page:0,operation:'upgrade',openings:{}};game.portfolioReviewOpen=false;game.openingReviewOpen=false;
   game.finance={view:'balance',ids:[],items:null,operation:'upgrade',choice:null,quote:null};
   game.bubble = null;
@@ -283,9 +285,9 @@ function renderPanel(s) {
   body.innerHTML = map[game.tab]();
   body.scrollTop = scroll;
   game.renderedPanel=panel;
-  if(game.tab==='rd'&&['research-status','research-category'].includes(focus?.act)){
+  if(game.tab==='rd'&&['research-status','research-category','research-preview'].includes(focus?.act)){
     const controls=[...body.querySelectorAll(`[data-act="${focus.act}"]`)];
-    (focus.act==='research-status'?controls.find(el=>el.dataset.value===focus.value):controls[0])?.focus({preventScroll:true});
+    (focus.act==='research-status'?controls.find(el=>el.dataset.value===focus.value):focus.act==='research-preview'?controls.find(el=>el.dataset.id===focus.id):controls[0])?.focus({preventScroll:true});
   }
   if(game.tab==='imperio'&&(focus?.act?.startsWith('portfolio-')||focus?.act?.startsWith('opening-')||focus?.act==='empire-view')){
     const controls=[...body.querySelectorAll(`[data-act="${focus.act}"]`)];
@@ -663,6 +665,15 @@ async function onClick(e) {
       if (!(await confirmModal('Rescindir acuerdo extranjero', 'Pagas 5.000 €. Se detienen las ventas o royalties y se cancela cualquier conflicto pendiente de este acuerdo.', 'Rescindir'))) return;
       res = endAgreement(s,Number(el.dataset.id));
       break;
+    case 'research-preview': {
+      if(game.researchReviewOpen)return;
+      const plan=researchPlan(s,el.dataset.id);
+      if(!plan.ok){res=plan;break;}
+      game.researchReviewOpen=true;
+      try{await showModal({title:plan.name,kicker:'I+D · Evaluación sin invertir',wide:true,html:renderResearchReview(plan),choices:[{label:'Cerrar evaluación',primary:true}],dismissable:true});}
+      finally{game.researchReviewOpen=false;}
+      break;
+    }
     case 'rd':
       res = startRD(s, el.dataset.id);
       if (res.ok) toast(`🧪 ${PRODUCT_BY_ID[el.dataset.id].name}: ${res.months} ${res.months === 1 ? 'mes' : 'meses'}`, 'good');

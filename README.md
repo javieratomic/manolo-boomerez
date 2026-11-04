@@ -48,6 +48,8 @@ El modo **Vender y rescindir** permite reestructurar varios activos: separa cobr
 
 **Finanzas → Patrimonio y riesgos** reconcilia caja, obrador, negocios/viviendas y caprichos con las deudas confirmadas del banco, la familia y Seguridad Social. Explica la participación del jugador y el sentimiento bursátil cuando cotizas. Las estimaciones de Hacienda y Trabajo quedan fuera del balance y tienen un escenario ilustrativo de pago conjunto, antes de crédito y sin multas adicionales. No cambia las reglas de patrimonio ni ejecuta pagos. El balance del último cierre incluye también el desglose de banca, telecomunicaciones y logística.
 
+En **Expansión → I+D**, **Evaluar** compara el resultado, capacidad efectiva de sobaos, cobertura y empleados actuales con la innovación terminada bajo las condiciones de hoy. Muestra cambios de personal y viviendas necesarias por ciudad, además del coste y plazo reales con Dirección de Operaciones. Se pueden estudiar proyectos bloqueados o en curso; estos últimos ya están pagados. La consulta no inicia ni termina nada, no cambia filtros ni sustituye otra investigación, y no simula el mes de entrega, financiación, obras ni nuevos locales desbloqueados.
+
 | Área | Menús |
 |---|---|
 | Empresa | Ciudad, Imperio, Mercado, Finanzas |

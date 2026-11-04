@@ -9,6 +9,42 @@ import {computeEconomy} from '../src/core/economy.js';
 import { resolvePending } from '../src/core/sim.js';
 import { renderManolo, renderCity, renderEmpire, renderMarket, renderResearch, renderMarketing, renderInternational, renderOnline, renderResidences, renderBenefits, renderStaff,renderFinance } from '../src/ui/panels.js';
 
+test('DOM: I+D permite evaluar pendientes y bloqueados sin desarrollar al consultar',()=>{
+ const s=newGame(42);resolvePending(s,0);s.cash=0;s.products=['congelados'];s.rd={id:'horneado_continuo',monthsLeft:3,total:5};
+ const el=document.createElement('div');el.innerHTML=renderResearch(s,{status:'all'});
+ assert(el.querySelector('[data-act="research-preview"][data-id="horneado_continuo"]:not(:disabled)'));
+ assert(el.querySelector('[data-act="research-preview"][data-id="licencia_bancaria"]:not(:disabled)'));
+ assert((el.querySelector('[data-act="research-preview"][data-id="licencia_bancaria"]').getAttribute('aria-label')||'').includes('Licencia de banca'));
+ assert(!el.querySelector('[data-act="research-preview"][data-id="congelados"]'));
+ assert(el.querySelector('[data-act="rd"][data-id="licencia_bancaria"]:disabled'));
+});
+
+test('DOM: evaluación de I+D muestra límite laboral y no contiene acciones de compra',async()=>{
+ const {researchPlan}=await import('../src/core/research.js'),{renderResearchReview}=await import('../src/ui/research.js');
+ const s=newGame(42);resolvePending(s,0);s.cash=1e7;s.obrador.expansions=4;const before=JSON.stringify(s);
+ const el=document.createElement('div');el.innerHTML=renderResearchReview(researchPlan(s,'horneado_continuo'));
+ for(const text of ['Actual','Con innovación','Capacidad efectiva','Selaya','Viviendas que faltan','no avanza el calendario','no es una previsión'])assert(el.textContent.includes(text),text);
+ assert(!el.querySelector('[data-act]'));assertEq(JSON.stringify(s),before);
+});
+
+test('DOM: evaluación de I+D activa distingue coste ya pagado y desbloqueo sin locales ficticios',async()=>{
+ const {researchPlan}=await import('../src/core/research.js'),{renderResearchReview}=await import('../src/ui/research.js');
+ const s=newGame(42);resolvePending(s,0);s.rd={id:'licencia_bancaria',monthsLeft:2,total:9};
+ const el=document.createElement('div');el.innerHTML=renderResearchReview(researchPlan(s,'licencia_bancaria'));
+ assert(el.textContent.includes('ya se pagó'));assert(el.textContent.includes('Banco Boomerez'));assert(el.textContent.includes('no abre locales'));assert(el.textContent.includes('2 meses'));
+});
+
+test('DOM: las tarjetas de I+D muestran el plazo real reducido por Operaciones',()=>{
+ const s=newGame(42);s.execs.operaciones={skill:3,salary:0};const el=document.createElement('div');el.innerHTML=renderResearch(s);
+ assert(el.querySelector('[data-act="research-preview"][data-id="licencia_bancaria"]').closest('.product').textContent.includes('8 meses'));
+});
+
+test('DOM: I+D en curso conserva su plazo restante aunque cambie la dirección',()=>{
+ const s=newGame(42);s.execs.operaciones={skill:3,salary:0};s.rd={id:'licencia_bancaria',monthsLeft:6,total:9};
+ const el=document.createElement('div');el.innerHTML=renderResearch(s);const text=el.querySelector('[data-act="research-preview"][data-id="licencia_bancaria"]').closest('.product').textContent;
+ assert(text.includes('Ya pagado'));assert(text.includes('6 meses restantes'));assert(!text.includes('8 meses'));
+});
+
 test('DOM: patrimonio reconcilia pasivos y separa exposición sin cambiar la partida',()=>{
  const s=newGame(42);s.debt=12000;s.cartilla.owed=8000;s.extraMonthly=[{ss:true,amount:400,months:6}];s.evaded=30000;s.dossier.ahorro=[10000];
  const before=JSON.stringify(s),el=document.createElement('div');el.innerHTML=renderFinance(s,{view:'wealth'});

@@ -173,6 +173,7 @@ button.hud-item:focus-visible { outline: 2px solid #ffd36b; outline-offset: 1px;
 .nav-sections{display:grid;grid-template-columns:repeat(var(--menu-count),minmax(0,1fr))}
 .nav-sections .tab{min-width:0;padding:5px 2px;font-size:12px}
 .research-filters select{max-width:100%;width:100%;margin-top:3px}
+.research-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
 .research-filters label{min-width:0;flex:1 1 200px}
 .tab { flex: 1; border: 0; background: none; padding: 10px 4px 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 12px; color: var(--muted); border-bottom: 3px solid transparent; min-width: 62px; }
 .tab span:first-child { font-size: 18px; }
@@ -471,7 +472,8 @@ body.big-text .choice small, body.big-text .opt small, body.big-text .action sma
 @media (max-width: 520px) {
   .product { flex-wrap: wrap; }
   .product .grow { flex-basis: calc(100% - 70px); }
-  .product > .btn { margin-left: auto; }
+  .product > .btn, .product > .research-actions { margin-left: auto; }
+  .research-actions { flex-direction: row; flex-wrap: wrap; }
 }
 
 .housing-city {padding:10px 0;border-top:1px dashed var(--line)}

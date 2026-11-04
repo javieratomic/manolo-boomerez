@@ -1,14 +1,25 @@
 # Estado para el siguiente agente (04-11-2026)
 
-- Versión actual: **0.20.0**, Patrimonio y riesgos (Codex). Anterior: 0.19.0 `035ce66` (Claude).
-- Última validación: **335/335 Node +49/49 DOM =384 pruebas**. Nueva pasada de 19.507 meses
+- Versión actual: **0.21.0**, Evaluar investigación (Codex). Anterior: 0.20.0 `bb0df8b` (Codex).
+- Última validación: **341/341 Node +54/54 DOM =395 pruebas**. Nueva pasada de 19.507 meses
   de `tests/fuzz.mjs` sin fallos de invariantes, además de las pasadas históricas.
-- Portable actual: `desktop/dist/ManoloBoomerez-0.20.0-portable.exe`. Los ejecutables de `desktop/dist/` son
+- Portable actual: `desktop/dist/ManoloBoomerez-0.21.0-portable.exe`. Los ejecutables de `desktop/dist/` son
   artefactos ignorados por Git y se conservan.
 
 # Continuación autónoma de cuatro horas (04-11-2026)
 
 Usuario autorizó revisar y mejorar por entregas con be-ambitious durante cuatro horas. Inicio comprobado: 11:45 UTC; **límite 04-11-2026 15:45 UTC /16:45 Europe/Madrid**. Automatización de continuación creada: `revisi-n-de-manolo-boomerez-cuatro-horas`, cada diez minutos. Al vencer, no iniciar trabajo y desactivarla; informar entregas/pendientes. No reactivar la antigua vigilancia de arte. Código autorizado por la conversación; decisiones delegadas. Sin push, perfiles reales ni mensajes a otros chats.
+
+## Entrega 0.21.0 — Evaluar investigación
+
+- **Expansión → I+D → Evaluar** abre un estudio de solo lectura para proyectos pendientes, bloqueados y en curso. Compara resultado neto, capacidad efectiva, cobertura y plantilla del imperio actual con la innovación terminada hoy. No pronostica el mes de entrega ni completa obras/otras I+D. Usa tickRD/computeEconomy/workforcePlan reales sobre copia.
+- Muestra cambios de plantilla necesaria/oferta/viviendas faltantes por ciudad. Cuantifica cuándo una ampliación tecnológica deja capacidad sin aprovechar por falta de vivienda. Desbloquear banca/telecom/logística se explica sin inventar locales ni ingresos. Coste único separado de mensualidad; proyecto activo ya pagado tiene coste pendiente0 y conserva monthsLeft.
+- `core/research.js` researchPlan puro; `ui/research.js` renderer; app guardia anti modales duplicados, cierre restaura filtro/foco y nunca ejecuta investigación. Desarrollar conserva la API anterior. Evaluar tiene etiqueta accesible con nombre del proyecto; acciones de tarjeta se adaptan a móvil.
+- **Corrección encontrada durante el lote:** tarjetas mostraban duración de catálogo sin descontar Dirección de Operaciones. Nuevo researchDuration compartido con startRD; fórmula de juego intacta. Proyecto activo muestra Ya pagado y meses restantes contratados, aunque luego cambie la dirección; no recalcula retrospectivamente su plazo.
+
+Validación: 341/341 Node +54/54 DOM; sintaxis/diff correctos. Edge1365×900,375×900,320×900: filtros/evaluar/cerrar puros, foco, advertencia de vivienda, investigación iniciada realmente una vez, contratar Operaciones después sin alterar plazo activo, coste pendiente0, alternativa bloqueada evaluable, dobleclic1modal, Escape y recarga. Sin errores/desbordamientos y capturas inspeccionadas tras animación. Simulación576meses con/sin consultar conserva estado/RNG; estudio200negocios~3,2ms. Migración0.20→0.21 conserva caja/neto/patrimonio/RNG. Revisión independiente sin hallazgos; adicionalmente contrastó420combinaciones de proyectos/estados con tickRD. Fuentes de107archivos coinciden con build; dependencias intactas; smoke desempaquetado correcto. Portable final reconstruido tras última corrección de etiqueta de activo (primer artefacto0.21 no entregado).
+
+Portable y desempaquetado definitivos pasan ambos smoke ocultos, salida0, sin perfiles reales. Plan y registro: `docs/superpowers/plans/2026-11-04-evaluar-investigacion.md`. Scripts/evidencias `%TEMP%/boomerez021-*`, focalizado `boomerez-research-test.mjs`; DOM común `boomerez-dom-tests.cjs`. No quedan arreglos abiertos de esta entrega. Continuar revisión dentro del plazo, sin encadenar funciones nuevas por inercia. Posible siguiente comprobación acotada: promesa de jugar offline en web (sw.js usa red primero, no precarga y se registra después de boot); **aún no se ha reproducido un fallo**, verificar en un perfil de navegador aislado antes de decidir cambios. No afecta al portable.
 
 ## Entrega 0.20.0 — Patrimonio y riesgos
 

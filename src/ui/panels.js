@@ -39,7 +39,7 @@ import { RIVALS, RIVAL_MAX_LEVEL } from '../data/rivals.js';
 import { CAMPAIGNS, PRODUCTS, MAX_LEVEL } from '../data/market.js';
 import { POSITIONS, TRAITS } from '../data/execs.js';
 import { RIVAL_ACTIONS, canActOnRival, acquisitionPrice, rivalTotal } from '../core/rivals.js';
-import { canLaunchCampaign, campaignRunning, canStartRD, upgradeCost, upgradeEffect, PRODUCT_BY_ID } from '../core/market.js';
+import { canLaunchCampaign, campaignRunning, canStartRD, researchDuration, upgradeCost, upgradeEffect, PRODUCT_BY_ID } from '../core/market.js';
 import { execOf, signingFee, severance, CANDIDATE_REFRESH } from '../core/execs.js';
 import { LUJOS } from '../data/lujo.js';
 import { ownsLujo, canIPO, companyValuation, ipoPremium, annualProfit, IPO_FLOAT, IPO_LOCKUP, lockupEnd, inLockup } from '../core/life.js';
@@ -601,11 +601,12 @@ export function renderResearch(s,filters={}) {
       ${shown.map((p) => {
         const has = s.products.includes(p.id);
         const ok = canStartRD(s, p.id);
+        const duration=researchDuration(s,p.id);
         return `<div class="product ${has ? 'on' : ''}">
           <img src="${p.icon}" class="biz-icon" width="64" height="64" alt="">
-          <div class="grow"><b>${has ? '✅ ' : ''}${esc(p.name)}</b> ${has ? '' : `<span class="muted small">${moneyShort(p.cost)} · ${p.months} ${p.months === 1 ? 'mes' : 'meses'}</span>`}
+          <div class="grow"><b>${has ? '✅ ' : ''}${esc(p.name)}</b> ${has ? '' : `<span class="muted small">${rd?.id===p.id?`Ya pagado · ${rd.monthsLeft} ${rd.monthsLeft===1?'mes restante':'meses restantes'}`:`${moneyShort(p.cost)} · ${duration} ${duration === 1 ? 'mes' : 'meses'}`}</span>`}
             <div class="small muted">${esc(p.desc)}</div></div>
-          ${has ? '' : `<button class="btn small" data-act="rd" data-id="${p.id}" ${ok.ok ? '' : 'disabled'} title="${esc(ok.msg || '')}">Desarrollar</button>`}
+          ${has ? '' : `<div class="research-actions"><button class="btn small" data-act="research-preview" data-id="${p.id}" aria-label="Evaluar ${esc(p.name)}">Evaluar</button><button class="btn small" data-act="rd" data-id="${p.id}" ${ok.ok ? '' : 'disabled'} title="${esc(ok.msg || '')}">Desarrollar</button></div>`}
         </div>`;
       }).join('')}
     </div></div>`;

@@ -17,6 +17,7 @@ import './opportunities.test.js';
 import './opening-stress.test.js';
 import './europe-review.test.js';
 import './finance.test.js';
+import './research.test.js';
 
 const { failures } = await run((line) => console.log(line));
 process.exit(failures.length ? 1 : 0);

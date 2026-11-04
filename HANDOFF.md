@@ -20,7 +20,11 @@ Verificación:352/352simulación+14/14workerNode+56/56DOM=422 únicas;6regresion
 
 Plan `docs/superpowers/plans/2026-11-04-plantilla-obras.md`; scripts `%TEMP%/boomerez0213-*`, focalizado `boomerez-workforce-test.mjs`, baseline de matriz fijada a cbbae07. No hay arreglos nuevos abiertos. Permanece solo el P3 de aviso offline conservador de0.21.1 como hallazgo menor conocido.
 
-Entregas de esta autorización hasta ahora: **cinco** —0.20.0,0.21.0,0.21.1,0.21.2,0.21.3—, commits locales, sin push. Último tramo: revisar solo flujos con evidencia útil, sin encadenar funciones por llenar tiempo. Posible comprobación acotada aún no hecha en esta autorización: exportar/importar una partida grande y rechazo de archivo inválido desde menú con perfil aislado. Reservar cierre y resumen para15:45UTC y eliminar la automatización al vencer. Regenerar catálogo offline tras tocar código web.
+Entregas de esta autorización hasta ahora: **cinco** —0.20.0,0.21.0,0.21.1,0.21.2,0.21.3—, commits locales, sin push. Último tramo: revisar solo flujos con evidencia útil, sin encadenar funciones por llenar tiempo. Reservar cierre y resumen para15:45UTC y eliminar la automatización al vencer. Regenerar catálogo offline tras tocar código web.
+
+### Auditoría adicional de guardados (04-11,15:00UTC)
+
+Comprobado menú real con perfiles privados Edge1365×900 y375×900 y un imperio de400negocios/130.024bytes. Exportación coincide exactamente con estado; cancelar importación conserva estado; pedir crédito real25k y después importar restaura caja/deuda/flags/RNG y todos los negocios. JSON roto, ending desconocido y versión99 se rechazan con aviso sin sustituir estado ni autosave. Recarga final idéntica; ninguna excepción JS. Script `%TEMP%/boomerez-save-audit.cjs`. No se tocaron fuentes ni perfiles reales y no hubo fallos que corregir; versión/artefacto/pruebas siguen0.21.3/422. No repetir esta auditoría por rutina.
 
 ## Entrega 0.21.2 — Continuidad del imperio y Bolsa
 

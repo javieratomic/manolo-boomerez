@@ -40,8 +40,8 @@ Publicación: cuenta autenticada javieratomic (conector y CLI coinciden), sin re
 
 - [x] Preparador de sitio y workflow; README público y capturas inspeccionadas.
 - [x] Revisión independiente, Node/worker/DOM completos, catálogo, staging y portable/smoke.
-- [ ] Commit local, crear repo público, push, habilitar Pages, Release y comprobar despliegue/visibilidad/URL jugable.
-- [ ] Handoff final y árbol limpio/sin commits pendientes de push.
+- [x] Commit local, crear repo público, push, habilitar Pages, Release y comprobar despliegue/visibilidad/URL jugable.
+- [x] Handoff final y árbol limpio/sin commits pendientes de push.
 
 ## Registro
 
@@ -51,3 +51,5 @@ Publicación: cuenta autenticada javieratomic (conector y CLI coinciden), sin re
 - RED2/3alertas y4DOM por función ausente; GREEN358simulación+14worker+60DOM=432únicas. Consejo histórico de Paco también se corrigió con rojo/verde, sin recalcular economía.
 - QA real de copia disponible/incompleta y actualizaciónB fallida/buena, estados/cachés conservados;3anchos mapa muestran Enero2026 pasado mientras cobertura actual100%. Sin excepciones ni cambios de estado. Staging offline/subdirectorio/nueva partida correcto.
 - Revisión independiente sin hallazgos,3focalizadas pasadas y capturas desktop/móvil inspeccionadas. Scripts de captura esperan boot antes de Nueva partida: la primera ejecución intentó pulsar antes de handler y se corrigió la espera, no el producto.
+- Publicación autorizada ejecutada: repo nuevo público javieratomic/manolo-boomerez, historial completo sin forcepush, Pagesworkflow activado y HTTPS. CI372pruebasNode+worker ydeploy verdes, run41875071687/código8932b29.60DOM locales adicionales=432 únicas. Releasev0.21.5 conportable148.414.333bytes ysourcearchives GitHub.
+- Comprobación anónima HTTP200 README/captura/Release y juego real1365/390: versión0.21.5, nueva partida y mes1, recargaoffline del guardado, sin errores ni overflow. Capturas públicas inspeccionadas. Actualización final de documentación no altera código ni requiere otro deploy.

@@ -2,6 +2,12 @@
 
 > *Sobaos, ladrillo y mentalidad de tiburón.*
 
+**[Jugar en el navegador](https://javieratomic.github.io/manolo-boomerez/)** · **[Descargar para Windows](https://github.com/javieratomic/manolo-boomerez/releases/latest)** · [Guía de juego](docs/GUIA.md) · [Licencia MIT](LICENSE)
+
+[![Pruebas y publicación](https://github.com/javieratomic/manolo-boomerez/actions/workflows/pages.yml/badge.svg)](https://github.com/javieratomic/manolo-boomerez/actions/workflows/pages.yml)
+
+![Mapa del imperio y gestión de la empresa](docs/screenshots/imperio.png)
+
 Juego de gestión satírico por turnos. Eres **Manolo Boomerez**, un "joven emprendedor" de 55 años que
 acaba de heredar de su padre el obrador de sobaos pasiegos de Selaya (Cantabria). Tu sueño: franquicias
 por toda España, pisos para tu plantilla (así no se te va nadie), apartamentos turísticos, smash burgers,
@@ -16,6 +22,31 @@ Hacienda, tu plantilla, tu cuñado y tu propia arrogancia.
   juego genera marcadores por código y se puede jugar entero.
 
 ## Jugar
+
+Abre **[Manolo Boomerez S.L.](https://javieratomic.github.io/manolo-boomerez/)** desde PC o móvil. No hace falta crear una cuenta: empieza una partida, elige dificultad y marca, y toma decisiones mes a mes. También puedes instalarlo como PWA desde un navegador compatible o descargar el portable de Windows.
+
+La campaña europea te reta a construir un grupo de **1.000 millones de euros**, con presencia propia en ocho países y negocios de banca, telecomunicaciones y logística. Manolo envejece y la empresa continúa con sus sucesores. El reto semanal conserva la campaña clásica de ocho años.
+
+El juego es una sátira ficticia. El código y los recursos se incluyen en este repositorio; no hay servidor de partidas ni se envían los guardados a una cuenta. Usa **Menú → Exportar/Importar** para trasladar tu compañía entre dispositivos.
+
+## Capturas
+
+Capturas del juego real. La gestión muestra una partida de demostración simulada durante 36 meses, con 18 negocios; la herencia presenta la decisión inicial de marca.
+
+| Investigación y desarrollo | Sucesos y decisiones |
+| --- | --- |
+| ![Proyectos de I+D y evaluación de inversiones](docs/screenshots/investigacion.png) | ![La herencia y la elección de marca](docs/screenshots/suceso.png) |
+
+<details>
+<summary>Ver la portada y la interfaz móvil</summary>
+
+![Portada del juego](docs/screenshots/portada.png)
+
+<img src="docs/screenshots/movil.png" width="300" alt="Gestión del imperio en una pantalla móvil">
+
+</details>
+
+## Ejecutar en local
 
 Necesitas Python 3 (solo como servidor local; los módulos ES no funcionan abriendo el HTML con `file://`).
 
@@ -122,8 +153,18 @@ Antes de validar o publicar cambios del código web, ejecuta `node tools/offline
 
 ## Tests
 
+Node.js 22 o posterior; no hay dependencias de JavaScript que instalar:
+
+```bash
+node tools/offline_catalog.mjs --check
+npm test
+npm run build:web
+```
+
+El último comando prepara `dist/site`, que puede alojarse en un servidor estático. GitHub Actions ejecuta las pruebas y publica ese mismo contenido en Pages al actualizar `main`. Los cambios exclusivos de documentación no vuelven a desplegar el juego.
+
 - **Navegador:** con el servidor arrancado, abre <http://localhost:8080/tests/>.
-- **Node 18+** (opcional): `node tests/run-node.mjs`.
+- **Node 22+** (opcional): `node tests/run-node.mjs`.
 
 Incluyen un bot (`tests/bot.js`) que juega partidas completas con distintas estrategias y que sirve para
 equilibrar la economía.
@@ -150,10 +191,10 @@ El contrato detallado está en [`AGENTS.md`](AGENTS.md).
 
 ## Distribución
 
-- **Web / itch.io / GitHub Pages:** sube la carpeta tal cual (es estática).
+- **Web / itch.io / GitHub Pages:** ejecuta `npm run build:web` y publica `dist/site` (archivos estáticos).
 - **Móvil:** desde el navegador, "Añadir a pantalla de inicio" (PWA).
 - **Escritorio (Windows .exe portable):** la carpeta `desktop/` empaqueta el juego con Electron (MIT). Con
-  Node.js 18+:
+  Node.js 22+:
 
   ```bash
   cd desktop && npm install && npm run dist

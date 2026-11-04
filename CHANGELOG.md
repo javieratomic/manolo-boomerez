@@ -1,5 +1,13 @@
 # Cambios
 
+## 0.21.5 — Avisos fiables y publicación pública
+
+- Una actualización offline fallida verifica la copia activa guardada antes de anunciar indisponibilidad; las respuestas tardías no pisan un controlador nuevo.
+- Las alertas económicas del mapa y el consejo de cobertura de Paco identifican el cierre y hablan en pasado; la conservación, huelga y rachas de franquicia siguen siendo actuales.
+- README con capturas reales, web estática preparada para GitHub Pages y distribución pública de fuente y portable.
+
+Las entregas 0.20–0.21.4 y sus comprobaciones están registradas en `HANDOFF.md`.
+
 ## 0.19.0 — La campaña europea, medida
 
 Las versiones 0.13 a 0.18 están documentadas en `HANDOFF.md`.

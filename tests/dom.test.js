@@ -9,6 +9,31 @@ import {computeEconomy} from '../src/core/economy.js';
 import { resolvePending } from '../src/core/sim.js';
 import { renderManolo, renderCity, renderEmpire, renderMarket, renderResearch, renderMarketing, renderInternational, renderOnline, renderResidences, renderBenefits, renderStaff,renderFinance } from '../src/ui/panels.js';
 
+const offlineFixture=()=>{
+ const active=Object.assign(new EventTarget(),{state:'activated',name:'saved'}),candidate=Object.assign(new EventTarget(),{state:'redundant',name:'failed'});
+ const registration=Object.assign(new EventTarget(),{active,installing:candidate,waiting:null});
+ const service=Object.assign(new EventTarget(),{controller:active,register:async()=>registration});
+ return {active,candidate,registration,service,indicator:document.createElement('p')};
+};
+test('DOM: actualización fallida conserva aviso de copia offline verificada',async()=>{
+ const {watchOffline}=await import('../src/ui/offline.js');const f=offlineFixture();
+ assert(await watchOffline(f.service,f.indicator,async w=>w===f.active));assertEq(f.indicator.dataset.state,'ready');assert(f.indicator.textContent.includes('Copia guardada'));assert(f.indicator.textContent.includes('actualización'));
+});
+test('DOM: worker superviviente incompleto no se anuncia disponible',async()=>{
+ const {watchOffline}=await import('../src/ui/offline.js');const f=offlineFixture();
+ assertEq(await watchOffline(f.service,f.indicator,async()=>false),false);assertEq(f.indicator.dataset.state,'unavailable');
+});
+test('DOM: fallo de registro consulta controlador guardado antes de anunciar error',async()=>{
+ const {watchOffline}=await import('../src/ui/offline.js');const f=offlineFixture();f.service.register=async()=>{throw new Error('Sin red');};
+ assert(await watchOffline(f.service,f.indicator,async w=>w===f.active));assertEq(f.indicator.dataset.state,'ready');
+});
+test('DOM: respuesta antigua de recuperación no pisa un controlador nuevo',async()=>{
+ const {watchOffline}=await import('../src/ui/offline.js');const f=offlineFixture();f.candidate.state='installing';let resolveSaved;const delayed=new Promise(r=>resolveSaved=r);
+ const pending=watchOffline(f.service,f.indicator,async w=>w===f.active?delayed:true);await Promise.resolve();f.candidate.state='redundant';f.candidate.dispatchEvent(new Event('statechange'));await Promise.resolve();
+ const next=Object.assign(new EventTarget(),{state:'activated',name:'new'});f.registration.active=next;f.service.controller=next;f.service.dispatchEvent(new Event('controllerchange'));await new Promise(r=>setTimeout(r,0));resolveSaved(true);await pending;await new Promise(r=>setTimeout(r,0));
+ assertEq(f.indicator.dataset.state,'ready');assert(!f.indicator.textContent.includes('Copia guardada'));
+});
+
 test('DOM: preparación offline tiene estado accesible y no registra en desarrollo',async()=>{
  const indicator=document.getElementById('offline-status');assert(indicator);assertEq(indicator.getAttribute('role'),'status');
  const {prepareOffline}=await import('../src/ui/offline.js');assertEq(await prepareOffline(),false);assert(indicator.hidden);

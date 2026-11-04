@@ -3,7 +3,7 @@ import { BUSINESS_TYPES } from '../data/businesses.js';
 import { CITY_BY_ID } from '../data/cities.js';
 import { RIVALS } from '../data/rivals.js';
 import { creditLimit } from './economy.js';
-import { money } from './helpers.js';
+import { money,dateLabel } from './helpers.js';
 import { nextUpgrade } from './actions.js';
 import { regionalCount } from './logistics.js';
 import { recidivism } from './inspections.js';
@@ -21,8 +21,9 @@ export function advice(s) {
   if (r.fill < 0.9) {
     const up = nextUpgrade(s);
     const fixes = [up && `mejora el obrador (${up.name.toLowerCase()})`, s.unlocked.obrador_regional && 'abre un obrador regional'].filter(Boolean);
-    const fix = fixes.length ? ` Solución: ${fixes.join(' o ')}.` : ' Ficha a alguien en Operaciones para exprimir la capacidad.';
-    out.push({ level: 'alta', text: `El obrador solo cubre el ${Math.round(r.fill * 100)} % de la demanda: estás perdiendo ventas.${fix}`, tab: 'ciudad' });
+    const fix = fixes.length ? ` Si aún falta capacidad, ${fixes.join(' o ')}.` : ' Si aún falta capacidad, ficha a alguien en Operaciones.';
+    const period=Number.isSafeInteger(r.month)&&r.month>=0?`En ${dateLabel(r.month)}`:'En el último cierre';
+    out.push({ level: 'alta', text: `${period}, el obrador cubrió el ${Math.round(r.fill * 100)} % de la demanda. Comprueba la cobertura actual antes de invertir.${fix}`, tab: 'ciudad' });
   }
 
   const liq = liquidacion(s);

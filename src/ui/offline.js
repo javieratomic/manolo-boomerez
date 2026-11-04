@@ -20,29 +20,43 @@ function ready(worker) {
   worker.postMessage({type:'OFFLINE_STATUS'},[channel.port2]);
  });
 }
-export async function prepareOffline() {
- if(!('serviceWorker' in navigator)||!window.isSecureContext||!location.protocol.startsWith('http')||/^(localhost|127\.)/.test(location.hostname))return false;
- const indicator=document.getElementById('offline-status');
- if(!indicator)return false;
+export async function watchOffline(serviceWorker,indicator,probe=ready) {
  indicator.hidden=false;indicator.dataset.state='preparing';indicator.textContent='Preparando el juego sin conexión…';
- let request=0;
+ let request=0,registration=null;
+ const unavailable=()=>{indicator.dataset.state='unavailable';delete indicator.dataset.copy;indicator.textContent='No se pudo preparar la copia sin conexión. Puedes seguir jugando online.';};
+ const recover=async(current,failed)=>{
+  for(const worker of new Set([registration?.active,serviceWorker.controller])){
+   if(current!==request)return false;
+   if(!worker||worker===failed||worker.state!=='activated')continue;
+   let ok=false;try{ok=await probe(worker);}catch{}
+   if(current!==request)return false;
+   if(ok){indicator.dataset.state='ready';indicator.dataset.copy='saved';indicator.textContent='Copia guardada disponible sin conexión. La actualización no se completó.';return true;}
+  }
+  if(current===request)unavailable();return false;
+ };
  const confirm=async(worker,current)=>{
   let ok=false;
-  try{if(worker?.state==='activating')await offlineWorker(worker);ok=await ready(worker);}catch{}
-  if(current===request){const waiting=ok&&worker.state!=='activated';indicator.dataset.state=ok?(waiting?'waiting':'ready'):'unavailable';indicator.textContent=ok?(waiting?'Actualización sin conexión preparada. Se aplicará al reabrir el juego.':'Juego disponible sin conexión.'):'No se pudo preparar la copia sin conexión. Puedes seguir jugando online.';}
+  try{if(worker?.state==='activating')await offlineWorker(worker);ok=await probe(worker);}catch{}
+  if(!ok)return recover(current,worker);
+  if(current===request){const waiting=worker.state!=='activated';delete indicator.dataset.copy;indicator.dataset.state=waiting?'waiting':'ready';indicator.textContent=waiting?'Actualización sin conexión preparada. Se aplicará al reabrir el juego.':'Juego disponible sin conexión.';}
   return ok;
  };
  const observe=async worker=>{
-  const current=++request;indicator.dataset.state='preparing';indicator.textContent='Preparando el juego sin conexión…';
+  const current=++request;indicator.dataset.state='preparing';delete indicator.dataset.copy;indicator.textContent='Preparando el juego sin conexión…';
   try{await offlineWorker(worker);return await confirm(worker,current);}
-  catch{if(current===request){indicator.dataset.state='unavailable';indicator.textContent='No se pudo preparar la copia sin conexión. Puedes seguir jugando online.';}return false;}
+  catch{return recover(current,worker);}
  };
- navigator.serviceWorker.addEventListener('controllerchange',()=>observe(navigator.serviceWorker.controller));
+ serviceWorker.addEventListener('controllerchange',()=>observe(serviceWorker.controller));
  try{
-  const registration=await navigator.serviceWorker.register('sw.js',{updateViaCache:'none'});
+  registration=await serviceWorker.register('sw.js',{updateViaCache:'none'});
   registration.addEventListener('updatefound',()=>observe(registration.installing));
   return await observe(registration.installing||registration.waiting||registration.active);
  }catch{
-  indicator.dataset.state='unavailable';indicator.textContent='No se pudo preparar la copia sin conexión. Puedes seguir jugando online.';return false;
+  return recover(0,null);
  }
+}
+export async function prepareOffline() {
+ if(!('serviceWorker' in navigator)||!window.isSecureContext||!location.protocol.startsWith('http')||/^(localhost|127\.)/.test(location.hostname))return false;
+ const indicator=document.getElementById('offline-status');
+ return indicator?watchOffline(navigator.serviceWorker,indicator):false;
 }

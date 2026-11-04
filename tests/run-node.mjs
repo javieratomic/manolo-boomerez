@@ -24,6 +24,7 @@ import './research.test.js';
 import './continuity.test.js';
 import './workforce-timing.test.js';
 import './report-validation.test.js';
+import './alert-period.test.js';
 
 await checkOfflineCatalog();
 const { failures } = await run((line) => console.log(line));

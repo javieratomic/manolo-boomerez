@@ -1,6 +1,6 @@
 // Generado por node tools/offline_catalog.mjs. No editar a mano.
 self.BOOMEREZ_OFFLINE = {
-  "revision": "8daa8bb2449b8acf08d81108a4a5da256dce525466aa599e8f3be820378e0ef9",
+  "revision": "95142f889821552b134e44c76c6690ac70f3799ad0cd48bd8071da7814a3869c",
   "files": [
     {
       "file": "assets/ui/rd_app.svg",
@@ -160,7 +160,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/advice.js",
-      "sha256": "1a09bbf217af0b70816c4cb583fd4fb55e811255348663a6c2ba8366f03b2186"
+      "sha256": "d7f453d5107e9c3b74f012bf20361b369a4b12a326c27343e166e716b8785983"
     },
     {
       "file": "src/core/bolsa.js",
@@ -244,7 +244,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/mapInfo.js",
-      "sha256": "76482ab235c2f8078e719a87f69ec11b612ce54028ba7a2e69d88860b7b448c7"
+      "sha256": "7d9287c5e3c4012a196b8a169c61f7510044bda4300a93a3e45e360dd81b0ade"
     },
     {
       "file": "src/core/market.js",
@@ -312,7 +312,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/state.js",
-      "sha256": "681202e1566efa1123e10d35f511d14e74cd1f7dd4bdeaad43407bafa85e3ec9"
+      "sha256": "efacd4977bfd5115246eebfab56e229c9bca038509ee2c63cfab7c14ac009384"
     },
     {
       "file": "src/core/stress.js",
@@ -536,7 +536,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/ui/offline.js",
-      "sha256": "85b519240d15029663c3ea50bd33516cc1ed9e9bf65ab6cf839b72d78c69bcad"
+      "sha256": "e83fc53ef386a1dfbcecd462875d8f95f7495906583de07b85b7a0a09f66e45b"
     },
     {
       "file": "src/ui/operations.js",

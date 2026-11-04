@@ -1,12 +1,24 @@
 # Estado para el siguiente agente (04-11-2026)
 
-- Versión actual: **0.21.4**, Informes importados compatibles (Codex). Anterior: 0.21.3 `62042c0` (Codex).
-- Última validación: **355/355 simulación +14/14 worker Node +56/56 DOM =425 pruebas**. Nueva pasada de 19.507 meses
+- Versión actual: **0.21.5**, Avisos fiables y publicación pública (Codex). Anterior: 0.21.4 `416c337` (Codex).
+- Última validación: **358/358 simulación +14/14 worker Node +60/60 DOM =432 pruebas**. Nueva pasada de 19.507 meses
   de `tests/fuzz.mjs` sin fallos de invariantes, además de las pasadas históricas.
-- Portable actual: `desktop/dist/ManoloBoomerez-0.21.4-portable.exe`. Los ejecutables de `desktop/dist/` son
+- Portable actual: `desktop/dist/ManoloBoomerez-0.21.5-portable.exe`. Los ejecutables de `desktop/dist/` son
   artefactos ignorados por Git y se conservan.
 
-# Continuación autónoma de cuatro horas (04-11-2026)
+## Entrega 0.21.5 — Avisos y publicación
+
+El usuario pidió expresamente corregir los dos avisos pendientes, aplicar be-ambitious, dejar árbol limpio y **publicar fuente y juego en GitHub como públicos, con README y capturas**. Esta autorización nueva permite push/publicación; las restricciones No push y límite horario siguientes son historial de la sesión anterior. La automatización de cuatro horas ya se eliminó: no reactivarla.
+
+- Offline extrae watchOffline comprobable, conserva prepareOffline sin argumentos y recupera indicador solo si active/controller superviviente activado responde OFFLINE_STATUS ready. Copia incompleta sigue no disponible; fallo de registro también consulta controlador guardado. Tickets impiden que recuperación antigua pise versión nueva. Texto de copia guardada indica actualización fallida sin negar juego offline.
+- Mapa fecha pérdida/competencia/cobertura según último cierre y usa pasado; sin fecha no inventa ninguna. Conservación/franquicias/huelga mantienen presente/severidad. Paco también fecha cobertura y hace condicional la recomendación, evitando aconsejar otra ampliación tras resolverla. No se añade simulación al dibujo ni cambian economía/guardados.
+- README público con5capturas reales de portada, mapa, I+D, herencia y móvil. Estado de gestión producido por bot real36meses/18negocios; perfiles aislados. Nuevo tools/stage_site.mjs prepara solo juego en dist/site y protege ruta de borrado; workflow oficial Pages con SHAs fijadas ejecuta pruebas antes de desplegar. Código MIT existente, sin nuevas dependencias. Historial1112blobs de texto revisado sin patrones de credenciales; blob máximo~2,2MB antes de capturas; no ejecutables en Git.
+
+Verificación local:358/358simulación+14/14worker+60/60DOM=432únicas. Regresiones rojas/verdes de recuperación/ausencia/registro/carrera y alertas fechadas tras mejora real59%→100%, sin mutaciones. Edge: actualizaciónB corrupta conservaA offline y avisa copia guardada; copiaA incompleta no se declara lista; actualización buena mantiene estado/cachés ajenas. Mapa1365/375/320 con fecha y consejo condicional; staging en subdirectorio permite nueva partida offline tras primera preparación. Capturas inspeccionadas, sin excepciones. Build y smoke desempaquetado correctos; portable final comprobado al cerrar entrega.108fuentes idénticas, dependencias intactas y catálogo vigente.
+
+Publicación preparada para https://github.com/javieratomic/manolo-boomerez y https://javieratomic.github.io/manolo-boomerez/; **comprobación remota pendiente** en este commit. Plan `docs/superpowers/plans/2026-11-04-avisos-publicacion.md`. No quedan los dos avisos pendientes anteriores. Scripts `%TEMP%/boomerez0215-*` y `boomerez-public-shots.cjs`.
+
+# Histórico: continuación autónoma de cuatro horas (04-11-2026)
 
 Usuario autorizó revisar y mejorar por entregas con be-ambitious durante cuatro horas. Inicio comprobado: 11:45 UTC; **límite 04-11-2026 15:45 UTC /16:45 Europe/Madrid**. Automatización de continuación creada: `revisi-n-de-manolo-boomerez-cuatro-horas`, cada diez minutos. Al vencer, no iniciar trabajo y desactivarla; informar entregas/pendientes. No reactivar la antigua vigilancia de arte. Código autorizado por la conversación; decisiones delegadas. Sin push, perfiles reales ni mensajes a otros chats.
 

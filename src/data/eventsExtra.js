@@ -229,6 +229,7 @@ export const EXTRA_EVENTS = [
       {
         label: 'Poner un segundo dependiente en cada tienda Express propia',
         available: (s) => ownCount(s, 'express') > 0,
+        hint: (s) => `${money(ownCount(s, 'express') * 1500)} al mes (1.500 € por tienda). Reputación +5, moral +5.`,
         effect(s) {
           const c = ownCount(s, 'express') * 1500;
           addMonthlyCost(s, 'Segundo dependiente en las tiendas Express', c);
@@ -253,6 +254,7 @@ export const EXTRA_EVENTS = [
       },
       {
         label: 'Ficharle como imagen de marca, con contrato y subida',
+        hint: '900 €/mes durante 24 meses (21.600 € en total). Fama +5.',
         effect(s) {
           addMonthlyCost(s, 'Sergio, imagen de marca', 900, 24);
           addFama(s, 5);

@@ -98,6 +98,9 @@ export function dateLabel(m) {
 }
 
 const eur = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+// Cobertura en %: lo que no llega a 1 se redondea hacia abajo, para no anunciar «solo el 100 %».
+export const fillPct = (f) => `${f < 1 ? Math.floor(f * 100 + 1e-9) : Math.round(f * 100)} %`;
+export const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 export function money(n) {
   return eur.format(Math.round(n));
 }

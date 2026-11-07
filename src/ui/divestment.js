@@ -1,5 +1,5 @@
 import {CITY_BY_ID} from '../data/cities.js';
-import {dateLabel,money,moneyShort} from '../core/helpers.js';
+import {dateLabel,money,moneyShort, fillPct } from '../core/helpers.js';
 import {esc} from './dom.js';
 const signed=n=>`${n>=0?'+':''}${moneyShort(n)}`;
 export function renderSalePreview(p) {
@@ -7,7 +7,7 @@ export function renderSalePreview(p) {
   <p>Movimiento inmediato de caja: <b class="${p.cashDelta<0?'neg':'pos'}">${signed(p.cashDelta)}</b>. Caja: ${moneyShort(p.before.cash)} → ${moneyShort(p.after.cash)}.</p>
   <p class="small">Patrimonio: ${moneyShort(p.before.wealth)} → ${moneyShort(p.after.wealth)}. Recuperar liquidez puede reducir el valor del imperio.</p>
   <p>Resultado de este mes: <b>${moneyShort(p.before.net)} → ${moneyShort(p.after.net)}</b> (<span class="${p.deltaNet<0?'neg':'pos'}">${signed(p.deltaNet)}</span>).</p>
-  <p class="small">Capacidad: ${Math.round(p.before.capacity).toLocaleString('es-ES')} → ${Math.round(p.after.capacity).toLocaleString('es-ES')} uds. Cobertura: ${Math.round(p.before.fill*100)} % → ${Math.round(p.after.fill*100)} %. Plantilla: ${p.before.employees} → ${p.after.employees}. Viviendas: ${p.before.beds} → ${p.after.beds}.</p>
+  <p class="small">Capacidad: ${Math.round(p.before.capacity).toLocaleString('es-ES')} → ${Math.round(p.after.capacity).toLocaleString('es-ES')} uds. Cobertura: ${fillPct(p.before.fill)} → ${fillPct(p.after.fill)}. Plantilla: ${p.before.employees} → ${p.after.employees}. Viviendas: ${p.before.beds} → ${p.after.beds}.</p>
   ${p.after.capacity<p.before.capacity?'<p class="small warn">La capacidad productiva baja. Los negocios que conservas pueden perder suministro.</p>':''}
   ${p.workforceRisks.length?`<div class="small warn">Aparece o empeora la falta de vivienda:<ul>${p.workforceRisks.map(r=>`<li>${esc(CITY_BY_ID[r.city].name)}: empeora en ${r.worseMonths.length} cierres, desde ${dateLabel(r.worseMonths[0].month)}. Déficit entonces: ${r.worseMonths[0].missingBeds} viviendas; hasta ${Math.max(...r.worseMonths.map(x=>x.extraBeds))} más que antes.</li>`).join('')}</ul></div>`:''}
   ${p.campaign==='europe'&&(p.after.countries<p.before.countries||p.after.sectors<p.before.sectors)?`<p class="small warn">Retroceso europeo: países propios activos ${p.before.countries} → ${p.after.countries}; sectores estratégicos ${p.before.sectors} → ${p.after.sectors}.</p>`:''}

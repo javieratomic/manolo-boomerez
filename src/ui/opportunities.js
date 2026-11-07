@@ -3,7 +3,7 @@ import {BUSINESS_TYPES} from '../data/businesses.js';
 import {CITY_BY_ID} from '../data/cities.js';
 import {sobaoTypeId} from '../core/actions.js';
 import {buildMonths} from '../core/construction.js';
-import {dateLabel,money,moneyShort} from '../core/helpers.js';
+import {dateLabel,money,moneyShort, fillPct } from '../core/helpers.js';
 import {esc} from './dom.js';
 const signed=n=>`${n>=0?'+':''}${moneyShort(n)}`;
 const tone=n=>n<0?'neg':'pos';
@@ -21,10 +21,10 @@ export function renderOpeningReview(p) {
   ${p.goalCash?`<p>Premios de objetivos al abrir: <b>${signed(p.goalCash)}</b>, una sola vez.</p>`:''}
   <p>Caja después de abrir: ${moneyShort(p.before.cash)} → <b>${moneyShort(p.cashAfter)}</b>. Patrimonio: ${moneyShort(p.before.wealth)} → ${moneyShort(p.after.wealth)}.</p>
   <p>Resultado neto de la empresa en ${dateLabel(p.month)}: <b>${moneyShort(p.before.net)} → ${moneyShort(p.after.net)}</b> (<b class="${tone(p.deltaNet)}">${signed(p.deltaNet)}</b>).</p>
-  <p class="small">Cobertura de demanda: ${Math.round(p.before.fill*100)} % → ${Math.round(p.after.fill*100)} %. Plantilla central: ${p.before.employees} → ${p.after.employees}.</p>
-  ${franchise?`<p>Resultado del dueño: <b class="${tone(p.franchiseeProfit)}">${signed(p.franchiseeProfit)}/mes</b>.</p>${p.franchiseeProfit<0?'<p class="small warn">El dueño perdería dinero con estas condiciones. Riesgo de quiebra si encadena cuatro meses de pérdidas.</p>':''}`:''}
+  <p class="small">Cobertura de demanda: ${fillPct(p.before.fill)} → ${fillPct(p.after.fill)}. Plantilla central: ${p.before.employees} → ${p.after.employees}.</p>
+  ${franchise?`<p>Resultado del dueño: <b class="${tone(p.franchiseeProfit)}">${signed(p.franchiseeProfit)}/mes</b>.</p>${p.franchiseeProfit<0?'<p class="small warn">El dueño perdería dinero con estas condiciones. Si encadena cuatro meses de pérdidas quiebra: o le recompras el local devolviéndole el canon, o le dices que le ha faltado mentalidad (reputación −5 y riesgo de que te demande por el canon).</p>':''}`:''}
   ${p.deltaNet<=0?'<p class="small warn">Con las condiciones actuales, esta apertura no mejora el neto de la empresa.</p>':''}
-  ${p.after.fill<p.before.fill?'<p class="small warn">La cobertura de suministro baja: el nuevo local compite por la producción disponible.</p>':''}
+  ${fillPct(p.after.fill)!==fillPct(p.before.fill)&&p.after.fill<p.before.fill?'<p class="small warn">La cobertura de suministro baja: el nuevo local compite por la producción disponible.</p>':''}
   ${p.clauseBreaks?'<p class="small warn">Esta apertura rompe la cláusula del testamento. Se pedirá confirmación adicional.</p>':''}
   <p class="small muted">Incluye costes generales, impuestos, mantenimiento y cambios compartidos en producción, personal y sinergias. Canon y premios no son beneficio mensual. Es una alternativa independiente con las condiciones actuales; no garantiza resultados futuros.</p>`;
 }
@@ -45,7 +45,7 @@ export function renderOpportunities(s,settings={}) {
   <p class="small">${p.rows.length} alternativas · ${rows.length?`${page*10+1}–${page*10+rows.length}`:'0'} visibles.</p>
   ${rows.map(r=>`<div class="opening-option"><b><a href="#" data-act="goto-city" data-city="${r.choice.city}">${esc(CITY_BY_ID[r.choice.city].name)}</a> · ${r.choice.mode==='franquicia'?'Franquicia':'Propia'}</b>
    <p class="small">${r.choice.mode==='franquicia'?`Canon: +${money(r.fee)}`:`Desembolso: ${money(r.cost)}`}</p>
-   ${r.ok?`<p class="small">Cambio neto de la empresa: <b class="${tone(r.deltaNet)}">${signed(r.deltaNet)}/mes</b>. Cobertura: ${Math.round(r.after.fill*100)} %.</p>
+   ${r.ok?`<p class="small">Cambio neto de la empresa: <b class="${tone(r.deltaNet)}">${signed(r.deltaNet)}/mes</b>. Cobertura: ${fillPct(r.after.fill)}.</p>
     ${r.choice.mode==='franquicia'?`<p class="small">Resultado del dueño: <b class="${tone(r.franchiseeProfit)}">${signed(r.franchiseeProfit)}/mes</b>${r.franchiseeProfit<0?' · riesgo de pérdidas':''}.</p>`:''}
     ${r.clauseBreaks?'<p class="small warn">Rompería la cláusula del testamento.</p>':''}`:`<p class="small warn">${esc(r.msg)}</p>`}
    <button class="btn small" data-act="opening-review" data-type="${r.choice.type}" data-city="${r.choice.city}" data-mode="${r.choice.mode}" ${r.ok?'':'disabled'}>Revisar apertura</button> <button class="btn small" data-act="opening-stress" data-type="${r.choice.type}" data-city="${r.choice.city}" data-mode="${r.choice.mode}" ${r.ok?'':'disabled'}>Probar escenarios</button>

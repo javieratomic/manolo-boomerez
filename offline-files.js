@@ -1,6 +1,6 @@
 // Generado por node tools/offline_catalog.mjs. No editar a mano.
 self.BOOMEREZ_OFFLINE = {
-  "revision": "b23de7ab92d628f68889dc595c85d4fbea32b4eafc2061658862ddd2613d74f7",
+  "revision": "ea4529222ec75d9b3d6b30cd48f8377f0e5f1c2efe6a488902a2193ebb7c26e3",
   "files": [
     {
       "file": "assets/ui/rd_app.svg",
@@ -156,11 +156,11 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/actions.js",
-      "sha256": "dde37681e85ceaeb283d864f6459c42a58ac7db8942efd169d34d2c070e2e1fa"
+      "sha256": "6248a9a1f67901a59ff383b3a1746bb848eb28cab2a875535fe2c56ee738cc44"
     },
     {
       "file": "src/core/advice.js",
-      "sha256": "d7f453d5107e9c3b74f012bf20361b369a4b12a326c27343e166e716b8785983"
+      "sha256": "d6ce10402d7f02bec6118fd7c7a110258fdefaf6ec9ec7617a2ea4a7869ca1b8"
     },
     {
       "file": "src/core/bolsa.js",
@@ -184,7 +184,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/digest.js",
-      "sha256": "734b85ef15860f5b214de3732fa104a929d4820e18a2c95ef7dab76e72a858cd"
+      "sha256": "07086e79ac28fc799ac0c3ca0ba6c98a3e06d72ebc401910c8db6a7c2b2b1c1e"
     },
     {
       "file": "src/core/divestment.js",
@@ -196,7 +196,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/economy.js",
-      "sha256": "b8923175adf2868702cf68a2445477a2310452b2e28588ff0f3212ad40c98725"
+      "sha256": "30a2af5e7cbb985e72245725c7b114a16bb137145c1dd1fe8fbbc85c480ab310"
     },
     {
       "file": "src/core/epilogue.js",
@@ -212,7 +212,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/helpers.js",
-      "sha256": "bcd7811d9a999073d93c0208ef24dc3be45593a96ca49375509365bfc5a36f09"
+      "sha256": "85bb5e4ae37b4ed76052acac5817a745f7e7fd691a50fb3fdf881073b07e00d4"
     },
     {
       "file": "src/core/housing.js",
@@ -244,7 +244,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/mapInfo.js",
-      "sha256": "7d9287c5e3c4012a196b8a169c61f7510044bda4300a93a3e45e360dd81b0ade"
+      "sha256": "e3daf98a0e1500d4c45311ee4e89da8b4063cb07ece65c76e08f278bf074b2b4"
     },
     {
       "file": "src/core/market.js",
@@ -288,7 +288,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/results.js",
-      "sha256": "1ec9a95790cb989dcc7037f91a11b32e169a0380fce7930519ac8282edc5870c"
+      "sha256": "97aeaf07ae121036db577eaea1f59ebd331b60c24d4ed30d8425a0f87134b34a"
     },
     {
       "file": "src/core/rivals.js",
@@ -312,7 +312,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/state.js",
-      "sha256": "c40ce466517574456bb0f65e7f076c948b68c156db2ed458b116fc3754d86281"
+      "sha256": "d2a6d2b4af97b591beece3260d6a8760c3a2d3ad8e1b27f9419d8ae86e9fa3a2"
     },
     {
       "file": "src/core/stress.js",
@@ -352,7 +352,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/data/events.js",
-      "sha256": "32e081c5f961378ef2594d8a0b17c6b9bde98d2d504d081487b3b2572c06e4ac"
+      "sha256": "58ad879ee3fce8534a2e73f3d8811354c6a769d3941cb0c54c1e1008829ed63d"
     },
     {
       "file": "src/data/eventsArcs.js",
@@ -372,7 +372,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/data/eventsExtra.js",
-      "sha256": "6016bdb2bb2bbb84df656c636027724d08819eb79a3e708177082bc8b4782dd5"
+      "sha256": "5c241c5233505c117d969aa08eeeb3e4f2be23eb095efc2ea7f151df258737b4"
     },
     {
       "file": "src/data/eventsInternational.js",
@@ -380,7 +380,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/data/eventsMacro.js",
-      "sha256": "6a147360a6fff5651c6248bb5fd59f76dd3c6975f958ac2ccabdedc765a331e0"
+      "sha256": "96d0052c40f3db242f5b3bfcbcee899de12ba95a69908d3acc059e5275208ecb"
     },
     {
       "file": "src/data/eventsNewYear.js",
@@ -420,7 +420,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/data/goals.js",
-      "sha256": "b2add96964f90357baf7261b4ead885e0b6bd433b04e964c2e57e3fe20f6d2d6"
+      "sha256": "13a592dd38070459cc58b38599565bbfc91fca9545cce085a7b12f2c620b6048"
     },
     {
       "file": "src/data/headlines.js",
@@ -428,7 +428,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/data/help.js",
-      "sha256": "ce346c652d3d9dea78087042f0d066405b24b395d1449abb149a4ad4338d2d27"
+      "sha256": "a6ccc7706f5b41f0c1deab0998efb9cb4850cfcfa3bc2d8f71da9cf05314bf8c"
     },
     {
       "file": "src/data/housing.js",
@@ -512,11 +512,11 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/ui/app.js",
-      "sha256": "251326558bb1ce98b6011544e605498773525f3739a5a7bacaa0a8177ebfed27"
+      "sha256": "0a9b28864e75748671f83285f5d846e27423618f73127151056098524115cb86"
     },
     {
       "file": "src/ui/divestment.js",
-      "sha256": "ca39b3eece89d886db793e2ff713ef17164504e0915c64cf33428fb198b20d3b"
+      "sha256": "859a692635c6e36b93346f374cb7f82e2d178a727a9d5fe72316c4553fd08752"
     },
     {
       "file": "src/ui/dom.js",
@@ -532,7 +532,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/ui/navigation.js",
-      "sha256": "5b144dfca74f43b8f00e3395138878966f9ac26871022c84b8172776fe71c039"
+      "sha256": "b3c5afa455bbd3edf92816ef710ad79716a4d0d891b2143220f403654f6dc753"
     },
     {
       "file": "src/ui/offline.js",
@@ -544,15 +544,15 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/ui/opportunities.js",
-      "sha256": "565d2bfb46c49a3c1563aac502eff457031c494241d0c0b88576f86832d15b69"
+      "sha256": "970091b07a1da934d87d2f14f881c5c06d4a94d61398acf656793fd80e510f30"
     },
     {
       "file": "src/ui/panels.js",
-      "sha256": "ccacfebce7058d691a0fa4669024a4c0c87ac3d6ce38899d44024d262715368c"
+      "sha256": "26cb82714956b2cf0d4d49913ff1abec3aec90dbde97158f395e24643363d572"
     },
     {
       "file": "src/ui/portfolio.js",
-      "sha256": "eca94755be22d1e6936dd66fdc45b4eb3d5a4bb7bf57db27e1163b99a4211024"
+      "sha256": "bbff6b8296c2494ac3e4d0988fb9a50f90a118da9179c3494be808cce087f41a"
     },
     {
       "file": "src/ui/records.js",
@@ -576,7 +576,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "styles.css",
-      "sha256": "1c236ab82101f8f59f6fac0d6921de836ffb3e677815585e5244bbb0c9a13c4e"
+      "sha256": "5cad11a17351cbf29202f8225a9a09e8bf46f53c21968ac3bff34e8f2a44dff8"
     },
     {
       "file": "sw.js",

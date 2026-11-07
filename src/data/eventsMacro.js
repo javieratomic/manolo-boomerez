@@ -47,6 +47,7 @@ export const MACRO_EVENTS = [
       },
       {
         label: 'Prudencia: amortizar parte de la deuda',
+        hint: (s) => (s.debt > 0 ? `Devuelves ${money(Math.min(s.debt * 0.3, Math.max(0, s.cash)))} de deuda (el 30 %, hasta lo que tengas en caja). Reputación +1.` : 'No tienes deuda que amortizar. Reputación +1.'),
         effect(s) {
           const pay = Math.min(s.debt * 0.3, Math.max(0, s.cash));
           s.debt -= pay;

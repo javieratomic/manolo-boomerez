@@ -15,7 +15,7 @@ import { signAgreement, endAgreement, agreementTerms } from '../core/internation
 import { FOREIGN_BY_ID, DEAL_MODES } from '../data/international.js';
 // Controlador principal de la interfaz.
 import { $, esc, showModal, toast, confirmModal, isModalOpen, msSinceModal } from './dom.js';
-import { TABS, renderCity, renderEmpire, renderMarket, renderResearch,renderMarketing,renderInternational,renderOnline,renderResidences,renderManagement,renderBenefits,renderStaff, renderFinance, renderManolo, renderNews, drawChart, drawCategoryChart, manoloMood, renderWhy, whyTitle, renderEpilogue, setArchivoOpen } from './panels.js';
+import { TABS, setHqFold, renderCity, renderEmpire, renderMarket, renderResearch,renderMarketing,renderInternational,renderOnline,renderResidences,renderManagement,renderBenefits,renderStaff, renderFinance, renderManolo, renderNews, drawChart, drawCategoryChart, manoloMood, renderWhy, whyTitle, renderEpilogue, setArchivoOpen } from './panels.js';
 import {groupForTab,renderNavigation} from './navigation.js';
 import { macroFx } from '../core/macro.js';
 import { MapView } from '../render/mapView.js';
@@ -45,7 +45,7 @@ import { cityAlerts, ALERT_EMOJI } from '../core/mapInfo.js';
 import { buyLujo, sellLujo, doIPO, IPO_FLOAT } from '../core/life.js';
 import { LUJO_BY_ID } from '../data/lujo.js';
 import { grossPatrimonio } from '../core/economy.js';
-import { money, moneyShort, dateLabel, GAME_MONTHS, START_YEAR, log, custom } from '../core/helpers.js';
+import { money, moneyShort, dateLabel, GAME_MONTHS, START_YEAR, log, custom, fillPct, plural } from '../core/helpers.js';
 import { HQ_CITY, CITY_BY_ID } from '../data/cities.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
 import { endingOf,canContinueEnding } from '../data/endings.js';
@@ -385,6 +385,7 @@ function bindGlobal() {
   document.addEventListener('toggle', (e) => {
     const d = e.target;
     if (d instanceof HTMLDetailsElement && d.dataset.folder && d.open) setArchivoOpen(d.dataset.folder);
+    if (d instanceof HTMLDetailsElement && d.dataset.hqFold) setHqFold(d.dataset.hqFold, d.open);
   }, true);
   $('#end-month').addEventListener('click', endMonth);
   $('#manolo-box').addEventListener('click', () => {
@@ -550,7 +551,7 @@ async function onClick(e) {
       if (el.dataset.mode === 'franquicia') {
         const est = estimateOpening(s, el.dataset.type, game.city, 'franquicia');
         const ok = await confirmModal(`Vender una franquicia de ${t.name}`,
-          `Un emprendedor local te paga ${money(franchiseFee(s, el.dataset.type))} de canon y monta la tienda con su dinero. Tú le vendes los sobaos a precio mayorista y cobras un 5 % de royalties.\n\nEstimación mensual de la central: ${money(est.delta)}. Del franquiciado: ${money(est.franchiseeProfit)}.${est.franchiseeProfit < 0 ? ' Ya empieza perdiendo dinero.' : ''}\n\nSi el franquiciado pierde dinero 4 meses seguidos, quebrará... y vendrá a pedirte explicaciones.`, 'Firmar');
+          `Un emprendedor local te paga ${money(franchiseFee(s, el.dataset.type))} de canon y monta la tienda con su dinero. Tú le vendes los sobaos a precio mayorista y cobras un 5 % de royalties.\n\nEstimación mensual de la central: ${money(est.delta)}. Del franquiciado: ${money(est.franchiseeProfit)}.${est.franchiseeProfit < 0 ? ' Ya empieza perdiendo dinero.' : ''}\n\nSi el franquiciado pierde dinero 4 meses seguidos, quebrará... y vendrá a pedirte explicaciones: recomprarle el local cuesta devolverle el canon.`, 'Firmar');
         if (!ok) return;
       }
       if (el.dataset.mode === 'ilegal' && !(await confirmModal('Pisos sin licencia', 'Abres los pisos turísticos sin licencia. Te ahorras 120.000 €, pero cada mes hay una probabilidad de que el ayuntamiento te pille (multa de 40.000 € o más) y el radar de Hacienda sube.', 'Arriesgarse'))) return;
@@ -784,6 +785,7 @@ async function onClick(e) {
       return;
   }
   if (res && !res.ok && res.msg) toast(res.msg, 'bad');
+  checkGoals(s);
   renderAll();
   await showNotices();
 }
@@ -927,7 +929,7 @@ async function endMonth() {
   if (!s || game.busy || s.ending || s.pending.length || isModalOpen()) return;
   game.busy = true;
   game.bubble = null;
-  const prev = { rep: s.rep, moral: s.moral, fama: s.fama, ht: s.heatTrabajo, hh: s.heatHacienda, agr: s.agravio || 0 };
+  const prev = { rep: s.rep, moral: s.moral, fama: s.fama, ht: s.heatTrabajo, hh: s.heatHacienda, agr: s.agravio || 0, idle: !s.actionUsed && !(s.restMonths > 0) };
   const prevReport = s.lastReport;
   const head = s.log[0];
   const r = advanceMonth(s);
@@ -938,7 +940,7 @@ async function endMonth() {
     await showReport(r, prev, monthDigest(prevReport, r, s, head));
     game.map.playProfits();
     const nAlerts = Object.values(cityAlerts(s)).reduce((a, l) => a + l.length, 0);
-    $('#map-live').textContent = `${dateLabel(r.month)}: resultado ${moneyShort(r.net)}, ${s.businesses.length} negocios${nAlerts ? `, ${nAlerts} ${nAlerts === 1 ? 'alerta' : 'alertas'} en el mapa` : ''}.`;
+    $('#map-live').textContent = `${dateLabel(r.month)}: resultado ${moneyShort(r.net)}, ${plural(s.businesses.length, 'negocio', 'negocios')}${nAlerts ? `, ${nAlerts} ${nAlerts === 1 ? 'alerta' : 'alertas'} en el mapa` : ''}.`;
     if (r.month % 12 === 11) await showYearSummary(s, r);
   }
   game.busy = false;
@@ -989,16 +991,16 @@ function delta(label, a, b, invert = false, stat = '') {
 function digestHtml(d) {
   if (!d) return '';
   const narrow = window.matchMedia('(max-width: 600px)').matches;
-  const block = (title, body) => (narrow ? `<details class="digest"><summary>${title}</summary>${body}</details>` : `<h4>${title}</h4>${body}`);
+  const block = (title, body, n) => (narrow ? `<details class="digest"><summary>${title} (${n}) · tocar para ver</summary>${body}</details>` : `<h4>${title}</h4>${body}`);
   let html = '';
   if (d.drivers.length) {
     html += `<h4>Por qué ${d.prevNet != null ? `(frente a ${fmtDelta(d.prevNet).replace('+', '')} el mes pasado)` : ''}</h4><ul class="why digest-drivers">
       ${d.drivers.map((x) => `<li><span>${esc(x.label)}${x.reason ? `<small>${esc(x.reason)}</small>` : ''}</span><b class="${x.delta >= 0 ? 'pos' : 'neg'}">${fmtDelta(x.delta)}</b></li>`).join('')}</ul>`;
   }
   if (d.fresh.items.length) {
-    html += block('Este mes', `<ul class="digest-list">${d.fresh.items.map((e) => `<li class="${e.tone}">${esc(e.text)}</li>`).join('')}</ul>${d.fresh.more ? `<p class="small muted">…y ${d.fresh.more} más en el Archivo.</p>` : ''}`);
+    html += block('Este mes', `<ul class="digest-list">${d.fresh.items.map((e) => `<li class="${e.tone}">${esc(e.text)}</li>`).join('')}</ul>${d.fresh.more ? `<p class="small muted">…y ${d.fresh.more} más en el Archivo.</p>` : ''}`, d.fresh.items.length + (d.fresh.more || 0));
   }
-  if (d.upcoming.length) html += block('Próximamente', `<ul class="digest-list">${d.upcoming.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>`);
+  if (d.upcoming.length) html += block('Próximamente', `<ul class="digest-list">${d.upcoming.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>`, d.upcoming.length);
   return html;
 }
 
@@ -1013,8 +1015,9 @@ function showReport(r, prev, digest) {
         <tr><td>Costes</td><td class="neg">−${money(r.totalCost)}</td></tr>
         <tr><td>Impuestos</td><td class="neg">−${money(r.tax)}</td></tr>
       </table>
-      ${r.fill < 0.999 ? `<p class="warn small">⚠️ El obrador solo ha servido el ${Math.round(r.fill * 100)} % de la demanda de sobaos. ¡Mejóralo!</p>` : ''}
+      ${r.fill < 0.999 ? `<p class="warn small">⚠️ El obrador solo ha servido el ${fillPct(r.fill)} de la demanda de sobaos. <a href="#" data-act="goto-city" data-city="selaya">Amplíalo en Selaya</a>: con el obrador lleno, cada tienda nueva vende menos.</p>` : ''}
       ${r.evaded > 0 ? `<p class="small">🧾 Impuestos "optimizados" este mes: ${money(r.evaded)}.</p>` : ''}
+      ${prev.idle ? '<p class="small">😎 Este mes Manolo no hizo su <b>acción del mes</b>. Cada mes puede hacer una desde la pestaña Manolo: networking, una charla a la plantilla, una cena familiar...</p>' : ''}
       <div class="deltas">
         ${delta('Reputación', prev.rep, s.rep, false, 'rep')}${delta('Moral', prev.moral, s.moral, false, 'moral')}${delta('Fama', prev.fama, s.fama, false, 'fama')}
         ${delta('Radar Inspección', prev.ht, s.heatTrabajo, true, 'heatTrabajo')}${delta('Radar Hacienda', prev.hh, s.heatHacienda, true, 'heatHacienda')}${prev.agr != null ? delta('Agravio', prev.agr, s.agravio || 0, true, 'agravio') : ''}
@@ -1043,14 +1046,16 @@ async function runQueue(s) {
     // Al elegir se resuelve la carta y el resultado sale en el mismo diálogo, salvo que sea menor (o una
     // costumbre repetida por tercera vez seguida): entonces va a un toast y al registro.
     const resolve = (i) => {
+      // La primera vez que sale una carta, su resultado se enseña siempre en el diálogo.
+      const seenBefore = s.seen?.[p.pending.id] != null;
       const before = resultSnapshot(s);
       const result = resolvePending(s, p.choices[Math.max(0, i)].index);
       resolved = true;
       renderAll();
       const repeat = p.event.quickRepeat && custom(s, p.pending.id).streak >= 3;
-      if (repeat || isMinorResult(p.pending.id, result, before, resultSnapshot(s))) {
+      if (repeat || (seenBefore && isMinorResult(p.pending.id, result, before, resultSnapshot(s)))) {
         log(s, `${repeat ? '↺' : '•'} ${p.title}: ${result}`, 'info');
-        toast(`${repeat ? '↺ ' : ''}${p.title}: ${result}`, 'info', Math.max(2600, result.length * 45));
+        toast(`${repeat ? '↺ ' : ''}${p.title}: ${result}`, 'info', Math.max(3500, (p.title.length + result.length) * 50));
         return null;
       }
       return { text: result };

@@ -271,6 +271,7 @@ export function doManoloAction(s, id) {
   if (a.cost && s.cash < a.cost) return { ok: false, msg: `Necesitas ${money(a.cost)}.` };
   s.actionUsed = true;
   const text = a.run(s);
+  if (text) log(s, `😎 ${a.name}: ${text}`, 'info');
   addStress(s, ACTION_STRESS[id] ?? 0);
   checkUnlocks(s);
   return { ok: true, text };
@@ -296,6 +297,7 @@ export function checkUnlocks(s) {
     if (!s.unlocked[u.id] && u.test(s)) {
       s.unlocked[u.id] = true;
       log(s, u.text, 'good');
+      if (u.id !== 'vivienda') (s.notices ??= []).push({ kicker: '🔓 Desbloqueado', title: 'Nuevo negocio disponible', text: u.text });
       found.push(u.id);
     }
   }

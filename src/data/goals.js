@@ -5,6 +5,7 @@ import { BUSINESS_TYPES } from './businesses.js';
 import { CLASSIC_GOALS } from './endings.js';
 import { patrimonio } from '../core/economy.js';
 import { inLockup } from '../core/life.js';
+import { isOperating } from '../core/construction.js';
 import { addCash, addFama, addRep } from '../core/helpers.js';
 
 const outlets = (s) => s.businesses.filter((b) => BUSINESS_TYPES[b.type].category === 'sobaos').length;
@@ -28,7 +29,7 @@ export const GOALS = [
     id: 'primera_tienda',
     lane: 'negocio',
     progress: (s) => [Math.min(1, outlets(s)), 1],
-    text: 'Abre tu primera tienda de sobaos (pincha en una ciudad grande del mapa).',
+    text: 'Abre tu primera tienda de sobaos (📍 Ciudad → Ciudades recomendadas, o en el mapa).',
     test: (s) => outlets(s) >= 1,
     reward(s) {
       addFama(s, 3);
@@ -49,7 +50,7 @@ export const GOALS = [
   {
     id: 'mejora_obrador',
     lane: 'negocio',
-    text: 'Mejora el obrador de Selaya para producir más.',
+    text: 'Mejora el obrador para producir más (📍 Selaya → Obrador Boomerez).',
     test: (s) => s.obrador.upgrades.length >= 1,
     reward(s) {
       addRep(s, 3);
@@ -105,7 +106,7 @@ export const GOALS = [
   {
     id: 'campana',
     lane: 'negocio',
-    text: 'Lanza una campaña de marketing (Expansión → Marketing o en una ciudad).',
+    text: 'Lanza una campaña de marketing (Marca → Marketing o en una ciudad).',
     test: (s) => s.mods.some((m) => m.campaign) || s.flags.campaignDone,
     reward(s) {
       s.flags.campaignDone = true;
@@ -116,7 +117,7 @@ export const GOALS = [
   {
     id: 'producto',
     lane: 'negocio',
-    text: 'Desarrolla una innovación (Expansión → I+D).',
+    text: 'Desarrolla una innovación (Marca → I+D).',
     test: (s) => (s.products || []).length >= 1,
     reward(s) {
       addCash(s, 8000);
@@ -138,7 +139,7 @@ export const GOALS = [
     id: 'regional',
     lane: 'negocio',
     text: 'Abre un obrador regional para fabricar cerca de tus tiendas.',
-    test: (s) => s.businesses.some((b) => b.type === 'obrador_regional'),
+    test: (s) => s.businesses.some((b) => b.type === 'obrador_regional' && isOperating(s, b)),
     reward(s) {
       addRep(s, 3);
       return 'El alcalde de la ciudad corta la cinta y se hace la foto con un sobao. Reputación +3.';

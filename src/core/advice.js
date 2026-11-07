@@ -3,7 +3,7 @@ import { BUSINESS_TYPES } from '../data/businesses.js';
 import { CITY_BY_ID } from '../data/cities.js';
 import { RIVALS } from '../data/rivals.js';
 import { creditLimit } from './economy.js';
-import { money,dateLabel } from './helpers.js';
+import { money,dateLabel, fillPct } from './helpers.js';
 import { nextUpgrade } from './actions.js';
 import { regionalCount } from './logistics.js';
 import { recidivism } from './inspections.js';
@@ -13,7 +13,7 @@ import { liquidacion, K as PK } from './plantilla.js';
 export function advice(s) {
   const out = [];
   const r = s.lastReport;
-  if (!r) return [{ level: 'baja', text: 'Cierra el primer mes y te hago un informe. Mientras, abre una tienda en una ciudad grande.', tab: 'ciudad' }];
+  if (!r) return [{ level: 'baja', text: 'Cierra el primer mes y te hago un informe. Mientras, abre una tienda: en Ciudad tienes las ciudades recomendadas.', tab: 'ciudad' }];
 
   if (s.insolvencyMonths > 0) out.push({ level: 'alta', text: `Estás en descubierto sin crédito (${s.insolvencyMonths}/3). Vende algo o recorta gastos ya, Manolo.`, tab: 'finanzas' });
   else if (s.debt > creditLimit(s) * 0.85) out.push({ level: 'alta', text: 'La póliza está casi agotada. Si llega una crisis, el banco te cierra el grifo.', tab: 'finanzas' });
@@ -23,7 +23,7 @@ export function advice(s) {
     const fixes = [up && `mejora el obrador (${up.name.toLowerCase()})`, s.unlocked.obrador_regional && 'abre un obrador regional'].filter(Boolean);
     const fix = fixes.length ? ` Si aún falta capacidad, ${fixes.join(' o ')}.` : ' Si aún falta capacidad, ficha a alguien en Operaciones.';
     const period=Number.isSafeInteger(r.month)&&r.month>=0?`En ${dateLabel(r.month)}`:'En el último cierre';
-    out.push({ level: 'alta', text: `${period}, el obrador cubrió el ${Math.round(r.fill * 100)} % de la demanda. Comprueba la cobertura actual antes de invertir.${fix}`, tab: 'ciudad' });
+    out.push({ level: 'alta', text: `${period}, el obrador cubrió el ${fillPct(r.fill)} de la demanda. Comprueba la cobertura actual antes de invertir.${fix}`, tab: 'ciudad' });
   }
 
   const liq = liquidacion(s);

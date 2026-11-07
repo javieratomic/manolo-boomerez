@@ -9,7 +9,7 @@ import { PRODUCTS } from '../data/market.js';
 import { nextElectionMonth } from './politics.js';
 import { CANDIDATE_REFRESH } from './execs.js';
 import { UNLOCKS } from './actions.js';
-import { dateLabel, moneyShort } from './helpers.js';
+import { dateLabel, moneyShort, plural } from './helpers.js';
 import { convenioDemand, isConvenioMonth } from './plantilla.js';
 import { MAMA, hasCond } from './cartilla.js';
 import { quarterProgress, qLabel } from './bolsa.js';
@@ -24,7 +24,7 @@ export const COST_NAMES = {
 };
 export const MAX_DRIVERS = 3;
 
-const catOf = (l) => (['obrador', 'international','online'].includes(l.type) ? 'sobaos' : BUSINESS_TYPES[l.type]?.category);
+const catOf = (l) => (['obrador', 'international','online','contract'].includes(l.type) ? 'sobaos' : BUSINESS_TYPES[l.type]?.category);
 
 // Estacionalidad media de una categoría (ponderada por ingresos de sus líneas) en un mes del año.
 function seasonOf(lines, cat, m) {
@@ -122,7 +122,7 @@ export function netDrivers(prev, r, s) {
 // Lo que ha dejado el cierre en el registro (sin titulares), malas primero.
 export function freshEntries(s, head, max = 5) {
   const idx = head ? s.log.indexOf(head) : -1;
-  const fresh = (idx >= 0 ? s.log.slice(0, idx) : s.log.filter((e) => e.month === s.month - 1)).filter((e) => e.tone !== 'news');
+  const fresh = (idx >= 0 ? s.log.slice(0, idx) : s.log.filter((e) => e.month === s.month - 1)).filter((e) => e.tone !== 'news' && !e.text.startsWith('🎯 Objetivo cumplido') && !e.text.startsWith('🔓'));
   const order = { bad: 0, good: 1 };
   const sorted = [...fresh].sort((a, b) => (order[a.tone] ?? 2) - (order[b.tone] ?? 2));
   return { items: sorted.slice(0, max), more: Math.max(0, sorted.length - max) };
@@ -132,7 +132,7 @@ export function freshEntries(s, head, max = 5) {
 export function upcoming(s) {
   const out = [];
   const closes = [s.month, s.month + 1];
-  const when = (m) => (m === s.month ? 'al cerrar este mes' : `al cerrar ${dateLabel(m).toLowerCase().replace(' ', ' de ')}`);
+  const when = (m) => `al cerrar ${dateLabel(m).toLowerCase().replace(' ', ' de ')}`;
   for (const m of closes) {
     if (m % 12 === 11) out.push(`🎄 Navidad: Maripili preguntará por la cesta ${when(m)}.`);
     if (m % 12 === 6) out.push(`🏖️ Vacaciones de agosto: la plantilla preguntará ${when(m)}.`);
@@ -156,13 +156,13 @@ export function upcoming(s) {
   for (const c of s.contracts) if (c.months <= 2 && c.months <= 120) out.push(`📄 Termina el contrato: ${c.label} (${c.months === 1 ? 'último mes' : '2 meses'}).`);
   if (s.flags.forcedLegal === 1) out.push('⚖️ Se acaba la legalidad forzosa: el mes que viene vuelves a decidir las condiciones.');
   if (s.restMonths === 1) out.push('🛋️ Manolo vuelve del reposo el mes que viene.');
-  if (CANDIDATE_REFRESH - (s.month - (s.candidatesMonth ?? 0)) <= 1) out.push('👔 Llegan currículums nuevos de directivos.');
+  if (s.month - (s.candidatesMonth ?? -99) >= CANDIDATE_REFRESH) out.push(`👔 Llegan currículums nuevos de directivos ${when(s.month)}.`);
   for (const u of UNLOCKS) {
     if (u.month == null || s.unlocked[u.id]) continue;
-    if (u.month > s.month && u.month <= s.month + 2) out.push(`🔓 ${BUSINESS_TYPES[u.id]?.name ?? u.id} se desbloquea en ${dateLabel(u.month).toLowerCase().replace(' ', ' de ')}.`);
+    if (u.month > s.month && u.month <= s.month + 2) out.push(`🔓 ${BUSINESS_TYPES[u.id]?.name ?? u.id} se desbloquea como muy tarde en ${dateLabel(u.month).toLowerCase().replace(' ', ' de ')}.`);
   }
   for(const b of s.businesses){
-    if(!isOperating(s,b)&&b.readyMonth-s.month<=2)out.push(`🏗️ Entrega de ${businessName(b)} en ${CITY_BY_ID[b.city].name} dentro de ${b.readyMonth-s.month} meses.`);
+    if(!isOperating(s,b)&&b.readyMonth-s.month<=2)out.push(`🏗️ Entrega de ${businessName(b)} en ${CITY_BY_ID[b.city].name} dentro de ${plural(b.readyMonth-s.month,'mes','meses')}.`);
     if(isResidential(b)&&isOperating(s,b)&&b.renewalMonth-s.month<=12)out.push(`🔧 Renovación de ${businessName(b)} en ${CITY_BY_ID[b.city].name}: dentro de ${Math.max(0,b.renewalMonth-s.month)} meses, ${moneyShort(renovationCost(b))} estimados.`);
   }
   if (!s.ipo && s.month + 1 >= 36 && s.month < 36) out.push('🔔 Desde el mes que viene se puede salir a Bolsa con una valoración de empresa de al menos 1.000 M€.');

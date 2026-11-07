@@ -1,3 +1,30 @@
+# Entrega 0.22.0 — La primera hora, auditada (07-11-2026, Claude)
+
+El usuario pidió con be-ambitious «qué debería ser lo siguiente»; sin probadores humanos, se auditó la primera hora con
+agentes que juegan la interfaz real como jugadores nuevos. **Sin push:** commit local; publicar (push, release, Pages)
+queda a decisión del usuario.
+
+- **Herramienta:** controlador Playwright+Edge (`%TEMP%`/scratchpad `audit/driver.cjs`, no está en el repo) con órdenes
+  HTTP /look /click /type /key /metrics y métricas inyectadas (clics, diálogos, caracteres, pantallas, primera tienda,
+  primer cierre). Servidor en `http://localhost:8080` (preview `manolo`); con `127.0.0.1` los recursos fallan en esta
+  máquina. Esperar a `window.__boomerez` hasta 90 s: con varios navegadores a la vez tarda.
+- **Ronda 1** (5 perfiles; 1 sin arrancar): elegir ciudad para la primera tienda era el atasco (4/5), «Expansión» abría
+  marketing, primera pantalla sobrecargada, resultados de cartas perdidos en avisos, costes ocultos, marca blanca que
+  se comía el obrador sin avisar, «solo el 100 %», avisos con un mes de desfase, fechas de desbloqueo, objetivos
+  repetidos, bucle de recompra de franquicias. Causas localizadas por agentes de solo lectura con script; todas
+  reales menos la cifra Maison de la línea de horneado (solo la cabecera ignoraba I+D).
+- **Ronda 2** con los arreglos: clics hasta la primera tienda 15/13/18 → 6/6/7 (lector 12 tras leer la ayuda); los 5
+  cumplen su objetivo. Nuevo atasco común, ya enlazado: el obrador corto («Amplíalo en Selaya»). Acciones de Manolo al
+  registro. **Pendiente de la ronda 2 (no tocado):** barra de dos niveles (Empresa/Marca/Equipo/Manolo) que parece
+  muerta; recomendaciones que desaparecen tras la primera tienda; tarjeta de viviendas de 1,33 M€ a un jugador de
+  80 k€; controles sin nombre ('BUTTON') y radios de ingredientes sin etiqueta; estimaciones que difieren entre
+  Ciudades recomendadas y Aperturas (+2.540 frente a +658 €/mes en un caso); balance anual con patrimonio inicial
+  distinto del HUD; «Hay capacidad libre» con 98-99 % servido; la póliza crece sin tope con pádel (+100 k€ cada vez);
+  vender un local a un rival al mes de abrirlo (+60 %).
+- **Verificación:** 366/366 simulación + 14/14 worker en Node; navegador 425/426 (falla «preparación offline… no
+  registra en desarrollo», también en HEAD con la página sin ventana: entorno, no regresión). Fuzzer 14.085 meses sin
+  fallos. Catálogo offline regenerado. `tests/first-hour.test.js`: 8 regresiones.
+
 # Entrega 0.21.6 — Acceso directo y README visual (04-11-2026)
 
 Usuario pide simplificar jugar y un README más breve con más arte. README de unas3250 a unas360palabras: botón web dominante, descarga directa Windows y galería de4escenas,4retratos,4edificios existentes, más captura del juego. La referencia larga pasa a docs/REFERENCIA.md, con enlaces corregidos. Sin cambiar imágenes ni dependencias.

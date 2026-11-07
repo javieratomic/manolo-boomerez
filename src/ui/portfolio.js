@@ -4,7 +4,7 @@ import {renderSalePreview} from './divestment.js';
 import {CITY_BY_ID} from '../data/cities.js';
 import {FOREIGN_BY_ID} from '../data/international.js';
 import {CAT_NAMES} from '../core/digest.js';
-import {dateLabel,money,moneyShort} from '../core/helpers.js';
+import {dateLabel,money,moneyShort, fillPct } from '../core/helpers.js';
 import {esc} from './dom.js';
 
 export const PORTFOLIO_PAGE_SIZE=10;
@@ -13,7 +13,7 @@ const tone=n=>n<0?'neg':'pos';
 const options=(rows,value)=>rows.map(r=>`<option value="${esc(r.id)}" ${r.id===value?'selected':''}>${esc(r.name)}</option>`).join('');
 function resultPreview(p) {
  return `<p>Resultado mensual de toda la empresa: <b>${moneyShort(p.before.net)} → ${moneyShort(p.after.net)}</b> (<b class="${tone(p.deltaNet)}">${signed(p.deltaNet)}/mes</b>).</p>
-  <p class="small">Cobertura de demanda: ${Math.round(p.before.fill*100)} % → ${Math.round(p.after.fill*100)} %. Plantilla: ${p.before.employees} → ${p.after.employees}.</p>
+  <p class="small">Cobertura de demanda: ${fillPct(p.before.fill)} → ${fillPct(p.after.fill)}. Plantilla: ${p.before.employees} → ${p.after.employees}.</p>
   ${p.deltaNet<=0?'<p class="small warn">Con las condiciones actuales, este lote no mejora el resultado mensual.</p>':''}
   <p class="small muted">Previsión conjunta con producción y personal compartidos, costes generales e impuestos. Mantiene las condiciones del mes actual; no es una garantía de beneficio futuro ni incluye la inversión como gasto mensual.</p>`;
 }

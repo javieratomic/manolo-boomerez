@@ -1,5 +1,32 @@
 # Cambios
 
+## 0.22.0 — La primera hora, auditada
+
+Cinco agentes jugaron la interfaz real como jugadores nuevos (impaciente, lector, móvil, ambicioso y curioso),
+sin acceso al código, con un navegador instrumentado que mide clics, diálogos, texto leído y avance. Cada
+hallazgo repetido se reprodujo en otra partida antes de corregirlo; después se repitió la ronda.
+
+- **Elegir dónde abrir la primera tienda:** «📍 Ciudades recomendadas» en la ciudad, con las mejores aperturas
+  para tu marca y caja (propia o franquicia) y su estimación. Clics hasta la primera tienda: 15/13/18 → 6/6/7.
+  En la sede sin tiendas, el obrador y el marketing de Selaya se pliegan para que «Abrir» quede arriba.
+- El grupo «Expansión» pasa a llamarse **Marca** (marketing, I+D, exterior, online) y enlaza a Ciudad para abrir
+  tiendas; los objetivos y la ayuda lo dicen.
+- **Resultados que ya no se pierden:** la primera vez que sale una carta, su resultado se ve en el diálogo; un
+  modificador o un contrato nuevo nunca se trata como resultado menor. La acción de Manolo queda en el registro y
+  en el informe, que además recuerda si el mes se cerró sin hacerla.
+- **Costes antes de elegir:** juicio de Rodri (50 %: 60.000 €), Sergio (900 €/mes × 24), segundo dependiente,
+  amortizar deuda, vacaciones de agosto, guerra de precios y reseñas falsas. La marca blanca dice cuánto obrador
+  ocupa y la cobertura que dejará, y los contratos tienen su propia línea en el informe.
+- **El obrador corto se puede arreglar desde el aviso:** el informe y las aperturas enlazan a Selaya.
+- **Textos que no cuadraban:** «solo el 100 %» (la cobertura por debajo de 1 se redondea hacia abajo); avisos de
+  «al cerrar este mes» que se leían con un mes de desfase (ahora dicen el mes); fechas de desbloqueo («como muy
+  tarde») y un aviso propio al desbloquear; objetivos anunciados dos veces; currículums que se anunciaban cada
+  mes; el cargo de Vanessa; el radar de Inspección; plurales («1 negocio»); la herencia del modo normal.
+- **Franquicias quebradas:** recomprar el local cuesta devolver el canon (antes 15.000 € fijos, un bucle de
+  +57.000 € por ciclo); si el franquiciado te demanda y gana, también. El objetivo del obrador regional llega
+  con la entrega, no al pagar la obra.
+- 8 regresiones nuevas (`tests/first-hour.test.js`).
+
 ## 0.21.6 — Jugar con un clic
 
 - README breve con enlace directo al juego, descarga Windows y galería de doce ilustraciones; los detalles de sistemas y desarrollo pasan a `docs/REFERENCIA.md`.

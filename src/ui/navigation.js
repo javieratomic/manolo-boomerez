@@ -2,7 +2,7 @@ import {esc} from './dom.js';
 
 export const NAV_GROUPS=[
  {id:'empresa',label:'Empresa',emoji:'🏢'},
- {id:'expansion',label:'Expansión',emoji:'🚀'},
+ {id:'expansion',label:'Marca',emoji:'🏷️'},
  {id:'equipo',label:'Equipo',emoji:'👥'},
  {id:'personal',label:'Manolo',emoji:'😎'},
 ];

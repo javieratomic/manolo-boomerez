@@ -4,7 +4,7 @@ export const HELP_PAGES = [
     title: 'Tu primer mes en 4 pasos',
     html: `<p>Cada turno es <b>un mes</b>. La <b>campaña europea es continua</b>: construye un grupo de 1.000 M€ en ocho países con banca, telecomunicaciones y logística. El reto semanal conserva la campaña clásica de ocho años.</p>
       <ol>
-        <li>📍 <b>Pincha en una ciudad grande</b> del mapa y abre tu primera tienda de sobaos. La estimación te dice cuánto ganarías al mes.</li>
+        <li>📍 En <b>Ciudad → Ciudades recomendadas</b> (o en el mapa) elige dónde abrir tu primera tienda de sobaos. La estimación te dice cuánto ganarías al mes.</li>
         <li>👷 Abre <b>Equipo → Plantilla</b>: debajo de cada política verás qué cambiaría el mes que viene y a 6 meses. El reparto y los descuentos están en Beneficios, y los fichajes en Dirección.</li>
         <li>😎 Elige la <b>acción del mes</b> de Manolo (pestaña Manolo).</li>
         <li>▶ <b>Cierra el mes</b> (botón de abajo o Espacio). El informe te explica qué ha movido el beneficio y qué viene.</li>
@@ -20,7 +20,7 @@ export const HELP_PAGES = [
         <li>🏪 <b>Imperio → Cartera:</b> filtra por ciudad, país, sector o estado y selecciona varios negocios. Revisa el coste y el efecto conjunto de las reformas antes de confirmar; falta de fondos o vivienda bloquea todo el lote.</li>
         <li>📍 <b>Imperio → Aperturas</b> compara ciudades para negocios de apertura inmediata, propios o franquiciados. Separa canon, premios y beneficio mensual; muestra bloqueos y cuentas del franquiciado. <b>Probar escenarios</b>, en la tarjeta o la revisión, compara Mantener/Abrir en Resistencia sin comprar. Revisa una alternativa antes de abrir; consultar no consume descuentos.</li>
         <li>💼 En la misma cartera, <b>Vender y rescindir</b> reúne ventas e indemnizaciones. Revisa caja, patrimonio, suministro y vivienda antes de confirmar. Las ventas pueden financiar rescisiones dentro del lote; si no alcanza, no se aplica nada. Puedes probarlo en Resistencia sin ejecutar la venta.</li>
-        <li>🔨 <b>Reformas</b> en cada ciudad; <b>campañas</b> en Expansión → Marketing e <b>I+D</b> en su menú propio. La venta online y los acuerdos exteriores también tienen pantalla propia en Expansión. Cuantos más negocios, más estructura central.</li>
+        <li>🔨 <b>Reformas</b> en cada ciudad; <b>campañas</b> en Marca → Marketing e <b>I+D</b> en su menú propio. La venta online y los acuerdos exteriores también tienen pantalla propia en Marca. Las tiendas se abren desde 📍 Ciudad. Cuantos más negocios, más estructura central.</li>
         <li>🧪 En <b>I+D → Evaluar</b> puedes comparar la innovación como si estuviera terminada hoy: resultado, capacidad efectiva, empleo y vivienda necesaria. No compra ni adelanta el proyecto. El coste pendiente se separa del beneficio mensual; los desbloqueos no incluyen locales nuevos.</li>
         <li>🏦 La <b>póliza</b> de la Caja Cantábrica cubre los descubiertos; tres meses sin margen es concurso de acreedores.</li>
         <li>🧮 <b>Finanzas → Patrimonio y riesgos</b> desglosa activos, deuda bancaria, préstamo familiar y cuotas de Seguridad Social. Hacienda y Trabajo figuran como contingencias separadas, con un escenario ilustrativo de pago conjunto; consultar no paga ni cambia las cuentas.</li>

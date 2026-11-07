@@ -9,12 +9,11 @@ import { INTERNATIONAL_EVENTS } from './eventsInternational.js';
 import { chance, int } from '../core/rng.js';
 import { brandYield } from '../core/economy.js';
 import {
-  addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addExpediente, addMod, addMonthlyCost, log, money, custom, clamp, hito,
-} from '../core/helpers.js';
+  addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addExpediente, addMod, addMonthlyCost, log, money, custom, clamp, hito, fillPct } from '../core/helpers.js';
 import { addStress } from '../core/life.js';
 import { laborVisitParams, blamePaco, DELITO_FISCAL, dossier, trickOdds, trickCount, recordTrick, recordSanction, recidivism, recentSanctions, clearRecord } from '../core/inspections.js';
 import { LEGAL_LABOR } from './policies.js';
-import { BUSINESS_TYPES } from './businesses.js';
+import { BUSINESS_TYPES, SOBAO_TYPE_BY_BRAND } from './businesses.js';
 import { CITY_BY_ID } from './cities.js';
 import { sobaoOutlets } from '../core/actions.js';
 import { CLAUSE_BY_ID } from './clauses.js';
@@ -201,11 +200,12 @@ const BASE_EVENTS = [
       {
         key: 'vacaciones',
         label: 'Que las disfruten',
+        hint: 'Ingresos −7 % este mes. Moral +5.',
         effect(s) {
           addMoral(s, 5);
           addMod(s, { kind: 'revenue', factor: 0.93, months: 1, label: 'Vacaciones' });
           s.flags.agostoLibre = (s.flags.agostoLibre ?? 0) + 1;
-          return 'Rotáis turnos y nadie se muere. Moral +5. Algo menos de producción este mes.';
+          return 'Rotáis turnos y nadie se muere. Moral +5. Ingresos −7 % este mes.';
         },
       },
       {
@@ -216,7 +216,7 @@ const BASE_EVENTS = [
           const n = c.last === 'trabajar' ? c.streak + 1 : 1;
           if (n >= 3) return `${n === 3 ? 'Tercer' : `${n}.º`} agosto seguido: la abogada laboralista denuncia y Marisa viene con multa (si aún no puede venir, radar +15 y la multa espera a su próxima visita).`;
           if (n === 2) return 'Segundo agosto seguido: moral −10 y radar +8.';
-          return undefined;
+          return 'Moral −6 y radar de Inspección +4. Repetirlo el año que viene sale más caro.';
         },
         effect(s) {
           const c = custom(s, 'agosto');
@@ -520,9 +520,10 @@ const BASE_EVENTS = [
     choices: [
       {
         key: 'recompra',
-        label: 'Recomprarle el local (15.000 €)',
+        label: (s, p) => `Recomprarle el local devolviéndole el canon (${money(buybackPrice(s, p))})`,
         effect(s, p) {
-          addCash(s, -15000);
+          const price = buybackPrice(s, p);
+          addCash(s, -price);
           const b = s.businesses.find((x) => x.id === p.businessId);
           if (b) {
             b.mode = 'propia';
@@ -530,7 +531,7 @@ const BASE_EVENTS = [
             b.lossMonths = 0;
           }
           addRep(s, 2);
-          return 'Te quedas la tienda como propia. Él se va con algo de dignidad y 15.000 €. Reputación +2.';
+          return `Te quedas la tienda como propia y le devuelves el canon: ${money(price)}. Él se va con algo de dignidad. Reputación +2.`;
         },
       },
       {
@@ -542,8 +543,9 @@ const BASE_EVENTS = [
           const rep = custom(s, 'franquiciado_arruinado').count >= 2 ? 7 : 5;
           addRep(s, -rep);
           if (chance(s, 0.4)) {
-            pay(s, 30000);
-            return `Te demanda por publicidad engañosa y gana. Pagas 30.000 € y cierra la tienda. Reputación −${rep}.`;
+            const owed = Math.max(30000, buybackPrice(s, p));
+            pay(s, owed);
+            return `Te demanda por publicidad engañosa y gana: le devuelves el canon y algo más. Pagas ${money(owed)} y cierra la tienda. Reputación −${rep}.`;
           }
           if (rep === 7) return `Cierra la tienda y se apunta al grupo de los jueves. La frase "te ha faltado mentalidad" ya circula en camisetas. Reputación −${rep}.`;
           return 'Cierra la tienda y se vuelve al pueblo. Escribe una reseña de una estrella que empieza con "Queridos futuros franquiciados...". Reputación −5.';
@@ -795,9 +797,9 @@ const BASE_EVENTS = [
         },
       },
       {
-        label: 'Ponerla de Directora de Marketing (2.000 €/mes)',
+        label: 'Darle un cargo de «Directora de Marketing» (2.000 €/mes; no ocupa el puesto de Dirección)',
         effect(s) {
-          addMonthlyCost(s, 'Sueldo de Vanessa (Dir. Marketing)', 2000);
+          addMonthlyCost(s, 'Sueldo de Vanessa (cargo honorífico de Marketing)', 2000);
           addFama(s, 5);
           return 'Vanessa, Chief Marketing Officer a los 19. Te abre una cuenta en la red social de vídeos de moda. Fama +5. Coste: 2.000 €/mes.';
         },
@@ -814,6 +816,12 @@ const BASE_EVENTS = [
     choices: [
       {
         label: 'Firmar',
+        hint: (s) => {
+          const r = s.lastReport;
+          if (!r) return 'Ocupa 5.000 uds/mes del obrador durante 24 meses. Ingresos: hasta 7.500 €/mes.';
+          const dem = r.totalDemand - (r.online?.units || 0);
+          return `Ocupa 5.000 uds/mes del obrador durante 24 meses (capacidad ${Math.round(r.capacity).toLocaleString('es-ES')}, demanda ${Math.round(dem).toLocaleString('es-ES')}). Cobertura prevista: ${fillPct(Math.min(1, r.capacity / Math.max(1, dem)))} → ${fillPct(Math.min(1, r.capacity / (dem + 5000)))}. Ingresos: hasta 7.500 €/mes.`;
+        },
         effect(s) {
           s.contracts.push({ id: 'marca_blanca', label: 'Marca blanca SuperAhorro', units: 5000, price: 1.5, months: 24 });
           addRep(s, s.brand === 'maison' ? -8 : -2);
@@ -939,6 +947,7 @@ const BASE_EVENTS = [
       },
       {
         label: 'Ir a juicio',
+        hint: '50 %: ganas y no pagas nada. 50 %: pierdes y pagas 60.000 €.',
         effect(s) {
           if (chance(s, 0.5)) return 'El juez escucha el audio: tu padre solo decía "Rodrigo, ¿has comido?". Ganas el juicio.';
           addCash(s, -60000);
@@ -1008,10 +1017,11 @@ const BASE_EVENTS = [
     choices: [
       {
         label: 'Guerra de precios',
+        hint: 'Ingresos de sobaos −8 % durante 4 meses. Reputación +2.',
         effect(s) {
           addMod(s, { kind: 'revenue', category: 'sobaos', factor: 0.92, months: 4, label: 'Guerra de precios' });
           addRep(s, 2);
-          return 'Bajas precios. Ganas menos, pero MASA cierra en tres meses. Ingresos de sobaos −8 % durante 4 meses.';
+          return 'Bajas precios. Ganas menos, pero MASA cierra en tres meses. Ingresos de sobaos −8 % durante 4 meses. Reputación +2.';
         },
       },
       {
@@ -1024,10 +1034,11 @@ const BASE_EVENTS = [
       },
       {
         label: 'Poner reseñas falsas de una estrella',
+        hint: '50 %: MASA cierra e ingresos de sobaos +5 % durante 4 meses. 50 %: te pillan y reputación −10.',
         effect(s) {
           if (chance(s, 0.5)) {
             addMod(s, { kind: 'revenue', category: 'sobaos', factor: 1.05, months: 4, label: 'Rival hundido' });
-            return 'Tus 80 cuentas falsas surten efecto. MASA cierra. Vergonzoso, pero eficaz.';
+            return 'Tus 80 cuentas falsas surten efecto. MASA cierra. Vergonzoso, pero eficaz. Ingresos de sobaos +5 % durante 4 meses.';
           }
           addRep(s, -10);
           return 'La plataforma de reseñas descubre que las 80 reseñas salen de la misma IP: la del obrador. Sales en un reportaje. Reputación −10.';
@@ -1565,6 +1576,9 @@ const BASE_EVENTS = [
     ],
   },
 ];
+
+// Recomprar el local de una franquicia quebrada cuesta devolverle el canon que pagó.
+const buybackPrice = (s, p) => Math.round(s.businesses.find((x) => x.id === p?.businessId)?.fee ?? BUSINESS_TYPES[SOBAO_TYPE_BY_BRAND[s.brand] || 'express'].franchiseFee);
 
 export const EVENTS = [...DYNASTY_EVENTS,...INTERNATIONAL_EVENTS, ...BASE_EVENTS, ...MACRO_EVENTS, ...SYSTEM_EVENTS, ...ARC_EVENTS, ...EXTRA_EVENTS, ...CITY_EVENTS, ...PLANTILLA_EVENTS, ...REMEDIOS_EVENTS, ...BOLSA_EVENTS, ...VELAS_EVENTS];
 

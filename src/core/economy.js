@@ -226,9 +226,8 @@ export function computeEconomy(s) {
   const localUnitCost = 1.05 * fx.ing.cost * researchFactor(s,'materialFactor');
   const obRevenue =
     shopUnits * fill * OBRADOR_BASE.shopPrice +
-    wholesaleUnits * fill * OBRADOR_BASE.wholesalePrice +
-    s.contracts.reduce((a, c) => a + c.units * fill * c.price, 0);
-  const obMaterials = ((shopUnits + wholesaleUnits + contractUnits) * fill + bonusUnits) * localUnitCost;
+    wholesaleUnits * fill * OBRADOR_BASE.wholesalePrice;
+  const obMaterials = ((shopUnits + wholesaleUnits) * fill + bonusUnits) * localUnitCost;
   const obWages = obradorStaff * wage;
   const obFixed = (OBRADOR_BASE.fixedCost + OBRADOR_BASE.upgradeUpkeep * (s.obrador.upgrades.length + (s.obrador.expansions || 0)))*researchFactor(s,'fixedFactor');
   costs.salarios += obWages;
@@ -239,6 +238,12 @@ export function computeEconomy(s) {
   costs.otros += embargo;
   revenueByCat.sobaos += obRevenue;
   lines.push({ id: 'obrador', type: 'obrador', city: 'selaya', label: 'Obrador Boomerez', revenue: obRevenue, cost: obMaterials + obWages + obFixed, staff: obradorStaff, units: produced });
+  for (const c of s.contracts) {
+    const u = c.units * fill, rev = u * c.price, mat = u * localUnitCost;
+    costs.materias += mat;
+    revenueByCat.sobaos += rev;
+    lines.push({ id: `contract_${c.id}`, type: 'contract', city: 'selaya', label: `Contrato · ${c.label}`, revenue: rev, cost: mat, staff: 0, units: u });
+  }
 
   for (const e of sobaoEntries) {
     const { b, t, c,staff } = e;

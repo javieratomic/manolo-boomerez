@@ -4,6 +4,7 @@ import {renderPortfolio} from './portfolio.js';
 import {renderStress} from './stress.js';
 import {renderWealth} from './finance.js';
 import {renderOpportunities} from './opportunities.js';
+import {openingDelta} from '../core/opportunities.js';
 import {ONLINE_LEVELS,ONLINE_SHIPPING} from '../data/online.js';
 import {canOpenOnline,canUpgradeOnline} from '../core/online.js';
 import {campaignPlan,marketingTerritories,campaignSelection} from '../core/marketing.js';
@@ -30,7 +31,7 @@ import { BUSINESS_TYPES, PERKS } from '../data/businesses.js';
 import { POLICIES } from '../data/policies.js';
 import { MANOLO_ACTIONS } from '../data/manoloActions.js';
 import { computeEconomy, estimateOpening, obradorCapacity, patrimonio, creditLimit, averageWage, ssOwed, brandYield, brandCapacity } from '../core/economy.js';
-import { canOpen, upgradeRequirements, openingCost, sobaoTypeId, nextUpgrade, saleValue, canRebrand, franchiseFee, needsLicense, LOAN_STEP } from '../core/actions.js';
+import { canOpen, openBusiness, upgradeRequirements, openingCost, sobaoTypeId, nextUpgrade, saleValue, canRebrand, franchiseFee, needsLicense, LOAN_STEP } from '../core/actions.js';
 import { nearestSite, transportCost } from '../core/logistics.js';
 import { advice } from '../core/advice.js';
 import { PARTIES } from '../data/politics.js';
@@ -46,7 +47,8 @@ import { ownsLujo, canIPO, companyValuation, ipoPremium, annualProfit, IPO_FLOAT
 import { grossPatrimonio } from '../core/economy.js';
 import { money, moneyShort, dateLabel, fillPct } from '../core/helpers.js';
 import { haciendaDebt } from '../core/inspections.js';
-import { clauseStatus } from '../core/clauses.js';
+import { clauseStatus, clauseWarn } from '../core/clauses.js';
+import { cityAlerts, ALERT_EMOJI } from '../core/mapInfo.js';
 import { liquidacion, convenioDemand, credibilidad, profitRatio, K as PK } from '../core/plantilla.js';
 import { canAsk, maxLoan, breaksPromise, COND_TEXT, condDesc, MAMA } from '../core/cartilla.js';
 import { bolsaState, quarterProgress, qLabel, GUIAS } from '../core/bolsa.js';
@@ -99,23 +101,88 @@ function lineFor(s, id) {
 }
 
 // ------------------------------------------------------------------ Ciudad
-// Primera tienda: mientras no haya ninguna tienda de sobaos (propia o franquiciada), sugerir dónde abrir.
-const noOutlets = (s) => !s.businesses.some((b) => BUSINESS_TYPES[b.type].category === 'sobaos');
-function starterOptions(s, n = 4) {
+// Hasta tener 3 tiendas de sobaos (propias o franquiciadas), sugerir dónde abrir.
+const sobaoOutlets = (s) => s.businesses.filter((b) => BUSINESS_TYPES[b.type].category === 'sobaos').length;
+const noOutlets = (s) => !sobaoOutlets(s);
+// La cifra de Imperio → Aperturas (cambio del neto de la empresa, después de impuestos). Si el comparador no
+// la da (obras con plazo, bloqueos que no son de caja), la estimación antes de impuestos; afterTax lo indica.
+// check (el canOpen ya calculado) ahorra el comparador cuando no puede dar cifra: renderCity va en cada render.
+// Bloqueada solo por caja, la cifra después de impuestos exige simular la apertura (caro con muchos negocios):
+// solo se paga en sobaos (fila y franquicia); los demás negocios bloqueados se quedan con la estimación.
+export const openingFigure = (s, type, city, mode, check = null) => {
+  const known = buildMonths(type) || (check && !check.ok && (openingCost(s, type, mode, city) <= s.cash || BUSINESS_TYPES[type].category !== 'sobaos'));
+  const od = known ? { delta: null } : openingDelta(s, type, city, mode);
+  if (od.delta == null) return { ...estimateOpening(s, type, city, mode), afterTax: false };
+  return { delta: od.delta, franchiseeProfit: od.franchiseeProfit, fillAfter: od.fillAfter ?? estimateOpening(s, type, city, mode).fillAfter, afterTax: true };
+};
+// En Selaya el obrador está en la misma pantalla: el enlace baja a su tarjeta en vez de «ir» a Selaya.
+const obradorLink = (c, label) => c.hq ? `<a href="#obrador-boomerez">${label} más abajo, en Obrador Boomerez</a>` : `<a href="#" data-act="goto-city" data-city="selaya">${label} en Selaya</a>`;
+// Recomendaciones hasta el objetivo de 3 tiendas: solo opciones con estimación positiva (la misma cifra que
+// Imperio → Aperturas). Con opciones rentables, se culpa al obrador si la mejor cubriría menos del 90 % de la
+// demanda; sin ninguna, si alguna apertura bajaría de ese 90 % (best es la más rentable de esas: la opción de
+// mayor delta suele ser un pueblo pequeño que pierde por sí solo y no destapa el tope del obrador).
+// loan: sin opciones que puedas pagar, hay alguna rentable bloqueada solo por caja (la que arregla un préstamo).
+// clauseBreaks reutiliza clauseWarn (la misma prueba que pide confirmación al abrir).
+// ruinous: franquicias posibles que Aperturas sí lista con cifra positiva pero que nacen en pérdidas para su dueño.
+const starterOptions = (s, type = sobaoTypeId(s)) => CITIES.filter((x) => !x.hq)
+  .flatMap((x) => ['propia', 'franquicia'].map((mode) => ({ city: x.id, mode, ...openingDelta(s, type, x.id, mode) })));
+export function starterAdvice(s, n = 4) {
   const type = sobaoTypeId(s);
-  return CITIES.filter((x) => !x.hq)
-    .flatMap((x) => ['propia', 'franquicia'].map((mode) => ({ city: x.id, mode, ok: canOpen(s, type, x.id, mode).ok, ...estimateOpening(s, type, x.id, mode) })))
-    .filter((r) => r.ok && r.delta > 0 && (r.mode === 'propia' || r.franchiseeProfit >= 0))
-    .sort((a, b) => b.delta - a.delta).slice(0, n);
+  const every = starterOptions(s, type);
+  const opts = every.filter((r) => r.mode === 'propia' || r.franchiseeProfit >= 0);
+  const ruinous = every.filter((r) => r.ok && r.mode === 'franquicia' && r.delta > 0 && r.franchiseeProfit < 0).length;
+  const all = opts.filter((r) => r.ok).sort((a, b) => b.delta - a.delta);
+  const rows = all.filter((r) => r.delta > 0).slice(0, n)
+    .map((r) => ({ ...r, clauseBreaks: !!clauseWarn(s, (c) => openBusiness(c, type, r.city, r.mode)) }));
+  const best = (rows.length ? all[0] : all.find((r) => r.fillAfter < 0.9) || all[0]) || null;
+  const bottleneck = !!best && best.fillAfter < 0.9;
+  const loan = !rows.length && opts.some((r) => !r.ok && r.delta > 0);
+  return { type, rows, best, bottleneck, loan, ruinous };
 }
-function renderStarterCities(s, c) {
-  const type = sobaoTypeId(s);
-  if (!c.hq && estimateOpening(s, type, c.id, 'propia').delta > 0) return '';
-  const rows = starterOptions(s);
-  return `<div class="card starter-cities"><h4>📍 Ciudades recomendadas</h4>
-    <p class="small muted">${c.hq ? 'Para tu primera tienda de sobaos' : `Una tienda propia en ${esc(c.name)} perdería dinero. Mejores opciones ahora`}: estimación mensual antes de impuestos, con tu marca y tu caja actuales.</p>
-    ${rows.length ? `<div class="row gap wrap">${rows.map((r) => `<button class="btn small" data-act="goto-city" data-city="${r.city}">${esc(CITY_BY_ID[r.city].name)} · ${r.mode === 'franquicia' ? `franquicia (canon +${moneyShort(franchiseFee(s, type))})` : `propia (${moneyShort(openingCost(s, type, 'propia', r.city))})`} · <b class="${cls(r.delta)}">${signed(r.delta)}/mes</b></button>`).join('')}</div>`
-      : '<p class="small">Con tu caja actual ninguna apertura da beneficio. Compara en Imperio → Aperturas o pide un préstamo en Finanzas.</p>'}
+// Lo que falta en caja para pagar algo y cómo financiarlo: la póliza (límite menos deuda); si ni con ella llega,
+// los meses de neto del último cierre que faltarían y, solo si hoy prestaría (canAsk), la cartilla de tu madre.
+const finanzasLink = '<a href="#" data-act="tab" data-tab="finanzas">Empresa → Finanzas</a>';
+export function financeHint(s, cost) {
+  const short = cost - s.cash;
+  if (short <= 0) return '';
+  const room = Math.max(0, creditLimit(s) - s.debt);
+  if (room >= short) return `Te faltan ${money(short)}. Tienes ${money(room)} de póliza disponible en ${finanzasLink}.`;
+  const rest = short - room, net = s.lastReport?.net ?? 0, mama = canAsk(s), months = Math.ceil(rest / net);
+  return `Te faltan ${money(short)} y la póliza solo tiene ${money(room)} disponibles (${finanzasLink}).`
+    + (net > 0 ? ` Con el neto del último mes (${money(net)}) tardarías ${months} ${months === 1 ? 'mes' : 'meses'} en reunir los ${money(rest)} restantes.` : ' Sin beneficio mensual, el resto no se reúne solo.')
+    + (mama.ok ? ` Doña Remedios puede prestarte hasta ${money(mama.max)} de su cartilla (también en Finanzas).` : '');
+}
+// Uds/mes que añade la siguiente ampliación con la marca actual (la misma cifra que la tarjeta del obrador).
+const upgradeUnits = (s) => Math.round(brandCapacity(s, 'selaya', upgradeRequirements(s).installed) - brandCapacity(s, 'selaya', workforcePlan(s, 'selaya').installed));
+// La salida concreta cuando el obrador es el cuello de botella: qué comprar, cuánto da y cómo pagarlo.
+function obradorWayOut(s, type) {
+  const up = nextUpgrade(s), beds = upgradeRequirements(s).missingBeds;
+  return `Salida: ${esc(up.name)} por ${money(up.cost)}, +${upgradeUnits(s).toLocaleString('es-ES')} uds/mes con ${esc(BUSINESS_TYPES[type].name)}. `
+    + (beds ? `Antes faltan ${beds} plazas de vivienda en Selaya.` : financeHint(s, up.cost) || 'La caja te llega.');
+}
+// Las insignias del mapa, legibles sin el lienzo: en Imperio, la lista; en Ciudad, una línea con enlaces.
+const alertCities = (s) => { const a = cityAlerts(s); return Object.keys(CITY_BY_ID).filter((id) => a[id]?.length).map((id) => ({ city: id, alerts: a[id] })); };
+export function renderMapAlerts(s, compact = false) {
+  const list = alertCities(s), n = list.reduce((k, x) => k + x.alerts.length, 0);
+  if (!n) return '';
+  const link = (id, label = CITY_BY_ID[id].name) => `<a href="#" data-act="goto-city" data-city="${id}">${esc(label)}</a>`;
+  if (compact) return `<p class="card small map-alerts-line">⚠️ ${n} ${n === 1 ? 'alerta' : 'alertas'} en el mapa: ${list.map((x) => `${link(x.city)}${x.alerts.length > 1 ? ` (${x.alerts.length})` : ''}`).join(', ')}</p>`;
+  return `<div class="card map-alerts"><h4>⚠️ Alertas en el mapa (${n})</h4><ul class="map-alerts-list">${list.map((x) => x.alerts.map((a) => `<li>${ALERT_EMOJI[a.kind] || '⚠️'} ${link(x.city)}: ${esc(a.text)}</li>`).join('')).join('')}</ul></div>`;
+}
+export function renderStarterCities(s, c) {
+  const type = sobaoTypeId(s), outlets = sobaoOutlets(s);
+  if (outlets >= 3 || (!c.hq && openingFigure(s, type, c.id, 'propia').delta > 0)) return '';
+  const { rows, best, bottleneck, loan, ruinous } = starterAdvice(s, outlets ? 3 : 4);
+  const lead = !outlets ? (c.hq ? 'Para tu primera tienda de sobaos' : `Una tienda propia en ${esc(c.name)} perdería dinero. Mejores opciones ahora`) : `Tienes ${outlets} de 3 tiendas de sobaos. Siguiente apertura`;
+  // «Sana»: sin pérdidas para su dueño. Las demás franquicias salen en Aperturas aunque quiebren.
+  const none = 'ninguna tienda propia ni franquicia sana (sin pérdidas para su dueño)';
+  return `<div class="card starter-cities ${outlets ? 'compact' : ''}"><h4>📍 Ciudades recomendadas</h4>
+    <p class="small muted">${lead}: cambio mensual del neto de la empresa después de impuestos (la misma cifra que Imperio → Aperturas), con tu marca y tu caja actuales.</p>
+    ${bottleneck ? `<p class="small warn">🏭 El obrador es el cuello de botella: ${rows.length ? 'con la mejor apertura' : `abriendo en ${esc(CITY_BY_ID[best.city].name)}`} solo cubrirías el ${fillPct(best.fillAfter)} de la demanda${rows.length ? '' : ` y ${none} ${loan ? 'que puedas pagar ' : ''}daría beneficio`}. ${obradorLink(c, 'Amplía el obrador')}.</p><p class="small obrador-way-out">${obradorWayOut(s, type)}</p>` : ''}
+    ${rows.length ? `<div class="row gap wrap">${rows.map((r) => `<button class="btn small" data-act="goto-city" data-city="${r.city}">${esc(CITY_BY_ID[r.city].name)} · ${r.mode === 'franquicia' ? `franquicia (canon +${moneyShort(franchiseFee(s, type))})` : `propia (${moneyShort(openingCost(s, type, 'propia', r.city))})`} · <b class="${cls(r.delta)}">${signed(r.delta)}/mes</b>${r.clauseBreaks ? ' · <span class="warn">rompe la cláusula del testamento</span>' : ''}</button>`).join('')}</div>`
+      : loan ? `<p class="small">${none[0].toUpperCase() + none.slice(1)} que puedas pagar da beneficio, pero alguna sí lo daría con más caja. Compara en Imperio → Aperturas o pide un préstamo en Finanzas.</p>`
+      : bottleneck ? '' : `<p class="small">Ahora mismo ${none} da beneficio. Compara en Imperio → Aperturas.</p>`}
+    ${!rows.length && ruinous ? `<p class="small muted">Imperio → Aperturas también lista ${ruinous} ${ruinous === 1 ? 'franquicia que te daría' : 'franquicias que te darían'} beneficio a ti pero pérdidas a su dueño: con cuatro meses seguidos en pérdidas quiebra y recomprarle el local cuesta devolverle el canon.</p>` : ''}
   </div>`;
 }
 // c) En la sede sin tiendas, el obrador y el marketing de Selaya se pliegan para que «Abrir» quede arriba.
@@ -137,6 +204,7 @@ export function renderCity(s, cityId) {
     </select></label>`;
   let html = goTo;
   html += urgent ? `<div class="card advice-line small"><a href="#" data-act="tab" data-tab="${urgent.tab || 'imperio'}">📋 Paco: ${esc(urgent.text)}</a></div>` : '';
+  html += renderMapAlerts(s, true);
   html += `
     <div class="card city-head">
       <div class="row between"><h3>${esc(c.name)}</h3><span class="muted">${esc(c.region)}</span></div>
@@ -153,7 +221,7 @@ export function renderCity(s, cityId) {
     </div>`;
 
   html+=renderLocalRelations(s,c.id);
-  if (noOutlets(s)) html += renderStarterCities(s, c);
+  html += renderStarterCities(s, c);
   if (c.hq && !starting) html += renderObrador(s);
 
   if (here.length) {
@@ -192,27 +260,30 @@ export function renderCity(s, cityId) {
   html += `<div class="card"><h4>Abrir en ${esc(c.name)}</h4><div class="open-list">`;
   const types = [sobaoTypeId(s), 'vivienda', 'airbnb', 'taberna', 'smash', 'empanadas', 'gimnasio', 'coworking', 'residencia', 'academy', 'obrador_regional','banca','telecom','logistica'];
   const lockedTypes = [];
-  html += '<p class="small">🏘️ <a href="#" data-act="tab" data-tab="viviendas">Construir viviendas: Equipo → Viviendas</a></p>';
+  const housingFold = housingFolded(s, c.id);
+  html += housingFold ? `<p class="small muted housing-folded">🏘️ Viviendas desde ${moneyShort(housingFold.cost)}: en ${esc(c.name)} no faltan plazas y tu caja no llega. <a href="#" data-act="tab" data-tab="viviendas">Equipo → Viviendas</a></p>`
+    : '<p class="small">🏘️ <a href="#" data-act="tab" data-tab="viviendas">Construir viviendas: Equipo → Viviendas</a></p>';
   for (const id of types) {
     const t = BUSINESS_TYPES[id];
     if (c.hq && t.category !== 'sobaos' && !['vivienda', 'taberna', 'residencia'].includes(id)) continue;
+    if (id === 'vivienda' && housingFold) continue;
     const locked = t.category !== 'sobaos' && !s.unlocked[id];
     if (locked) {
       lockedTypes.push(id);
       continue;
     }
     const own = canOpen(s, id, c.id, 'propia');
-    const est = !locked ? estimateOpening(s, id, c.id, 'propia') : null;
+    const est = !locked ? openingFigure(s, id, c.id, 'propia', own) : null;
     html += `<div class="open-item ${locked ? 'locked' : ''}">
       <img src="${imageUrl(t.sprite)}" alt="" class="biz-icon">
       <div class="grow">
         <div><b>${esc(t.name)}</b></div>
         ${buildMonths(id)?`<div class="small construction-status">🏗️ Obra: ${buildMonths(id)} meses. Se paga al iniciar; sin ingresos hasta la entrega.</div>`:''}
         <div class="small muted">${esc(t.desc)}</div>
-        ${locked ? `<div class="small lock">🔒 ${esc(LOCK_HINTS[id])}</div>` : `<div class="small">Estimación: <b class="${cls(est.delta)}">${signed(est.delta)}/mes</b> antes de impuestos${t.category === 'sobaos' && est.fillAfter < 0.999 ? ` · <span class="warn">el obrador solo cubrirá el ${fillPct(est.fillAfter)} de la demanda (<a href="#" data-act="goto-city" data-city="selaya">Amplíalo en Selaya</a>)</span>` : ''}</div>`}
+        ${locked ? `<div class="small lock">🔒 ${esc(LOCK_HINTS[id])}</div>` : `<div class="small">Estimación: <b class="${cls(est.delta)}">${signed(est.delta)}/mes</b> ${est.afterTax ? 'en el neto de la empresa, después de impuestos' : 'antes de impuestos'}${t.category === 'sobaos' && est.fillAfter < 0.999 ? ` · <span class="warn">el obrador solo cubrirá el ${fillPct(est.fillAfter)} de la demanda (${obradorLink(c, 'Amplíalo')})</span>` : ''}</div>`}
         ${!locked ? `<div class="row gap wrap">
-          ${id==='vivienda'?housingBuildButtons(s,c.id):`<button class="btn small primary" data-act="open" data-type="${id}" data-mode="propia" ${own.ok ? '' : 'disabled'} title="${esc(own.msg || '')}">${buildMonths(id)?'Construir':needsLicense(id, c.id) ? 'Abrir con licencia' : 'Abrir'} (${moneyShort(openingCost(s, id, 'propia', c.id))})</button>`}
-          ${needsLicense(id, c.id) ? `<button class="btn small ghost" data-act="open" data-type="${id}" data-mode="ilegal" ${canOpen(s, id, c.id, 'ilegal').ok ? '' : 'disabled'} title="Sin licencia: más barato, pero el ayuntamiento puede multarte y Hacienda se fija.">Sin licencia (${moneyShort(openingCost(s, id, 'ilegal', c.id))})</button>` : ''}
+          ${id==='vivienda'?housingBuildButtons(s,c.id):`<button class="btn small primary" data-act="open" data-type="${id}" data-mode="propia" ${own.ok ? '' : 'disabled'} title="${esc(own.msg || '')}" aria-label="${esc(`${buildMonths(id)?'Construir':needsLicense(id, c.id) ? 'Abrir con licencia' : 'Abrir'} ${t.name} en ${c.name} (${moneyShort(openingCost(s, id, 'propia', c.id))})`)}">${buildMonths(id)?'Construir':needsLicense(id, c.id) ? 'Abrir con licencia' : 'Abrir'} (${moneyShort(openingCost(s, id, 'propia', c.id))})</button>`}
+          ${needsLicense(id, c.id) ? `<button class="btn small ghost" data-act="open" data-type="${id}" data-mode="ilegal" ${canOpen(s, id, c.id, 'ilegal').ok ? '' : 'disabled'} title="Sin licencia: más barato, pero el ayuntamiento puede multarte y Hacienda se fija." aria-label="${esc(`Abrir ${t.name} sin licencia en ${c.name} (${moneyShort(openingCost(s, id, 'ilegal', c.id))})`)}">Sin licencia (${moneyShort(openingCost(s, id, 'ilegal', c.id))})</button>` : ''}
           ${t.category === 'sobaos' ? renderFranchiseButton(s, id, c.id) : ''}
         </div>${!own.ok && own.msg ? `<div class="small muted">${esc(own.msg)}</div>` : ''}` : ''}
       </div>
@@ -273,20 +344,35 @@ function campaignRow(s, x, city = null) {
   return `<div class="campaign ${running ? 'on' : ''}">
     <div class="grow"><b>${esc(x.name)}</b> <span class="muted small">${moneyShort(x.cost)} · ${x.months} meses · demanda +${Math.round((x.factor - 1) * 100)} %</span>
       <div class="small muted">${esc(x.desc)}</div></div>
-    ${running ? `<span class="tag">En marcha: ${running.months} m</span>` : `<button class="btn small" data-act="campaign" data-id="${x.id}" ${city ? `data-city="${city}"` : ''} ${ok.ok ? '' : 'disabled'} title="${esc(ok.msg || '')}">Lanzar</button>`}
+    ${running ? `<span class="tag">En marcha: ${running.months} m</span>` : `<button class="btn small" data-act="campaign" data-id="${x.id}" ${city ? `data-city="${city}"` : ''} ${ok.ok ? '' : 'disabled'} title="${esc(ok.msg || '')}" aria-label="${esc(`Lanzar ${x.name}${city ? ` en ${CITY_BY_ID[city].name}` : ''} (${moneyShort(x.cost)})`)}">Lanzar</button>`}
   </div>`;
 }
 
 function renderFranchiseButton(s, id, cityId) {
   const t = BUSINESS_TYPES[id];
   const f = canOpen(s, id, cityId, 'franquicia');
-  const est = estimateOpening(s, id, cityId, 'franquicia');
+  const est = openingFigure(s, id, cityId, 'franquicia', f), tax = est.afterTax ? 'después de impuestos' : 'antes de impuestos';
   return `<div class="franchise-offer"><button class="btn small" data-act="open" data-type="${id}" data-mode="franquicia" ${f.ok ? '' : 'disabled'}
-    title="Un incauto paga el canon y monta la tienda. Tú cobras ${moneyShort(est.delta)}/mes aprox.">Vender franquicia (+${moneyShort(franchiseFee(s, id))})</button>
-    <div class="small">Central: <span class="${cls(est.delta)}">${signed(est.delta)}/mes</span> · Franquiciado: <span class="${cls(est.franchiseeProfit)}">${signed(est.franchiseeProfit)}/mes</span></div>
-    <div class="small ${est.franchiseeProfit < 0 ? 'warn' : 'muted'}">${est.franchiseeProfit < 0 ? `⚠️ Nace con pérdidas para su dueño. Con cuatro meses seguidos quiebra, y recomprarle el local cuesta devolverle el canon (${moneyShort(franchiseFee(s, id))}).` : 'La quiebra depende de sus cuentas: venta al público menos producto, canon mensual, salarios y alquiler.'}</div>${f.ok ? '' : `<div class="small muted">${esc(f.msg)}</div>`}</div>`;
+    aria-label="${esc(`Vender franquicia de ${t.name} en ${CITY_BY_ID[cityId].name} (+${moneyShort(franchiseFee(s, id))})`)}" title="Un incauto paga el canon y monta la tienda. El neto de tu empresa cambia ${signed(est.delta)}/mes aprox. (${tax}).">Vender franquicia (+${moneyShort(franchiseFee(s, id))})</button>
+    <div class="small">Central: <span class="${cls(est.delta)}">${signed(est.delta)}/mes</span> ${tax} · Franquiciado: <span class="${cls(est.franchiseeProfit)}">${signed(est.franchiseeProfit)}/mes</span></div>
+    <div class="small ${est.franchiseeProfit < 0 ? 'warn' : 'muted'}">${est.franchiseeProfit < 0 ? `⚠️ Nace con pérdidas para su dueño. Con cuatro meses seguidos quiebra, y recomprarle el local cuesta devolverle el canon (${moneyShort(franchiseFee(s, id))}). Si quiebra en su primer año y le dices que le faltó mentalidad, la demanda es segura: devuelves el canon (mín. 30.000 €); después, 40 %.` : 'La quiebra depende de sus cuentas: venta al público menos producto, canon mensual, salarios y alquiler.'}</div>${f.ok ? '' : `<div class="small muted">${esc(f.msg)}</div>`}</div>`;
 }
 
+// Capacidad sobrante con la demanda servida entera. Hasta las 3 tiendas se compara con la apertura recomendada
+// que menos pide (la de mayor cobertura tras abrir): si ni esa cabe, «capacidad libre» engañaría. Sin apertura
+// recomendada, «no bastan» si no cabe ninguna posible; si alguna cabe, solo la cifra: compararla con tiendas que
+// pierden dinero sugeriría que alguna conviene.
+export function spareText(s, spare) {
+  const free = `Quedan ${Math.max(0, Math.round(spare)).toLocaleString('es-ES')} uds/mes libres`;
+  if (sobaoOutlets(s) >= 3) return `${free}.`;
+  const ok = starterOptions(s).filter((o) => o.ok && o.fillAfter != null && (o.mode === 'propia' || o.franchiseeProfit >= 0));
+  const rec = ok.filter((o) => o.delta > 0), pool = rec.length ? rec : ok;
+  if (!pool.length) return `${free}.`;
+  const fills = pool.map((o) => o.fillAfter), most = Math.max(...fills), least = Math.min(...fills), which = rec.length ? 'de las aperturas recomendadas' : 'de las aperturas posibles';
+  if (most < 0.999) return `${free}: no bastan para otra tienda (${which}, con la que menos pide servirías el ${fillPct(most)} de la demanda).`;
+  if (!rec.length) return `${free}.`;
+  return least < 0.999 ? `${free}: bastan para la tienda que menos pide, no para todas (${which}, con la que más pide servirías el ${fillPct(least)} de la demanda).` : `${free}: cabe otra tienda.`;
+}
 function renderObrador(s) {
   const cap = obradorCapacity(s);
   const r = computeEconomy(s);
@@ -294,16 +380,16 @@ function renderObrador(s) {
   const up = nextUpgrade(s);
   const workforce=workforcePlan(s,'selaya'), nextWorkforce=upgradeRequirements(s);
   const ing = POLICIES.ingredientes;
-  return `<div class="card obrador">
+  return `<div class="card obrador" id="obrador-boomerez">
     <div class="row gap"><img src="${imageUrl(s.obrador.upgrades.includes('nave') ? 'bld_obrador_3' : s.obrador.upgrades.length ? 'bld_obrador_2' : 'bld_obrador_1')}" class="biz-icon big" alt="">
       <div class="grow"><h4>Obrador Boomerez</h4>
       <div class="small">Capacidad: <b>${Math.round(cap).toLocaleString('es-ES')}</b> uds/mes · Demanda: <b>${Math.round(r.totalDemand).toLocaleString('es-ES')}</b></div>
       ${brandYield(s) < 1 ? `<div class="small muted">Sobaos de autor: más trabajo por pieza. Las ampliaciones y los obradores regionales rinden un ${Math.round(brandYield(s) * 100)} % de lo que sacarían con sobaos de mostrador.</div>` : ''}
       ${bar(Math.min(r.totalDemand, cap), cap, fill < 0.999 ? 'danger' : 'ok')}
-      <div class="small ${fill < 0.999 ? 'warn' : 'muted'}">${fill < 0.999 ? `⚠️ No das abasto: solo sirves el ${fillPct(fill)} de la demanda.` : `Hay capacidad libre.${r.bonusUnits > 0 ? ` ${Math.round(r.bonusUnits)} sobaos de cortesía: hasta +5 % de ingresos en otros negocios.` : ''}`}</div></div>
+      <div class="small ${fill < 0.999 ? 'warn' : 'muted'}">${fill < 0.999 ? `⚠️ No das abasto: solo sirves el ${fillPct(fill)} de la demanda.` : `${spareText(s, cap - r.totalDemand)}${r.bonusUnits > 0 ? ` ${Math.round(r.bonusUnits)} sobaos de cortesía: hasta +5 % de ingresos en otros negocios.` : ''}`}</div></div>
     </div>
     ${up ? `<div class="small">Plantilla para capacidad instalada: ${workforce.required} · Oferta local: ${workforce.available} (${workforce.beds} plazas de vivienda).</div><div class="upgrade"><div><b>${esc(up.name)}</b> · +${Math.round(brandCapacity(s, 'selaya', nextWorkforce.installed) - brandCapacity(s, 'selaya', workforce.installed)).toLocaleString('es-ES')} uds/mes</div><div class="small muted">${esc(up.desc)}</div>
-      <button class="btn small primary" data-act="upgrade" ${s.cash >= up.cost && nextWorkforce.missingBeds===0 ? '' : 'disabled'}>Comprar (${moneyShort(up.cost)})</button>${nextWorkforce.missingBeds ? `<p class="small warn">Para esta ampliación faltan ${nextWorkforce.missingBeds} plazas en Selaya. <a href="#" data-act="tab" data-tab="viviendas">Construir viviendas</a></p>` : ''}</div>` : '<div class="small muted">El obrador está a tope de mejoras.</div>'}
+      <button class="btn small primary" data-act="upgrade" ${s.cash >= up.cost && nextWorkforce.missingBeds===0 ? '' : 'disabled'} aria-label="${esc(`Comprar ${up.name} para el obrador (${moneyShort(up.cost)})`)}">Comprar (${moneyShort(up.cost)})</button>${nextWorkforce.missingBeds ? `<p class="small warn">Para esta ampliación faltan ${nextWorkforce.missingBeds} plazas en Selaya. <a href="#" data-act="tab" data-tab="viviendas">Construir viviendas</a></p>` : s.cash < up.cost ? `<p class="small warn obrador-finance">${financeHint(s, up.cost)}</p>` : ''}</div>` : '<div class="small muted">El obrador está a tope de mejoras.</div>'}
     ${policyGroup(s, 'ingredientes', ing)}
     ${renderRebrand(s)}
     ${s.contracts.length ? `<div class="small">Contratos: ${s.contracts.map((c) => `${esc(c.label)} (${c.units.toLocaleString('es-ES')} uds/mes, ${c.months > 120 ? 'indefinido' : `${c.months} ${c.months === 1 ? 'mes' : 'meses'}`})`).join(', ')}</div>` : ''}
@@ -314,9 +400,10 @@ function renderRebrand(s) {
   if (!s.brand) return '';
   const r = canRebrand(s);
   const to = BUSINESS_TYPES[r.to];
+  const [capNow, capTo] = [obradorCapacity(s), obradorCapacity({ ...s, brand: r.to })].map((x) => Math.round(x).toLocaleString('es-ES'));
   return `<div class="upgrade"><div><b>Marca actual:</b> ${esc(BUSINESS_TYPES[s.brand].name)}</div>
-    <div class="small muted">¿Cambiar a ${esc(to.name)}? Se reconvierten todas las tiendas de sobaos${r.to === 'express' ? ' (reputación −6)' : ' (fama +5; cuida la calidad)'}. Capacidad del obrador: ${Math.round(obradorCapacity(s)).toLocaleString('es-ES')} → ${Math.round(obradorCapacity({ ...s, brand: r.to })).toLocaleString('es-ES')} uds/mes${r.to === 'maison' ? ' (lo de autor lleva más tiempo)' : ''}.</div>
-    <button class="btn small" data-act="rebrand" ${r.ok ? '' : 'disabled'} title="${esc(r.msg || '')}">Rebranding${r.cost ? ` (${moneyShort(r.cost)})` : ''}</button>
+    <div class="small muted">¿Cambiar a ${esc(to.name)}? Se reconvierten todas las tiendas de sobaos${r.to === 'express' ? ' (reputación −6)' : ' (fama +5; cuida la calidad)'}. ${capNow === capTo ? `La capacidad del obrador no cambia: ${capNow} uds/mes` : `Capacidad del obrador: ${capNow} → ${capTo} uds/mes${r.to === 'maison' ? ' (lo de autor lleva más tiempo)' : ''}`}.</div>
+    <button class="btn small" data-act="rebrand" ${r.ok ? '' : 'disabled'} title="${esc(r.msg || '')}" aria-label="${esc(`Rebranding a ${to.name}${r.cost ? ` (${moneyShort(r.cost)})` : ''}`)}">Rebranding${r.cost ? ` (${moneyShort(r.cost)})` : ''}</button>
     ${!r.ok ? `<div class="small muted">${esc(r.msg)}</div>` : ''}</div>`;
 }
 
@@ -376,7 +463,7 @@ function policyGroup(s, key, def, locked = false) {
         const on = s.policies[key] === id;
         const off = locked && id !== first;
         return `<label class="opt ${on ? 'on' : ''}">
-        <input type="radio" name="pol-${key}" data-act="policy" data-key="${key}" value="${id}" ${on ? 'checked' : ''} ${off ? 'disabled' : ''}>
+        <input type="radio" name="pol-${key}" data-act="policy" data-key="${key}" value="${id}" ${on ? 'checked' : ''} ${off ? 'disabled' : ''} aria-label="${esc(`${def.label}: ${o.label}`)}">
         <span><b>${esc(o.label)}</b>${on ? ' <span class="tag">Actual</span>' : ''}<small>${esc(o.desc)}</small>${on ? '' : `${off ? '<span class="pv-note">Lo que Manolo se está perdiendo:</span>' : ''}${policyChips(s, key, id)}`}</span></label>`;
       })
       .join('')}
@@ -472,10 +559,11 @@ export function renderEmpire(s,settings={},portfolioData=null) {
     <div><span class="muted small">Beneficio último mes</span><b class="${r ? cls(r.net) : ''}">${r ? moneyShort(r.net) : '—'}</b></div>
   </div>`;
   html += renderAdvice(s);
+  html += renderMapAlerts(s);
   html += renderOperations(s);
   if (!r) return html;
   html += `<div class="card"><h4>Ingresos por sector</h4>
-    <canvas id="chart-cat" height="170"></canvas>
+    <canvas id="chart-cat" height="170" role="img" aria-label="Gráfico de ingresos por sector y beneficio neto, mes a mes"></canvas>
     <div class="legend">${Object.entries(CAT_COLORS).map(([k, c]) => `<span><i style="background:${c}"></i>${CAT_LABELS[k]}</span>`).join('')}<span><i class="line"></i>Beneficio neto</span></div>
   </div>`;
   const groups = {};
@@ -483,7 +571,7 @@ export function renderEmpire(s,settings={},portfolioData=null) {
   const cities = Object.keys(groups).sort((a, b) => groups[b].reduce((x, l) => x + l.revenue - l.cost, 0) - groups[a].reduce((x, l) => x + l.revenue - l.cost, 0));
   html += `<div class="card"><details class="empire-last-report"><summary>Resultado del último cierre por negocio (${dateLabel(r.month)})</summary><table class="tbl"><thead><tr><th>Negocio</th><th>Ingresos</th><th>Resultado</th></tr></thead><tbody>`;
   for (const cid of cities) {
-    html += `<tr class="grp"><td colspan="3"><a href="#" data-act="goto-city" data-city="${cid}">📍 ${esc(CITY_BY_ID[cid].name)}</a></td></tr>`;
+    html += `<tr class="grp"><td colspan="3"><a href="#" data-act="goto-city" data-city="${cid}" aria-label="${esc(`Ir a ${CITY_BY_ID[cid].name}`)}">📍 ${esc(CITY_BY_ID[cid].name)}</a></td></tr>`;
     for (const l of groups[cid]) {
       const p = l.revenue - l.cost;
       html += `<tr><td>${esc(l.label)}${l.franchise ? ` <span class="tag">Franquicia</span><div class="small">Su dueño: <span class="${cls(l.franchiseeProfit)}">${signed(l.franchiseeProfit)}/mes</span></div>` : ''}</td><td>${moneyShort(l.revenue)}</td><td class="${cls(p)}">${moneyShort(p)}</td></tr>`;
@@ -523,7 +611,7 @@ export function renderOnline(s) {
  const report=opened?base:computeEconomy({...s,online:{level:1,active:true,shipping:'incluido'}});
  const o=report.online,level=opened?s.online.level:1,plan=ONLINE_LEVELS[level],check=opened?canUpgradeOnline(s):canOpenOnline(s);
  const rows=[['Ventas de producto',o.productRevenue],['Portes cobrados al cliente',o.chargedShipping],['Materias primas',-o.materials],['Paquetería a domicilio',-o.shipping],['Cajas y embalaje',-o.packaging],['Comisiones de cobro (3 %)',-o.payments],['Reserva de incidencias (2 % producto)',-o.returns],['Personal de preparación en Selaya',-o.wages],['Plataforma y atención digital',-o.fixed]];
- return `<div class="card online-channel"><h3>🛒 Venta online de sobaos</h3><p class="small">Tienda propia para la Península, en cajas de seis. Primero se atienden tiendas y contratos; la web solo acepta pedidos con el excedente real, antes de los regalos de cortesía. La paquetería cuesta más por unidad que abastecer tus propias tiendas; un centro propio de Boomerez Logística la abarata un 15 %.</p><p><b>${esc(plan.name)}</b>${opened&&!s.online.active?' · En pausa':''}</p><div class="chips"><span class="chip">Tráfico potencial: ${o.potentialOrders.toLocaleString('es-ES')} pedidos/mes</span><span class="chip">Aceptados: ${o.orders.toLocaleString('es-ES')} · ${o.units.toLocaleString('es-ES')} uds</span><span class="chip">Precio: ${o.unitPrice.toFixed(2).replace('.',',')} €/ud</span><span class="chip">Paquetería: ${o.parcelCost.toFixed(2).replace('.',',')} €/pedido</span><span class="chip">Margen variable: ${(o.contributionMargin*100).toFixed(1).replace('.',',')} %</span></div><p class="small">Personal previsto: ${plan.staff} · Personal disponible: ${o.staff} · Límite del nivel: ${plan.maxOrders.toLocaleString('es-ES')} pedidos/mes. Campañas nacionales, fama, reputación, I+D y temporada atraen demanda; no sustituyen al stock.</p>${opened?`<fieldset class="online-shipping"><legend>Portes al cliente</legend>${Object.entries(ONLINE_SHIPPING).map(([id,p])=>`<label><input type="radio" name="online-shipping" data-act="online-shipping" value="${id}" ${s.online.shipping===id?'checked':''}> ${esc(p.label)}${id==='compartidos'?' (18 % menos demanda)':''}</label>`).join('')}</fieldset>`:''}<details class="online-breakdown" open><summary>${opened?'Previsión mensual del canal':'Previsión mensual si abres ahora'}</summary><table class="tbl">${rows.map(([label,amount])=>`<tr><td>${esc(label)}</td><td class="${cls(amount)}">${signed(amount)}</td></tr>`).join('')}<tr class="total"><td>Resultado del canal antes de impuestos</td><td class="${cls(o.profit)}">${signed(o.profit)}</td></tr></table><p class="small muted">La fabricación y los gastos comunes se cuentan en la empresa. ${!opened?`Cambio previsto en resultado total: <b>${signed(report.net-base.net)}/mes</b>, tras impuestos.`:''}</p></details>${o.active&&o.potentialOrders>o.orders?'<p class="small warn">Parte de la demanda no se acepta por falta de excedente, personal o capacidad de preparación. No se contabiliza como venta.</p>':''}<div class="row gap wrap">${!opened?`<button class="btn small primary" data-act="online-open" ${check.ok?'':'disabled'}>Abrir tienda online (${moneyShort(ONLINE_LEVELS[1].cost)})</button>`:`<button class="btn small" data-act="online-toggle">${s.online.active?'Pausar canal':'Reactivar canal'}</button>${level<3?`<button class="btn small primary" data-act="online-upgrade" ${check.ok?'':'disabled'}>Ampliar: ${esc(ONLINE_LEVELS[level+1].name)} (${moneyShort(ONLINE_LEVELS[level+1].cost)})</button>`:''}`}</div>${!check.ok&&(!opened||level<3)?`<p class="small muted">${esc(check.msg)}</p>`:''}<p class="small muted">Pausado no vende ni cobra cuota o nóminas de preparación. Al reactivarlo se comprueba de nuevo la oferta laboral. Tarifas medias de juego, no precios reales de transporte.</p></div>`;
+ return `<div class="card online-channel"><h3>🛒 Venta online de sobaos</h3><p class="small">Tienda propia para la Península, en cajas de seis. Primero se atienden tiendas y contratos; la web solo acepta pedidos con el excedente real, antes de los regalos de cortesía. La paquetería cuesta más por unidad que abastecer tus propias tiendas; un centro propio de Boomerez Logística la abarata un 15 %.</p><p><b>${esc(plan.name)}</b>${opened&&!s.online.active?' · En pausa':''}</p><div class="chips"><span class="chip">Tráfico potencial: ${o.potentialOrders.toLocaleString('es-ES')} pedidos/mes</span><span class="chip">Aceptados: ${o.orders.toLocaleString('es-ES')} · ${o.units.toLocaleString('es-ES')} uds</span><span class="chip">Precio: ${o.unitPrice.toFixed(2).replace('.',',')} €/ud</span><span class="chip">Paquetería: ${o.parcelCost.toFixed(2).replace('.',',')} €/pedido</span><span class="chip">Margen variable: ${(o.contributionMargin*100).toFixed(1).replace('.',',')} %</span></div><p class="small">Personal previsto: ${plan.staff} · Personal disponible: ${o.staff} · Límite del nivel: ${plan.maxOrders.toLocaleString('es-ES')} pedidos/mes. Campañas nacionales, fama, reputación, I+D y temporada atraen demanda; no sustituyen al stock.</p>${opened?`<fieldset class="online-shipping"><legend>Portes al cliente</legend>${Object.entries(ONLINE_SHIPPING).map(([id,p])=>`<label><input type="radio" name="online-shipping" data-act="online-shipping" value="${id}" ${s.online.shipping===id?'checked':''} aria-label="${esc(`Portes: ${p.label}`)}"> ${esc(p.label)}${id==='compartidos'?' (18 % menos demanda)':''}</label>`).join('')}</fieldset>`:''}<details class="online-breakdown" open><summary>${opened?'Previsión mensual del canal':'Previsión mensual si abres ahora'}</summary><table class="tbl">${rows.map(([label,amount])=>`<tr><td>${esc(label)}</td><td class="${cls(amount)}">${signed(amount)}</td></tr>`).join('')}<tr class="total"><td>Resultado del canal antes de impuestos</td><td class="${cls(o.profit)}">${signed(o.profit)}</td></tr></table><p class="small muted">La fabricación y los gastos comunes se cuentan en la empresa. ${!opened?`Cambio previsto en resultado total: <b>${signed(report.net-base.net)}/mes</b>, tras impuestos.`:''}</p></details>${o.active&&o.potentialOrders>o.orders?'<p class="small warn">Parte de la demanda no se acepta por falta de excedente, personal o capacidad de preparación. No se contabiliza como venta.</p>':''}<div class="row gap wrap">${!opened?`<button class="btn small primary" data-act="online-open" ${check.ok?'':'disabled'}>Abrir tienda online (${moneyShort(ONLINE_LEVELS[1].cost)})</button>`:`<button class="btn small" data-act="online-toggle">${s.online.active?'Pausar canal':'Reactivar canal'}</button>${level<3?`<button class="btn small primary" data-act="online-upgrade" ${check.ok?'':'disabled'}>Ampliar: ${esc(ONLINE_LEVELS[level+1].name)} (${moneyShort(ONLINE_LEVELS[level+1].cost)})</button>`:''}`}</div>${!check.ok&&(!opened||level<3)?`<p class="small muted">${esc(check.msg)}</p>`:''}<p class="small muted">Pausado no vende ni cobra cuota o nóminas de preparación. Al reactivarlo se comprueba de nuevo la oferta laboral. Tarifas medias de juego, no precios reales de transporte.</p></div>`;
 }
 export function renderMarketing(s,selection={}) {
  return '<p class="small muted">¿Buscas abrir tiendas? Se abren desde <a href="#" data-act="tab" data-tab="ciudad">📍 Ciudad</a> o en Imperio → Aperturas.</p>'+renderMarketingHub(s,selection)+renderNewYearTradition(s);
@@ -531,10 +619,10 @@ export function renderMarketing(s,selection={}) {
 function renderMarketingHub(s,selection) {
  const group=(scope,title)=>{
   const territories=marketingTerritories(s,scope),selected=campaignSelection(s,scope,selection[scope]);
-  return `<details class="marketing-scope" data-scope="${scope}" open><summary><b>${title}</b></summary>${scope==='national'?'<p class="small">Un único presupuesto para España. No promociona directamente negocios extranjeros.</p>':`<p class="small">${scope==='city'?'Presupuesto por ciudad operativa, incluyendo franquicias.':'Presupuesto por país con locales operativos o acuerdos activos. Un país se cuenta una sola vez.'}</p><div class="row gap wrap"><button class="btn small ghost" data-act="marketing-select" data-scope="${scope}" data-value="all">Todos</button><button class="btn small ghost" data-act="marketing-select" data-scope="${scope}" data-value="none">Ninguno</button></div><fieldset class="marketing-targets"><legend>${scope==='city'?'Ciudades seleccionadas':'Países seleccionados'}</legend>${territories.length?territories.map(t=>`<label><input type="checkbox" data-act="marketing-target" data-scope="${scope}" value="${t.id}" ${selected.includes(t.id)?'checked':''}> ${esc(t.name)}</label>`).join(''):'<p class="small muted">Todavía no tienes presencia operativa para este ámbito.</p>'}</fieldset>`}<div class="campaigns">${CAMPAIGNS.filter(c=>c.scope===scope).map(c=>{
+  return `<details class="marketing-scope" data-scope="${scope}" open><summary><b>${title}</b></summary>${scope==='national'?'<p class="small">Un único presupuesto para España. No promociona directamente negocios extranjeros.</p>':`<p class="small">${scope==='city'?'Presupuesto por ciudad operativa, incluyendo franquicias.':'Presupuesto por país con locales operativos o acuerdos activos. Un país se cuenta una sola vez.'}</p><div class="row gap wrap"><button class="btn small ghost" data-act="marketing-select" data-scope="${scope}" data-value="all">Todos</button><button class="btn small ghost" data-act="marketing-select" data-scope="${scope}" data-value="none">Ninguno</button></div><fieldset class="marketing-targets"><legend>${scope==='city'?'Ciudades seleccionadas':'Países seleccionados'}</legend>${territories.length?territories.map(t=>`<label><input type="checkbox" data-act="marketing-target" data-scope="${scope}" value="${t.id}" ${selected.includes(t.id)?'checked':''} aria-label="${esc(t.name)}"> ${esc(t.name)}</label>`).join(''):'<p class="small muted">Todavía no tienes presencia operativa para este ámbito.</p>'}</fieldset>`}<div class="campaigns">${CAMPAIGNS.filter(c=>c.scope===scope).map(c=>{
     if(scope==='national')return campaignRow(s,c);
     const plan=campaignPlan(s,c.id,selected),noun=plan.targets.length===1?(scope==='city'?'ciudad':'país'):(scope==='city'?'ciudades':'países');
-    return `<div class="campaign marketing-campaign"><div class="grow"><b>${esc(c.name)}</b><div class="small">${money(c.cost)} por ${scope==='city'?'ciudad':'país'} · ${c.months} meses · demanda +${Math.round((c.factor-1)*100)} %</div><p class="small muted">${esc(c.desc)}</p><div class="small batch-quote">Lote: <b>${plan.targets.length} ${noun} · ${money(plan.cost)}</b>${plan.skipped.length?` · ${plan.skipped.length} omitidos (ya activos o sin negocios afines)`:''}</div>${!plan.ok?`<div class="small muted">${esc(plan.msg)}</div>`:''}</div><button class="btn small primary" data-act="campaign-batch" data-id="${c.id}" data-scope="${scope}" ${plan.ok?'':'disabled'}>Revisar y lanzar en ${plan.targets.length} ${noun}</button></div>`;
+    return `<div class="campaign marketing-campaign"><div class="grow"><b>${esc(c.name)}</b><div class="small">${money(c.cost)} por ${scope==='city'?'ciudad':'país'} · ${c.months} meses · demanda +${Math.round((c.factor-1)*100)} %</div><p class="small muted">${esc(c.desc)}</p><div class="small batch-quote">Lote: <b>${plan.targets.length} ${noun} · ${money(plan.cost)}</b>${plan.skipped.length?` · ${plan.skipped.length} omitidos (ya activos o sin negocios afines)`:''}</div>${!plan.ok?`<div class="small muted">${esc(plan.msg)}</div>`:''}</div><button class="btn small primary" data-act="campaign-batch" data-id="${c.id}" data-scope="${scope}" ${plan.ok?'':'disabled'} aria-label="${esc(`Revisar y lanzar ${c.name} en ${plan.targets.length} ${noun}`)}">Revisar y lanzar en ${plan.targets.length} ${noun}</button></div>`;
    }).join('')}</div></details>`;
  };
  return `<div class="card marketing-hub"><h3>📢 Central de marketing</h3><p class="small">Selecciona territorios y contrata cada campaña en todos ellos desde aquí. El lote omite campañas ya activas y destinos sin negocios afines. Se cobra el total completo al contratar; elevar la demanda requiere capacidad para atenderla.</p>${execOf(s,'marketing')?'<p class="small">Tu responsable de Marketing mejora la eficacia de cada campaña.</p>':''}${group('national','🇪🇸 Campañas nacionales')}${group('city','📍 Campañas locales en lote')}${group('international','🌍 Campañas internacionales')}</div>`;
@@ -552,14 +640,14 @@ export function renderInternational(s) {
         <button class="btn small ghost" data-act="foreign-end" data-id="${d.id}" ${s.cash < 5000 ? 'disabled' : ''}>Rescindir (5.000 €)</button></div>`;
     }).join('')}
     ${FOREIGN_MARKETS.filter(m => !(s.foreignDeals || []).some(d => d.market === m.id)).map(m => `<details class="foreign-offer" data-market="${m.id}"><summary><b>${esc(m.country)}</b> · ${esc(m.partner)}</summary>
-      <label class="small"><input type="checkbox" class="foreign-audit" checked> Auditoría independiente: 900 €/mes</label>
+      <label class="small"><input type="checkbox" class="foreign-audit" checked aria-label="Auditoría independiente en ${esc(m.country)}: 900 €/mes"> Auditoría independiente: 900 €/mes</label>
       ${Object.entries(DEAL_MODES).map(([mode,def]) => {
         const terms = agreementTerms(m.id,mode,false), audited = agreementTerms(m.id,mode,true);
         const ok = canSignAgreement(s,m.id,mode,true);
         return `<div class="foreign-mode"><b>${esc(def.name)}</b><p class="small muted">${esc(def.desc)}</p>
           <div class="small">${mode === 'private_label' ? `${terms.units.toLocaleString('es-ES')} uds/mes a ${unitMoney(m.price)}/ud; transporte ${unitMoney(m.shipping)}/ud.` : `Ventas estimadas del socio: ${money(m.turnover)}/mes (varían con tu reputación).`}</div>
           <div class="small">Riesgo mensual: ${(audited.risk*100).toFixed(1)} % con auditoría / ${(terms.risk*100).toFixed(1)} % sin ella.</div>
-          <button class="btn small" data-act="foreign-sign" data-market="${m.id}" data-mode="${mode}" ${ok.ok ? '' : 'disabled'} title="${esc(ok.msg || '')}">Firmar (${moneyShort(terms.setup)})</button></div>`;
+          <button class="btn small" data-act="foreign-sign" data-market="${m.id}" data-mode="${mode}" ${ok.ok ? '' : 'disabled'} title="${esc(ok.msg || '')}" aria-label="${esc(`Firmar ${def.name} con ${m.partner} (${m.country}) por ${moneyShort(terms.setup)}`)}">Firmar (${moneyShort(terms.setup)})</button></div>`;
       }).join('')}
     </details>`).join('')}
   </div>`;
@@ -649,8 +737,13 @@ function renderHousing(s,r) {
  ${cities.map(city=>{const p=workforcePlan(s,city),local=r.lines.filter(l=>l.city===city),staff=local.reduce((n,l)=>n+l.staff,0),homes=local.filter(l=>l.type==='vivienda'),terms=housingTerms(s,city),properties=s.businesses.filter(b=>b.type==='vivienda'&&b.city===city);return `<div class="housing-city"><b>${esc(CITY_BY_ID[city].name)}</b><div class="small">${staff} trabajadores hoy · ${p.beds} viviendas disponibles · Oferta laboral ${p.available} · Plantilla de capacidad instalada ${p.required}</div>${homes.length?`<p class="small">Alojados: ${homes.reduce((n,l)=>n+l.employeeOccupied,0)} empleados y ${homes.reduce((n,l)=>n+l.publicOccupied,0)} del público.</p>${select(city,'employee',terms)}${select(city,'public',terms)}`:''}${properties.map(b=>`<p class="small">${esc(businessName(b))}: ${isOperating(s,b)?`${housingSpec(b).units} viviendas · mantenimiento ${money(housingSpec(b).upkeep)}/mes · renovación en ${Math.max(0,(b.renewalMonth??s.month+180)-s.month)} meses (${moneyShort(renovationCost(b))} estimados)`:`🏗️ entrega en ${b.readyMonth-s.month} meses`}</p>`).join('')}${p.missingBeds?`<p class="small warn">Faltan ${p.missingBeds} viviendas para la capacidad instalada.</p>`:''}${housingBuildButtons(s,city,'housing-open')}</div>`;}).join('')}
  </div>`;
 }
+// Ciudad: sin plazas que falten y sin caja para la promoción más barata, la ficha se pliega a una línea.
+export function housingFolded(s,city) {
+ const cost=Math.min(...Object.keys(HOUSING_FORMS).filter(id=>id!=='legacy').map(id=>openingCost(s,'vivienda','propia',city,id)));
+ return s.cash<cost&&!workforcePlan(s,city).missingBeds?{cost}:null;
+}
 function housingBuildButtons(s,city,act='open') {
- return Object.entries(HOUSING_FORMS).filter(([id])=>id!=='legacy').map(([id,f])=>{const ok=canOpen(s,'vivienda',city,'propia',id);return `<div class="housing-project"><img class="biz-icon" src="${imageUrl(f.sprite)}" alt=""><div><b>${esc(f.name)}</b><p class="small">12 meses de obra · ${money(f.upkeep)}/mes de mantenimiento · moral +${f.moral} con toda la plantilla alojada aquí · renovación del 20 % cada 15 años.${id==='chalets'?' Alquiler por vivienda ×1,5.':''}</p><button class="btn small primary" data-act="${act}" data-type="vivienda" data-mode="propia" data-form="${id}" data-city="${city}" ${ok.ok?'':'disabled'} title="${esc(ok.msg||'')}">Construir (${moneyShort(openingCost(s,'vivienda','propia',city,id))})</button></div></div>`}).join('');
+ return Object.entries(HOUSING_FORMS).filter(([id])=>id!=='legacy').map(([id,f])=>{const ok=canOpen(s,'vivienda',city,'propia',id);return `<div class="housing-project"><img class="biz-icon" src="${imageUrl(f.sprite)}" alt=""><div><b>${esc(f.name)}</b><p class="small">12 meses de obra · ${money(f.upkeep)}/mes de mantenimiento · moral +${f.moral} con toda la plantilla alojada aquí · renovación del 20 % cada 15 años.${id==='chalets'?' Alquiler por vivienda ×1,5.':''}</p><button class="btn small primary" data-act="${act}" data-type="vivienda" data-mode="propia" data-form="${id}" data-city="${city}" ${ok.ok?'':'disabled'} title="${esc(ok.msg||'')}" aria-label="${esc(`Construir ${f.name} en ${CITY_BY_ID[city].name} (${moneyShort(openingCost(s,'vivienda','propia',city,id))})`)}">Construir (${moneyShort(openingCost(s,'vivienda','propia',city,id))})</button></div></div>`}).join('');
 }
 function renderEuropeanGoal(s) {
  if(s.campaign!=='europe')return '';
@@ -732,8 +825,8 @@ function renderExecs(s) {
       const cands = (s.candidates || []).filter((c) => c.pos === pos);
       return `<div class="exec-pos">
         <div class="exec-title">${p.emoji} <b>${esc(p.label)}</b> <span class="small muted">${esc(p.effect)}</span></div>
-        ${e ? execRow(e, `<button class="btn small ghost" data-act="fire" data-pos="${pos}">Despedir (${moneyShort(severance(e))})</button>`)
-          : cands.length ? cands.map((c) => execRow(c, `<button class="btn small primary" data-act="hire" data-id="${c.id}" ${s.cash >= signingFee(c) ? '' : 'disabled'}>Fichar (${moneyShort(signingFee(c))})</button>`)).join('')
+        ${e ? execRow(e, `<button class="btn small ghost" data-act="fire" data-pos="${pos}" aria-label="${esc(`Despedir a ${e.name} de ${p.label} (${moneyShort(severance(e))})`)}">Despedir (${moneyShort(severance(e))})</button>`)
+          : cands.length ? cands.map((c) => execRow(c, `<button class="btn small primary" data-act="hire" data-id="${c.id}" ${s.cash >= signingFee(c) ? '' : 'disabled'} aria-label="${esc(`Fichar a ${c.name} para ${p.label} (${moneyShort(signingFee(c))})`)}">Fichar (${moneyShort(signingFee(c))})</button>`)).join('')
           : '<div class="small muted">Puesto vacante. No hay candidatos ahora mismo.</div>'}
       </div>`;
     }).join('')}
@@ -847,11 +940,11 @@ export function renderFinance(s,settings={}) {
   <div class="card"><h4>Asesores</h4><ul class="perk-list">
     ${Object.entries(PERKS).map(([id, p]) => `<li class="perk ${s.perks[id] ? 'on' : ''}">
       <div class="grow"><b>${esc(p.name)}</b> <span class="muted small">${money(p.monthly)}/mes${p.setup && !s.andorraPaid ? ` + ${money(p.setup)} de alta` : ''}</span><div class="small muted">${esc(p.desc)}</div></div>
-      <button class="btn small ${s.perks[id] ? 'ghost' : 'primary'}" data-act="perk" data-id="${id}">${s.perks[id] ? 'Despedir' : 'Contratar'}</button>
+      <button class="btn small ${s.perks[id] ? 'ghost' : 'primary'}" data-act="perk" data-id="${id}" aria-label="${esc(`${s.perks[id] ? 'Despedir' : 'Contratar'}: ${p.name}`)}">${s.perks[id] ? 'Despedir' : 'Contratar'}</button>
     </li>`).join('')}
   </ul></div>
   ${renderIPO(s)}
-  <div class="card"><h4>Evolución del patrimonio</h4><canvas id="chart" height="140"></canvas></div>`;
+  <div class="card"><h4>Evolución del patrimonio</h4><canvas id="chart" height="140" role="img" aria-label="Gráfico de la evolución del patrimonio, mes a mes"></canvas></div>`;
   return html;
 }
 
@@ -1007,7 +1100,8 @@ export function drawChart(canvas, s) {
 }
 
 // ------------------------------------------------------------------ Manolo
-export function renderManolo(s) {
+// last: texto del resultado de la acción de este mes (game.bubble en app.js), si lo hay; se ve bajo «Hecha».
+export function renderManolo(s, last = null) {
   const mood = manoloMood(s);
   return `<div class="card manolo-card">
       <img src="${imageUrl(s.dynasty?.generation?s.dynasty.portrait:`portrait_manolo_${mood}`)}" alt="Dirigente" class="portrait-lg">
@@ -1024,6 +1118,7 @@ export function renderManolo(s) {
       </div>
     </div>
     <div class="card"><h4>Acción del mes ${s.actionUsed ? '<span class="tag">Hecha</span>' : ''}${s.restMonths > 0 ? `<span class="tag">Reposo: ${s.restMonths} m</span>` : ''}</h4>
+      ${s.actionUsed && last ? `<p class="small action-result">${esc(last)}</p>` : ''}
       <p class="small muted">La dirección puede hacer una cosa al mes. Las demás las hace la plantilla.</p>
       <div class="actions">
         ${MANOLO_ACTIONS.map((a) => `<button class="action" data-act="manolo" data-id="${a.id}" ${s.actionUsed || s.restMonths > 0 || (a.cost && s.cash < a.cost) ? 'disabled' : ''}>
@@ -1123,8 +1218,8 @@ function renderLujos(s) {
         ${artOr(`icon_lujo_${l.id}`, l.emoji, 'emoji big')}
         <div class="grow"><b>${esc(l.name)}</b> <span class="small muted">${owned ? `vale ${moneyShort(owned.value)}` : moneyShort(l.cost)}${l.upkeep ? ` · ${moneyShort(l.upkeep)}/mes` : ''}</span>
           <div class="small muted">${esc(l.desc)} Fama +${l.fama}${l.familia ? `, familia ${l.familia > 0 ? '+' : '−'}${Math.abs(l.familia)}` : ''}.</div></div>
-        ${owned ? `<button class="btn small ghost" data-act="lujo-sell" data-id="${l.id}">Vender</button>`
-          : `<button class="btn small" data-act="lujo-buy" data-id="${l.id}" ${s.cash >= l.cost ? '' : 'disabled'}>Comprar</button>`}
+        ${owned ? `<button class="btn small ghost" data-act="lujo-sell" data-id="${l.id}" aria-label="${esc(`Vender ${l.name} (vale ${moneyShort(owned.value)})`)}">Vender</button>`
+          : `<button class="btn small" data-act="lujo-buy" data-id="${l.id}" ${s.cash >= l.cost ? '' : 'disabled'} aria-label="${esc(`Comprar ${l.name} (${moneyShort(l.cost)})`)}">Comprar</button>`}
       </div>`;
     }).join('')}</div></div>`;
 }

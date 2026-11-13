@@ -7,7 +7,7 @@ import { INTERNATIONAL_EVENTS } from './eventsInternational.js';
 //  quickRepeat: true -> a partir de la tercera vez seguida con la misma opción, el resultado sale como aviso.
 //  forced: true -> si es elegible, sale ese mismo mes sin pasar por el azar (pasos de arcos narrativos).
 import { chance, int } from '../core/rng.js';
-import { brandYield } from '../core/economy.js';
+import { brandYield, SURE_LAWSUIT_MONTHS, franchiseLawsuitAmount } from '../core/economy.js';
 import {
   addCash, addRep, addMoral, addFama, addHeatTrabajo, addHeatHacienda, addExpediente, addMod, addMonthlyCost, log, money, custom, clamp, hito, fillPct } from '../core/helpers.js';
 import { addStress } from '../core/life.js';
@@ -537,15 +537,27 @@ const BASE_EVENTS = [
       {
         key: 'mentalidad',
         label: '"Te ha faltado mentalidad"',
-        hint: (s) => (custom(s, 'franquiciado_arruinado').count >= 2 ? 'Con tantos arruinados, la frase ya es famosa: reputación −7.' : undefined),
+        hint: (s, p) => {
+          const rep = custom(s, 'franquiciado_arruinado').count >= 2 ? 7 : 5;
+          const owed = lawsuitOwed(s, p), age = franchiseAge(s, p);
+          const fame = rep === 7 ? 'Con tantos arruinados, la frase ya es famosa: reputación −7.' : 'Reputación −5.';
+          return age != null && age <= SURE_LAWSUIT_MONTHS
+            ? `${fame} Abrió hace ${age} ${age === 1 ? 'mes' : 'meses'}: te demanda seguro y le devuelves el canon${owed > buybackPrice(s, p) ? ' con costas' : ''} (${money(owed)}).`
+            : `${fame} 40 %: te demanda y pagas ${money(owed)}.`;
+        },
         effect(s, p) {
+          const owed = lawsuitOwed(s, p), age = franchiseAge(s, p), costas = owed > buybackPrice(s, p) ? ' con costas' : '';
           s.businesses = s.businesses.filter((x) => x.id !== p.businessId);
           const rep = custom(s, 'franquiciado_arruinado').count >= 2 ? 7 : 5;
           addRep(s, -rep);
-          if (chance(s, 0.4)) {
-            const owed = Math.max(30000, buybackPrice(s, p));
+          // Le vendiste un negocio que nunca funcionó: si quiebra en su primer año, el juez no duda.
+          if (age != null && age <= SURE_LAWSUIT_MONTHS) {
             pay(s, owed);
-            return `Te demanda por publicidad engañosa y gana: le devuelves el canon y algo más. Pagas ${money(owed)} y cierra la tienda. Reputación −${rep}.`;
+            return `Abrió hace ${age} ${age === 1 ? 'mes' : 'meses'} y nunca dio dinero: el juez lo tiene claro. Te demanda por publicidad engañosa y le devuelves el canon${costas}: pagas ${money(owed)} y cierra la tienda. Reputación −${rep}.`;
+          }
+          if (chance(s, 0.4)) {
+            pay(s, owed);
+            return `Te demanda por publicidad engañosa y gana: le devuelves el canon${costas}. Pagas ${money(owed)} y cierra la tienda. Reputación −${rep}.`;
           }
           if (rep === 7) return `Cierra la tienda y se apunta al grupo de los jueves. La frase "te ha faltado mentalidad" ya circula en camisetas. Reputación −${rep}.`;
           return 'Cierra la tienda y se vuelve al pueblo. Escribe una reseña de una estrella que empieza con "Queridos futuros franquiciados...". Reputación −5.';
@@ -1579,6 +1591,13 @@ const BASE_EVENTS = [
 
 // Recomprar el local de una franquicia quebrada cuesta devolverle el canon que pagó.
 const buybackPrice = (s, p) => Math.round(s.businesses.find((x) => x.id === p?.businessId)?.fee ?? BUSINESS_TYPES[SOBAO_TYPE_BY_BRAND[s.brand] || 'express'].franchiseFee);
+// "Te ha faltado mentalidad": la demanda le devuelve el canon (mínimo 30.000 € con costas).
+// Si la franquicia quiebra en sus primeros SURE_LAWSUIT_MONTHS meses, la demanda es segura (economy.js).
+const lawsuitOwed = (s, p) => franchiseLawsuitAmount(buybackPrice(s, p));
+const franchiseAge = (s, p) => {
+  const opened = s.businesses.find((x) => x.id === p?.businessId)?.openedMonth;
+  return Number.isFinite(opened) ? Math.max(0, s.month - opened) : null;
+};
 
 export const EVENTS = [...DYNASTY_EVENTS,...INTERNATIONAL_EVENTS, ...BASE_EVENTS, ...MACRO_EVENTS, ...SYSTEM_EVENTS, ...ARC_EVENTS, ...EXTRA_EVENTS, ...CITY_EVENTS, ...PLANTILLA_EVENTS, ...REMEDIOS_EVENTS, ...BOLSA_EVENTS, ...VELAS_EVENTS];
 

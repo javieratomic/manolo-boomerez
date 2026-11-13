@@ -10,7 +10,7 @@ import { GOALS } from '../data/goals.js';
 import { execBonus, execSkill } from './execs.js';
 import { addStress, ACTION_STRESS } from './life.js';
 import { LEGACY_GOAL_ORDER } from './state.js';
-import { creditLimit } from './economy.js';
+import { creditLimit, computeEconomy } from './economy.js';
 import { addCash, log, money, hito } from './helpers.js';
 import { checkClause } from './clauses.js';
 import { breaksPromise } from './cartilla.js';
@@ -61,7 +61,7 @@ export function canOpen(s, typeId, cityId, mode = 'propia', housingForm='apartam
   if (t.category !== 'sobaos' && typeId !== 'vivienda' && !s.unlocked[typeId]) return { ok: false, msg: 'Aún no está desbloqueado.' };
   if (mode === 'franquicia' && t.category !== 'sobaos') return { ok: false, msg: 'Solo las tiendas de sobaos se franquician.' };
   // Sin este tope se podían colocar cientos de franquicias ruinosas en un mes y quedarse con los cánones.
-  if (mode === 'franquicia' && s.businesses.filter((b) => b.mode === 'franquicia' && b.openedMonth === s.month).length >= FRANCHISES_PER_MONTH) return { ok: false, msg: `Este mes ya has colocado ${FRANCHISES_PER_MONTH} franquicias: no hay tantos incautos por semana. El mes que viene, más.` };
+  if (mode === 'franquicia' && s.businesses.filter((b) => b.mode === 'franquicia' && b.openedMonth === s.month).length >= FRANCHISES_PER_MONTH) return { ok: false, msg: `Este mes ya has colocado ${FRANCHISES_PER_MONTH} franquicias: no hay tantos incautos por mes. El mes que viene, más.` };
   if (mode === 'ilegal' && !needsLicense(typeId, cityId)) return { ok: false, msg: 'Aquí no hace falta licencia.' };
   if (t.onePerCity && s.businesses.some((b) => b.type === typeId && b.city === cityId)) return { ok: false, msg: 'Ya tienes uno en esta ciudad.' };
   if (t.unique && s.businesses.some((b) => b.type === typeId)) return { ok: false, msg: 'Solo puede haber una.' };
@@ -105,6 +105,15 @@ export function openBusiness(s, typeId, cityId, mode = 'propia',housingForm='apa
     log(s, wait?`🏗️ Empieza la obra de ${businessName(b)} en ${c.name}. Entrega en ${wait} meses.`:`🏗️ Abres ${t.name} en ${c.name}.`, 'good');
   }
   s.businesses.push(b);
+  // Si al firmar (esta o las de la ciudad, que se reparten clientela) el franquiciado ya pierde dinero,
+  // su canon se provisiona desde hoy y no solo tras el primer cierre (ver franchiseProvision).
+  if (mode === 'franquicia') {
+    for (const l of computeEconomy(s).lines) {
+      if (!l.franchise || !(l.franchiseeProfit < 0)) continue;
+      const f = s.businesses.find((x) => x.id === l.id);
+      if (f) f.lossAtSigning = true;
+    }
+  }
   if(typeId==='empanadas')s.flags.empanadaFirstUsed=true;
   s.stats.abiertos++;
   hito(s, mode === 'franquicia' ? 'primera_franquicia' : 'primera_tienda');

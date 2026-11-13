@@ -96,6 +96,8 @@ export function advanceMonth(s) {
 }
 
 function franchiseUpdates(s, r) {
+  // La marca de la firma solo vale hasta el primer cierre: desde ahí manda lossMonths.
+  for (const b of s.businesses) delete b.lossAtSigning;
   for (const line of r.lines) {
     if (!line.franchise) continue;
     const b = s.businesses.find((x) => x.id === line.id);

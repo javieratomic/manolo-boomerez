@@ -4,7 +4,7 @@ export const NAV_GROUPS=[
  {id:'empresa',label:'Empresa',emoji:'🏢'},
  {id:'expansion',label:'Marca',emoji:'🏷️'},
  {id:'equipo',label:'Equipo',emoji:'👥'},
- {id:'personal',label:'Manolo',emoji:'😎'},
+ {id:'personal',label:'Vida',emoji:'🏡'},
 ];
 // Los siete primeros conservan los atajos numéricos históricos.
 export const TABS=[
@@ -24,7 +24,10 @@ export const TABS=[
  {id:'direccion',label:'Dirección',emoji:'💼',group:'equipo'},
 ];
 export const groupForTab=id=>NAV_GROUPS.find(g=>g.id===TABS.find(t=>t.id===id)?.group)||NAV_GROUPS[0];
+// Jerarquía legible sin ver la pantalla: el área abierta lo dice (aria-expanded) y nombra sus menús;
+// la fila de menús se presenta como «Menús de <área>».
+const groupMenus=g=>TABS.filter(t=>t.group===g.id).map(t=>t.label).join(', ');
 export function renderNavigation(id) {
  const group=groupForTab(id),tabs=TABS.filter(t=>t.group===group.id);
- return `<div class="nav-groups" role="group" aria-label="Áreas de gestión">${NAV_GROUPS.map(g=>`<button class="nav-group ${g.id===group.id?'on':''}" data-act="nav-group" data-group="${g.id}" aria-pressed="${g.id===group.id}"><span aria-hidden="true">${g.emoji}</span><span>${esc(g.label)}</span></button>`).join('')}</div><div class="nav-sections" style="--menu-count:${tabs.length}" role="group" aria-label="Menús de ${esc(group.label)}">${tabs.map(t=>`<button class="tab ${id===t.id?'on':''}" data-act="tab" data-tab="${t.id}" aria-controls="panel-body" ${id===t.id?'aria-current="page"':''}><span aria-hidden="true">${t.emoji}</span><span class="tab-label">${esc(t.label)}</span></button>`).join('')}</div>`;
+ return `<div class="nav-groups" role="group" aria-label="Áreas de gestión">${NAV_GROUPS.map(g=>`<button class="nav-group ${g.id===group.id?'on':''}" data-act="nav-group" data-group="${g.id}" aria-expanded="${g.id===group.id}" aria-controls="nav-sections" aria-label="${esc(`Área ${g.label}${g.id===group.id?' (abierta)':''}: ${groupMenus(g)}`)}" title="${esc(groupMenus(g))}"><span aria-hidden="true">${g.emoji}</span><span>${esc(g.label)}</span></button>`).join('')}</div><div class="nav-sections" id="nav-sections" style="--menu-count:${tabs.length}" role="group" aria-label="Menús de ${esc(group.label)}">${tabs.map(t=>`<button class="tab ${id===t.id?'on':''}" data-act="tab" data-tab="${t.id}" aria-controls="panel-body" ${id===t.id?'aria-current="page"':''}><span aria-hidden="true">${t.emoji}</span><span class="tab-label">${esc(t.label)}</span></button>`).join('')}</div>`;
 }

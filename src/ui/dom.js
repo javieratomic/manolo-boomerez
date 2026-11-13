@@ -23,6 +23,15 @@ export const isModalOpen = () => modalOpen > 0;
 // Para no cerrar el mes con la misma pulsación que cierra un diálogo.
 export const msSinceModal = () => performance.now() - lastClose;
 
+// Guarda de apertura: un diálogo ignora clics y teclas sus primeros 350 ms. Si se abre justo después de un
+// resultado que solo salió en un toast (el jugador esperaba un «Continuar»), 900 ms.
+export const OPEN_GUARD = 350;
+export const TOAST_GUARD = 900;
+let guardAt = -Infinity;
+export function guardNextModal() {
+  guardAt = performance.now();
+}
+
 const choiceButtons = (choices) =>
   choices
     .map(
@@ -49,6 +58,9 @@ export function showModal(opts) {
     let picked = null;
     let closed = false;
     let openedAt = performance.now();
+    // Solo el diálogo que se abre enseguida (menos de 1 s) hereda la guarda larga, y la consume.
+    let guard = openedAt - guardAt < 1000 ? TOAST_GUARD : OPEN_GUARD;
+    guardAt = -Infinity;
     wrap.innerHTML = `
       <div class="modal ${opts.wide ? 'wide' : ''} ${opts.className || ''}" role="dialog" aria-modal="true" aria-label="${esc(opts.title)}">
         ${opts.image ? `<div class="modal-image"><img src="${imageUrl(opts.image)}" alt=""></div>` : ''}
@@ -77,13 +89,14 @@ export function showModal(opts) {
       resolve(i);
     };
     const close = (i) => {
-      if (closed || performance.now() - openedAt < 350) return;
+      if (closed || performance.now() - openedAt < guard) return;
       if (picked != null) return finish(picked);
       picked = i;
       const res = opts.followUp && i >= 0 ? opts.followUp(i) : null;
       if (!res?.text) return finish(i);
       // El resultado sustituye al texto y a las opciones, sin otro fondo ni otra animación.
       openedAt = performance.now();
+      guard = OPEN_GUARD;
       choices = [{ label: 'Continuar', primary: true }];
       const kicker = wrap.querySelector('.kicker');
       if (kicker) kicker.textContent = 'Resultado';

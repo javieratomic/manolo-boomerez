@@ -58,7 +58,13 @@ export function tickRivals(s, report) {
   }
 }
 
+// Entre una cadena nueva y la siguiente pasan al menos estos meses (antes llegaban tres meses seguidos).
+export const RIVAL_SPAWN_GAP = 6;
+
 function spawnRival(s) {
+  // Partidas guardadas sin el campo: vale la llegada más reciente de las cadenas que siguen vivas.
+  const last = s.flags.lastRivalSpawn ?? Math.max(-Infinity, ...s.rivals.map((r) => r.since ?? -Infinity));
+  if (s.month - last < RIVAL_SPAWN_GAP) return;
   for (const [id, def] of Object.entries(RIVALS)) {
     if (s.rivals.some((r) => r.id === id) || s.flags[`rivalGone_${id}`]) continue;
     if (!def.spawn(s)) continue;
@@ -66,6 +72,7 @@ function spawnRival(s) {
     const presence = {};
     for (let i = 0; i < 2 && pool.length; i++) presence[pool.splice(Math.floor(random(s) * pool.length), 1)[0]] = 1;
     s.rivals.push({ id, presence, since: s.month, calm: 0, actions: {} });
+    s.flags.lastRivalSpawn = s.month;
     log(s, `${def.emoji} Nueva competencia: ${def.name} desembarca en ${Object.keys(presence).map((c) => CITY_BY_ID[c].name).join(' y ')}.`, 'bad');
     s.pending.push({ kind: 'event', id: 'rival_aparece', params: { rival: id } });
     return; // como mucho una cadena nueva al mes

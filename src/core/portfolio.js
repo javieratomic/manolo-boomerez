@@ -65,7 +65,7 @@ export function upgradeBatch(s,ids,reviewedPlan=null) {
  if(reviewedPlan&&quotation(plan)!==quotation(reviewedPlan))return {ok:false,msg:'La previsión ha cambiado. Revisa de nuevo el lote antes de confirmarlo.'};
  for(const id of plan.ids){
   const b=s.businesses.find(x=>x.id===id),after=candidate.businesses.find(x=>x.id===id);
-  b.level=after.level;b.cond=after.cond;b.value=after.value;
+  b.level=after.level;b.cond=after.cond;b.value=after.value;b.upgradedMonth=after.upgradedMonth;
  }
  s.cash=candidate.cash;s.log=candidate.log;
  return {ok:true,count:plan.ids.length,cost:plan.cost};

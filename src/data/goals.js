@@ -111,7 +111,7 @@ export const GOALS = [
     reward(s) {
       s.flags.campaignDone = true;
       addRep(s, 2);
-      return 'Tu cara en una valla. Tu madre la fotografía cada vez que pasa. Reputación +2.';
+      return 'Tu primera campaña ya está en la calle. Tu madre la enseña a todo el barrio. Reputación +2.';
     },
   },
   {
@@ -138,7 +138,7 @@ export const GOALS = [
   {
     id: 'regional',
     lane: 'negocio',
-    text: 'Abre un obrador regional para fabricar cerca de tus tiendas.',
+    text: 'Abre un obrador regional para fabricar cerca de tus tiendas: se desbloquea con 6 tiendas de sobaos (propias o franquicias) o en el mes 24, y se construye desde Ciudad, en «Abrir en…» de cualquier ciudad salvo Selaya (6 meses de obra).',
     test: (s) => s.businesses.some((b) => b.type === 'obrador_regional' && isOperating(s, b)),
     reward(s) {
       addRep(s, 3);

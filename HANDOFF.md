@@ -1,3 +1,35 @@
+# Entrega 0.23.0 — Rondas 2 y 3 de la auditoría (14-11-2026, Claude Fable coordina, Opus implementa)
+
+El usuario pidió continuar con be-ambitious: «tú analizas y coordinas, Opus implementa». **Sin push:** commits locales.
+
+- **Método:** workflows con frentes de ficheros disjuntos en el mismo checkout (Opus), un revisor por frente que intenta
+  desmentir (modelo del coordinador) y un Opus que corrige lo confirmado; después un integrador único para lo que cruza
+  ficheros. Los agentes no registran tests, no tocan `offline-files.js` ni hacen commit: lo hace el coordinador
+  (`node tools/offline_catalog.mjs` antes de `tests/run-node.mjs`). Guiones en la carpeta de workflows de la sesión.
+- **Hecho:** ver CHANGELOG 0.23.0. Piezas nuevas: `openingDelta`/`starterOpenings` (core/opportunities.js, con caché de
+  plan y de economía por instantánea), `starterAdvice`/`renderStarterCities`/`renderMapAlerts`/`housingFolded`/
+  `financeHint` (ui/panels.js), `driverItems`/`restDriver`/`revenueMods`/`obradorNote`/`yearWealth`/`honestRadarText`
+  (core/digest.js), `firstResult`/`noteResult`/`sellPrompt`/`idleReminder` (core/results.js; `s.resultShown` es opcional),
+  `guardNextModal` (ui/dom.js), `franchiseProvision`/`franchiseLawsuitAmount` (core/economy.js; `b.lossAtSigning`),
+  `RIVAL_SPAWN_GAP` y `s.flags.lastRivalSpawn`, `b.upgradedMonth`, `s.flags.padelPoliza`/`congresoPoliza`.
+- **Juez:** 416/416 simulación + 14/14 worker; navegador 481/482 (el fallo de «preparación offline… en desarrollo»
+  es del entorno sin ventana, igual que en 0.21.6). Fuzzer ~14.000 meses sin fallos. Clásica 32 semillas: E_legal
+  mediana 20,6 media 21,9 (revista 17/32); M_legal 35,3/35,5 (32/32). Ronda 3 de jugadores: primera tienda en 6 clics
+  (9 el ambicioso, 12 el lector tras la ayuda); los cinco abren en el mes 0.
+- **Pendiente (ronda 3, no tocado):**
+  1. **Muro del obrador (diseño/equilibrio):** una tienda en ciudad grande llena los 12.000 uds; la salida cuesta
+     120 k€ con 50 k€ en caja. Ahora está explicado y enlazado, pero el primer año sigue parado para quien no pide
+     crédito (y pedirlo rompe una cláusula). Decidir: primera ampliación más barata/pequeña o más capacidad inicial.
+  2. La provisión de franquicias puede soltar de golpe en el mes 13 (hallazgo bajo del revisor): provisionar solo si
+     la quiebra aún cabe en la ventana (`edad + (4 − lossMonths) <= 12`).
+  3. Vida → Manolo es un muro (14 acciones con párrafos); I+D lista 35 proyectos; la ayuda 2/5 es densa.
+  4. «Por qué» a veces culpa a un rival cuando lo que cayó fue la reputación; varias decisiones sin €/mes
+     (marketing, reformas, directivos, I+D); formatos de número mezclados (1500 €/1.500 €, guion ASCII en negativos).
+  5. «Ciudades recomendadas» desaparece a las 3 tiendas y Aperturas (110 alternativas) es mal sustituto.
+  6. Duplicado de candidatos y género de rasgos («Merche… Enchufado»); «sobrino kevin» en minúscula.
+  7. El driver de la auditoría (`scratchpad/audit/driver.cjs`, fuera del repo) merece entrar en `tools/` con el guion
+     de perfiles; a veces tarda >90 s en arrancar con cinco navegadores a la vez.
+
 # Entrega 0.22.0 — La primera hora, auditada (07-11-2026, Claude)
 
 El usuario pidió con be-ambitious «qué debería ser lo siguiente»; sin probadores humanos, se auditó la primera hora con

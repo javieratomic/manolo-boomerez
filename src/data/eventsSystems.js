@@ -18,10 +18,15 @@ import { PARTIES } from './politics.js';
 const biggestRival = (s) => [...(s.rivals || [])].sort((a, b) => rivalTotal(b) - rivalTotal(a))[0] || null;
 const biggestCity = (r) => Object.entries(r.presence).sort((a, b) => b[1] - a[1])[0]?.[0];
 
-// Negocio de Manolo más valioso que interesa a alguna cadena rival.
+// Negocio de Manolo más valioso que interesa a alguna cadena rival. Solo los asentados (12 meses abiertos):
+// si no, abrir un local caro y vendérselo al mes siguiente con prima era dinero gratis. Igual con las reformas
+// (suben el valor contable un 80 % de lo pagado): lo reformado en los últimos 12 meses no se codicia.
+// Sin upgradedMonth (partidas antiguas), la reforma se da por antigua.
+export const COVET_MIN_AGE = 12;
 function coveted(s) {
   const wanted = new Set((s.rivals || []).flatMap((r) => RIVALS[r.id].targets));
-  return [...s.businesses].filter((b) => b.mode !== 'franquicia' && wanted.has(b.type)).sort((a, b) => b.value - a.value)[0] || null;
+  return [...s.businesses].filter((b) => b.mode !== 'franquicia' && wanted.has(b.type) && (b.openedMonth == null || s.month - b.openedMonth >= COVET_MIN_AGE)
+    && (b.upgradedMonth == null || s.month - b.upgradedMonth >= COVET_MIN_AGE)).sort((a, b) => b.value - a.value)[0] || null;
 }
 
 const electionResult = (s, lean, extra = '') => {
@@ -307,15 +312,17 @@ export const SYSTEM_EVENTS = [
     choices: [
       {
         label: 'Ignorarlos: "No tienen mi historia"',
+        hint: 'Sin efecto: siguen expandiéndose a su ritmo. Puedes plantarles cara más tarde desde Mercado.',
         effect(s, p) {
-          return `Manolo decide que ${RIVALS[p.rival].short} "no es competencia, es un homenaje". Ya veremos.`;
+          return `Manolo decide que ${RIVALS[p.rival].short} "no es competencia, es un homenaje". Ya veremos. Sin efecto: siguen expandiéndose a su ritmo.`;
         },
       },
       {
         label: 'Probar su producto de incógnito',
+        hint: 'Fama +1. No les frena.',
         effect(s, p) {
           addFama(s, 1);
-          return `Vas con gorra y gafas (las de sol, bajadas por una vez). Lo de ${RIVALS[p.rival].short} está bueno. Muy bueno. No se lo dices a nadie.`;
+          return `Vas con gorra y gafas (las de sol, bajadas por una vez). Lo de ${RIVALS[p.rival].short} está bueno. Muy bueno. No se lo dices a nadie. Fama +1.`;
         },
       },
       {
@@ -326,7 +333,7 @@ export const SYSTEM_EVENTS = [
           const r = s.rivals.find((x) => x.id === p.rival);
           if (r && chance(s, 0.5)) {
             r.calm = 6;
-            return 'La carta, en papel timbrado y con latinajos, les asusta. Frenan su expansión unos meses.';
+            return 'La carta, en papel timbrado y con latinajos, les asusta. Frenan su expansión 6 meses.';
           }
           return 'Su abogada responde con una carta el doble de larga y la mitad de amable. No sirve de nada.';
         },
@@ -383,7 +390,7 @@ export const SYSTEM_EVENTS = [
     text: (s) => {
       const b = coveted(s);
       if (!b) return 'Un ejecutivo de una cadena rival quería comprarte un negocio, pero ya no tienes nada que le interese.';
-      return `Un ejecutivo de una cadena rival te ofrece comprar tu negocio ${BUSINESS_TYPES[b.type].name} de ${CITY_BY_ID[b.city].name} por ${money(b.value * 1.6)}: un 60 % más de lo que vale. "Considéralo un cumplido, Manolo."`;
+      return `Un ejecutivo de una cadena rival te ofrece comprar tu negocio ${BUSINESS_TYPES[b.type].name} de ${CITY_BY_ID[b.city].name} por ${money(b.value * 1.6)}: un 60 % más de su valor contable (${money(b.value)}). "Considéralo un cumplido, Manolo."`;
     },
     weight: (s) => (coveted(s) ? 0.8 : 0), cooldown: 18,
     choices: [

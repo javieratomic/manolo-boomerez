@@ -1,11 +1,13 @@
 // Acciones adicionales de Manolo (una por mes, con el mismo formato que las de manoloActions.js).
 import { chance, int, pick } from '../core/rng.js';
-import { addCash, addFama, addRep, addMoral, addHeatHacienda, addHeatTrabajo } from '../core/helpers.js';
+import { addCash, addFama, addRep, addMoral, addHeatHacienda, addHeatTrabajo, money } from '../core/helpers.js';
 import { BUSINESS_TYPES } from './businesses.js';
 import { CITY_BY_ID } from './cities.js';
 
 // Como en LinkedIn: cuanto más famoso es ya Manolo, menos fama le da otra foto.
 const famaGain = (s, min, max) => Math.max(1, Math.round(int(s, min, max) * (1 - s.fama / 130)));
+// Congreso, como el pádel: 50.000 € la primera ampliación, la mitad por cada una de los últimos 24 meses; a la cuarta, nada.
+export const CONGRESO_BASE = 50000, CONGRESO_WINDOW = 24, CONGRESO_MAX = 3;
 
 export const EXTRA_ACTIONS = [
   {
@@ -37,7 +39,7 @@ export const EXTRA_ACTIONS = [
   {
     id: 'congreso',
     name: 'Ponencia en un congreso de emprendedores (3.000 €)',
-    desc: 'Fama (menos cuanto más famoso eres). Puede salir un banquero... o una pregunta incómoda.',
+    desc: `Fama (menos cuanto más famoso eres). 20 % de que un banquero te amplíe la póliza: 50.000 € la primera vez, la mitad por cada ampliación de los últimos ${CONGRESO_WINDOW} meses; con ${CONGRESO_MAX} en ese plazo, ya no. O una pregunta incómoda.`,
     icon: 'icon_action_congreso', emoji: '🎤', cost: 3000,
     run(s) {
       addCash(s, -3000);
@@ -46,8 +48,18 @@ export const EXTRA_ACTIONS = [
       const intro = 'Pagas 3.000 € de "patrocinio" para dar la ponencia inaugural del III Congreso Nacional de Emprendedores Disruptivos, en el salón de un hotel de polígono. Título: "De Selaya al mundo: escalar sin red".';
       const r = int(s, 1, 10);
       if (r <= 2) {
-        s.creditBonus += 50000;
-        return `${intro}\n\nAl acabar se te acerca el director de riesgos de un banco regional: le ha encantado la diapositiva del tiburón. Te amplía la póliza en 50.000 €. Fama +${f}.`;
+        // Rendimientos decrecientes: el banco recuerda las ampliaciones de los últimos 24 meses.
+        const recent = (s.flags.congresoPoliza || []).filter((m) => s.month - m < CONGRESO_WINDOW);
+        if (recent.length >= CONGRESO_MAX) {
+          s.flags.congresoPoliza = recent;
+          const wait = recent[0] + CONGRESO_WINDOW - s.month;
+          return `${intro}\n\nAl acabar se te acerca el director de riesgos de siempre: "Manolo, ${recent.length} ampliaciones en ${CONGRESO_WINDOW} meses. Esta vez solo vengo por el canapé." Póliza sin cambios (puede volver a ampliártela dentro de ${wait} ${wait === 1 ? 'mes' : 'meses'}). Fama +${f}.`;
+        }
+        const amount = CONGRESO_BASE / 2 ** recent.length;
+        s.creditBonus += amount;
+        s.flags.congresoPoliza = [...recent, s.month];
+        const left = CONGRESO_MAX - recent.length - 1, wait = s.flags.congresoPoliza[0] + CONGRESO_WINDOW - s.month;
+        return `${intro}\n\nAl acabar se te acerca el director de riesgos de un banco regional: le ha encantado la diapositiva del tiburón. Te amplía la póliza en ${money(amount)}. ${left ? `Si vuelve a ampliártela en menos de ${wait} ${wait === 1 ? 'mes' : 'meses'}, será solo en ${money(amount / 2)}` : `Durante ${wait} ${wait === 1 ? 'mes' : 'meses'} no te ampliará más`}. Fama +${f}.`;
       }
       if (r <= 5) {
         addRep(s, -4);

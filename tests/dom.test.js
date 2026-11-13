@@ -537,3 +537,94 @@ test('DOM: todas las innovaciones tienen un área y fidelización/congelados se 
  el.innerHTML=renderResearch(s,{status:'all',category:'business'});assert(el.querySelector('[data-id="app"]'));
  el.innerHTML=renderResearch(s,{status:'all',category:'sobaos'});assert(el.querySelector('[data-id="congelados"]'));
 });
+
+test('DOM ronda 2: los botones de la ciudad dicen qué abren y dónde; la vivienda inalcanzable se pliega',()=>{
+ const s=newGame(42);resolvePending(s,0);resolvePending(s,0);
+ const el=document.createElement('div');el.innerHTML=renderCity(s,'selaya');
+ const open=el.querySelector('[data-act="open"][data-mode="propia"][data-type="'+s.brand+'"]');
+ assert(/^Abrir .+ en Selaya \(.+\)$/.test(open.getAttribute('aria-label')),open.getAttribute('aria-label'));
+ assert(el.querySelector('[data-act="open"][data-mode="franquicia"]').getAttribute('aria-label').includes('en Selaya'));
+ for(const b of el.querySelectorAll('button'))assert((b.getAttribute('aria-label')||b.textContent).trim(),b.outerHTML.slice(0,120));
+ for(const i of el.querySelectorAll('input[type="radio"]'))assert(i.getAttribute('aria-label')?.startsWith('Ingredientes: '),i.outerHTML);
+ assert(!el.querySelector('[data-type="vivienda"]'),'con 80 k€ y sin falta de plazas no se ofrece la obra');
+ assert(el.querySelector('.housing-folded a[data-tab="viviendas"]'));
+ s.cash=1e8;el.innerHTML=renderCity(s,'selaya');
+ assertEq(el.querySelectorAll('[data-act="open"][data-type="vivienda"]').length,2);assert(!el.querySelector('.housing-folded'));
+ assert(el.querySelector('[data-act="open"][data-type="vivienda"]').getAttribute('aria-label').includes('en Selaya'));
+});
+
+test('DOM ronda 2: Exterior nombra la auditoría y cada firma por país',()=>{
+ const s=newGame(42);resolvePending(s,0);
+ const el=document.createElement('div');el.innerHTML=renderInternational(s);
+ for(const b of el.querySelectorAll('[data-act="foreign-sign"]'))assert(/^Firmar .+ con .+ \(.+\) por .+$/.test(b.getAttribute('aria-label')),b.outerHTML.slice(0,160));
+ for(const i of el.querySelectorAll('input.foreign-audit'))assert(i.getAttribute('aria-label').startsWith('Auditoría independiente en '));
+});
+
+import { guardNextModal, OPEN_GUARD, TOAST_GUARD } from '../src/ui/dom.js';
+
+test('DOM: tras un resultado que solo sale en un toast, el diálogo siguiente ignora el segundo clic ~900 ms', async () => {
+  assertEq(OPEN_GUARD, 350);
+  assertEq(TOAST_GUARD, 900);
+  const el = root();
+  let calls = 0;
+  guardNextModal();
+  const next = showModal({ title: 'Carta tras un toast', choices: [{ label: 'Invertir en SobaoCoin' }], followUp: () => { calls++; } });
+  const button = () => el.lastElementChild.querySelector('button');
+  await wait(400);
+  button().click();
+  assertEq(calls, 0, 'a los 400 ms el clic de costumbre no elige');
+  await wait(550);
+  button().click();
+  await next;
+  assertEq(calls, 1, 'pasados 900 ms sí elige');
+  await wait(180);
+  // La guarda larga se consume: el diálogo siguiente vuelve a 350 ms.
+  let later = 0;
+  const plain = showModal({ title: 'Diálogo normal', choices: [{ label: 'Elegir' }], followUp: () => { later++; } });
+  await wait(380);
+  button().click();
+  await plain;
+  assertEq(later, 1);
+  await wait(180);
+});
+
+// --- Ronda 3 (obrador): la ampliación dice cómo pagarse y cada botón repetido dice qué hace y a quién.
+import { openBusiness as openBiz3 } from '../src/core/actions.js';
+import { advanceMonth as advance3, currentPending as pending3 } from '../src/core/sim.js';
+import { renderManagement as renderMgmt3 } from '../src/ui/panels.js';
+
+test('DOM ronda 3: la ampliación sin caja enlaza a Finanzas y el rebranding sin cambio de capacidad no pone flecha',()=>{
+ const s=newGame(42);resolvePending(s,0);resolvePending(s,0);
+ const el=document.createElement('div');el.innerHTML=renderCity(s,'selaya');
+ // Selaya sin tiendas: capacidad igual con las dos marcas.
+ assert(el.textContent.includes('La capacidad del obrador no cambia: 12.000 uds/mes'),el.textContent);
+ assert(!el.textContent.includes('12.000 → 12.000'));
+ assert(openBiz3(s,s.brand,'bilbao','propia').ok);el.innerHTML=renderCity(s,'selaya');
+ const up=el.querySelector('[data-act="upgrade"]');assert(up.disabled);
+ const note=up.parentElement.querySelector('.obrador-finance');
+ assert(note&&/^Te faltan [\d.]+\s€\. Tienes [\d.]+\s€ de póliza disponible en Empresa → Finanzas\.$/.test(note.textContent.trim()),note?.textContent);
+ assert(note.querySelector('a[data-act="tab"][data-tab="finanzas"]'));
+ s.cash=1e6;el.innerHTML=renderCity(s,'selaya');assert(!el.querySelector('.obrador-finance'),'con caja no hay aviso');
+});
+
+test('DOM ronda 3: Comprar, Fichar, enlaces de ciudad, gráfico y filtro tienen nombre propio',()=>{
+ const s=newGame(42);resolvePending(s,0);resolvePending(s,0);openBiz3(s,s.brand,'bilbao','propia');
+ while(pending3(s))resolvePending(s,0);advance3(s);while(pending3(s))resolvePending(s,0);
+ const el=document.createElement('div');
+ const unique=(sel)=>{const names=[...el.querySelectorAll(sel)].map((b)=>b.getAttribute('aria-label'));assert(names.length&&names.every(Boolean),sel);assertEq(new Set(names).size,names.length,names.join(' | '));return names;};
+ el.innerHTML=renderManolo(s);assert(unique('[data-act="lujo-buy"]').every((n)=>/^Comprar .+ \(.+\)$/.test(n)));
+ el.innerHTML=renderMgmt3(s);assert(unique('[data-act="hire"]').every((n)=>/^Fichar a .+ para .+ \(.+\)$/.test(n)));
+ el.innerHTML=renderEmpire(s);assert(unique('a[data-act="goto-city"]').every((n)=>n.startsWith('Ir a ')));
+ assert(el.querySelector('#chart-cat').getAttribute('aria-label').startsWith('Gráfico de ingresos'));
+ el.innerHTML=renderEmpire(s,{view:'openings',openings:{}});
+ assertEq(el.querySelector('[data-key="showBlocked"]').getAttribute('aria-label'),'Mostrar bloqueadas y sus motivos');
+});
+
+test('DOM ronda 3: la acción del mes hecha enseña su resultado',()=>{
+ const s=newGame(42);resolvePending(s,0);resolvePending(s,0);
+ const el=document.createElement('div');el.innerHTML=renderManolo(s,'Manolo sale en la radio.');
+ assert(!el.querySelector('.action-result'),'sin acción hecha no hay resultado');
+ s.actionUsed=true;el.innerHTML=renderManolo(s,'Manolo sale en la radio.');
+ assertEq(el.querySelector('.action-result').textContent,'Manolo sale en la radio.');
+ el.innerHTML=renderManolo(s);assert(!el.querySelector('.action-result'));
+});

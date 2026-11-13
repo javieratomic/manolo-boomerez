@@ -1,6 +1,6 @@
 // Generado por node tools/offline_catalog.mjs. No editar a mano.
 self.BOOMEREZ_OFFLINE = {
-  "revision": "ea4529222ec75d9b3d6b30cd48f8377f0e5f1c2efe6a488902a2193ebb7c26e3",
+  "revision": "0add4525913b9911f231c94b91e3d106e8bf428f2e2fcd667b1f7c5d7a25ce56",
   "files": [
     {
       "file": "assets/ui/rd_app.svg",
@@ -156,7 +156,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/actions.js",
-      "sha256": "6248a9a1f67901a59ff383b3a1746bb848eb28cab2a875535fe2c56ee738cc44"
+      "sha256": "cbc3f820fe80c2e53cf4504c7b6794dfe9fd4fe5f5e328abb4a1ac4800cf9487"
     },
     {
       "file": "src/core/advice.js",
@@ -184,7 +184,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/digest.js",
-      "sha256": "07086e79ac28fc799ac0c3ca0ba6c98a3e06d72ebc401910c8db6a7c2b2b1c1e"
+      "sha256": "c1dc9eb8cf94164f12facf59be1b31b1d177e50dfb716142e05c81f7cb774ee7"
     },
     {
       "file": "src/core/divestment.js",
@@ -196,7 +196,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/economy.js",
-      "sha256": "30a2af5e7cbb985e72245725c7b114a16bb137145c1dd1fe8fbbc85c480ab310"
+      "sha256": "0f2fdf5bfae52a1465c65ae86661378ed72bbcd9ee5aca4873e3f460c5b042c6"
     },
     {
       "file": "src/core/epilogue.js",
@@ -208,7 +208,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/finance.js",
-      "sha256": "9c225fb482b102405a8f5e879a5cd15130f701a67da96c8007efe59e183d92d2"
+      "sha256": "782ada6aaff7639f9e5e27afa0f1b653d0a0a9679d90adbed7312af6bc99f779"
     },
     {
       "file": "src/core/helpers.js",
@@ -228,7 +228,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/life.js",
-      "sha256": "e00ac294284d988b57428427f6f5edefc3746d7a9d92a8faba2e49448864e721"
+      "sha256": "7e7c1fae2ee8cc4de736ed56ec2a486c18b2ac6a0a1b3d871936ffc62b5dce76"
     },
     {
       "file": "src/core/localEvents.js",
@@ -248,7 +248,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/market.js",
-      "sha256": "2de425ab9dbdedcdb9511c6c2645647cb58e15cc814a39162a025089cd484571"
+      "sha256": "13ae75b3566e83d20e97e610013984d5f1f1d603ce61f3ec8dc9ea8bb05e357f"
     },
     {
       "file": "src/core/marketing.js",
@@ -264,7 +264,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/opportunities.js",
-      "sha256": "9528cbaca46a78539b8371e68e2b7816d319431be8bb60d1836dec832ad70e41"
+      "sha256": "630017153b0953fc83753242794b16dda3931d768d67ad5f0f1ed9edd188937b"
     },
     {
       "file": "src/core/plantilla.js",
@@ -276,7 +276,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/portfolio.js",
-      "sha256": "ae63cec596992e9b1a4f9f49caadde8a79067c22320f9fcfcaf9847e56bc6766"
+      "sha256": "1657a4a85bf14e1c396141363d4bee4d94bbd7253918a2b02b1c00f006a6a435"
     },
     {
       "file": "src/core/preview.js",
@@ -288,11 +288,11 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/results.js",
-      "sha256": "97aeaf07ae121036db577eaea1f59ebd331b60c24d4ed30d8425a0f87134b34a"
+      "sha256": "94fc917c181c9bceed3c0999bce98ac81217ebdb961c44ef7804e6d646602d40"
     },
     {
       "file": "src/core/rivals.js",
-      "sha256": "0114ea0618628f12515f57739bcd7f894dea7c8c27020985fb9326c6e97b69a2"
+      "sha256": "5c005beffaec97cbe4f129301aee8a7011e9fec3b5b469bfcae98f35e5d3ff60"
     },
     {
       "file": "src/core/rng.js",
@@ -308,11 +308,11 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/core/sim.js",
-      "sha256": "5d4db427867560d641c4d6e143530b961ed5eafff4e5ed4b5cea81fb0fcfb257"
+      "sha256": "b930570d14d0b3de918fb4c05c568e31acbf320d5b5039eba7bd135b042a7d29"
     },
     {
       "file": "src/core/state.js",
-      "sha256": "d2a6d2b4af97b591beece3260d6a8760c3a2d3ad8e1b27f9419d8ae86e9fa3a2"
+      "sha256": "7b7ea5db5d1fbec6387ff9b017bdda74b352373c8c7df5f009024ae31e46e72c"
     },
     {
       "file": "src/core/stress.js",
@@ -352,7 +352,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/data/events.js",
-      "sha256": "58ad879ee3fce8534a2e73f3d8811354c6a769d3941cb0c54c1e1008829ed63d"
+      "sha256": "51e94618390cc77e00ce06ce2d699acd9a8cc2dc0c598082478d344aa0ee7ee2"
     },
     {
       "file": "src/data/eventsArcs.js",
@@ -396,7 +396,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/data/eventsSystems.js",
-      "sha256": "7aaccb46465645fad5b7e53c6e6b70887ec74fddbeb64aee6f4e3db239fc7af5"
+      "sha256": "879778863caf2acb5cad2fbe4792f89cceb387e780ffa9d44f97ba1cd17e029d"
     },
     {
       "file": "src/data/eventsVelas.js",
@@ -420,7 +420,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/data/goals.js",
-      "sha256": "13a592dd38070459cc58b38599565bbfc91fca9545cce085a7b12f2c620b6048"
+      "sha256": "5eccbead8c9b2bc9be54e56110348eec9cb210d5ecf995ab4b2efde0dadbe473"
     },
     {
       "file": "src/data/headlines.js",
@@ -428,7 +428,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/data/help.js",
-      "sha256": "a6ccc7706f5b41f0c1deab0998efb9cb4850cfcfa3bc2d8f71da9cf05314bf8c"
+      "sha256": "35540326b0be09230fd851c8e48be673c83de2420f9d47526dc30414fdaef322"
     },
     {
       "file": "src/data/housing.js",
@@ -452,11 +452,11 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/data/manoloActions.js",
-      "sha256": "7343e5d4b00e800b4655af2ed40bb4d439b6160f58f1eb9929800854be5ec75c"
+      "sha256": "ce6cc4bb9cc165dd2cd21cf71f750df25af141dcada2024bfb2001a6e1dcb82e"
     },
     {
       "file": "src/data/manoloActionsExtra.js",
-      "sha256": "14bb04606e967acf0909aee79f8f780675b3233f89feef81545ccecfb4d51fe9"
+      "sha256": "c16143072bf58328b5bd91f4b89dccec780cc6b5d4ce60e19f497fa24632586e"
     },
     {
       "file": "src/data/market.js",
@@ -512,7 +512,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/ui/app.js",
-      "sha256": "0a9b28864e75748671f83285f5d846e27423618f73127151056098524115cb86"
+      "sha256": "de184b410f1df618953b450edcd8f1e7b167a420b3d64d1be79bc1520ca0fdad"
     },
     {
       "file": "src/ui/divestment.js",
@@ -520,11 +520,11 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/ui/dom.js",
-      "sha256": "45cf5493a22a119166c4d2bf37be0fa7be7f1a1aa37c775d391f7399642b2f8c"
+      "sha256": "37a9f9c66d0b6adab07bf2d373288db1cd17fc9b3c186ed31e5865d8131b85c6"
     },
     {
       "file": "src/ui/finance.js",
-      "sha256": "771c365ba57c21ad533bf7ea258b74d42a0d490905eb41bd464f2db62720d1fa"
+      "sha256": "89828c64560f82785711a8b8269868651944c77b8adf34816303fba5eb7a9dcd"
     },
     {
       "file": "src/ui/music.js",
@@ -532,7 +532,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/ui/navigation.js",
-      "sha256": "b3c5afa455bbd3edf92816ef710ad79716a4d0d891b2143220f403654f6dc753"
+      "sha256": "a79bac8377697a5a8864197ab9e1fe50019d895c7a8bcc920b0c03c1bd044647"
     },
     {
       "file": "src/ui/offline.js",
@@ -544,11 +544,11 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "src/ui/opportunities.js",
-      "sha256": "970091b07a1da934d87d2f14f881c5c06d4a94d61398acf656793fd80e510f30"
+      "sha256": "d8d9ae264f98c897eeb8ba46236d23e62179faa3ee2cbd6458dfee811997df03"
     },
     {
       "file": "src/ui/panels.js",
-      "sha256": "26cb82714956b2cf0d4d49913ff1abec3aec90dbde97158f395e24643363d572"
+      "sha256": "c44f61539b79826b405bfe7aa8199a93aa182955ad380aeba220b902f4993f00"
     },
     {
       "file": "src/ui/portfolio.js",
@@ -576,7 +576,7 @@ self.BOOMEREZ_OFFLINE = {
     },
     {
       "file": "styles.css",
-      "sha256": "5cad11a17351cbf29202f8225a9a09e8bf46f53c21968ac3bff34e8f2a44dff8"
+      "sha256": "b54c5448b2fc20468d1522cf8d573a777e3aa0602ecc846fd6aef71360722834"
     },
     {
       "file": "sw.js",

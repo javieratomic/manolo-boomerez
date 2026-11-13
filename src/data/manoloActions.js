@@ -1,8 +1,11 @@
 // Acciones personales de Manolo: una por mes.
 import { chance, int, pick } from '../core/rng.js';
-import { addCash, addFama, addRep, addMoral, addHeatHacienda, addHeatTrabajo, log } from '../core/helpers.js';
+import { addCash, addFama, addRep, addMoral, addHeatHacienda, addHeatTrabajo, log, money } from '../core/helpers.js';
 import { EXTRA_ACTIONS } from './manoloActionsExtra.js';
 import { credibilidad } from '../core/plantilla.js';
+
+// Pádel: 100.000 € la primera ampliación, la mitad por cada una de los últimos 24 meses; a la cuarta, nada.
+export const PADEL_BASE = 100000, PADEL_WINDOW = 24, PADEL_MAX = 3;
 
 export const MANOLO_ACTIONS = [
   {
@@ -83,7 +86,7 @@ export const MANOLO_ACTIONS = [
   {
     id: 'cuentas',
     name: 'Revisar las cuentas con el gestor',
-    desc: 'Radar de Hacienda −10. Aburrido pero útil.',
+    desc: 'Radar de Hacienda hasta −10 (no baja de 0). Aburrido pero útil.',
     icon: 'icon_action_cuentas', emoji: '🧾',
     run(s) {
       addHeatHacienda(s, -10);
@@ -93,13 +96,23 @@ export const MANOLO_ACTIONS = [
   {
     id: 'padel',
     name: 'Pádel con inversores',
-    desc: 'Puede ampliar tu crédito bancario. Fama +2.',
+    desc: `40 % de que el director del banco te amplíe la póliza: 100.000 € la primera vez, la mitad por cada ampliación de los últimos ${PADEL_WINDOW} meses; con ${PADEL_MAX} en ese plazo, ya no pica. Fama +2.`,
     icon: 'icon_action_padel', emoji: '🎾',
     run(s) {
       addFama(s, 2);
+      // Rendimientos decrecientes: el director recuerda las ampliaciones de los últimos 24 meses.
+      const recent = (s.flags.padelPoliza || []).filter((m) => s.month - m < PADEL_WINDOW);
+      if (recent.length >= PADEL_MAX) {
+        s.flags.padelPoliza = recent;
+        const wait = recent[0] + PADEL_WINDOW - s.month;
+        return `Te dejas ganar otra vez, pero el director ya se sabe la jugada: "Manolo, ${recent.length} ampliaciones en ${PADEL_WINDOW} meses. La próxima, con avales." Póliza sin cambios (puede volver a picar dentro de ${wait} ${wait === 1 ? 'mes' : 'meses'}). Fama +2.`;
+      }
       if (chance(s, 0.4)) {
-        s.creditBonus += 100000;
-        return 'Pierdes a propósito contra el director de la Caja Cantábrica. Te amplía la póliza en 100.000 €. Fama +2.';
+        const amount = PADEL_BASE / 2 ** recent.length;
+        s.creditBonus += amount;
+        s.flags.padelPoliza = [...recent, s.month];
+        const left = PADEL_MAX - recent.length - 1, wait = s.flags.padelPoliza[0] + PADEL_WINDOW - s.month;
+        return `Pierdes a propósito contra el director de la Caja Cantábrica. Te amplía la póliza en ${money(amount)}. ${left ? `Si vuelves a dejarte ganar en menos de ${wait} ${wait === 1 ? 'mes' : 'meses'}, solo ${money(amount / 2)}` : `Durante ${wait} ${wait === 1 ? 'mes' : 'meses'} no te ampliará más`}: empieza a sospechar. Fama +2.`;
       }
       return 'Ganas 6-0, 6-0 al director del banco. Muy satisfactorio. Ninguna consecuencia financiera positiva. Fama +2.';
     },

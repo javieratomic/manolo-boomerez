@@ -10,10 +10,10 @@ export function renderWealth(s) {
   <h4>Activos</h4><table class="tbl pl"><tbody>
    ${row('Caja',a.cash)}${row('Obrador y ampliaciones',a.factory)}${row('Negocios y viviendas',a.businesses)}${row('Caprichos',a.luxury)}${row('Total de activos',a.total,true)}
   </tbody></table>
-  <h4>Deudas confirmadas</h4><table class="tbl pl"><tbody>
-   ${row('Banco',-d.bank)}${row('Préstamo de Doña Remedios',-d.family)}${row('Seguridad Social · cuotas pendientes',-d.socialSecurity)}${row('Total de deudas',-d.total,true)}
+  <h4>Deudas confirmadas${d.franchises?' y provisiones':''}</h4><table class="tbl pl"><tbody>
+   ${row('Banco',-d.bank)}${row('Préstamo de Doña Remedios',-d.family)}${row('Seguridad Social · cuotas pendientes',-d.socialSecurity)}${d.franchises?row('Provisión por franquicias en pérdidas',-d.franchises):''}${row('Total de deudas',-d.total,true)}
   </tbody></table>
-  <p class="small muted">Las cuotas pendientes de Seguridad Social incluyen el recargo del aplazamiento. Otros gastos fijos futuros no se descuentan de golpe del patrimonio.</p>
+  <p class="small muted">Las cuotas pendientes de Seguridad Social incluyen el recargo del aplazamiento. Otros gastos fijos futuros no se descuentan de golpe del patrimonio.${d.franchises?' La provisión es el canon (mínimo 30.000 €) de las franquicias de su primer año que ya pierden dinero: si quiebran y le dices que le faltó mentalidad, la demanda es segura y se lo devuelves.':''}</p>
   <table class="tbl pl"><tbody>${row('Patrimonio antes de accionistas',p.equity,true)}
    ${s.ipo?`<tr><td>Participación del jugador</td><td>${Math.round(p.ownership*100)} %</td></tr><tr><td>Factor de sentimiento bursátil</td><td>×${p.sentiment.toFixed(2).replace('.',',')}</td></tr>`:''}
    ${row('Patrimonio del jugador',p.playerWealth,true)}

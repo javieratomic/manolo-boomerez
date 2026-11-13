@@ -86,7 +86,7 @@ export function tickLife(s) {
       title: 'Merche está rara',
       text: [
         'Llegas a casa a las once y la cena está en el microondas con una nota: "Estoy en pádel". La relación con Merche ha bajado de 30.',
-        'Si baja de 15, pedirá el divorcio (y estáis en gananciales). Una cena familiar o una escapada desde la pestaña Manolo ayudarían.',
+        'Si baja de 15, pedirá el divorcio (y estáis en gananciales). Una cena familiar o una escapada desde Vida → Manolo ayudarían.',
       ].join('\n\n'),
     });
   }

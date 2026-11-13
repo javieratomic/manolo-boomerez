@@ -123,10 +123,27 @@ export function maintenanceCost(s) {
 // Lo que queda por pagar del aplazamiento con la Seguridad Social (es deuda, aunque se pague a plazos).
 export const ssOwed = (s) => (s.extraMonthly || []).reduce((a, x) => a + (x.ss && x.months ? x.amount * x.months : 0), 0);
 
+// "Te ha faltado mentalidad": si la franquicia quiebra en sus primeros 12 meses, la demanda es segura
+// y se devuelve el canon (mínimo 30.000 € con costas). Lo comparte la carta 'franquiciado_arruinado'.
+export const SURE_LAWSUIT_MONTHS = 12;
+export const FRANCHISE_LAWSUIT_MIN = 30000;
+export const franchiseLawsuitAmount = (fee) => Math.max(FRANCHISE_LAWSUIT_MIN, fee || 0);
+
+// Provisión: canon de las franquicias de su primer año que ya pierden dinero para su dueño
+// (ya al firmar, si nacen en pérdidas, o cuya quiebra está pendiente de resolver). Si quiebran, ese canon vuelve al franquiciado.
+export function franchiseProvision(s) {
+  const busting = new Set((s.pending || []).filter((p) => p?.kind === 'event' && p.id === 'franquiciado_arruinado').map((p) => p.params?.businessId));
+  return (s.businesses || []).reduce((a, b) => {
+    if (b.mode !== 'franquicia' || !Number.isFinite(b.openedMonth) || s.month - b.openedMonth > SURE_LAWSUIT_MONTHS) return a;
+    if (!((b.lossMonths || 0) > 0 || b.lossAtSigning || busting.has(b.id))) return a;
+    return a + franchiseLawsuitAmount(b.fee);
+  }, 0);
+}
+
 export function grossPatrimonio(s) {
   const assets = s.businesses.reduce((a, b) => a + (b.value || 0), 0);
   // Lo que se debe a Doña Remedios también resta (el banco no se entera, el patrimonio sí).
-  return s.cash - s.debt - (s.cartilla?.owed || 0) - ssOwed(s) + obradorValue(s) + assets + lujoValue(s);
+  return s.cash - s.debt - (s.cartilla?.owed || 0) - ssOwed(s) - franchiseProvision(s) + obradorValue(s) + assets + lujoValue(s);
 }
 
 // Lo que es de Manolo: si cotiza en Bolsa, descuenta la parte de los accionistas.

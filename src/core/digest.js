@@ -1,15 +1,17 @@
 // Parte del mes: por qué ha cambiado el neto respecto al mes anterior, qué ha pasado y qué viene.
 // Solo lee informes y estado; no cambia nada ni usa el generador aleatorio.
-import { SOBAO_SEASON, TOURISM_SEASON } from './economy.js';
+import { SOBAO_SEASON, TOURISM_SEASON, computeEconomy, patrimonio } from './economy.js';
 import { BUSINESS_TYPES } from '../data/businesses.js';
 import { CITY_BY_ID } from '../data/cities.js';
 import { RIVALS } from '../data/rivals.js';
 import { PHASES } from '../data/macro.js';
 import { PRODUCTS } from '../data/market.js';
+import { FOREIGN_BY_ID } from '../data/international.js';
+import { CAMPAIGN_BY_ID } from './marketing.js';
 import { nextElectionMonth } from './politics.js';
 import { CANDIDATE_REFRESH } from './execs.js';
 import { UNLOCKS } from './actions.js';
-import { dateLabel, moneyShort, plural } from './helpers.js';
+import { dateLabel, moneyShort, plural, fillPct } from './helpers.js';
 import { convenioDemand, isConvenioMonth } from './plantilla.js';
 import { MAMA, hasCond } from './cartilla.js';
 import { quarterProgress, qLabel } from './bolsa.js';
@@ -23,6 +25,7 @@ export const COST_NAMES = {
   materias: 'Materias primas', transporte: 'Transporte', otros: 'Otros gastos', intereses: 'Intereses', asesores: 'Asesores', personales: 'Caprichos de Manolo', reparto: 'Reparto con la plantilla', impuestos: 'Impuestos',
 };
 export const MAX_DRIVERS = 3;
+const longDate = (m) => dateLabel(m).toLowerCase().replace(' ', ' de ');
 
 const catOf = (l) => (['obrador', 'international','online','contract'].includes(l.type) ? 'sobaos' : BUSINESS_TYPES[l.type]?.category);
 
@@ -99,9 +102,8 @@ function costReason(prev, r, s, key) {
   return null;
 }
 
-// Las mayores variaciones (en lo que afectan al neto) entre dos informes, con su motivo si se conoce.
-export function netDrivers(prev, r, s) {
-  if (!prev || !r) return [];
+// Todas las partidas (ingresos por sector y costes, impuestos incluidos): suman exactamente la variación del neto.
+function driverItems(prev, r) {
   const items = [];
   for (const cat of Object.keys(r.revenueByCat)) {
     const d = (r.revenueByCat[cat] || 0) - (prev.revenueByCat?.[cat] || 0);
@@ -111,8 +113,15 @@ export function netDrivers(prev, r, s) {
     const d = -((r.costs[key] || 0) - (prev.costs?.[key] || 0));
     items.push({ kind: 'costes', key, label: COST_NAMES[key] ?? key, delta: d });
   }
-  const min = Math.max(500, 0.03 * Math.abs(prev.net));
-  return items
+  return items;
+}
+const driverMin = (prev) => Math.max(500, 0.03 * Math.abs(prev.net));
+
+// Las mayores variaciones (en lo que afectan al neto) entre dos informes, con su motivo si se conoce.
+export function netDrivers(prev, r, s) {
+  if (!prev || !r) return [];
+  const min = driverMin(prev);
+  return driverItems(prev, r)
     .filter((x) => Math.abs(x.delta) >= min)
     .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
     .slice(0, MAX_DRIVERS)
@@ -169,8 +178,85 @@ export function upcoming(s) {
   return out;
 }
 
-export function monthDigest(prev, r, s, head) {
-  return { drivers: netDrivers(prev, r, s), fresh: freshEntries(s, head), upcoming: upcoming(s), prevNet: prev?.net ?? null };
+// Lo que las partidas listadas no explican de la variación del neto (plantilla nueva, intereses, partidas
+// pequeñas...), con las dos mayores como motivo. null si es poca cosa: así la lista siempre cuadra con el neto.
+export function restDriver(prev, r, drivers) {
+  if (!prev || !r) return null;
+  const listed = new Set(drivers.map((x) => `${x.kind}:${x.key}`));
+  const others = driverItems(prev, r).filter((x) => !listed.has(`${x.kind}:${x.key}`) && Math.round(x.delta));
+  const delta = r.net - prev.net - drivers.reduce((a, x) => a + x.delta, 0);
+  if (Math.abs(delta) < driverMin(prev)) return null;
+  const top = others.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)).slice(0, 2).map((x) => `${x.label} ${fmtDelta(x.delta)}`);
+  return { kind: 'resto', key: 'resto', label: 'Resto de partidas', delta, reason: top.length ? `entre otras: ${top.join(', ')}` : null };
+}
+
+// Modificadores de demanda (kind 'revenue': multiplican lo que se pide, no lo que se vende si el obrador no da)
+// que se aplicaron en el cierre (sucesos, guerras de precios, campañas). Se pasan los
+// de antes de cerrar: los de un solo mes ya han caducado cuando se escribe el parte. Con el mes cerrado, se quitan
+// las campañas de temporada fuera de sus meses (como en campaignApplies); el texto dice a qué tipos y país toca.
+export function revenueMods(mods = [], month = null) {
+  const tName = (t) => BUSINESS_TYPES[t]?.short ?? BUSINESS_TYPES[t]?.name ?? t[0].toUpperCase() + t.slice(1);
+  return mods.filter((m) => m.kind === 'revenue' && m.factor !== 1 && m.months > 0).filter((m) => {
+    const c = m.campaign && CAMPAIGN_BY_ID[m.campaign];
+    return !(c?.activeMonths && Number.isFinite(month) && !c.activeMonths.includes(month % 12));
+  }).map((m) => {
+    const pct = Math.round((m.factor - 1) * 100);
+    const types = m.types ?? (m.campaign && CAMPAIGN_BY_ID[m.campaign]?.types) ?? null;
+    const where = (m.city ? ` en ${CITY_BY_ID[m.city]?.name ?? m.city}` : m.market ? ` en ${FOREIGN_BY_ID[m.market]?.country ?? m.market}` : '')
+      + (m.category ? ` · ${CAT_NAMES[m.category] ?? m.category}` : '') + (types?.length ? ` (${types.map(tName).join(', ')})` : '');
+    const cats = m.category ? [m.category] : types ? [...new Set(types.map((t) => catOf({ type: t })).filter(Boolean))] : null;
+    return { label: m.label || 'Modificador', category: m.category ?? null, cats, factor: m.factor, text: `${m.label || 'Modificador'}${where}: demanda ${pct > 0 ? '+' : '−'}${Math.abs(pct)} %` };
+  });
+}
+
+// La frase del parte sobre el obrador: dice el mes al que se refiere y, si ahora sobra capacidad, lo dice también
+// (el panel del obrador enseña el mes en curso, con otra temporada y otra demanda).
+export function obradorNote(r, s) {
+  if (!r || !(r.fill < 0.999)) return null;
+  const n = (x) => Math.round(x).toLocaleString('es-ES');
+  const now = computeEconomy(s);
+  const closed = `En ${longDate(r.month)} el obrador sirvió ${n(r.totalDemand * r.fill)} de ${n(r.totalDemand)} sobaos pedidos (${fillPct(r.fill)} de la demanda).`;
+  const ahead = now.fill >= 0.999
+    ? ` Para ${longDate(s.month)} la demanda prevista es de ${n(now.totalDemand)} y la capacidad de ${n(now.capacity)}: hay capacidad libre.`
+    : ` Para ${longDate(s.month)} se prevé servir el ${fillPct(now.fill)} (capacidad ${n(now.capacity)}, demanda ${n(now.totalDemand)}).`;
+  return { text: closed + ahead, short: now.fill < 0.999 };
+}
+
+// Patrimonio del balance anual: el inicio es lo que marcaba el HUD al empezar enero (s.yearOpen, que guarda la
+// interfaz); en partidas sin esa marca, el cierre de diciembre anterior. El final es el patrimonio actual (el del HUD).
+export function yearWealth(s, r) {
+  const y0 = r.month - (r.month % 12);
+  const end = Math.round(patrimonio(s));
+  if (s.yearOpen?.month === y0 && Number.isFinite(s.yearOpen.patrimonio)) return { start: s.yearOpen.patrimonio, end, startLabel: `1 de ${longDate(y0)}` };
+  const h = s.history.find((x) => x.month === y0 - 1) ?? s.history.find((x) => x.month >= y0);
+  return { start: h?.patrimonio ?? end, end, startLabel: h ? `cierre de ${longDate(h.month)}` : 'ahora' };
+}
+
+// Un resultado que promete bajar un radar más de lo que marcaba: se dice lo que ha bajado de verdad.
+// El «radar −N» a secas cuenta como el de Inspección si la frase nombra a la Inspección y no a Hacienda.
+const RADARS = [['heatTrabajo', /([Rr]adar (?:de (?:la )?)?(?:Inspección|Trabajo)) −(\d+)/g], ['heatHacienda', /([Rr]adar (?:de )?Hacienda) −(\d+)/g],
+  ['heatTrabajo', /\b([Rr]adar) −(\d+)/g, (t) => /Inspección/.test(t) && !/Hacienda/.test(t)]];
+export function honestRadarText(text, before, after) {
+  if (typeof text !== 'string') return text;
+  let out = text;
+  for (const [k, re, when] of RADARS) {
+    const b = before?.[k], a = after?.[k];
+    if (!Number.isFinite(b) || !Number.isFinite(a) || (when && !when(text))) continue;
+    out = out.replace(re, (m, label, n) => (a <= 0.5 && b < Number(n) ? `${label} −${Math.round(b - a)} (estaba en ${Math.round(b)} y no baja de 0)` : m));
+  }
+  return out;
+}
+
+export function monthDigest(prev, r, s, head, mods = s?.mods) {
+  const drivers = netDrivers(prev, r, s);
+  const rmods = revenueMods(mods, r?.month);
+  // Un modificador de ingresos explica el sector que empuja en su mismo sentido si no había otro motivo.
+  for (const x of drivers) {
+    if (x.kind !== 'ingresos' || x.reason) continue;
+    const m = rmods.find((m) => (!m.cats || m.cats.includes(x.key)) && (m.factor < 1) === (x.delta < 0));
+    if (m) x.reason = m.text;
+  }
+  return { drivers, rest: restDriver(prev, r, drivers), revenueMods: rmods, fresh: freshEntries(s, head), upcoming: upcoming(s), prevNet: prev?.net ?? null };
 }
 
 export const fmtDelta = (v) => `${v >= 0 ? '+' : '−'}${moneyShort(Math.abs(v))}`;

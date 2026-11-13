@@ -14,7 +14,7 @@ import {setHousingPolicy} from '../core/housing.js';
 import { signAgreement, endAgreement, agreementTerms } from '../core/international.js';
 import { FOREIGN_BY_ID, DEAL_MODES } from '../data/international.js';
 // Controlador principal de la interfaz.
-import { $, esc, showModal, toast, confirmModal, isModalOpen, msSinceModal } from './dom.js';
+import { $, esc, showModal, toast, confirmModal, isModalOpen, msSinceModal, guardNextModal } from './dom.js';
 import { TABS, setHqFold, renderCity, renderEmpire, renderMarket, renderResearch,renderMarketing,renderInternational,renderOnline,renderResidences,renderManagement,renderBenefits,renderStaff, renderFinance, renderManolo, renderNews, drawChart, drawCategoryChart, manoloMood, renderWhy, whyTitle, renderEpilogue, setArchivoOpen } from './panels.js';
 import {groupForTab,renderNavigation} from './navigation.js';
 import { macroFx } from '../core/macro.js';
@@ -23,7 +23,7 @@ import { initAssets, imageUrl, hasArt } from '../render/assets.js';
 import { newGame, saveToStorage, loadFromStorage, clearStorage, serialize, deserialize, DIFFICULTIES, GAME_VERSION } from '../core/state.js';
 import { seedCode, parseSeed, isoWeekKey, weekSeed } from '../core/seed.js';
 import { advanceMonth, currentPending, resolvePending, checkEnding, score, pickQuote, retire } from '../core/sim.js';
-import { patrimonio, estimateOpening } from '../core/economy.js';
+import { patrimonio, estimateOpening, franchiseProvision } from '../core/economy.js';
 import { openBusiness, sellBusiness, buyUpgrade, setPolicy, togglePerk, borrow, repay, doManoloAction, dropMonthlyCost, currentGoal, currentGoals, goalNumber, checkGoals, rebrand, canRebrand, franchiseFee, LOAN_STEP } from '../core/actions.js';
 import { GOALS, LANES } from '../data/goals.js';
 import { HELP_PAGES, helpChoices } from '../data/help.js';
@@ -36,8 +36,9 @@ import { launchCampaign, startRD, upgradeBusiness, CAMPAIGN_BY_ID, PRODUCT_BY_ID
 import { hireExec, fireExec, refreshCandidates, execOf, severance } from '../core/execs.js';
 import { RIVALS } from '../data/rivals.js';
 import { clauseStatus, clauseWarn } from '../core/clauses.js';
-import { monthDigest, fmtDelta } from '../core/digest.js';
-import { resultSnapshot, isMinorResult } from '../core/results.js';
+import { monthDigest, fmtDelta, yearWealth, obradorNote, honestRadarText } from '../core/digest.js';
+import { openingDelta } from '../core/opportunities.js';
+import { resultSnapshot, isMinorResult, firstResult, noteResult, idleReminder, sellPrompt } from '../core/results.js';
 import { askLoan, repayEarly } from '../core/cartilla.js';
 import { collectRefranes } from './refranero.js';
 import { resumePromises } from '../core/bolsa.js';
@@ -155,6 +156,8 @@ function startGame(s) {
   game.city = HQ_CITY;
   game.tab = 'ciudad';
   if (!s.quote) s.quote = pickQuote(s);
+  // Patrimonio con el que empieza el primer año (el del HUD), para el balance de diciembre.
+  if (s.month === 0 && !s.yearOpen) s.yearOpen = { month: 0, patrimonio: Math.round(patrimonio(s)) };
   // Solo en una partida nueva: al cargar no se toca el generador (la misma semilla debe dar la misma partida).
   if (s.candidatesMonth < 0) refreshCandidates(s);
   $('#title-screen').hidden = true;
@@ -202,7 +205,7 @@ function renderAll() {
   const fresh = checkAchievements(s);
   if (fresh.length) play('goal');
   // Si llegan muchos de golpe (p. ej. al importar una partida), un solo aviso.
-  if (fresh.length > 2) toast(`🏆 ${fresh.length} logros nuevos (pestaña Manolo)`, 'good');
+  if (fresh.length > 2) toast(`🏆 ${fresh.length} logros nuevos (Vida → Manolo)`, 'good');
   else for (const a of fresh) toast(`🏆 Logro: ${a.name}`, 'good');
 }
 
@@ -228,7 +231,7 @@ function hudItems(s) {
     ${hudItem('icon_calendar', '📅', 'Fecha', `<span class="long">${dateLabel(s.month)}</span><span class="short">${dateLabel(s.month).slice(0, 3)} ${String(dateLabel(s.month)).slice(-2)}</span>`, `<span class="hud-sub">${s.endless || s.campaign==='europe' ? `Mes ${s.month + 1} · ♾️` : `Mes ${Math.min(s.month + 1, GAME_MONTHS)}/${GAME_MONTHS}`}</span>`)}
     ${hudItem('icon_cash', '💶', 'Caja', `<span class="${s.cash < 0 ? 'neg' : ''}">${moneyShort(s.cash)}</span>`, '', 'Dinero disponible. Si baja de cero, el banco tira de la póliza.')}
     ${sec(hudItem('icon_debt', '🏦', 'Deuda', moneyShort(s.debt), '', `Lo que debes a la Caja Cantábrica. Genera intereses cada mes.${s.cartilla?.owed > 0 ? ` Además debes ${money(s.cartilla.owed)} a tu madre.` : ''}`))}
-    ${hudItem('icon_patrimonio', '🏰', 'Patrimonio', moneyShort(pat), '', 'Caja − deuda + valor del obrador, los negocios y los caprichos. Es lo que cuenta para los finales.')}
+    ${hudItem('icon_patrimonio', '🏰', 'Patrimonio', moneyShort(pat), '', `Caja − deuda + valor del obrador, los negocios y los caprichos${franchiseProvision(s) ? ` − provisión por franquicias en pérdidas (${moneyShort(franchiseProvision(s))})` : ''}. Es lo que cuenta para los finales.`)}
     ${sec(hudItem('icon_macro', macroFx(s).emoji, 'Economía', macroFx(s).label, '', macroFx(s).desc))}
     ${sec(hudItem('icon_rep', '⭐', 'Reputación', Math.round(s.rep), meter(s.rep), 'Imagen pública. Multiplica la demanda de todos tus negocios.', 'rep'))}
     ${hudItem('icon_moral', '🙂', 'Moral', Math.round(s.moral), meter(s.moral), 'Ánimo de la plantilla. Baja: peor servicio, denuncias y huelgas. Dos meses a 0: la plantilla se queda la empresa.', 'moral')}
@@ -279,7 +282,8 @@ function renderPanel(s) {
     beneficios:()=>renderBenefits(s),
     plantilla: () => renderStaff(s),
     finanzas: () => renderFinance(s,game.finance),
-    manolo: () => renderManolo(s),
+    // El resultado de la acción del mes también sale en su tarjeta: en móvil no hay bocadillo.
+    manolo: () => renderManolo(s, game.bubble?.month === s.month ? game.bubble.text : null),
     noticias: () => renderNews(s),
   };
   body.innerHTML = map[game.tab]();
@@ -549,9 +553,11 @@ async function onClick(e) {
     case 'open': {
       const t = BUSINESS_TYPES[el.dataset.type];
       if (el.dataset.mode === 'franquicia') {
-        const est = estimateOpening(s, el.dataset.type, game.city, 'franquicia');
+        // La misma cifra que Imperio → Aperturas (neto de la empresa, después de impuestos).
+        const pre = estimateOpening(s, el.dataset.type, game.city, 'franquicia'), od = openingDelta(s, el.dataset.type, game.city, 'franquicia');
+        const est = od.delta != null ? { delta: od.delta, franchiseeProfit: od.franchiseeProfit } : pre;
         const ok = await confirmModal(`Vender una franquicia de ${t.name}`,
-          `Un emprendedor local te paga ${money(franchiseFee(s, el.dataset.type))} de canon y monta la tienda con su dinero. Tú le vendes los sobaos a precio mayorista y cobras un 5 % de royalties.\n\nEstimación mensual de la central: ${money(est.delta)}. Del franquiciado: ${money(est.franchiseeProfit)}.${est.franchiseeProfit < 0 ? ' Ya empieza perdiendo dinero.' : ''}\n\nSi el franquiciado pierde dinero 4 meses seguidos, quebrará... y vendrá a pedirte explicaciones: recomprarle el local cuesta devolverle el canon.`, 'Firmar');
+          `Un emprendedor local te paga ${money(franchiseFee(s, el.dataset.type))} de canon y monta la tienda con su dinero. Tú le vendes los sobaos a precio mayorista y cobras un 5 % de royalties.\n\nCambio mensual del neto de la empresa${od.delta != null ? ' (después de impuestos)' : ' (antes de impuestos)'}: ${money(est.delta)}. Del franquiciado: ${money(est.franchiseeProfit)}.${est.franchiseeProfit < 0 ? ' Ya empieza perdiendo dinero.' : ''}\n\nSi el franquiciado pierde dinero 4 meses seguidos, quebrará... y vendrá a pedirte explicaciones: recomprarle el local cuesta devolverle el canon. Si quiebra en sus primeros 12 meses y le dices que le faltó mentalidad, la demanda es segura y le devuelves el canon (mínimo 30.000 €); después, un 40 % de riesgo.`, 'Firmar');
         if (!ok) return;
       }
       if (el.dataset.mode === 'ilegal' && !(await confirmModal('Pisos sin licencia', 'Abres los pisos turísticos sin licencia. Te ahorras 120.000 €, pero cada mes hay una probabilidad de que el ayuntamiento te pille (multa de 40.000 € o más) y el radar de Hacienda sube.', 'Arriesgarse'))) return;
@@ -565,9 +571,10 @@ async function onClick(e) {
     case 'sell': {
       const b = s.businesses.find((x) => x.id === Number(el.dataset.id));
       if (!b) return;
-      const t = BUSINESS_TYPES[b.type];
-      const ok = await confirmModal(b.mode === 'franquicia' ? 'Rescindir la franquicia' : `Vender ${t.name}`,
-        b.mode === 'franquicia' ? 'Dejarás de cobrar royalties y de venderle sobaos.' : `Te dan ${money(Math.round((b.value || 0) * (t.realEstate ? 0.9 : 0.6)))}. El mercado de segunda mano es cruel.`, 'Hacerlo');
+      // Mismas cifras y misma negativa que sellBusiness: rescindir devuelve el canon.
+      const q = sellPrompt(s, b);
+      if (!q.ok) { toast(q.text, 'bad', 4500); return; }
+      const ok = await confirmModal(q.title, q.text, 'Hacerlo');
       if (!ok) return;
       res = sellBusiness(s, b.id);
       break;
@@ -606,15 +613,18 @@ async function onClick(e) {
       res = repay(s, el.dataset.amount === 'all' ? Infinity : LOAN_STEP);
       if (res.ok) toast(`Devueltos ${money(res.amount)}`, 'info');
       break;
-    case 'manolo':
+    case 'manolo': {
       if (!(await clauseOk(s, (c) => doManoloAction(c, el.dataset.id)))) return;
+      const before = resultSnapshot(s);
       res = doManoloAction(s, el.dataset.id);
-      // El resultado va al bocadillo de Manolo (hasta el cierre) y a un toast; no para el juego.
+      // El resultado va al bocadillo de Manolo (hasta el cierre) y a un toast; no para el juego. Con el radar real.
       if (res.ok) {
+        res.text = honestRadarText(res.text, before, s);
         game.bubble = { month: s.month, text: res.text };
         toast(`😎 ${res.text}`, 'info', Math.max(2600, res.text.length * 45));
       }
       break;
+    }
     case 'upgrade-biz':
       res = upgradeBusiness(s, Number(el.dataset.id));
       if (res.ok) {
@@ -932,16 +942,23 @@ async function endMonth() {
   const prev = { rep: s.rep, moral: s.moral, fama: s.fama, ht: s.heatTrabajo, hh: s.heatHacienda, agr: s.agravio || 0, idle: !s.actionUsed && !(s.restMonths > 0) };
   const prevReport = s.lastReport;
   const head = s.log[0];
+  // Los modificadores con los que se cierra el mes (los de un mes caducan dentro del cierre).
+  const mods = s.mods.map((m) => ({ ...m }));
   const r = advanceMonth(s);
   renderAll();
   if (r) {
     game.map.showProfits(r);
     play(r.net >= 0 ? 'cash' : 'loss');
-    await showReport(r, prev, monthDigest(prevReport, r, s, head));
+    await showReport(r, prev, monthDigest(prevReport, r, s, head, mods));
     game.map.playProfits();
     const nAlerts = Object.values(cityAlerts(s)).reduce((a, l) => a + l.length, 0);
-    $('#map-live').textContent = `${dateLabel(r.month)}: resultado ${moneyShort(r.net)}, ${plural(s.businesses.length, 'negocio', 'negocios')}${nAlerts ? `, ${nAlerts} ${nAlerts === 1 ? 'alerta' : 'alertas'} en el mapa` : ''}.`;
-    if (r.month % 12 === 11) await showYearSummary(s, r);
+    // Se cuenta como en Imperio: los negocios más el obrador de Selaya.
+    $('#map-live').textContent = `${dateLabel(r.month)}: resultado ${moneyShort(r.net)}, ${plural(s.businesses.length + 1, 'negocio', 'negocios')} contando el obrador${nAlerts ? `, ${nAlerts} ${nAlerts === 1 ? 'alerta' : 'alertas'} en el mapa (lista en Imperio → Resumen)` : ''}.`;
+    if (r.month % 12 === 11) {
+      await showYearSummary(s, r);
+      // El patrimonio con el que empieza el año es el que se acaba de enseñar como final del anterior.
+      if (game.s === s) s.yearOpen = { month: s.month, patrimonio: Math.round(patrimonio(s)) };
+    }
   }
   game.busy = false;
   await processQueue();
@@ -953,8 +970,8 @@ function showYearSummary(s, r) {
   const months = s.history.filter((h) => Math.floor(h.month / 12) === Math.floor(r.month / 12));
   const revenue = months.reduce((a, h) => a + h.revenue, 0);
   const net = months.reduce((a, h) => a + h.net, 0);
-  const startPat = s.history.find((h) => h.month === r.month - 12)?.patrimonio ?? months[0]?.patrimonio ?? 0;
-  const endPat = months[months.length - 1]?.patrimonio ?? 0;
+  // Inicio y final como los marcaba el HUD (con la fecha del inicio si no hay marca de enero).
+  const pat = yearWealth(s, r);
   const lines = r.lines.filter((l) => l.id !== 'obrador' && l.type !== 'obrador_regional').map((l) => ({ ...l, p: l.revenue - l.cost })).sort((a, b) => b.p - a.p);
   const best = lines[0];
   const worst = lines[lines.length - 1];
@@ -967,7 +984,7 @@ function showYearSummary(s, r) {
       <div class="muted small">Beneficio neto de ${year}</div>
       <table class="tbl pl">
         <tr><td>Facturación del año</td><td>${money(revenue)}</td></tr>
-        <tr><td>Patrimonio</td><td>${moneyShort(startPat)} → <b>${moneyShort(endPat)}</b></td></tr>
+        <tr><td>Patrimonio (${esc(pat.startLabel)} → hoy)</td><td>${moneyShort(pat.start)} → <b>${moneyShort(pat.end)}</b></td></tr>
         <tr><td>Negocios abiertos este año</td><td>${opened}</td></tr>
         ${best ? `<tr><td>Mejor negocio (diciembre)</td><td>${esc(best.label)} · ${esc(CITY_BY_ID[best.city]?.name || '')} <span class="pos">${moneyShort(best.p)}</span></td></tr>` : ''}
         ${worst && worst !== best ? `<tr><td>Peor negocio (diciembre)</td><td>${esc(worst.label)} · ${esc(CITY_BY_ID[worst.city]?.name || '')} <span class="${worst.p >= 0 ? 'pos' : 'neg'}">${moneyShort(worst.p)}</span></td></tr>` : ''}
@@ -993,10 +1010,13 @@ function digestHtml(d) {
   const narrow = window.matchMedia('(max-width: 600px)').matches;
   const block = (title, body, n) => (narrow ? `<details class="digest"><summary>${title} (${n}) · tocar para ver</summary>${body}</details>` : `<h4>${title}</h4>${body}`);
   let html = '';
-  if (d.drivers.length) {
+  // Las partidas listadas más «Resto de partidas» suman la variación del neto.
+  const rows = [...d.drivers, ...(d.rest ? [d.rest] : [])];
+  if (rows.length) {
     html += `<h4>Por qué ${d.prevNet != null ? `(frente a ${fmtDelta(d.prevNet).replace('+', '')} el mes pasado)` : ''}</h4><ul class="why digest-drivers">
-      ${d.drivers.map((x) => `<li><span>${esc(x.label)}${x.reason ? `<small>${esc(x.reason)}</small>` : ''}</span><b class="${x.delta >= 0 ? 'pos' : 'neg'}">${fmtDelta(x.delta)}</b></li>`).join('')}</ul>`;
+      ${rows.map((x) => `<li><span>${esc(x.label)}${x.reason ? `<small>${esc(x.reason)}</small>` : ''}</span><b class="${x.delta >= 0 ? 'pos' : 'neg'}">${fmtDelta(x.delta)}</b></li>`).join('')}</ul>`;
   }
+  if (d.revenueMods?.length) html += `<p class="small muted">Modificadores de demanda en este cierre: ${d.revenueMods.slice(0, 4).map((m) => esc(m.text)).join(' · ')}${d.revenueMods.length > 4 ? ` y ${d.revenueMods.length - 4} más` : ''}.</p>`;
   if (d.fresh.items.length) {
     html += block('Este mes', `<ul class="digest-list">${d.fresh.items.map((e) => `<li class="${e.tone}">${esc(e.text)}</li>`).join('')}</ul>${d.fresh.more ? `<p class="small muted">…y ${d.fresh.more} más en el Archivo.</p>` : ''}`, d.fresh.items.length + (d.fresh.more || 0));
   }
@@ -1015,9 +1035,9 @@ function showReport(r, prev, digest) {
         <tr><td>Costes</td><td class="neg">−${money(r.totalCost)}</td></tr>
         <tr><td>Impuestos</td><td class="neg">−${money(r.tax)}</td></tr>
       </table>
-      ${r.fill < 0.999 ? `<p class="warn small">⚠️ El obrador solo ha servido el ${fillPct(r.fill)} de la demanda de sobaos. <a href="#" data-act="goto-city" data-city="selaya">Amplíalo en Selaya</a>: con el obrador lleno, cada tienda nueva vende menos.</p>` : ''}
+      ${(() => { const ob = obradorNote(r, s); return ob ? `<p class="${ob.short ? 'warn' : 'muted'} small">⚠️ ${esc(ob.text)}${ob.short ? ` <a href="#" data-act="goto-city" data-city="selaya">Amplíalo en Selaya</a>: con el obrador lleno, cada tienda nueva vende menos.` : ''}</p>` : ''; })()}
       ${r.evaded > 0 ? `<p class="small">🧾 Impuestos "optimizados" este mes: ${money(r.evaded)}.</p>` : ''}
-      ${prev.idle ? '<p class="small">😎 Este mes Manolo no hizo su <b>acción del mes</b>. Cada mes puede hacer una desde la pestaña Manolo: networking, una charla a la plantilla, una cena familiar...</p>' : ''}
+      ${prev.idle && idleReminder(r.month) ? '<p class="small">😎 Este mes Manolo no hizo su <b>acción del mes</b>. Cada mes puede hacer una desde Vida → Manolo: networking, una charla a la plantilla, una cena familiar...</p>' : ''}
       <div class="deltas">
         ${delta('Reputación', prev.rep, s.rep, false, 'rep')}${delta('Moral', prev.moral, s.moral, false, 'moral')}${delta('Fama', prev.fama, s.fama, false, 'fama')}
         ${delta('Radar Inspección', prev.ht, s.heatTrabajo, true, 'heatTrabajo')}${delta('Radar Hacienda', prev.hh, s.heatHacienda, true, 'heatHacienda')}${prev.agr != null ? delta('Agravio', prev.agr, s.agravio || 0, true, 'agravio') : ''}
@@ -1046,16 +1066,21 @@ async function runQueue(s) {
     // Al elegir se resuelve la carta y el resultado sale en el mismo diálogo, salvo que sea menor (o una
     // costumbre repetida por tercera vez seguida): entonces va a un toast y al registro.
     const resolve = (i) => {
-      // La primera vez que sale una carta, su resultado se enseña siempre en el diálogo.
-      const seenBefore = s.seen?.[p.pending.id] != null;
+      // La primera vez que se resuelve una carta, su resultado se enseña siempre en el diálogo
+      // (s.seen no vale: sim.js lo anota al encolarla).
+      const first = firstResult(s, p.pending.id);
+      noteResult(s, p.pending.id);
       const before = resultSnapshot(s);
-      const result = resolvePending(s, p.choices[Math.max(0, i)].index);
+      // Si el texto promete bajar un radar más de lo que marcaba, se dice lo que ha bajado de verdad.
+      const result = honestRadarText(resolvePending(s, p.choices[Math.max(0, i)].index), before, s);
       resolved = true;
       renderAll();
       const repeat = p.event.quickRepeat && custom(s, p.pending.id).streak >= 3;
-      if (repeat || (seenBefore && isMinorResult(p.pending.id, result, before, resultSnapshot(s)))) {
+      if (repeat || (!first && isMinorResult(p.pending.id, result, before, resultSnapshot(s)))) {
         log(s, `${repeat ? '↺' : '•'} ${p.title}: ${result}`, 'info');
         toast(`${repeat ? '↺ ' : ''}${p.title}: ${result}`, 'info', Math.max(3500, (p.title.length + result.length) * 50));
+        // El diálogo que se abra justo después ignora un rato el segundo clic de costumbre.
+        guardNextModal();
         return null;
       }
       return { text: result };

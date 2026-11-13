@@ -1,5 +1,34 @@
 # Cambios
 
+## 0.23.0 — Segunda y tercera ronda de la auditoría
+
+Otras dos rondas de jugadores simulados sobre la interfaz real. Esta vez un modelo analiza y coordina, otro
+implementa por frentes con ficheros separados, y un revisor intenta desmentir cada arreglo antes de integrarlo.
+
+- **Navegación:** el área «Manolo» pasa a llamarse **Vida** (ya no se repite con su pestaña) y cada área dice
+  qué menús abre. Todos los botones, casillas y enlaces tienen nombre propio («Abrir Sobaos Manolo Express en
+  Selaya (24 k€)», «Fichar a … para …»).
+- **Ciudades recomendadas** siguen hasta la tercera tienda, marcan lo que rompería la cláusula del testamento y
+  no recomiendan aperturas en pérdidas. Si el obrador es el cuello de botella lo dicen, con la salida concreta:
+  qué ampliación, cuánto cuesta, cuánto añade y cuánta póliza tienes para pagarla.
+- **La misma cifra en todas partes:** Ciudad, el botón de franquicia, su confirmación e Imperio → Aperturas
+  enseñan el cambio mensual del neto después de impuestos. Aperturas nombra el negocio y da la estimación
+  también cuando solo falta caja.
+- **Informe del mes:** el «Por qué» suma («Resto de partidas»), cita los modificadores de demanda activos, dice
+  de qué mes es la cobertura del obrador y no la contradice con el panel; el balance anual usa el patrimonio que
+  mostraba el indicador; los radares ya no anuncian bajadas mayores que su valor.
+- **Resultados de cartas:** la primera vez se enseñan siempre (la 0.22 lo intentaba, pero la marca se escribía
+  al encolar la carta); tras un aviso, la carta siguiente no acepta pulsaciones durante 900 ms. El resultado de
+  la acción de Manolo se ve en su tarjeta, también en el móvil, y el recordatorio de la acción sale 5 veces el
+  primer año en vez de cada mes.
+- **Trucos cerrados:** la póliza por pádel (100.000, 50.000, 25.000 € y basta, en 24 meses) y por congresos; los
+  rivales solo compran locales con 12 meses abiertos y sin reformar en ese plazo; una franquicia que quiebra en
+  su primer año te demanda seguro si le dices que le faltó mentalidad (devuelves el canon, mínimo 30.000 €), y
+  ese canon se provisiona en el patrimonio desde la firma si nace en pérdidas. Rescindir dice lo que cuesta.
+- «Llega la competencia» deja al menos 6 meses entre rivales nuevos y sus opciones dicen su efecto.
+- Alertas del mapa en lista (Imperio → Resumen); la tarjeta de viviendas se pliega si no hay caja ni hacen falta.
+- 50 regresiones nuevas en tres ficheros `tests/*-round2.test.js`.
+
 ## 0.22.0 — La primera hora, auditada
 
 Cinco agentes jugaron la interfaz real como jugadores nuevos (impaciente, lector, móvil, ambicioso y curioso),
